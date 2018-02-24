@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createJWT() creates a JWT with correct format 1`] = `
+Object {
+  "header": Object {
+    "alg": "ES256K",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "0x001122",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "L0rjVxN1lT1AklZXT49EVPtYsQLZ4vVvtqnsBD5AOCwySoff_0Lff7IPg-A43eUCAPuGVBblKx1flYDt8T87TQ",
+}
+`;
+
+exports[`verifyJWT() accepts a valid audience 1`] = `
+Object {
+  "aud": "0x001122",
+  "iat": 1485321133,
+  "iss": "0x001122",
+}
+`;
+
+exports[`verifyJWT() accepts a valid audience using callback_url 1`] = `
+Object {
+  "aud": "http://pututu.uport.me/unique",
+  "iat": 1485321133,
+  "iss": "0x001122",
+}
+`;
+
+exports[`verifyJWT() accepts a valid exp 1`] = `
+Object {
+  "exp": 1485321134,
+  "iat": 1485321133,
+  "iss": "0x001122",
+}
+`;
+
+exports[`verifyJWT() accepts a valid iat 1`] = `
+Object {
+  "iat": 1485321193,
+  "iss": "0x001122",
+}
+`;
+
+exports[`verifyJWT() verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "0x001122",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;
