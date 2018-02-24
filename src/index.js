@@ -1,4 +1,4 @@
 import SimpleSigner from './SimpleSigner'
-import JWT from './JWT'
+import { verifyJWT, createJWT } from './JWT'
 
-module.exports = { SimpleSigner, JWT }
+module.exports = { SimpleSigner, verifyJWT, createJWT, decodeJWT }
