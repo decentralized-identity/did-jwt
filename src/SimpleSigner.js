@@ -22,13 +22,13 @@ function leftpad (data, size = 64) {
 
 function SimpleSigner (hexPrivateKey) {
   const privateKey = secp256k1.keyFromPrivate(hexPrivateKey)
-  return (data, callback) => {
+  return async (data) => {
     const {r, s, recoveryParam} = privateKey.sign(data)
-    callback(null, {
+    return {
       r: leftpad(r.toString('hex')),
       s: leftpad(s.toString('hex')),
       recoveryParam
-    })
+    }
   }
 }
 
