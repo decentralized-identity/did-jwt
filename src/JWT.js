@@ -1,4 +1,4 @@
-import { isMNID, decode } from 'mnid'
+import { isMNID } from 'mnid'
 import Verifier from './Verifier'
 import Signer from './Signer'
 import base64url from 'base64url'
@@ -94,8 +94,8 @@ export async function verifyJWT ({address}, jwt, callbackUrl = null) {
   const aud = address ? normalizeDID(address) : undefined
   const {payload, header, signature} = decodeJWT(jwt)
   const {doc, authenticators, did} = await resolveAuthenticator(header.alg, payload.iss)
-  const signerKeyId = Verifier(header.alg)(jwt, payload, signature, authenticators)
-  if (signerKeyId) {
+  const signer = Verifier(header.alg)(jwt, payload, signature, authenticators)
+  if (signer) {
     if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
       throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${Date.now() / 1000}`)
     }
@@ -120,7 +120,7 @@ export async function verifyJWT ({address}, jwt, callbackUrl = null) {
         }
       }
     }
-    return ({payload, doc, did, signerKeyId, jwt})
+    return ({payload, doc, did, signer, jwt})
   } else {
     throw new Error('Signature invalid for JWT')
   }

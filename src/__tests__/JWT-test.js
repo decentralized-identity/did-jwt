@@ -74,8 +74,8 @@ describe('verifyJWT()', () => {
     })
   })
 
-  it('verifies the JWT and return correct signerKeyId', () => {
-    return verifyJWT({address: did}, incomingJwt).then(({signerKeyId}) => expect(signerKeyId).toEqual(`${did}#keys-1`))
+  it('verifies the JWT and return correct signer', () => {
+    return verifyJWT({address: did}, incomingJwt).then(({signer}) => expect(signer).toEqual(didDoc.publicKey[0]))
   })
 
   const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'

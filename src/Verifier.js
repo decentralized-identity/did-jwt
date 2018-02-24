@@ -18,8 +18,7 @@ export function ES256KVerifier () {
   }
 
   return function verify (jwt, payload, signature, authenticators) {
-    const authenticator = authenticators.find(({publicKeyHex}) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash(jwt), toSignatureObject(signature)))
-    if (authenticator) return authenticator.id || authenticator.owner
+    return authenticators.find(({publicKeyHex}) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash(jwt), toSignatureObject(signature)))
   }
 }
 
