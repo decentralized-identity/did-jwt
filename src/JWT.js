@@ -50,19 +50,28 @@ export function decodeJWT (jwt) {
 *      ...
 *  })
 *
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.address     address, typically the uPort address of the signer which becomes the issuer
-*  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
 *  @param    {Object}            payload            payload object
+*  @param    {Object}            [config]           an unsigned credential object
+*  @param    {String}            config.issuer         address, typically the uPort address of the signer which becomes the issuer
+*  @param    {String}            config.alg         The JWT signing algorithm to use. Supports: [ES256K], Defaults to: ES256K
+*  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
-export async function createJWT ({address, signer, alg}, payload) {
+export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
   if (!signer) throw new Error('No Signer functionality has been configured')
-  if (!address) throw new Error('No application identity address has been configured')
-  const iss = normalizeDID(address)
+  if (!issuer) throw new Error('No issuing DID has been configured')
   const header = {...JOSE_HEADER, alg: alg || defaultAlg}
+  const timestamps = { iat: Math.floor(Date.now() / 1000) }
+  if (expiresIn) {
+    if (typeof expiresIn === 'number') {
+      timestamps.exp = timestamps.iat + Math.floor(expiresIn)
+    } else {
+      throw new Error('JWT expiresIn is not a number')
+    }
+
+  }
   const signingInput = [encodeSection(header),
-    encodeSection({ iss, iat: Math.floor(Date.now() / 1000), ...payload })
+    encodeSection({...timestamps, ...payload, iss: normalizeDID(issuer)})
   ].join('.')
 
   const jwtSigner = Signer(header.alg)
@@ -72,10 +81,10 @@ export async function createJWT ({address, signer, alg}, payload) {
 
 /**
 *  Verifies given JWT. If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
-*  and the profile of the issuer of the JWT.
+*  and the did doc of the issuer of the JWT.
 *
 *  @example
-*  verifyJWT({address: '5A8bRWU3F7j3REx3vkJ...'}, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....').then(obj => {
+*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {aud: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
        const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
@@ -84,16 +93,16 @@ export async function createJWT ({address, signer, alg}, payload) {
 *      ...
 *  })
 *
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.address     address, typically the uPort address of the signer which becomes the issuer
 *  @param    {String}            jwt                a JSON Web Token to verify
-*  @param    {String}            callbackUrl        callback url in JWT
+*  @param    {Object}            [config]           an unsigned credential object
+*  @param    {String}            config.aud         DID of the recipient of the JWT
+*  @param    {String}            config.callbackUrl        callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
-export async function verifyJWT ({address}, jwt, callbackUrl = null) {
-  const aud = address ? normalizeDID(address) : undefined
+export async function verifyJWT (jwt, options = {}) {
+  const aud = options.audience ? normalizeDID(options.audience) : undefined
   const {payload, header, signature} = decodeJWT(jwt)
-  const {doc, authenticators, did} = await resolveAuthenticator(header.alg, payload.iss)
+  const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss)
   const signer = Verifier(header.alg)(jwt, payload, signature, authenticators)
   if (signer) {
     if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
@@ -112,15 +121,15 @@ export async function verifyJWT ({address}, jwt, callbackUrl = null) {
           throw new Error(`JWT audience does not match your DID: aud: ${payload.aud} !== yours: ${aud}`)
         }
       } else {
-        if (!callbackUrl) {
+        if (!options.callbackUrl) {
           throw new Error('JWT audience matching your callback url is required but one wasn\'t passed in')
         }
-        if (payload.aud !== callbackUrl) {
-          throw new Error(`JWT audience does not match the callback url: aud: ${payload.aud} !== url: ${callbackUrl}`)
+        if (payload.aud !== options.callbackUrl) {
+          throw new Error(`JWT audience does not match the callback url: aud: ${payload.aud} !== url: ${options.callbackUrl}`)
         }
       }
     }
-    return ({payload, doc, did, signer, jwt})
+    return ({payload, doc, issuer, signer, jwt})
   } else {
     throw new Error('Signature invalid for JWT')
   }
@@ -145,12 +154,12 @@ export async function verifyJWT ({address}, jwt, callbackUrl = null) {
 export async function resolveAuthenticator (alg, mnidOrDid) {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) throw new Error(`No supported signature types for algorithm ${alg}`)
-  const did = normalizeDID(mnidOrDid)
-  const doc = await resolve(did)
-  if (!doc) throw new Error(`Unable to resolve DID document for ${did}`)
+  const issuer = normalizeDID(mnidOrDid)
+  const doc = await resolve(issuer)
+  if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   const authenticators = (doc.publicKey || []).filter(({type}) => types.find(supported => supported === type))
-  if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${did} does not have public keys for ${alg}`)
-  return {authenticators, did, doc}
+  if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
+  return {authenticators, issuer, doc}
 }
 
 export default { decodeJWT, createJWT, verifyJWT, resolveAuthenticator }
