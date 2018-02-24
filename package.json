@@ -43,7 +43,7 @@
     "regenerator-runtime": "^0.11.1",
     "sinon": "^4.0.1",
     "standard": "^11.0.0",
-    "webpack": "1.14.0"
+    "webpack": "^3.11.0"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",

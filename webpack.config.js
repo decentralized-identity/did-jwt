@@ -11,15 +11,14 @@ module.exports = {
       },
       {
         test: /\.json$/,
-        loader: 'json',
+        loader: 'json-loader',
       },
     ],
   },
   output: {
-    filename: 'uport.js',
+    filename: 'uport-jwt.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'umd',
-    umdNamedDefine: true,
-    library: 'Uport'
+    umdNamedDefine: true
   }
 }
