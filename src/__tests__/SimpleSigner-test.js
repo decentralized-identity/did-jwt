@@ -7,12 +7,7 @@ const signature = {
   s: '4eb3807bd179295aa65b18c4d9c34cc0fe026dc03bd9ecbdaeb1f1b0893befa7',
   recoveryParam: 1
 }
-it('signs data', () => {
+it('signs data', async () => {
   const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
-  return new Promise((resolve, reject) => {
-    signer(plaintext, (error, signature) => {
-      if (error) return reject(error)
-      resolve(signature)
-    })
-  }).then(result => expect(result).toEqual(signature))
+  return expect(signer(plaintext)).resolves.toEqual(signature)
 })

@@ -16,13 +16,9 @@ export function ES256KSigner () {
     return base64url.encode(jose)
   }
 
-  return function sign (payload, signer) {
-    return new Promise((resolve, reject) => {
-      signer(hash(payload), (error, signature) => {
-        if (error) return resolve(new Error(error))
-        resolve(toJose(signature))
-      })
-    })
+  return async function sign (payload, signer) {
+    const signature = await signer(hash(payload))
+    return toJose(signature)
   }
 }
 
