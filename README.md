@@ -162,8 +162,8 @@ Your function must returns a Promise.
 
 A successfull call returns an object containing the following attributes:
 
-Name | Description
----- | -----------
+Name | Description | Required
+---- | ----------- | --------
 `r` | Hex encoded `r` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `s` | Hex encoded `s` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | no
