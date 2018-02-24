@@ -2,18 +2,31 @@ import { isMNID, decode } from 'mnid'
 import Verifier from './Verifier'
 import Signer from './Signer'
 import base64url from 'base64url'
+import resolve from 'did-resolver'
+import registerUport from 'uport-did-resolver'
 
-const JOSE_HEADER = {typ: 'JWT', alg: 'ES256K'}
+registerUport()
+
+const SUPPORTED_PUBLIC_KEY_TYPES = {
+  ES256K: ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1']
+}
+
+const JOSE_HEADER = {typ: 'JWT'}
+const defaultAlg = 'ES256K'
 
 function encodeSection (data) {
   return base64url.encode(JSON.stringify(data))
 }
 
-const ENCODED_HEADER = encodeSection(JOSE_HEADER)
-
 export const IAT_SKEW = 60
 
 /**  @module uport-jwt/JWT */
+
+function normalizeDID (mnidOrDid) {
+  if (mnidOrDid.match(/^did:/)) return mnidOrDid
+  if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
+  throw new Error(`Not a valid DID '${mnidOrDid}'`)
+}
 
 export function decodeJWT (jwt) {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
@@ -43,48 +56,46 @@ export function decodeJWT (jwt) {
 *  @param    {Object}            payload            payload object
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
-export async function createJWT ({address, signer}, payload) {
-  const signingInput = [ENCODED_HEADER,
-    encodeSection({iss: address, iat: Math.floor(Date.now() / 1000), ...payload })
-  ].join('.')
-
+export async function createJWT ({address, signer, alg}, payload) {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!address) throw new Error('No application identity address has been configured')
+  const iss = normalizeDID(address)
+  const header = {...JOSE_HEADER, alg: alg || defaultAlg}
+  const signingInput = [encodeSection(header),
+    encodeSection({ iss, iat: Math.floor(Date.now() / 1000), ...payload })
+  ].join('.')
 
-  const jwtSigner = Signer(JOSE_HEADER.alg)
+  const jwtSigner = Signer(header.alg)
   const signature = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
 }
 
 /**
-*  Verifies given JWT. Registry is used to resolve uPort address to public key for verification.
-*  If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
+*  Verifies given JWT. If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
 *  and the profile of the issuer of the JWT.
 *
 *  @example
-*  const registry =  new UportLite()
-*  verifyJWT({registry, address: '5A8bRWU3F7j3REx3vkJ...'}, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....').then(obj => {
+*  verifyJWT({address: '5A8bRWU3F7j3REx3vkJ...'}, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....').then(obj => {
+       const did = obj.did // DID of signer
 *      const payload = obj.payload
-*      const profile = obj.profile
+*      const doc = obj.doc // DID Document of signer
 *      const jwt = obj.jwt
+*      const signerKeyId = obj.signerKeyId // ID of key in DID document that signed JWT
 *      ...
 *  })
 *
 *  @param    {Object}            [config]           an unsigned credential object
 *  @param    {String}            config.address     address, typically the uPort address of the signer which becomes the issuer
-*  @param    {UportLite}         config.registry    a uPort registry, reference our uport-lite library
 *  @param    {String}            jwt                a JSON Web Token to verify
 *  @param    {String}            callbackUrl        callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
-export async function verifyJWT ({registry, address}, jwt, callbackUrl = null) {
+export async function verifyJWT ({address}, jwt, callbackUrl = null) {
+  const aud = address ? normalizeDID(address) : undefined
   const {payload, header, signature} = decodeJWT(jwt)
-  if (header.alg !== JOSE_HEADER.alg) throw new Error(`Unsupport JWT algorithm ${header.alg}`)
-  const profile = await registry(payload.iss)
-  if (!profile) throw new Error('No profile found, unable to verify JWT')
-  const publicKey = profile.publicKey.match(/^0x/) ? profile.publicKey.slice(2) : profile.publicKey
-
-  if (Verifier(header.alg)(jwt, payload, signature, publicKey)) {
+  const {doc, authenticators, did} = await resolveAuthenticator(header.alg, payload.iss)
+  const signerKeyId = Verifier(header.alg)(jwt, payload, signature, authenticators)
+  if (signerKeyId) {
     if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
       throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${Date.now() / 1000}`)
     }
@@ -92,15 +103,13 @@ export async function verifyJWT ({registry, address}, jwt, callbackUrl = null) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${Date.now() / 1000}`)
     }
     if (payload.aud) {
-      if (payload.aud.match(/^0x[0-9a-fA-F]+$/) || isMNID(payload.aud)) {
-        if (!address) {
+      if (payload.aud.match(/^did:/)) {
+        if (!aud) {
           throw new Error('JWT audience is required but your app address has not been configured')
         }
 
-        const addressHex = isMNID(address) ? decode(address).address : address
-        const audHex = isMNID(payload.aud) ? decode(payload.aud).address : payload.aud
-        if (audHex !== addressHex) {
-          throw new Error(`JWT audience does not match your address: aud: ${payload.aud} !== yours: ${address}`)
+        if (aud !== payload.aud) {
+          throw new Error(`JWT audience does not match your DID: aud: ${payload.aud} !== yours: ${aud}`)
         }
       } else {
         if (!callbackUrl) {
@@ -111,10 +120,37 @@ export async function verifyJWT ({registry, address}, jwt, callbackUrl = null) {
         }
       }
     }
-    return ({payload, profile, jwt})
+    return ({payload, doc, did, signerKeyId, jwt})
   } else {
     throw new Error('Signature invalid for JWT')
   }
 }
 
-export default { createJWT, verifyJWT }
+/**
+* Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
+*
+*  @example
+*  resolveAuthenticator('did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
+*      const payload = obj.payload
+*      const profile = obj.profile
+*      const jwt = obj.jwt
+*      ...
+*  })
+*
+*  @param    {String}            alg                a JWT algorithm
+*  @param    {String}            did                a Decentralized IDentifier (DID) to lookup
+*  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
+*/
+
+export async function resolveAuthenticator (alg, mnidOrDid) {
+  const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
+  if (!types || types.length === 0) throw new Error(`No supported signature types for algorithm ${alg}`)
+  const did = normalizeDID(mnidOrDid)
+  const doc = await resolve(did)
+  if (!doc) throw new Error(`Unable to resolve DID document for ${did}`)
+  const authenticators = (doc.publicKey || []).filter(({type}) => types.find(supported => supported === type))
+  if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${did} does not have public keys for ${alg}`)
+  return {authenticators, did, doc}
+}
+
+export default { decodeJWT, createJWT, verifyJWT, resolveAuthenticator }

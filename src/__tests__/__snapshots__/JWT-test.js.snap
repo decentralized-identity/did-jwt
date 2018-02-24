@@ -8,21 +8,21 @@ Object {
   },
   "payload": Object {
     "iat": 1485321133,
-    "iss": "0x001122",
+    "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
     "requested": Array [
       "name",
       "phone",
     ],
   },
-  "signature": "L0rjVxN1lT1AklZXT49EVPtYsQLZ4vVvtqnsBD5AOCwySoff_0Lff7IPg-A43eUCAPuGVBblKx1flYDt8T87TQ",
+  "signature": "1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw",
 }
 `;
 
 exports[`verifyJWT() accepts a valid audience 1`] = `
 Object {
-  "aud": "0x001122",
+  "aud": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
   "iat": 1485321133,
-  "iss": "0x001122",
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
 `;
 
@@ -30,7 +30,7 @@ exports[`verifyJWT() accepts a valid audience using callback_url 1`] = `
 Object {
   "aud": "http://pututu.uport.me/unique",
   "iat": 1485321133,
-  "iss": "0x001122",
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
 `;
 
@@ -38,21 +38,21 @@ exports[`verifyJWT() accepts a valid exp 1`] = `
 Object {
   "exp": 1485321134,
   "iat": 1485321133,
-  "iss": "0x001122",
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
 `;
 
 exports[`verifyJWT() accepts a valid iat 1`] = `
 Object {
   "iat": 1485321193,
-  "iss": "0x001122",
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
 `;
 
 exports[`verifyJWT() verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,
-  "iss": "0x001122",
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
   "requested": Array [
     "name",
     "phone",
