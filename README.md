@@ -3,10 +3,21 @@
 The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519). Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the `iss` claim of the JWT.
 
 ## JWT Details
+
 ### Algorithms supported
 
 - `ES256K` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
 - `ES256K-R` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1) with recovery parameter
+
+### DID PublicKey Types
+
+The `PublicKey` section of a DID document contains one or more Public Keys. We support the following types:
+
+Name | Encoding | Algorithm's
+---- | -------- | -----------
+`Secp256k1SignatureVerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
+`EcdsaPublicKeySecp256k1` | `publicKeyHex` | `ES256K`, `ES256K-R`
+`EthereumAddress` | `address` | `ES256K-R`
 
 ### Claims
 

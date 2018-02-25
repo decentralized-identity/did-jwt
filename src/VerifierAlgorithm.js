@@ -9,7 +9,7 @@ export function toSignatureObject (signature, recoverable = false) {
   const rawsig = base64url.toBuffer(signature)
   if (rawsig.length !== (recoverable ? 65 : 64)) throw new Error('wrong signature length')
   const r = rawsig.slice(0, 32).toString('hex')
-  const s = rawsig.slice(32, 63).toString('hex')
+  const s = rawsig.slice(32, 64).toString('hex')
   const sigObj = {r, s}
   if (recoverable) {
     sigObj.recoveryParam = rawsig[64]
@@ -27,15 +27,11 @@ export function verifyES256K (data, signature, authenticators) {
 
 export function verifyRecoverableES256K (data, signature, authenticators) {
   const sigObj = toSignatureObject(signature, true)
-  console.log(sigObj)
-  const recoveredKey = secp256k1.recoverPubKey(data, sigObj, sigObj.recoveryParam)
+  const hash = sha256(data)
+  const recoveredKey = secp256k1.recoverPubKey(hash, sigObj, sigObj.recoveryParam)
   const recoveredPublicKeyHex = recoveredKey.encode('hex')
   const recoveredCompressedPublicKeyHex = recoveredKey.encode('hex', true)
   const recoveredAddress = toEthereumAddress(recoveredPublicKeyHex)
-  console.log(recoveredPublicKeyHex)
-  console.log(recoveredCompressedPublicKeyHex)
-  console.log(recoveredAddress)
-  console.log(authenticators)
   const signer = authenticators.find(({publicKeyHex, address}) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || address === recoveredAddress)
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer

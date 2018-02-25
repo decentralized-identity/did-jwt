@@ -50,6 +50,22 @@ Object {
 }
 `;
 
+exports[`verifyJWT() handles ES256K-R algorithm 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() handles ES256K-R algorithm with ethereum address 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
+}
+`;
+
 exports[`verifyJWT() verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,

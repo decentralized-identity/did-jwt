@@ -7,7 +7,7 @@ export function ES256KSigner (recoverable = false) {
     Buffer.from(r, 'hex').copy(jose, 0)
     Buffer.from(s, 'hex').copy(jose, 32)
     if (recoverable) {
-      if (!recoveryParam) throw new Error('Signer did not return a recoveryParam')
+      if (recoveryParam === undefined) throw new Error('Signer did not return a recoveryParam')
       jose[64] = recoveryParam
     }
     return base64url.encode(jose)

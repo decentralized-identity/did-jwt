@@ -6,7 +6,8 @@ import MockDate from 'mockdate'
 const NOW = 1485321133
 MockDate.set(NOW * 1000)
 
-const aud = `did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY`
+const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
+const aud = `did:uport:${audMnid}`
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const alg = 'ES256K'
@@ -27,6 +28,17 @@ const didDoc = {
   }]
 }
 
+const ethDidDoc = {
+  '@context': 'https://w3id.org/did/v1',
+  id: did,
+  publicKey: [{
+    id: `${did}#keys-1`,
+    type: 'EthereumAddress',
+    owner: did,
+    address: '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+  }]
+}
+        
 describe('createJWT()', () => {
   it('creates a valid JWT', () => {
     return createJWT({requested: ['name', 'phone']}, {issuer: did, signer}).then((jwt) => {
@@ -67,7 +79,10 @@ describe('createJWT()', () => {
 })
 
 describe('verifyJWT()', () => {
-  registerResolver((id, cb) => { if (mnid === id) cb(null, didDoc) })
+  registerResolver((id, cb) => { 
+    if (mnid === id) cb(null, didDoc)
+    if (audMnid === id) cb(null, ethDidDoc)
+  })
   const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw'
 
   it('verifies the JWT and return correct payload', () => {
@@ -107,6 +122,12 @@ describe('verifyJWT()', () => {
 
   it('handles ES256K-R algorithm', () => {
     return createJWT({hello: 'world'}, {issuer: did, signer, alg: 'ES256K-R'}).then(jwt =>
+      verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
+    )
+  })
+
+  it('handles ES256K-R algorithm with ethereum address', () => {
+    return createJWT({hello: 'world'}, {issuer: aud, signer, alg: 'ES256K-R'}).then(jwt =>
       verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
     )
   })
