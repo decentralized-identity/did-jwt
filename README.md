@@ -5,7 +5,8 @@ The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https:
 ## JWT Details
 ### Algorithms supported
 
-- `ES256k` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
+- `ES256K` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
+- `ES256K-R` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1) with recovery parameter
 
 ### Claims
 
@@ -166,5 +167,5 @@ Name | Description | Required
 ---- | ----------- | --------
 `r` | Hex encoded `r` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `s` | Hex encoded `s` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
-`recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | no
+`recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | only required for (`ES256K-R`)
 

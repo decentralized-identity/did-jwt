@@ -64,7 +64,6 @@ describe('createJWT()', () => {
       return expect(error.message).toEqual('Unsupported algorithm BADALGO')
     })
   })
-
 })
 
 describe('verifyJWT()', () => {
@@ -102,6 +101,12 @@ describe('verifyJWT()', () => {
 
   it('accepts a valid iat', () => {
     return createJWT({iat: NOW + IAT_SKEW}, {issuer: did, signer}).then(jwt =>
+      verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
+    )
+  })
+
+  it('handles ES256K-R algorithm', () => {
+    return createJWT({hello: 'world'}, {issuer: did, signer, alg: 'ES256K-R'}).then(jwt =>
       verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
     )
   })
@@ -260,5 +265,4 @@ describe('resolveAuthenticator()', () => {
       return expect(authenticators).toEqual({authenticators: [ecKey1], issuer: did, doc: singleKey})
     })
   })
-
 })

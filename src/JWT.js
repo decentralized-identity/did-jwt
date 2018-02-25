@@ -1,6 +1,6 @@
 import { isMNID } from 'mnid'
-import Verifier from './Verifier'
-import Signer from './Signer'
+import VerifierAlgorithm from './VerifierAlgorithm'
+import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
 import registerUport from 'uport-did-resolver'
@@ -8,7 +8,8 @@ import registerUport from 'uport-did-resolver'
 registerUport()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
-  ES256K: ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1']
+  ES256K: ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
+  'ES256K-R': ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1', 'EthereumAddress']
 }
 
 const JOSE_HEADER = {typ: 'JWT'}
@@ -35,7 +36,8 @@ export function decodeJWT (jwt) {
     return {
       header: JSON.parse(base64url.decode(parts[1])),
       payload: JSON.parse(base64url.decode(parts[2])),
-      signature: parts[3]
+      signature: parts[3],
+      data: `${parts[1]}.${parts[2]}`
     }
   }
   throw new Error('Incorrect format JWT')
@@ -52,7 +54,7 @@ export function decodeJWT (jwt) {
 *
 *  @param    {Object}            payload            payload object
 *  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.issuer      DID, typically the uPort address of the signer which becomes the issuer
+*  @param    {String}            config.issuer      The DID of the issuer (signer) of JWT
 *  @param    {String}            config.alg         The JWT signing algorithm to use. Supports: [ES256K], Defaults to: ES256K
 *  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
@@ -68,13 +70,12 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
     } else {
       throw new Error('JWT expiresIn is not a number')
     }
-
   }
   const signingInput = [encodeSection(header),
     encodeSection({...timestamps, ...payload, iss: normalizeDID(issuer)})
   ].join('.')
 
-  const jwtSigner = Signer(header.alg)
+  const jwtSigner = SignerAlgorithm(header.alg)
   const signature = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
 }
@@ -101,9 +102,9 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 */
 export async function verifyJWT (jwt, options = {}) {
   const aud = options.audience ? normalizeDID(options.audience) : undefined
-  const {payload, header, signature} = decodeJWT(jwt)
+  const {payload, header, signature, data} = decodeJWT(jwt)
   const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss)
-  const signer = Verifier(header.alg)(jwt, payload, signature, authenticators)
+  const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
   if (signer) {
     if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
       throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${Date.now() / 1000}`)
@@ -131,7 +132,7 @@ export async function verifyJWT (jwt, options = {}) {
     }
     return ({payload, doc, issuer, signer, jwt})
   } else {
-    throw new Error('Signature invalid for JWT')
+    
   }
 }
 
