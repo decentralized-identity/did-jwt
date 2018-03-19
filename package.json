@@ -1,5 +1,5 @@
 {
-  "name": "uport-jwt",
+  "name": "did-jwt",
   "version": "0.0.2",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",

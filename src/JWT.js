@@ -20,7 +20,7 @@ function encodeSection (data) {
 
 export const IAT_SKEW = 60
 
-/**  @module uport-jwt/JWT */
+/**  @module did-jwt/JWT */
 
 function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
@@ -52,7 +52,7 @@ export function decodeJWT (jwt) {
 *
 *  @param    {Object}            payload            payload object
 *  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.issuer         address, typically the uPort address of the signer which becomes the issuer
+*  @param    {String}            config.issuer      DID, typically the uPort address of the signer which becomes the issuer
 *  @param    {String}            config.alg         The JWT signing algorithm to use. Supports: [ES256K], Defaults to: ES256K
 *  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
