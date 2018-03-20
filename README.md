@@ -1,6 +1,6 @@
-# uport-jwt
+# did-jwt
 
-The uPort-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519). Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the `iss` claim of the JWT.
+The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519). Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the `iss` claim of the JWT.
 
 ## JWT Details
 ### Algorithms supported
@@ -20,13 +20,13 @@ Name | Description | Required
 ## Installation
 
 ```bash
-npm install uport-jwt
+npm install did-jwt
 ```
 
 or if you use `yarn`
 
 ```bash
-yarn add uport-jwt
+yarn add did-jwt
 ```
 
 ## API
@@ -36,12 +36,12 @@ yarn add uport-jwt
 Use the `createJWT()` function
 
 ```js
-import { createJWT, SimpleSigner } from 'uport-jwt'
+import { createJWT, SimpleSigner } from 'did-jwt'
 
 const signer = SimpleSigner('PRIVATEKEY')
 
 createJWT(
-    {aud: 'did:uport:did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY', exp: 1485321133, name: 'Bob Smith'},
+    {aud: 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY', exp: 1485321133, name: 'Bob Smith'},
     {issuer: 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX', signer}).then(jwt => {
     console.log(jwt)
 })
@@ -77,7 +77,7 @@ If there are any errors found during the signing process the promise is rejected
 Use the `verifyJWT()` function
 
 ```js
-import { verifyJWT } from 'uport-jwt'
+import { verifyJWT } from 'did-jwt'
 
 verifyJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcn....', {audience: 'Your DID'}).then({payload, doc, did, signer, jwt} => {
     console.log(payload)
@@ -121,7 +121,7 @@ We provide a simple signing abstraction that makes it easy to add support for yo
 For most people you can use our `SimpleSigner()` function to creaate a signer function using a hex encoded private key.
 
 ```js
-import { SimpleSigner } from 'uport-jwt'
+import { SimpleSigner } from 'did-jwt'
 const signer = SimpleSigner('278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f')
 ```
 
