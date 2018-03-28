@@ -32,28 +32,28 @@ const signer = SimpleSigner(privateKey)
 
 const ecKey1 = {
   id: `${did}#keys-1`,
-  type: 'EcdsaPublicKeySecp256k1',
+  type: 'Secp256k1VerificationKey2018',
   owner: did,
   publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
 }
 
 const ecKey2 = {
   id: `${did}#keys-2`,
-  type: 'EcdsaPublicKeySecp256k1',
+  type: 'Secp256k1VerificationKey2018',
   owner: did,
   publicKeyHex: publicKey
 }
 
 const ethAddress = {
   id: `${did}#keys-3`,
-  type: 'EthereumAddress',
+  type: 'Secp256k1VerificationKey2018',
   owner: did,
-  address
+  ethereumAddress: address
 }
 
 const compressedKey = {
   id: `${did}#keys-4`,
-  type: 'EcdsaPublicKeySecp256k1',
+  type: 'Secp256k1VerificationKey2018',
   owner: did,
   publicKeyHex: compressedPublicKey
 }

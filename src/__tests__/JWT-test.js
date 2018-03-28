@@ -22,7 +22,7 @@ const didDoc = {
   id: did,
   publicKey: [{
     id: `${did}#keys-1`,
-    type: 'EcdsaPublicKeySecp256k1',
+    type: 'Secp256k1VerificationKey2018',
     owner: did,
     publicKeyHex: publicKey
   }]
@@ -33,9 +33,9 @@ const ethDidDoc = {
   id: did,
   publicKey: [{
     id: `${did}#keys-1`,
-    type: 'EthereumAddress',
+    type: 'Secp256k1VerificationKey2018',
     owner: did,
-    address: '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+    ethereumAddress: '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
   }]
 }
         
@@ -206,7 +206,7 @@ describe('verifyJWT()', () => {
 describe('resolveAuthenticator()', () => {
   const ecKey1 = {
     id: `${did}#keys-1`,
-    type: 'EcdsaPublicKeySecp256k1',
+    type: 'Secp256k1VerificationKey2018',
     owner: did,
     publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
   }

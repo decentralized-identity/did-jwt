@@ -16,8 +16,8 @@ The `PublicKey` section of a DID document contains one or more Public Keys. We s
 Name | Encoding | Algorithm's
 ---- | -------- | -----------
 `Secp256k1SignatureVerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
-`EcdsaPublicKeySecp256k1` | `publicKeyHex` | `ES256K`, `ES256K-R`
-`EthereumAddress` | `address` | `ES256K-R`
+`Secp256k1VerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
+`Secp256k1VerificationKey2018` | `ethereumAddress` | `ES256K-R`
 
 ### Claims
 
@@ -179,4 +179,3 @@ Name | Description | Required
 `r` | Hex encoded `r` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `s` | Hex encoded `s` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | only required for (`ES256K-R`)
-

@@ -32,7 +32,7 @@ export function verifyRecoverableES256K (data, signature, authenticators) {
   const recoveredPublicKeyHex = recoveredKey.encode('hex')
   const recoveredCompressedPublicKeyHex = recoveredKey.encode('hex', true)
   const recoveredAddress = toEthereumAddress(recoveredPublicKeyHex)
-  const signer = authenticators.find(({publicKeyHex, address}) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || address === recoveredAddress)
+  const signer = authenticators.find(({publicKeyHex, ethereumAddress}) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || ethereumAddress === recoveredAddress)
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }

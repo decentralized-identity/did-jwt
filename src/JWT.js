@@ -8,8 +8,8 @@ import registerUport from 'uport-did-resolver'
 registerUport()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
-  ES256K: ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
-  'ES256K-R': ['Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1', 'EthereumAddress']
+  ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
+  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1']
 }
 
 const JOSE_HEADER = {typ: 'JWT'}
