@@ -25,7 +25,13 @@ const didDoc = {
     type: 'Secp256k1VerificationKey2018',
     owner: did,
     publicKeyHex: publicKey
-  }]
+  }],
+  authentication: [
+    {
+      type: 'Secp256k1SignatureAuthentication2018',
+      publicKey: `${did}#keys-1`
+    }
+  ]
 }
 
 const ethDidDoc = {
@@ -105,6 +111,10 @@ describe('verifyJWT()', () => {
 
   it('verifies the JWT and return correct signer', () => {
     return verifyJWT(incomingJwt).then(({signer}) => expect(signer).toEqual(didDoc.publicKey[0]))
+  })
+
+  it('verifies the JWT requiring authentication and return correct signer', () => {
+    return verifyJWT(incomingJwt, {auth: true}).then(({signer}) => expect(signer).toEqual(didDoc.publicKey[0]))
   })
 
   const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'
@@ -208,19 +218,38 @@ describe('resolveAuthenticator()', () => {
     id: `${did}#keys-1`,
     type: 'Secp256k1VerificationKey2018',
     owner: did,
-    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061'
   }
+
   const ecKey2 = {
     id: `${did}#keys-2`,
     type: 'Secp256k1SignatureVerificationKey2018',
     owner: did,
     publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
   }
+
+  const ecKey3 = {
+    id: `${did}#keys-3`,
+    type: 'Secp256k1SignatureVerificationKey2018',
+    owner: did,
+    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab063'
+  }
+
   const encKey1 = {
     id: `${did}#keys-3`,
     type: 'Curve25519EncryptionPublicKey',
     owner: did,
     publicKeyBase64: 'QCFPBLm5pwmuTOu+haxv0+Vpmr6Rrz/DEEvbcjktQnQ='
+  }
+
+  const authKey1 = {
+    type: 'Secp256k1SignatureAuthentication2018',
+    publicKey: ecKey1.id
+  }
+
+  const authKey2 = {
+    type: 'Secp256k1SignatureAuthentication2018',
+    publicKey: ecKey2.id
   }
 
   const singleKey = {
@@ -232,7 +261,8 @@ describe('resolveAuthenticator()', () => {
   const multipleKeys = {
     '@context': 'https://w3id.org/did/v1',
     id: did,
-    publicKey: [ecKey1, ecKey2, encKey1]
+    publicKey: [ecKey1, ecKey2, ecKey3, encKey1],
+    authentication: [authKey1, authKey2]
   }
 
   const unsupportedFormat = {
@@ -255,12 +285,23 @@ describe('resolveAuthenticator()', () => {
     it('filters out irrelevant public keys', async () => {
       registerResolver((mnid, cb) => cb(null, multipleKeys))
       const authenticators = await resolveAuthenticator(alg, did)
+      return expect(authenticators).toEqual({authenticators: [ecKey1, ecKey2, ecKey3], issuer: did, doc: multipleKeys})
+    })
+
+    it('only list authenticators able to authenticate a user', async () => {
+      registerResolver((mnid, cb) => cb(null, multipleKeys))
+      const authenticators = await resolveAuthenticator(alg, did, true)
       return expect(authenticators).toEqual({authenticators: [ecKey1, ecKey2], issuer: did, doc: multipleKeys})
     })
 
     it('errors if no suitable public keys exist', async () => {
       registerResolver((mnid, cb) => cb(null, unsupportedFormat))
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(new Error(`DID document for ${did} does not have public keys for ${alg}`))
+    })
+
+    it('errors if no suitable public keys exist for authentication', async () => {
+      registerResolver((mnid, cb) => cb(null, singleKey))
+      return expect(resolveAuthenticator(alg, did, true)).rejects.toEqual(new Error(`DID document for ${did} does not have public keys suitable for authenticationg user`))
     })
 
     it('errors if no public keys exist', async () => {

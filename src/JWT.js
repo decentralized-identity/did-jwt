@@ -96,6 +96,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *
 *  @param    {String}            jwt                a JSON Web Token to verify
 *  @param    {Object}            [config]           an unsigned credential object
+*  @param    {Boolean}           config.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
 *  @param    {String}            config.aud         DID of the recipient of the JWT
 *  @param    {String}            config.callbackUrl        callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
@@ -103,7 +104,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 export async function verifyJWT (jwt, options = {}) {
   const aud = options.audience ? normalizeDID(options.audience) : undefined
   const {payload, header, signature, data} = decodeJWT(jwt)
-  const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss)
+  const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss, options.auth)
   const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
   if (signer) {
     if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
@@ -140,7 +141,7 @@ export async function verifyJWT (jwt, options = {}) {
 * Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
 *
 *  @example
-*  resolveAuthenticator('did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
+*  resolveAuthenticator('ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
 *      const payload = obj.payload
 *      const profile = obj.profile
 *      const jwt = obj.jwt
@@ -149,16 +150,20 @@ export async function verifyJWT (jwt, options = {}) {
 *
 *  @param    {String}            alg                a JWT algorithm
 *  @param    {String}            did                a Decentralized IDentifier (DID) to lookup
+*  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
 */
 
-export async function resolveAuthenticator (alg, mnidOrDid) {
+export async function resolveAuthenticator (alg, mnidOrDid, auth) {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) throw new Error(`No supported signature types for algorithm ${alg}`)
   const issuer = normalizeDID(mnidOrDid)
   const doc = await resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
-  const authenticators = (doc.publicKey || []).filter(({type}) => types.find(supported => supported === type))
+  const authenticationKeys = auth ? (doc.authentication || []).map(({publicKey}) => publicKey) : true
+  const authenticators = (doc.publicKey || []).filter(({type, id}) => types.find(supported => supported === type && (!auth || authenticationKeys.indexOf(id) >= 0)))
+  
+  if (auth && (!authenticators || authenticators.length === 0)) throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticationg user`)
   if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   return {authenticators, issuer, doc}
 }
