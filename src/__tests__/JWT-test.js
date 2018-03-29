@@ -52,8 +52,20 @@ describe('createJWT()', () => {
     })
   })
 
+  it('creates a valid JWT using a MNID', () => {
+    return createJWT({requested: ['name', 'phone']}, {issuer: mnid, signer}).then((jwt) => {
+      return expect(verifier.verify(jwt)).toBeTruthy()
+    })
+  })
+
   it('creates a JWT with correct format', () => {
     return createJWT({requested: ['name', 'phone']}, {issuer: did, signer}).then((jwt) => {
+      return expect(decodeJWT(jwt)).toMatchSnapshot()
+    })
+  })
+
+  it('creates a JWT with correct legacy format', () => {
+    return createJWT({requested: ['name', 'phone']}, {issuer: mnid, signer}).then((jwt) => {
       return expect(decodeJWT(jwt)).toMatchSnapshot()
     })
   })
