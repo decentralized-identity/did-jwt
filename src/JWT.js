@@ -72,7 +72,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
     }
   }
   const signingInput = [encodeSection(header),
-    encodeSection({...timestamps, ...payload, iss: normalizeDID(issuer)})
+    encodeSection({...timestamps, ...payload, iss: issuer})
   ].join('.')
 
   const jwtSigner = SignerAlgorithm(header.alg)
@@ -162,7 +162,7 @@ export async function resolveAuthenticator (alg, mnidOrDid, auth) {
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   const authenticationKeys = auth ? (doc.authentication || []).map(({publicKey}) => publicKey) : true
   const authenticators = (doc.publicKey || []).filter(({type, id}) => types.find(supported => supported === type && (!auth || authenticationKeys.indexOf(id) >= 0)))
-  
+
   if (auth && (!authenticators || authenticators.length === 0)) throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticationg user`)
   if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   return {authenticators, issuer, doc}
