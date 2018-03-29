@@ -1,6 +1,6 @@
-import { ec } from 'elliptic'
+import { ec as EC } from 'elliptic'
 
-const secp256k1 = new ec('secp256k1')
+const secp256k1 = new EC('secp256k1')
 
 function leftpad (data, size = 64) {
   if (data.length === size) return data

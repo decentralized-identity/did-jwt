@@ -6,7 +6,8 @@ import MockDate from 'mockdate'
 const NOW = 1485321133
 MockDate.set(NOW * 1000)
 
-const aud = `did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY`
+const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
+const aud = `did:uport:${audMnid}`
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const alg = 'ES256K'
@@ -21,12 +22,29 @@ const didDoc = {
   id: did,
   publicKey: [{
     id: `${did}#keys-1`,
-    type: 'EcdsaPublicKeySecp256k1',
+    type: 'Secp256k1VerificationKey2018',
     owner: did,
     publicKeyHex: publicKey
-  }]
+  }],
+  authentication: [
+    {
+      type: 'Secp256k1SignatureAuthentication2018',
+      publicKey: `${did}#keys-1`
+    }
+  ]
 }
 
+const ethDidDoc = {
+  '@context': 'https://w3id.org/did/v1',
+  id: did,
+  publicKey: [{
+    id: `${did}#keys-1`,
+    type: 'Secp256k1VerificationKey2018',
+    owner: did,
+    ethereumAddress: '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+  }]
+}
+        
 describe('createJWT()', () => {
   it('creates a valid JWT', () => {
     return createJWT({requested: ['name', 'phone']}, {issuer: did, signer}).then((jwt) => {
@@ -64,11 +82,13 @@ describe('createJWT()', () => {
       return expect(error.message).toEqual('Unsupported algorithm BADALGO')
     })
   })
-
 })
 
 describe('verifyJWT()', () => {
-  registerResolver((id, cb) => { if (mnid === id) cb(null, didDoc) })
+  registerResolver((id, cb) => { 
+    if (mnid === id) cb(null, didDoc)
+    if (audMnid === id) cb(null, ethDidDoc)
+  })
   const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw'
 
   it('verifies the JWT and return correct payload', () => {
@@ -93,6 +113,10 @@ describe('verifyJWT()', () => {
     return verifyJWT(incomingJwt).then(({signer}) => expect(signer).toEqual(didDoc.publicKey[0]))
   })
 
+  it('verifies the JWT requiring authentication and return correct signer', () => {
+    return verifyJWT(incomingJwt, {auth: true}).then(({signer}) => expect(signer).toEqual(didDoc.publicKey[0]))
+  })
+
   const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'
   it('rejects a JWT with bad signature', () => {
     return verifyJWT(badJwt).catch(error =>
@@ -102,6 +126,18 @@ describe('verifyJWT()', () => {
 
   it('accepts a valid iat', () => {
     return createJWT({iat: NOW + IAT_SKEW}, {issuer: did, signer}).then(jwt =>
+      verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
+    )
+  })
+
+  it('handles ES256K-R algorithm', () => {
+    return createJWT({hello: 'world'}, {issuer: did, signer, alg: 'ES256K-R'}).then(jwt =>
+      verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
+    )
+  })
+
+  it('handles ES256K-R algorithm with ethereum address', () => {
+    return createJWT({hello: 'world'}, {issuer: aud, signer, alg: 'ES256K-R'}).then(jwt =>
       verifyJWT(jwt).then(({payload}) => expect(payload).toMatchSnapshot(), error => expect(error).toBeNull())
     )
   })
@@ -180,21 +216,40 @@ describe('verifyJWT()', () => {
 describe('resolveAuthenticator()', () => {
   const ecKey1 = {
     id: `${did}#keys-1`,
-    type: 'EcdsaPublicKeySecp256k1',
+    type: 'Secp256k1VerificationKey2018',
     owner: did,
-    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061'
   }
+
   const ecKey2 = {
     id: `${did}#keys-2`,
     type: 'Secp256k1SignatureVerificationKey2018',
     owner: did,
     publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
   }
+
+  const ecKey3 = {
+    id: `${did}#keys-3`,
+    type: 'Secp256k1SignatureVerificationKey2018',
+    owner: did,
+    publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab063'
+  }
+
   const encKey1 = {
     id: `${did}#keys-3`,
     type: 'Curve25519EncryptionPublicKey',
     owner: did,
     publicKeyBase64: 'QCFPBLm5pwmuTOu+haxv0+Vpmr6Rrz/DEEvbcjktQnQ='
+  }
+
+  const authKey1 = {
+    type: 'Secp256k1SignatureAuthentication2018',
+    publicKey: ecKey1.id
+  }
+
+  const authKey2 = {
+    type: 'Secp256k1SignatureAuthentication2018',
+    publicKey: ecKey2.id
   }
 
   const singleKey = {
@@ -206,7 +261,8 @@ describe('resolveAuthenticator()', () => {
   const multipleKeys = {
     '@context': 'https://w3id.org/did/v1',
     id: did,
-    publicKey: [ecKey1, ecKey2, encKey1]
+    publicKey: [ecKey1, ecKey2, ecKey3, encKey1],
+    authentication: [authKey1, authKey2]
   }
 
   const unsupportedFormat = {
@@ -229,12 +285,23 @@ describe('resolveAuthenticator()', () => {
     it('filters out irrelevant public keys', async () => {
       registerResolver((mnid, cb) => cb(null, multipleKeys))
       const authenticators = await resolveAuthenticator(alg, did)
+      return expect(authenticators).toEqual({authenticators: [ecKey1, ecKey2, ecKey3], issuer: did, doc: multipleKeys})
+    })
+
+    it('only list authenticators able to authenticate a user', async () => {
+      registerResolver((mnid, cb) => cb(null, multipleKeys))
+      const authenticators = await resolveAuthenticator(alg, did, true)
       return expect(authenticators).toEqual({authenticators: [ecKey1, ecKey2], issuer: did, doc: multipleKeys})
     })
 
     it('errors if no suitable public keys exist', async () => {
       registerResolver((mnid, cb) => cb(null, unsupportedFormat))
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(new Error(`DID document for ${did} does not have public keys for ${alg}`))
+    })
+
+    it('errors if no suitable public keys exist for authentication', async () => {
+      registerResolver((mnid, cb) => cb(null, singleKey))
+      return expect(resolveAuthenticator(alg, did, true)).rejects.toEqual(new Error(`DID document for ${did} does not have public keys suitable for authenticationg user`))
     })
 
     it('errors if no public keys exist', async () => {
@@ -260,5 +327,4 @@ describe('resolveAuthenticator()', () => {
       return expect(authenticators).toEqual({authenticators: [ecKey1], issuer: did, doc: singleKey})
     })
   })
-
 })

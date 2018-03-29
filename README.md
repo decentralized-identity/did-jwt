@@ -3,9 +3,21 @@
 The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519). Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the `iss` claim of the JWT.
 
 ## JWT Details
+
 ### Algorithms supported
 
-- `ES256k` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
+- `ES256K` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
+- `ES256K-R` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1) with recovery parameter
+
+### DID PublicKey Types
+
+The `PublicKey` section of a DID document contains one or more Public Keys. We support the following types:
+
+Name | Encoding | Algorithm's
+---- | -------- | -----------
+`Secp256k1SignatureVerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
+`Secp256k1VerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
+`Secp256k1VerificationKey2018` | `ethereumAddress` | `ES256K-R`
 
 ### Claims
 
@@ -93,7 +105,8 @@ verifyJWT(jwt, options)
 Name | Description | Required
 ---- | ----------- | --------
 `jwt` | String containing a [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) | yes
-`options.audience` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | no
+`options.auth` | Require signer to be listed in the authentication section of the DID document (for Authentication of a user with DID-AUTH)
+`options.aud` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | no
 `options.callbackUrl` | The the URL receiving the JWT | no
 
 #### Promise Return Value
@@ -166,5 +179,4 @@ Name | Description | Required
 ---- | ----------- | --------
 `r` | Hex encoded `r` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
 `s` | Hex encoded `s` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
-`recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | no
-
+`recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | only required for (`ES256K-R`)
