@@ -89,7 +89,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  and the did doc of the issuer of the JWT.
 *
 *  @example
-*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {aud: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
+*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
        const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
@@ -101,8 +101,8 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  @param    {String}            jwt                a JSON Web Token to verify
 *  @param    {Object}            [config]           an unsigned credential object
 *  @param    {Boolean}           config.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
-*  @param    {String}            config.aud         DID of the recipient of the JWT
-*  @param    {String}            config.callbackUrl        callback url in JWT
+*  @param    {String}            config.audience    DID of the recipient of the JWT
+*  @param    {String}            config.callbackUrl callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
 export async function verifyJWT (jwt, options = {}) {
