@@ -38,6 +38,14 @@ Object {
 }
 `;
 
+exports[`verifyJWT() accepts a valid MNID audience 1`] = `
+Object {
+  "aud": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
 exports[`verifyJWT() accepts a valid audience 1`] = `
 Object {
   "aud": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
@@ -56,7 +64,7 @@ Object {
 
 exports[`verifyJWT() accepts a valid exp 1`] = `
 Object {
-  "exp": 1485321134,
+  "exp": 1485321074,
   "iat": 1485321133,
   "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }

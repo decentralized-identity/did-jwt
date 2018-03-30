@@ -106,7 +106,7 @@ Name | Description | Required
 ---- | ----------- | --------
 `jwt` | String containing a [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) | yes
 `options.auth` | Require signer to be listed in the authentication section of the DID document (for Authentication of a user with DID-AUTH)
-`options.aud` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | no
+`options.audience` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | no
 `options.callbackUrl` | The the URL receiving the JWT | no
 
 #### Promise Return Value

@@ -23,6 +23,10 @@ export const IAT_SKEW = 60
 
 /**  @module did-jwt/JWT */
 
+function isDIDOrMNID (mnidOrDid) {
+  return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
+}
+
 function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
@@ -85,7 +89,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  and the did doc of the issuer of the JWT.
 *
 *  @example
-*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {aud: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
+*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
        const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
@@ -97,8 +101,8 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  @param    {String}            jwt                a JSON Web Token to verify
 *  @param    {Object}            [config]           an unsigned credential object
 *  @param    {Boolean}           config.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
-*  @param    {String}            config.aud         DID of the recipient of the JWT
-*  @param    {String}            config.callbackUrl        callback url in JWT
+*  @param    {String}            config.audience    DID of the recipient of the JWT
+*  @param    {String}            config.callbackUrl callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
 export async function verifyJWT (jwt, options = {}) {
@@ -106,20 +110,21 @@ export async function verifyJWT (jwt, options = {}) {
   const {payload, header, signature, data} = decodeJWT(jwt)
   const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss, options.auth)
   const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
+  const now = Math.floor(Date.now() / 1000)
   if (signer) {
-    if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
-      throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${Date.now() / 1000}`)
+    if (payload.iat && payload.iat > (now + IAT_SKEW)) {
+      throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${now}`)
     }
-    if (payload.exp && (payload.exp <= Date.now() / 1000)) {
-      throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${Date.now() / 1000}`)
+    if (payload.exp && (payload.exp <= (now - IAT_SKEW))) {
+      throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
-      if (payload.aud.match(/^did:/)) {
+      if (isDIDOrMNID(payload.aud)) {
         if (!aud) {
           throw new Error('JWT audience is required but your app address has not been configured')
         }
 
-        if (aud !== payload.aud) {
+        if (aud !== normalizeDID(payload.aud)) {
           throw new Error(`JWT audience does not match your DID: aud: ${payload.aud} !== yours: ${aud}`)
         }
       } else {
