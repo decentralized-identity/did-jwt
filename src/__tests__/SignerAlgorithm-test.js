@@ -1,8 +1,9 @@
-import SignerAlgorithm, { sha256 } from '../SignerAlgorithm'
+import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
 import base64url from 'base64url'
 import { ec as EC } from 'elliptic'
+import { sha256 } from '../Digest'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const kp = secp256k1.keyFromPrivate(privateKey)

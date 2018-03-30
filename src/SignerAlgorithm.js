@@ -1,4 +1,3 @@
-import { sha256 } from './Digest'
 import base64url from 'base64url'
 
 export function ES256KSigner (recoverable = false) {
@@ -14,7 +13,7 @@ export function ES256KSigner (recoverable = false) {
   }
 
   return async function sign (payload, signer) {
-    const signature = await signer(sha256(payload))
+    const signature = await signer(payload)
     return toJose(signature)
   }
 }
@@ -26,5 +25,4 @@ function SignerAlgorithm (alg) {
   if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
   return impl
 }
-SignerAlgorithm.sha256 = sha256
 module.exports = SignerAlgorithm
