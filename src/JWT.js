@@ -106,12 +106,13 @@ export async function verifyJWT (jwt, options = {}) {
   const {payload, header, signature, data} = decodeJWT(jwt)
   const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss, options.auth)
   const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
+  const now = Math.floor(Date.now() / 1000)
   if (signer) {
-    if (payload.iat && payload.iat > (Date.now() / 1000 + IAT_SKEW)) {
-      throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${Date.now() / 1000}`)
+    if (payload.iat && payload.iat > (now + IAT_SKEW)) {
+      throw new Error(`JWT not valid yet (issued in the future): iat: ${payload.iat} > now: ${now}`)
     }
-    if (payload.exp && (payload.exp <= Date.now() / 1000)) {
-      throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${Date.now() / 1000}`)
+    if (payload.exp && (payload.exp <= (now - IAT_SKEW))) {
+      throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
       if (payload.aud.match(/^did:/)) {

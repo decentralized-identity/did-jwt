@@ -4,7 +4,7 @@ import registerResolver from 'uport-did-resolver'
 import SimpleSigner from '../SimpleSigner'
 import MockDate from 'mockdate'
 const NOW = 1485321133
-MockDate.set(NOW * 1000)
+MockDate.set(NOW * 1000 + 123)
 
 const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
 const aud = `did:uport:${audMnid}`
@@ -48,6 +48,7 @@ const ethDidDoc = {
 describe('createJWT()', () => {
   it('creates a valid JWT', () => {
     return createJWT({requested: ['name', 'phone']}, {issuer: did, signer}).then((jwt) => {
+      console.log(verifier.verify(jwt))
       return expect(verifier.verify(jwt)).toBeTruthy()
     })
   })
@@ -163,7 +164,7 @@ describe('verifyJWT()', () => {
   })
 
   it('accepts a valid exp', () => {
-    return createJWT({exp: NOW + 1}, {issuer: did, signer, expiresIn: 1}).then(jwt =>
+    return createJWT({exp: NOW - IAT_SKEW + 1}, {issuer: did, signer, expiresIn: 1}).then(jwt =>
       verifyJWT(jwt).then(({payload}) =>
         expect(payload).toMatchSnapshot()
       )
@@ -171,9 +172,9 @@ describe('verifyJWT()', () => {
   })
 
   it('rejects an expired JWT', () => {
-    return createJWT({exp: NOW - 1}, {issuer: did, signer}).then(jwt =>
+    return createJWT({exp: NOW - IAT_SKEW - 1}, {issuer: did, signer}).then(jwt =>
       verifyJWT(jwt).catch(error =>
-        expect(error.message).toEqual('JWT has expired: exp: 1485321132 < now: 1485321133')
+        expect(error.message).toEqual('JWT has expired: exp: 1485321072 < now: 1485321133')
       ).then((p) => expect(p).toBeFalsy())
     )
   })
