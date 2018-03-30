@@ -155,7 +155,7 @@ Note this is NOT a constructor, but a higher order function that returns a signi
 You can easily create custom signers that integrates into your existing signing infrastructure. A signer function takes the raw data to be signed and returns a Promise containing the signature parameters.
 
 ```js
-function mySigner (hash) {
+function mySigner (data) {
     return new Promise((resolve, reject) => {
         const signature = /// sign it
         resolve(signature)
@@ -167,7 +167,7 @@ function mySigner (hash) {
 
 Name | Description | Required
 ---- | ----------- | --------
-`hash` | [Buffer](https://nodejs.org/api/buffer.html) containing hash of data to be signed | yes
+`data` | String or [Buffer](https://nodejs.org/api/buffer.html) containing data to be signed | yes
 
 #### Promise Return Value
 
