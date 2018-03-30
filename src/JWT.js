@@ -23,6 +23,10 @@ export const IAT_SKEW = 60
 
 /**  @module did-jwt/JWT */
 
+function isDIDOrMNID (mnidOrDid) {
+  return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
+}
+
 function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
@@ -115,12 +119,12 @@ export async function verifyJWT (jwt, options = {}) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
-      if (payload.aud.match(/^did:/)) {
+      if (isDIDOrMNID(payload.aud)) {
         if (!aud) {
           throw new Error('JWT audience is required but your app address has not been configured')
         }
 
-        if (aud !== payload.aud) {
+        if (aud !== normalizeDID(payload.aud)) {
           throw new Error(`JWT audience does not match your DID: aud: ${payload.aud} !== yours: ${aud}`)
         }
       } else {

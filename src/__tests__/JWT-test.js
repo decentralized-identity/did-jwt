@@ -185,6 +185,12 @@ describe('verifyJWT()', () => {
     )
   })
 
+  it('accepts a valid MNID audience', () => {
+    return createJWT({aud}, {issuer: did, signer}).then(jwt =>
+      verifyJWT(jwt, {audience: audMnid}).then(({payload}) => expect(payload).toMatchSnapshot())
+    )
+  })
+
   it('accepts a valid audience using callback_url', () => {
     return createJWT({ aud: 'http://pututu.uport.me/unique' }, {issuer: did, signer}).then(jwt =>
       verifyJWT(jwt, {callbackUrl: 'http://pututu.uport.me/unique'}).then(({payload}) =>
