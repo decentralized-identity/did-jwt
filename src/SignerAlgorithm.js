@@ -1,4 +1,5 @@
 import base64url from 'base64url'
+import { Buffer } from 'buffer'
 
 export function ES256KSigner (recoverable = false) {
   function toJose ({r, s, recoveryParam}) {
