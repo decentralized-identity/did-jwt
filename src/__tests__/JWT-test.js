@@ -48,7 +48,6 @@ const ethDidDoc = {
 describe('createJWT()', () => {
   it('creates a valid JWT', () => {
     return createJWT({requested: ['name', 'phone']}, {issuer: did, signer}).then((jwt) => {
-      console.log(verifier.verify(jwt))
       return expect(verifier.verify(jwt)).toBeTruthy()
     })
   })
