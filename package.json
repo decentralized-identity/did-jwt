@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
   "files": [
@@ -48,6 +48,7 @@
   "dependencies": {
     "babel-runtime": "^6.26.0",
     "base64url": "^2.0.0",
+    "buffer": "^5.1.0",
     "did-resolver": "^0.0.4",
     "elliptic": "^6.4.0",
     "js-sha256": "^0.9.0",

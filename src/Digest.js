@@ -1,5 +1,6 @@
 import { sha256 as sha256js } from 'js-sha256'
 import { keccak_256 } from 'js-sha3'
+import { Buffer } from 'buffer'
 
 export function sha256 (payload) {
   return Buffer.from(sha256js.arrayBuffer(payload))
