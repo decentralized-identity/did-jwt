@@ -1,33 +1,15 @@
 # did-jwt
+[![Join the chat at](https://img.shields.io/badge/Riot-Join%20chat-green.svg)](https://chat.uport.me/#/login)
+[![npm](https://img.shields.io/npm/dt/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
+[![npm](https://img.shields.io/npm/v/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
+[![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
 
-The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519). Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the `iss` claim of the JWT.
+[Algorithms supported](docs/guides/index.md#algorithms-supported) | [DID Public Key Types](docs/guides/index.md#did-publickey-types) | [Claim Specification](docs/guides/index.md#claims)
 
-## JWT Details
 
-### Algorithms supported
+The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) using ES256K or ES256K-R algorithms.
 
-- `ES256K` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
-- `ES256K-R` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1) with recovery parameter
-
-### DID PublicKey Types
-
-The `PublicKey` section of a DID document contains one or more Public Keys. We support the following types:
-
-Name | Encoding | Algorithm's
----- | -------- | -----------
-`Secp256k1SignatureVerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
-`Secp256k1VerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
-`Secp256k1VerificationKey2018` | `ethereumAddress` | `ES256K-R`
-
-### Claims
-
-Name | Description | Required
----- | ----------- | --------
-[`iss`](https://tools.ietf.org/html/rfc7519#section-4.1.1) | The [DID](https://w3c-ccg.github.io/did-spec/) of the signing identity| yes
-[`sub`](https://tools.ietf.org/html/rfc7519#section-4.1.2) | The [DID](https://w3c-ccg.github.io/did-spec/) of the subject of the JWT| no
-[`aud`](https://tools.ietf.org/html/rfc7519#section-4.1.3) | The [DID](https://w3c-ccg.github.io/did-spec/) or URL of the audience of the JWT. Our libraries or app will not accept any JWT that has someone else as the audience| no
-[`iat`](https://tools.ietf.org/html/rfc7519#section-4.1.6) | The time of issuance | yes
-[`exp`](https://tools.ietf.org/html/rfc7519#section-4.1.4) | Expiration time of JWT | no
+Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the signing identity of the claim, which is passed as the `iss` attribute of the encoded JWT.
 
 ## Installation
 
@@ -41,142 +23,73 @@ or if you use `yarn`
 yarn add did-jwt
 ```
 
-## API
+## Example
 
-### Creating a JWT
-
-Use the `createJWT()` function
-
+### 1. Create a did-JWT
 ```js
-import { createJWT, SimpleSigner } from 'did-jwt'
+const didJWT = require('did-jwt')
+const signer = didJWT.SimpleSigner('fa09a3ff0d486be2eb69545c393e2cf47cb53feb44a3550199346bdfa6f53245');
 
-const signer = SimpleSigner('PRIVATEKEY')
+let jwt = '';
+didJWT.createJWT({aud: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts', exp: 1957463421, name: 'uPort Developer'},
+                 {issuer: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts', signer}).then( response =>
+                 { jwt = response });
 
-createJWT(
-    {aud: 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY', exp: 1485321133, name: 'Bob Smith'},
-    {issuer: 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX', signer}).then(jwt => {
-    console.log(jwt)
-})
+console.log(jwt);
 ```
 
-#### Parameters
 
-```js
-createJWT(payload, settings)
-```
+ Try decoding this JWT [yourself:](jwt.io)
 
-Name | Description | Required
----- | ----------- | --------
-`payload` | an object containing any claims you want to encode in the JWT including optional standard claims such as `sub`, `aud` and `exp` | yes
-`settings.issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | yes
-`settings.signer` | A signing function (see SimpleSigner) | yes
-`settings.expiresIn` | How many seconds after signing should the JWT be valid (sets the `exp` claim) | no
+`eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw`
 
-#### Promise Return Value
 
-The `createJWT()` function returns a Promise.
+Once decoded a did-JWT will resemble:
 
-A successfull call returns an object containing the following attributes:
-
-Name | Description
----- | -----------
-`jwt` | String containing a [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519)
-
-If there are any errors found during the signing process the promise is rejected with a clear error message.
-
-### Verifying a JWT
-
-Use the `verifyJWT()` function
-
-```js
-import { verifyJWT } from 'did-jwt'
-
-verifyJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcn....', {audience: 'Your DID'}).then({payload, doc, did, signer, jwt} => {
-    console.log(payload)
-})
-```
-
-#### Parameters
-
-```js
-verifyJWT(jwt, options)
-```
-
-Name | Description | Required
----- | ----------- | --------
-`jwt` | String containing a [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) | yes
-`options.auth` | Require signer to be listed in the authentication section of the DID document (for Authentication of a user with DID-AUTH)
-`options.audience` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | no
-`options.callbackUrl` | The the URL receiving the JWT | no
-
-#### Promise Return Value
-
-The `verifyJWT()` function returns a Promise.
-
-A successfull call returns an object containing the following attributes:
-
-Name | Description
----- | -----------
-`payload` | An object containing the JSON parsed contents of the payload section of the JWT
-`issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the issuer of the JWT
-`signer` | An object containing information about which key signed the JWT. This is useful if a DID document has multiple keys listed
-`doc` | The [DID Document](https://w3c-ccg.github.io/did-spec/#did-documents) of the issuer of the JWT
-`jwt` | The original JWT passed in to the function
-
-If there are any errors found during the verification process the promise is rejected with a clear error message.
-
-## Signer Functions
-
-We provide a simple signing abstraction that makes it easy to add support for your own Key Management infrastructure.
-
-### SimpleSigner
-
-For most people you can use our `SimpleSigner()` function to creaate a signer function using a hex encoded private key.
-
-```js
-import { SimpleSigner } from 'did-jwt'
-const signer = SimpleSigner('278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f')
-```
-
-#### Parameters
-
-```js
-SimpleSigner(privateKey)
-```
-
-Name | Description | Required
----- | ----------- | --------
-`privateKey` | hex encoded [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) privatekey | yes
-
-Note this is NOT a constructor, but a higher order function that returns a signing function.
-
-### Creating Custom Signers for integrating with HSM
-
-You can easily create custom signers that integrates into your existing signing infrastructure. A signer function takes the raw data to be signed and returns a Promise containing the signature parameters.
-
-```js
-function mySigner (data) {
-    return new Promise((resolve, reject) => {
-        const signature = /// sign it
-        resolve(signature)
-    })
+```json
+{
+  "iat": 1525927517,
+  "aud": "did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts",
+  "exp": 1557463421,
+  "name": "uPort Developer",
+  "iss": "did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts"
 }
 ```
 
-#### Parameters
+### 2. Verify a did-JWT
 
-Name | Description | Required
----- | ----------- | --------
-`data` | String or [Buffer](https://nodejs.org/api/buffer.html) containing data to be signed | yes
+```js
+let verifiedRespone = {};
+didJWT.verifyJWT(jwt, {audience: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts'}).then((response) =>
+{ verifiedRespone = response });
 
-#### Promise Return Value
+console.log(verifiedRespone);
+```
 
-Your function must returns a Promise.
+A verified did-JWT returns an object resembling:
 
-A successfull call returns an object containing the following attributes:
-
-Name | Description | Required
----- | ----------- | --------
-`r` | Hex encoded `r` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
-`s` | Hex encoded `s` value of [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) signature | yes
-`recoveryParam` | Recovery parameter of signature (can be used to calculate signing public key) | only required for (`ES256K-R`)
+```js
+{ payload:
+   { iat: 1525927517,
+     aud: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts',
+     exp: 1557463421,
+     name: 'uPort Developer',
+     iss: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts' },
+  doc:
+   { '@context': 'https://w3id.org/did/v1',
+     id: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts',
+     publicKey: [ [Object] ],
+     uportProfile:
+      { '@context': 'http://schema.org',
+        '@type': 'App',
+        name: 'Uport Developer Splash Demo',
+        description: 'This app demonstrates basic login functionality',
+        url: 'https://developer.uport.me' } },
+  issuer: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts',
+  signer:
+   { id: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts#keys-1',
+     type: 'EcdsaPublicKeySecp256k1',
+     owner: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts',
+     publicKeyHex: '04c74d8a9154bbf48ce4b259b703c420e10aba42d03fa592ccf9dea60c83cd9ca81d3e08b859d4dc5a6dee30da2600e50ace688201b6f5a1e0938d135ec4b442ad' },
+  jwt: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw' }
+```
