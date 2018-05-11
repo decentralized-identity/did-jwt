@@ -59,6 +59,7 @@ Once decoded a did-JWT will resemble:
 ### 2. Verify a did-JWT
 
 ```js
+// pass the JWT from step 1
 let verifiedRespone = {};
 didJWT.verifyJWT(jwt, {audience: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts'}).then((response) =>
 { verifiedRespone = response });

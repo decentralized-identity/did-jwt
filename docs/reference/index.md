@@ -1,3 +1,10 @@
+---
+title: "did-jwt"
+index: 3
+category: "reference"
+type: "content"
+---
+
 ## Modules
 
 <dl>
