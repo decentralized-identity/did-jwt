@@ -168,7 +168,6 @@ export async function verifyJWT (jwt, options = {}) {
 *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
 */
-
 export async function resolveAuthenticator (alg, mnidOrDid, auth) {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) throw new Error(`No supported signature types for algorithm ${alg}`)
