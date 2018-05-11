@@ -26,6 +26,11 @@ yarn add did-jwt
 ## Example
 
 ### 1. Create a did-JWT
+
+[createJWT](docs/reference/index.md#did-jwtjwtcreatejwtpayload-config--promiseobject-error)
+
+In practice you should secure the key passed to SimpleSigner.  The key provided in code below is for informational purposes; you will need to create an application identity using either our web-based [App Manager](http://appmanager.uport.me) or our [CLI client](https://github.com/uport-project/uport-cli-client) to obtain your own signing key.
+
 ```js
 const didJWT = require('did-jwt')
 const signer = didJWT.SimpleSigner('fa09a3ff0d486be2eb69545c393e2cf47cb53feb44a3550199346bdfa6f53245');
@@ -57,6 +62,8 @@ Once decoded a did-JWT will resemble:
 ```
 
 ### 2. Verify a did-JWT
+
+[verifyJWT](/docs/reference/index.md#did-jwtjwtverifyjwtjwt-config--promiseobject-error)
 
 ```js
 // pass the JWT from step 1

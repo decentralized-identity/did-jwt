@@ -89,7 +89,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  and the did doc of the issuer of the JWT.
 *
 *  @example
-*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
+*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
        const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
@@ -138,7 +138,7 @@ export async function verifyJWT (jwt, options = {}) {
     }
     return ({payload, doc, issuer, signer, jwt})
   } else {
-    
+
   }
 }
 
