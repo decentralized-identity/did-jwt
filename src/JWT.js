@@ -41,7 +41,7 @@ function normalizeDID (mnidOrDid) {
 *  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
 *
 *  @param    {String}            jwt                a JSON Web Token to verify
-*  @return   {Object}               a Jobject representing the decoded JWT
+*  @return   {Object}                               a JS object representing the decoded JWT
 */
 export function decodeJWT (jwt) {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')

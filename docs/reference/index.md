@@ -51,10 +51,29 @@ Name | Description | Required
 ## did-jwt/JWT
 
 * [did-jwt/JWT](#module_did-jwt/JWT)
+    * [.decodeJWT(jwt)](#module_did-jwt/JWT.decodeJWT) ⇒ <code>Object</code>
     * [.createJWT(payload, [config])](#module_did-jwt/JWT.createJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
     * [.verifyJWT(jwt, [config])](#module_did-jwt/JWT.verifyJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
     * [.resolveAuthenticator(alg, did, auth)](#module_did-jwt/JWT.resolveAuthenticator) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
 
+<a name="module_did-jwt/JWT.decodeJWT"></a>
+
+### did-jwt/JWT.decodeJWT(jwt) ⇒ <code>Object</code>
+Decodes a JWT and returns an object representing the payload
+
+**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)  
+**Returns**: <code>Object</code> - a JS object representing the decoded JWT  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| jwt | <code>String</code> | a JSON Web Token to verify |
+
+**Example**  
+```js
+decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
+
+ 
+```
 <a name="module_did-jwt/JWT.createJWT"></a>
 
 ### did-jwt/JWT.createJWT(payload, [config]) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
@@ -100,7 +119,7 @@ Verifies given JWT. If the JWT is valid, the promise returns an object including
 **Example**  
 ```js
 verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
-       const did = obj.did // DID of signer
+     const did = obj.did // DID of signer
      const payload = obj.payload
      const doc = obj.doc // DID Document of signer
      const jwt = obj.jwt
