@@ -44,21 +44,27 @@ console.log(jwt);
 ```
 
 
- Try decoding this JWT [yourself:](jwt.io)
+### 2. Decode a did-JWT
 
-`eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw`
+Try decoding the JWT.  You can also do this using [jwt.io](jwt.io)
 
+```js
+didJWT.decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9> didJWT.decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9y dDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3> didJWT.decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3B lciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0d> didJWT.decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0da tw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
+
+```
 
 Once decoded a did-JWT will resemble:
 
-```json
-{
-  "iat": 1525927517,
-  "aud": "did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts",
-  "exp": 1557463421,
-  "name": "uPort Developer",
-  "iss": "did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts"
-}
+```js
+{ header: { typ: 'JWT', alg: 'ES256K' },
+  payload:
+   { iat: 1525927517,
+     aud: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts',
+     exp: 1557463421,
+     name: 'uPort Developer',
+     iss: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts' },
+  signature: 'R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw',
+  data: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9' }
 ```
 
 ### 2. Verify a did-JWT
@@ -66,7 +72,7 @@ Once decoded a did-JWT will resemble:
 [verifyJWT](/docs/reference/index.md#did-jwtjwtverifyjwtjwt-config--promiseobject-error)
 
 ```js
-// pass the JWT from step 1
+// pass the JWT from step 1 & 2
 let verifiedRespone = {};
 didJWT.verifyJWT(jwt, {audience: 'did:uport:2osnfJ4Wy7LBAm2nPBXire1WfQn75RrV6Ts'}).then((response) =>
 { verifiedRespone = response });

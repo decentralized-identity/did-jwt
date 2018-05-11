@@ -33,6 +33,16 @@ function normalizeDID (mnidOrDid) {
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
 }
 
+
+/**
+*  Decodes a JWT and returns an object representing the payload
+*
+*  @example
+*  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
+*
+*  @param    {String}            jwt                a JSON Web Token to verify
+*  @return   {Object}               a Jobject representing the decoded JWT
+*/
 export function decodeJWT (jwt) {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
   const parts = jwt.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
@@ -90,7 +100,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *
 *  @example
 *  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
-       const did = obj.did // DID of signer
+*      const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
 *      const jwt = obj.jwt
