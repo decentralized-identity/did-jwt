@@ -99,7 +99,7 @@ Verifies given JWT. If the JWT is valid, the promise returns an object including
 
 **Example**  
 ```js
-verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
+verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
        const did = obj.did // DID of signer
      const payload = obj.payload
      const doc = obj.doc // DID Document of signer
