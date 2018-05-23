@@ -15,7 +15,7 @@
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
     "build": "yarn build:es5 && yarn test && yarn build:browser",
     "build:docs:html": "./node_modules/.bin/jsdoc src/* README.md -d docs",
-    "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* > DOCS.md",
+    "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* --template template.hbs --heading-depth 2 -c js2doc.conf > docs/reference/index.md; echo",
     "build:docs": "npm run build:docs:html && npm run build:docs:md",
     "prepublish": "yarn build"
   },
@@ -53,6 +53,7 @@
     "elliptic": "^6.4.0",
     "js-sha256": "^0.9.0",
     "js-sha3": "^0.7.0",
+    "jsdoc-to-markdown": "^4.0.1",
     "mnid": "^0.1.1",
     "uport-did-resolver": "^0.0.2",
     "uport-lite": "^1.0.2"
