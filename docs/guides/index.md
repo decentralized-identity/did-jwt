@@ -3,6 +3,7 @@ title: "Working with did-JWT's"
 index: 4
 category: "guides"
 type: "content"
+source: "https://github.com/uport-project/did-jwt/blob/develop/docs/guides/index.md"
 ---
 
 # Working with did-JWT's
