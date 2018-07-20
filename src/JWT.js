@@ -19,7 +19,7 @@ function encodeSection (data) {
   return base64url.encode(JSON.stringify(data))
 }
 
-export const IAT_SKEW = 60
+export const IAT_SKEW = 300
 
 /**  @module did-jwt/JWT */
 

@@ -157,7 +157,7 @@ describe('verifyJWT()', () => {
   it('rejects an iat in the future', () => {
     return createJWT({iat: NOW + IAT_SKEW + 1}, {issuer: did, signer}).then(jwt =>
       verifyJWT(jwt).catch(error =>
-        expect(error.message).toEqual('JWT not valid yet (issued in the future): iat: 1485321194 > now: 1485321133')
+        expect(error.message).toEqual('JWT not valid yet (issued in the future): iat: 1485321434 > now: 1485321133')
       ).then((p) => expect(p).toBeFalsy())
     )
   })
@@ -173,7 +173,7 @@ describe('verifyJWT()', () => {
   it('rejects an expired JWT', () => {
     return createJWT({exp: NOW - IAT_SKEW - 1}, {issuer: did, signer}).then(jwt =>
       verifyJWT(jwt).catch(error =>
-        expect(error.message).toEqual('JWT has expired: exp: 1485321072 < now: 1485321133')
+        expect(error.message).toEqual('JWT has expired: exp: 1485320832 < now: 1485321133')
       ).then((p) => expect(p).toBeFalsy())
     )
   })
