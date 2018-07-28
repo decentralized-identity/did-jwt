@@ -1,5 +1,5 @@
 ---
-title: "Working with did-JWT's"
+title: "Working with JWT's"
 index: 4
 category: "guides"
 type: "content"
