@@ -1,5 +1,5 @@
 ---
-title: "did-jwt"
+title: "DID JWT"
 index: 3
 category: "reference"
 type: "content"
