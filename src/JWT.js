@@ -67,10 +67,10 @@ export function decodeJWT (jwt) {
 *  })
 *
 *  @param    {Object}            payload            payload object
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.issuer      The DID of the issuer (signer) of JWT
-*  @param    {String}            config.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
-*  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
+*  @param    {Object}            [options]           an unsigned credential object
+*  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
+*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
+*  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
 export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
@@ -109,10 +109,10 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  })
 *
 *  @param    {String}            jwt                a JSON Web Token to verify
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {Boolean}           config.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
-*  @param    {String}            config.audience    DID of the recipient of the JWT
-*  @param    {String}            config.callbackUrl callback url in JWT
+*  @param    {Object}            [options]           an unsigned credential object
+*  @param    {Boolean}           options.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
+*  @param    {String}            options.audience    DID of the recipient of the JWT
+*  @param    {String}            options.callbackUrl callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
 export async function verifyJWT (jwt, options = {}) {

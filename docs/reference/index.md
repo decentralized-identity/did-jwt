@@ -3,7 +3,6 @@ title: "did-jwt"
 index: 3
 category: "reference"
 type: "content"
-source: "https://github.com/uport-project/did-jwt/blob/develop/docs/reference/index.md"
 ---
 
 ## Algorithms supported
@@ -53,8 +52,8 @@ Name | Description | Required
 
 * [did-jwt/JWT](#module_did-jwt/JWT)
     * [.decodeJWT(jwt)](#module_did-jwt/JWT.decodeJWT) ⇒ <code>Object</code>
-    * [.createJWT(payload, [config])](#module_did-jwt/JWT.createJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
-    * [.verifyJWT(jwt, [config])](#module_did-jwt/JWT.verifyJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
+    * [.createJWT(payload, [options])](#module_did-jwt/JWT.createJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
+    * [.verifyJWT(jwt, [options])](#module_did-jwt/JWT.verifyJWT) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
     * [.resolveAuthenticator(alg, did, auth)](#module_did-jwt/JWT.resolveAuthenticator) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
 
 <a name="module_did-jwt/JWT.decodeJWT"></a>
@@ -62,62 +61,62 @@ Name | Description | Required
 ### did-jwt/JWT.decodeJWT(jwt) ⇒ <code>Object</code>
 Decodes a JWT and returns an object representing the payload
 
-**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)
-**Returns**: <code>Object</code> - a JS object representing the decoded JWT
+**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)  
+**Returns**: <code>Object</code> - a JS object representing the decoded JWT  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | jwt | <code>String</code> | a JSON Web Token to verify |
 
-**Example**
+**Example**  
 ```js
 decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
 
-
+ 
 ```
 <a name="module_did-jwt/JWT.createJWT"></a>
 
-### did-jwt/JWT.createJWT(payload, [config]) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
+### did-jwt/JWT.createJWT(payload, [options]) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
 Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is over.
 
-**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)
-**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a signed JSON Web Token or rejects with an error
+**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)  
+**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a signed JSON Web Token or rejects with an error  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | payload | <code>Object</code> | payload object |
-| [config] | <code>Object</code> | an unsigned credential object |
-| config.issuer | <code>String</code> | The DID of the issuer (signer) of JWT |
-| config.alg | <code>String</code> | The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K |
-| config.signer | [<code>SimpleSigner</code>](#SimpleSigner) | a signer, reference our SimpleSigner.js |
+| [options] | <code>Object</code> | an unsigned credential object |
+| options.issuer | <code>String</code> | The DID of the issuer (signer) of JWT |
+| options.alg | <code>String</code> | The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K |
+| options.signer | [<code>SimpleSigner</code>](#SimpleSigner) | a signer, reference our SimpleSigner.js |
 
-**Example**
+**Example**  
 ```js
 const signer = SimpleSigner(process.env.PRIVATE_KEY)
  createJWT({address: '5A8bRWU3F7j3REx3vkJ...', signer}, {key1: 'value', key2: ..., ... }).then(jwt => {
      ...
  })
 
-
+ 
 ```
 <a name="module_did-jwt/JWT.verifyJWT"></a>
 
-### did-jwt/JWT.verifyJWT(jwt, [config]) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
+### did-jwt/JWT.verifyJWT(jwt, [options]) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
 Verifies given JWT. If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
  and the did doc of the issuer of the JWT.
 
-**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)
-**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a response object or rejects with an error
+**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)  
+**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a response object or rejects with an error  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | jwt | <code>String</code> | a JSON Web Token to verify |
-| [config] | <code>Object</code> | an unsigned credential object |
-| config.auth | <code>Boolean</code> | Require signer to be listed in the authentication section of the DID document (for Authentication purposes) |
-| config.audience | <code>String</code> | DID of the recipient of the JWT |
-| config.callbackUrl | <code>String</code> | callback url in JWT |
+| [options] | <code>Object</code> | an unsigned credential object |
+| options.auth | <code>Boolean</code> | Require signer to be listed in the authentication section of the DID document (for Authentication purposes) |
+| options.audience | <code>String</code> | DID of the recipient of the JWT |
+| options.callbackUrl | <code>String</code> | callback url in JWT |
 
-**Example**
+**Example**  
 ```js
 verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
      const did = obj.did // DID of signer
@@ -128,15 +127,15 @@ verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {aud
      ...
  })
 
-
+ 
 ```
 <a name="module_did-jwt/JWT.resolveAuthenticator"></a>
 
 ### did-jwt/JWT.resolveAuthenticator(alg, did, auth) ⇒ <code>Promise.&lt;Object, Error&gt;</code>
 Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
 
-**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)
-**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
+**Kind**: static method of [<code>did-jwt/JWT</code>](#module_did-jwt/JWT)  
+**Returns**: <code>Promise.&lt;Object, Error&gt;</code> - a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -144,7 +143,7 @@ Resolves relevant public keys or other authenticating material used to verify si
 | did | <code>String</code> | a Decentralized IDentifier (DID) to lookup |
 | auth | <code>Boolean</code> | Restrict public keys to ones specifically listed in the 'authentication' section of DID document |
 
-**Example**
+**Example**  
 ```js
 resolveAuthenticator('ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
      const payload = obj.payload
@@ -153,7 +152,7 @@ resolveAuthenticator('ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').
      ...
  })
 
-
+ 
 ```
 <a name="SimpleSigner"></a>
 
@@ -161,19 +160,19 @@ resolveAuthenticator('ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').
 The SimpleSigner returns a configured function for signing data. It also defines
  an interface that you can also implement yourself and use in our other modules.
 
-**Kind**: global function
-**Returns**: <code>function</code> - a configured signer function
+**Kind**: global function  
+**Returns**: <code>function</code> - a configured signer function  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | hexPrivateKey | <code>String</code> | a hex encoded private key |
 
-**Example**
+**Example**  
 ```js
 const signer = SimpleSigner(process.env.PRIVATE_KEY)
  signer(data, (err, signature) => {
    ...
  })
 
-
+ 
 ```
