@@ -1,8 +1,8 @@
 ---
 title: "Working with JWT's"
 index: 4
-category: "guides"
-type: "content"
+category: "did-jwt"
+type: "guide"
 source: "https://github.com/uport-project/did-jwt/blob/develop/docs/guides/index.md"
 ---
 

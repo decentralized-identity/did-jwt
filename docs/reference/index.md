@@ -1,8 +1,8 @@
 ---
 title: "DID JWT"
 index: 3
-category: "reference"
-type: "content"
+category: "did-jwt"
+type: "reference"
 ---
 
 ## Algorithms supported
