@@ -17,7 +17,9 @@
     "build:docs:html": "./node_modules/.bin/jsdoc src/* README.md -d docs",
     "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* --template template.hbs --heading-depth 2 -c js2doc.conf > docs/reference/index.md; echo",
     "build:docs": "npm run build:docs:html && npm run build:docs:md",
-    "prepublish": "yarn build"
+    "prepublish": "yarn build",
+    "lint": "eslint ./src",
+    "format": "eslint --fix ./src"
   },
   "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
   "license": "Apache-2.0",
@@ -31,15 +33,27 @@
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^10.0.1",
     "babel-jest": "^22.4.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-transform-es2015-modules-umd": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.0",
+    "eslint": "^5.7.0",
+    "eslint-config-prettier": "^3.1.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-config-uport": "0.0.1",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jest": "^21.26.1",
+    "eslint-plugin-node": "^7.0.1",
+    "eslint-plugin-prettier": "^3.0.0",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
     "jest": "^22.4.0",
     "jsontokens": "^0.7.7",
     "mockdate": "^2.0.2",
+    "prettier": "^1.14.3",
     "regenerator-runtime": "^0.11.1",
     "sinon": "^4.0.1",
     "standard": "^11.0.0",
@@ -57,20 +71,5 @@
     "mnid": "^0.1.1",
     "uport-did-resolver": "^0.0.2",
     "uport-lite": "^1.0.2"
-  },
-  "standard": {
-    "ignore": [
-      "lib/**"
-    ],
-    "globals": [
-      "it",
-      "describe",
-      "expect",
-      "jest",
-      "beforeAll",
-      "beforeEach",
-      "afterAll",
-      "afterEach"
-    ]
   }
 }
