@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "base64url": "^2.0.0",
+    "base64url": "^3.0.0",
     "buffer": "^5.1.0",
     "did-resolver": "^0.0.4",
     "elliptic": "^6.4.0",
