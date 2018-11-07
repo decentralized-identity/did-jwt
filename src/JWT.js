@@ -19,7 +19,7 @@ function encodeSection (data) {
   return base64url.encode(JSON.stringify(data))
 }
 
-export const IAT_SKEW = 60
+export const IAT_SKEW = 300
 
 /**  @module did-jwt/JWT */
 
@@ -33,6 +33,16 @@ function normalizeDID (mnidOrDid) {
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
 }
 
+
+/**
+*  Decodes a JWT and returns an object representing the payload
+*
+*  @example
+*  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
+*
+*  @param    {String}            jwt                a JSON Web Token to verify
+*  @return   {Object}                               a JS object representing the decoded JWT
+*/
 export function decodeJWT (jwt) {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
   const parts = jwt.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
@@ -57,10 +67,10 @@ export function decodeJWT (jwt) {
 *  })
 *
 *  @param    {Object}            payload            payload object
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {String}            config.issuer      The DID of the issuer (signer) of JWT
-*  @param    {String}            config.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
-*  @param    {SimpleSigner}      config.signer      a signer, reference our SimpleSigner.js
+*  @param    {Object}            [options]           an unsigned credential object
+*  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
+*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
+*  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
 export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
@@ -89,8 +99,8 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  and the did doc of the issuer of the JWT.
 *
 *  @example
-*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...}).then(obj => {
-       const did = obj.did // DID of signer
+*  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
+*      const did = obj.did // DID of signer
 *      const payload = obj.payload
 *      const doc = obj.doc // DID Document of signer
 *      const jwt = obj.jwt
@@ -99,10 +109,10 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 *  })
 *
 *  @param    {String}            jwt                a JSON Web Token to verify
-*  @param    {Object}            [config]           an unsigned credential object
-*  @param    {Boolean}           config.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
-*  @param    {String}            config.audience    DID of the recipient of the JWT
-*  @param    {String}            config.callbackUrl callback url in JWT
+*  @param    {Object}            [options]           an unsigned credential object
+*  @param    {Boolean}           options.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
+*  @param    {String}            options.audience    DID of the recipient of the JWT
+*  @param    {String}            options.callbackUrl callback url in JWT
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
 */
 export async function verifyJWT (jwt, options = {}) {
@@ -138,7 +148,7 @@ export async function verifyJWT (jwt, options = {}) {
     }
     return ({payload, doc, issuer, signer, jwt})
   } else {
-    
+
   }
 }
 
@@ -158,7 +168,6 @@ export async function verifyJWT (jwt, options = {}) {
 *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
 *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
 */
-
 export async function resolveAuthenticator (alg, mnidOrDid, auth) {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) throw new Error(`No supported signature types for algorithm ${alg}`)

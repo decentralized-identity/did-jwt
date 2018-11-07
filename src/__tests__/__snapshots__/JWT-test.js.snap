@@ -64,7 +64,7 @@ Object {
 
 exports[`verifyJWT() accepts a valid exp 1`] = `
 Object {
-  "exp": 1485321074,
+  "exp": 1485320834,
   "iat": 1485321133,
   "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
@@ -72,7 +72,7 @@ Object {
 
 exports[`verifyJWT() accepts a valid iat 1`] = `
 Object {
-  "iat": 1485321193,
+  "iat": 1485321433,
   "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
 }
 `;
