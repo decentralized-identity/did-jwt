@@ -1,13 +1,20 @@
 import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
+import NaclSigner from '../NaclSigner'
 import base64url from 'base64url'
 import { ec as EC } from 'elliptic'
+import nacl from 'tweetnacl'
+import naclutil from 'tweetnacl-util'
+import { decodeBase64Url } from 'nacl-did'
 import { sha256 } from '../Digest'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
+const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const kp = secp256k1.keyFromPrivate(privateKey)
 const signer = SimpleSigner(privateKey)
+const edSigner = NaclSigner(ed25519PrivateKey)
+const edKp = nacl.sign.keyPair.fromSecretKey(naclutil.decodeBase64(ed25519PrivateKey))
 
 describe('SignerAlgorithm', () => {
   it('supports ES256K', () => {
@@ -16,6 +23,10 @@ describe('SignerAlgorithm', () => {
 
   it('supports ES256K-R', () => {
     expect(typeof SignerAlgorithm('ES256K-R')).toEqual('function')
+  })
+
+  it('supports Ed25519', () => {
+    expect(typeof SignerAlgorithm('Ed25519')).toEqual('function')
   })
 
   it('fails on unsupported algorithm', () => {
@@ -64,5 +75,17 @@ describe('ES256K-R', () => {
   it('can verify the signature', async () => {
     const signature = await jwtSigner('hello', signer)
     expect(kp.verify(sha256('hello'), toSignatureObject(signature, true))).toBeTruthy()
+  })
+})
+
+describe('Ed25519', () => {
+  const jwtSigner = SignerAlgorithm('Ed25519')
+  it('returns correct signature', async () => {
+    return expect(jwtSigner('hello', edSigner)).resolves.toEqual('lLY_SeplJc_4tgMP1BHmjfxS0UEi-Xvonzbss4GT7yuFz--H28uCwsRjlIwXL4I0ugCrM-zQoA2gW2JdnFRkDQ')
+  })
+
+  it('can verify the signature', async () => {
+    const signature = await jwtSigner('hello', edSigner)
+    expect(nacl.sign.detached.verify(naclutil.decodeUTF8('hello'), decodeBase64Url(signature), edKp.publicKey)).toBeTruthy()
   })
 })

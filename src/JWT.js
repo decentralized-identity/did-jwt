@@ -4,12 +4,15 @@ import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
 import registerUport from 'uport-did-resolver'
+import registerNacl from 'nacl-did'
 
 registerUport()
+registerNacl()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
   ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
-  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1']
+  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
+  'Ed25519': ['ED25519SignatureVerification']
 }
 
 const JOSE_HEADER = {typ: 'JWT'}
@@ -32,7 +35,6 @@ export function normalizeDID (mnidOrDid) {
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
 }
-
 
 /**
 *  Decodes a JWT and returns an object representing the payload
@@ -69,7 +71,7 @@ export function decodeJWT (jwt) {
 *  @param    {Object}            payload            payload object
 *  @param    {Object}            [options]           an unsigned credential object
 *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
-*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
+*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K
 *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */

@@ -57,6 +57,7 @@
     "jsdoc-to-markdown": "^4.0.1",
     "mnid": "^0.1.1",
     "uport-did-resolver": "0.0.4",
+    "nacl-did": "^0.1.0",
     "uport-lite": "^1.0.2"
   },
   "standard": {

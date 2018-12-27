@@ -1,6 +1,9 @@
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import base64url from 'base64url'
+import nacl from 'tweetnacl'
+import naclutil from 'tweetnacl-util'
+import { decodeBase64Url } from 'nacl-did'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -37,7 +40,15 @@ export function verifyRecoverableES256K (data, signature, authenticators) {
   return signer
 }
 
-const algorithms = { ES256K: verifyES256K, 'ES256K-R': verifyRecoverableES256K }
+export function verifyEd25519 (data, signature, authenticators) {
+  const clear = naclutil.decodeUTF8(data)
+  const sig = decodeBase64Url(signature)
+  const signer = authenticators.find(({publicKeyBase64}) => nacl.sign.detached.verify(clear, sig, naclutil.decodeBase64(publicKeyBase64)))
+  if (!signer) throw new Error('Signature invalid for JWT')
+  return signer
+}
+
+const algorithms = { ES256K: verifyES256K, 'ES256K-R': verifyRecoverableES256K, 'Ed25519': verifyEd25519 }
 
 function VerifierAlgorithm (alg) {
   const impl = algorithms[alg]
