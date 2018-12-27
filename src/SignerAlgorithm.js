@@ -19,7 +19,13 @@ export function ES256KSigner (recoverable = false) {
   }
 }
 
-const algorithms = { ES256K: ES256KSigner(), 'ES256K-R': ES256KSigner(true) }
+export function Ed25519Signer () {
+  return async function sign (payload, signer) {
+    return signer(payload)
+  }
+}
+
+const algorithms = { ES256K: ES256KSigner(), 'ES256K-R': ES256KSigner(true), 'Ed25519': Ed25519Signer() }
 
 function SignerAlgorithm (alg) {
   const impl = algorithms[alg]
