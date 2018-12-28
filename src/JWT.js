@@ -27,7 +27,7 @@ function isDIDOrMNID (mnidOrDid) {
   return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
 }
 
-function normalizeDID (mnidOrDid) {
+export function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
