@@ -57,4 +57,4 @@ function VerifierAlgorithm (alg) {
 
 VerifierAlgorithm.toSignatureObject = toSignatureObject
 
-module.exports = VerifierAlgorithm
+export default VerifierAlgorithm

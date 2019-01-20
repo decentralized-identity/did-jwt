@@ -21,7 +21,7 @@ function leftpad (data, size = 64) {
 *  @return   {Function}                     a configured signer function
 */
 
-function SimpleSigner (hexPrivateKey) {
+export default function (hexPrivateKey) {
   const privateKey = secp256k1.keyFromPrivate(hexPrivateKey)
   return async (data) => {
     const { r, s, recoveryParam } = privateKey.sign(sha256(data))
@@ -32,5 +32,3 @@ function SimpleSigner (hexPrivateKey) {
     }
   }
 }
-
-module.exports = SimpleSigner
