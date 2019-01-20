@@ -17,11 +17,9 @@ import { encodeBase64Url } from 'nacl-did'
 *  @return   {Function}                     a configured signer function
 */
 
-function NaclSigner (base64PrivateKey) {
+export default function (base64PrivateKey) {
   const privateKey = naclutil.decodeBase64(base64PrivateKey)
   return async (data) => {
     return encodeBase64Url(nacl.sign.detached(naclutil.decodeUTF8(data), privateKey))
   }
 }
-
-module.exports = NaclSigner
