@@ -4,10 +4,10 @@ import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
 import registerUport from 'uport-did-resolver'
-import registerNacl from 'nacl-did'
+import { registerNaclDID } from 'nacl-did'
 
 registerUport()
-registerNacl()
+registerNaclDID()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
   ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
