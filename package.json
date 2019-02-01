@@ -56,7 +56,7 @@
     "js-sha3": "^0.7.0",
     "jsdoc-to-markdown": "^4.0.1",
     "mnid": "^0.1.1",
-    "uport-did-resolver": "0.0.4-alpha2",
+    "uport-did-resolver": "0.0.4",
     "uport-lite": "^1.0.2"
   },
   "standard": {
