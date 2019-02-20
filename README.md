@@ -6,10 +6,25 @@
 
 [Algorithms supported](docs/guides/index.md#algorithms-supported) | [DID Public Key Types](docs/guides/index.md#did-publickey-types) | [Claim Specification](docs/guides/index.md#claims)
 
-
 The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) using ES256K, ES256K-R and Ed25519 algorithms.
 
 Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the signing identity of the claim, which is passed as the `iss` attribute of the encoded JWT.
+
+## DID methods
+
+We currently support the following DID methods:
+
+- [`ethr`](https://github.com/uport-project/ethr-did-resolver)
+- [`uport`](https://github.com/uport-project/uport-did-resolver)
+- [`https`](https://github.com/uport-project/https-did-resolver)
+- [`nacl`](https://github.com/uport-project/nacl-did)
+- [`muport`](https://github.com/3box/muport-did-resolver)
+
+You will need to install each one you need to support. See each method for how to configure it.
+
+Support for other DID methods should be simple. Write a DID resolver supporting the [`did-resolver'](https://github.com/uport-project/did-resolver) interface. Once you've verified that it works, please add a PR adding it to the above list so people can find it.
+
+If your DID method requires a different signing algorithm than what is already supported, please create a PR.
 
 ## Installation
 
