@@ -3,9 +3,12 @@ import { TokenVerifier } from 'jsontokens'
 import registerResolver from 'uport-did-resolver'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
-import { loadIdentity, verifyJWT as naclVerifyJWT } from 'nacl-did'
-
+import { registerNaclDID, loadIdentity, verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
+
+registerResolver()
+registerNaclDID()
+
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 

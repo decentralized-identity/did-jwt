@@ -3,7 +3,6 @@ import { sha256, toEthereumAddress } from './Digest'
 import base64url from 'base64url'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
-import { decodeBase64Url } from 'nacl-did'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -23,7 +22,7 @@ export function toSignatureObject (signature, recoverable = false) {
 export function verifyES256K (data, signature, authenticators) {
   const hash = sha256(data)
   const sigObj = toSignatureObject(signature)
-  const signer = authenticators.find(({publicKeyHex}) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj))
+  const signer = authenticators.find(({ publicKeyHex }) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj))
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }
@@ -35,15 +34,15 @@ export function verifyRecoverableES256K (data, signature, authenticators) {
   const recoveredPublicKeyHex = recoveredKey.encode('hex')
   const recoveredCompressedPublicKeyHex = recoveredKey.encode('hex', true)
   const recoveredAddress = toEthereumAddress(recoveredPublicKeyHex)
-  const signer = authenticators.find(({publicKeyHex, ethereumAddress}) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || ethereumAddress === recoveredAddress)
+  const signer = authenticators.find(({ publicKeyHex, ethereumAddress }) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || ethereumAddress === recoveredAddress)
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }
 
 export function verifyEd25519 (data, signature, authenticators) {
   const clear = naclutil.decodeUTF8(data)
-  const sig = decodeBase64Url(signature)
-  const signer = authenticators.find(({publicKeyBase64}) => nacl.sign.detached.verify(clear, sig, naclutil.decodeBase64(publicKeyBase64)))
+  const sig = naclutil.decodeBase64(base64url.toBase64(signature))
+  const signer = authenticators.find(({ publicKeyBase64 }) => nacl.sign.detached.verify(clear, sig, naclutil.decodeBase64(publicKeyBase64)))
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }

@@ -1,12 +1,10 @@
-import VerifierAlgorithm, { toSignatureObject } from '../VerifierAlgorithm'
-import { decodeJWT, createJWT } from '../JWT'
+import VerifierAlgorithm from '../VerifierAlgorithm'
+import { createJWT } from '../JWT'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
-import base64url from 'base64url'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
-import { decodeBase64Url } from 'nacl-did'
 import { ec as EC } from 'elliptic'
 
 const secp256k1 = new EC('secp256k1')

@@ -1,13 +1,7 @@
-import { isMNID } from 'mnid'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
-import registerUport from 'uport-did-resolver'
-import { registerNaclDID } from 'nacl-did'
-
-registerUport()
-registerNaclDID()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
   ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
@@ -26,12 +20,17 @@ export const IAT_SKEW = 300
 
 /**  @module did-jwt/JWT */
 
+function isMNID (id) {
+  return id.match(/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/)
+}
+
 function isDIDOrMNID (mnidOrDid) {
   return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
 }
 
 export function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
+  // Backwards compatibility
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
 }
