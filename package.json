@@ -10,7 +10,7 @@
     "tutorial"
   ],
   "scripts": {
-    "test": "jest --updateSnapshot",
+    "test": "./node_modules/.bin/standard && jest --updateSnapshot",
     "build:es5": "./node_modules/.bin/babel src -d lib",
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
     "build": "npm run build:es5 && npm test && npm run build:browser",
