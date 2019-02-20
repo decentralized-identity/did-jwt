@@ -83,19 +83,19 @@ const edKey2 = {
 describe('ES256K', () => {
   const verifier = VerifierAlgorithm('ES256K')
   it('validates signature and picks correct public key', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
 
   it('validates signature with compressed public key and picks correct public key', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, compressedKey])).toEqual(compressedKey)
   })
 
   it('throws error if invalid signature', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
   })
@@ -105,25 +105,25 @@ describe('ES256K-R', async () => {
   const verifier = VerifierAlgorithm('ES256K-R')
 
   it('validates signature and picks correct public key', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer, alg: 'ES256K-R'})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
 
   it('validates signature and picks correct compressed public key', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer, alg: 'ES256K-R'})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, compressedKey])).toEqual(compressedKey)
   })
 
   it('validates signature with ethereum address', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer, alg: 'ES256K-R'})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ethAddress])).toEqual(ethAddress)
   })
 
   it('throws error if invalid signature', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {issuer: did, signer, alg: 'ES256K-R'})
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
   })
@@ -132,13 +132,13 @@ describe('ES256K-R', async () => {
 describe('Ed25519', () => {
   const verifier = VerifierAlgorithm('Ed25519')
   it('validates signature and picks correct public key', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {alg: 'Ed25519', issuer: did, signer: edSigner})
+    const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [edKey, edKey2])).toEqual(edKey)
   })
 
   it('throws error if invalid signature', async () => {
-    const jwt = await createJWT({bla: 'bla'}, {alg: 'Ed25519', issuer: did, signer: edSigner})
+    const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(new Error('Signature invalid for JWT'))
   })

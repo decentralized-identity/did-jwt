@@ -2,7 +2,7 @@ import base64url from 'base64url'
 import { Buffer } from 'buffer'
 
 export function ES256KSigner (recoverable = false) {
-  function toJose ({r, s, recoveryParam}) {
+  function toJose ({ r, s, recoveryParam }) {
     const jose = Buffer.alloc(recoverable ? 65 : 64)
     Buffer.from(r, 'hex').copy(jose, 0)
     Buffer.from(s, 'hex').copy(jose, 32)
