@@ -2,7 +2,7 @@ import base64url from 'base64url'
 import { Buffer } from 'buffer'
 
 export function ES256KSigner (recoverable = false) {
-  function toJose ({r, s, recoveryParam}) {
+  function toJose ({ r, s, recoveryParam }) {
     const jose = Buffer.alloc(recoverable ? 65 : 64)
     Buffer.from(r, 'hex').copy(jose, 0)
     Buffer.from(s, 'hex').copy(jose, 32)
@@ -19,7 +19,13 @@ export function ES256KSigner (recoverable = false) {
   }
 }
 
-const algorithms = { ES256K: ES256KSigner(), 'ES256K-R': ES256KSigner(true) }
+export function Ed25519Signer () {
+  return async function sign (payload, signer) {
+    return signer(payload)
+  }
+}
+
+const algorithms = { ES256K: ES256KSigner(), 'ES256K-R': ES256KSigner(true), 'Ed25519': Ed25519Signer() }
 
 function SignerAlgorithm (alg) {
   const impl = algorithms[alg]

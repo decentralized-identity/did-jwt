@@ -1,18 +1,15 @@
-import { isMNID } from 'mnid'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
-import registerUport from 'uport-did-resolver'
-
-registerUport()
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
   ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
-  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1']
+  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
+  'Ed25519': ['ED25519SignatureVerification']
 }
 
-const JOSE_HEADER = {typ: 'JWT'}
+const JOSE_HEADER = { typ: 'JWT' }
 const defaultAlg = 'ES256K'
 
 function encodeSection (data) {
@@ -23,16 +20,20 @@ export const IAT_SKEW = 300
 
 /**  @module did-jwt/JWT */
 
+function isMNID (id) {
+  return id.match(/^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/)
+}
+
 function isDIDOrMNID (mnidOrDid) {
   return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
 }
 
 export function normalizeDID (mnidOrDid) {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
+  // Backwards compatibility
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
   throw new Error(`Not a valid DID '${mnidOrDid}'`)
 }
-
 
 /**
 *  Decodes a JWT and returns an object representing the payload
@@ -69,14 +70,14 @@ export function decodeJWT (jwt) {
 *  @param    {Object}            payload            payload object
 *  @param    {Object}            [options]           an unsigned credential object
 *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
-*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R], Defaults to: ES256K
+*  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K
 *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
-export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
+export async function createJWT (payload, { issuer, signer, alg, expiresIn }) {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
-  const header = {...JOSE_HEADER, alg: alg || defaultAlg}
+  const header = { ...JOSE_HEADER, alg: alg || defaultAlg }
   const timestamps = { iat: Math.floor(Date.now() / 1000) }
   if (expiresIn) {
     if (typeof expiresIn === 'number') {
@@ -86,7 +87,7 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
     }
   }
   const signingInput = [encodeSection(header),
-    encodeSection({...timestamps, ...payload, iss: issuer})
+    encodeSection({ ...timestamps, ...payload, iss: issuer })
   ].join('.')
 
   const jwtSigner = SignerAlgorithm(header.alg)
@@ -117,8 +118,8 @@ export async function createJWT (payload, {issuer, signer, alg, expiresIn}) {
 */
 export async function verifyJWT (jwt, options = {}) {
   const aud = options.audience ? normalizeDID(options.audience) : undefined
-  const {payload, header, signature, data} = decodeJWT(jwt)
-  const {doc, authenticators, issuer} = await resolveAuthenticator(header.alg, payload.iss, options.auth)
+  const { payload, header, signature, data } = decodeJWT(jwt)
+  const { doc, authenticators, issuer } = await resolveAuthenticator(header.alg, payload.iss, options.auth)
   const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
   const now = Math.floor(Date.now() / 1000)
   if (signer) {
@@ -146,7 +147,7 @@ export async function verifyJWT (jwt, options = {}) {
         }
       }
     }
-    return ({payload, doc, issuer, signer, jwt})
+    return ({ payload, doc, issuer, signer, jwt })
   } else {
 
   }
@@ -174,12 +175,12 @@ export async function resolveAuthenticator (alg, mnidOrDid, auth) {
   const issuer = normalizeDID(mnidOrDid)
   const doc = await resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
-  const authenticationKeys = auth ? (doc.authentication || []).map(({publicKey}) => publicKey) : true
-  const authenticators = (doc.publicKey || []).filter(({type, id}) => types.find(supported => supported === type && (!auth || authenticationKeys.indexOf(id) >= 0)))
+  const authenticationKeys = auth ? (doc.authentication || []).map(({ publicKey }) => publicKey) : true
+  const authenticators = (doc.publicKey || []).filter(({ type, id }) => types.find(supported => supported === type && (!auth || authenticationKeys.indexOf(id) >= 0)))
 
   if (auth && (!authenticators || authenticators.length === 0)) throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticationg user`)
   if (!authenticators || authenticators.length === 0) throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
-  return {authenticators, issuer, doc}
+  return { authenticators, issuer, doc }
 }
 
 export default { decodeJWT, createJWT, verifyJWT, resolveAuthenticator }
