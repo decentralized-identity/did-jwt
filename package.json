@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
+  "source": "src/index.js",
   "files": [
     "lib",
     "dist",
@@ -39,10 +40,12 @@
     "eslint": "^5.14.1",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jest": "^22.3.0",
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
     "jest": "^24.1.0",
+    "jsdoc-to-markdown": "^4.0.1",
     "jsontokens": "^1.0.0",
     "mockdate": "^2.0.2",
     "nacl-did": "^0.4.0",
@@ -55,16 +58,13 @@
   "dependencies": {
     "@babel/runtime": "^7.3.1",
     "base64url": "^3.0.1",
-    "buffer": "^5.1.0",
+    "buffer": "^5.2.1",
     "did-resolver": "0.0.6",
     "elliptic": "^6.4.0",
-    "eslint-plugin-jest": "^22.3.0",
     "js-sha256": "^0.9.0",
-    "js-sha3": "^0.7.0",
-    "jsdoc-to-markdown": "^4.0.1",
+    "js-sha3": "^0.8.0",
     "tweetnacl": "^1.0.1",
-    "tweetnacl-util": "^0.15.0",
-    "uport-lite": "^1.0.2"
+    "tweetnacl-util": "^0.15.0"
   },
   "standard": {
     "ignore": [
