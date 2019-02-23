@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "0.2.0-alpha5",
+  "version": "0.2.0-alpha6",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
@@ -63,7 +63,7 @@
     "buffer": "^5.2.1",
     "did-resolver": "0.0.6",
     "elliptic-lite": "^1.0.0-alpha-experimental-1",
-    "js-sha256": "^0.9.0",
+    "hash.js": "^1.1.7",
     "js-sha3": "^0.8.0",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0"
