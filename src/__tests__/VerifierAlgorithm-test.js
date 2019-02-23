@@ -5,9 +5,9 @@ import NaclSigner from '../NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
-import { ec as EC } from 'elliptic'
+import { EC } from 'elliptic-lite'
 
-const secp256k1 = new EC('secp256k1')
+const secp256k1 = new EC()
 
 describe('VerifierAlgorithm', () => {
   it('supports ES256K', () => {

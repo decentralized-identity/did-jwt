@@ -3,12 +3,12 @@ import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import base64url from 'base64url'
-import { ec as EC } from 'elliptic'
+import { EC } from 'elliptic-lite'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
 import { decodeBase64Url } from 'nacl-did'
 import { sha256 } from '../Digest'
-const secp256k1 = new EC('secp256k1')
+const secp256k1 = new EC()
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const kp = secp256k1.keyFromPrivate(privateKey)

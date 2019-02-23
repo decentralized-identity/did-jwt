@@ -1,7 +1,7 @@
-import { ec as EC } from 'elliptic'
+import { EC } from 'elliptic-lite'
 import { sha256 } from './Digest'
 
-const secp256k1 = new EC('secp256k1')
+const secp256k1 = new EC()
 
 function leftpad (data, size = 64) {
   if (data.length === size) return data

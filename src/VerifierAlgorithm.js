@@ -1,10 +1,10 @@
-import { ec as EC } from 'elliptic'
+import { EC } from 'elliptic-lite'
 import { sha256, toEthereumAddress } from './Digest'
 import base64url from 'base64url'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
 
-const secp256k1 = new EC('secp256k1')
+const secp256k1 = new EC()
 
 // converts a JOSE signature to it's components
 export function toSignatureObject (signature, recoverable = false) {
