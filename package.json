@@ -5,9 +5,12 @@
   "main": "lib/index.js",
   "module": "lib/index.esm.js",
   "source": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/uport-project/did-jwt.git"
+  },
   "files": [
     "lib",
-    "dist",
     "src",
     "tutorial"
   ],
