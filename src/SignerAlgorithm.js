@@ -33,4 +33,3 @@ function SignerAlgorithm (alg) {
   return impl
 }
 export default SignerAlgorithm
-

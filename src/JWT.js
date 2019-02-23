@@ -45,7 +45,7 @@ export function normalizeDID (mnidOrDid) {
 *  @return   {Object}                               a JS object representing the decoded JWT
 */
 export function decodeJWT (jwt) {
-  if (!jwt) throw new Error('no JWT passed into decodeJWT')
+  if (!jwt) throw new Error('Missing JWT')
   const parts = jwt.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
     return {
@@ -87,7 +87,7 @@ export async function createJWT (payload, { issuer, signer, alg, expiresIn }) {
     }
   }
   const signingInput = [encodeSection(header),
-    encodeSection({ ...timestamps, ...payload, iss: issuer })
+    encodeSection({ ...timestamps, ...payload, iss: normalizeDID(issuer) })
   ].join('.')
 
   const jwtSigner = SignerAlgorithm(header.alg)
@@ -149,7 +149,7 @@ export async function verifyJWT (jwt, options = {}) {
     }
     return ({ payload, doc, issuer, signer, jwt })
   } else {
-
+    throw new Error('Signature invalid for JWT')
   }
 }
 

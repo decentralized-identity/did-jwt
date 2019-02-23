@@ -22,9 +22,7 @@ export function toSignatureObject (signature, recoverable = false) {
 export function verifyES256K (data, signature, authenticators) {
   const hash = sha256(data)
   const sigObj = toSignatureObject(signature)
-  const signer = authenticators.find(({ publicKeyHex }) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj))
-  if (!signer) throw new Error('Signature invalid for JWT')
-  return signer
+  return authenticators.find(({ publicKeyHex }) => secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj))
 }
 
 export function verifyRecoverableES256K (data, signature, authenticators) {
@@ -34,17 +32,13 @@ export function verifyRecoverableES256K (data, signature, authenticators) {
   const recoveredPublicKeyHex = recoveredKey.encode('hex')
   const recoveredCompressedPublicKeyHex = recoveredKey.encode('hex', true)
   const recoveredAddress = toEthereumAddress(recoveredPublicKeyHex)
-  const signer = authenticators.find(({ publicKeyHex, ethereumAddress }) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || ethereumAddress === recoveredAddress)
-  if (!signer) throw new Error('Signature invalid for JWT')
-  return signer
+  return authenticators.find(({ publicKeyHex, ethereumAddress }) => publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex || ethereumAddress === recoveredAddress)
 }
 
 export function verifyEd25519 (data, signature, authenticators) {
   const clear = naclutil.decodeUTF8(data)
   const sig = naclutil.decodeBase64(base64url.toBase64(signature))
-  const signer = authenticators.find(({ publicKeyBase64 }) => nacl.sign.detached.verify(clear, sig, naclutil.decodeBase64(publicKeyBase64)))
-  if (!signer) throw new Error('Signature invalid for JWT')
-  return signer
+  return authenticators.find(({ publicKeyBase64 }) => nacl.sign.detached.verify(clear, sig, naclutil.decodeBase64(publicKeyBase64)))
 }
 
 const algorithms = { ES256K: verifyES256K, 'ES256K-R': verifyRecoverableES256K, 'Ed25519': verifyEd25519 }

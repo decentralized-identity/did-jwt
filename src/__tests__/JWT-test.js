@@ -51,6 +51,19 @@ const ethDidDoc = {
   }]
 }
 
+describe('decodeJWT', () => {
+  it('parses a validly formatted JWT', () => {
+    expect(decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw')).toMatchSnapshot()
+  })
+
+  it('throws error if invalid', () => {
+    expect(() => decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0')).toThrowError('Incorrect format JWT')
+  })
+  it('throws error if invalid', () => {
+    expect(() => decodeJWT(null)).toThrowError('Missing JWT')
+  })
+})
+
 describe('createJWT()', () => {
   describe('ES256K', () => {
     it('creates a valid JWT', () => {
@@ -84,6 +97,12 @@ describe('createJWT()', () => {
       })
     })
 
+    it('throws an error if expiresIn is not a number', () => {
+      return createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: '10000' }).catch(error => {
+        return expect(error.message).toEqual('JWT expiresIn is not a number')
+      })
+    })
+
     it('throws an error if no signer is configured', () => {
       return createJWT({ requested: ['name', 'phone'] }, { issuer: did }).catch(error => {
         return expect(error.message).toEqual('No Signer functionality has been configured')
@@ -99,6 +118,12 @@ describe('createJWT()', () => {
     it('throws an error if unsupported algorithm is passed in', () => {
       return createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' }).catch(error => {
         return expect(error.message).toEqual('Unsupported algorithm BADALGO')
+      })
+    })
+
+    it('throws an error if invalid DID is passed in as issuer', () => {
+      return createJWT({ requested: ['name', 'phone'] }, { issuer: 'https://bigcomp.example', signer }).catch(error => {
+        return expect(error.message).toEqual(`Not a valid DID 'https://bigcomp.example'`)
       })
     })
   })

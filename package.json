@@ -25,6 +25,7 @@
   "jest": {
     "coverageDirectory": "./coverage/",
     "collectCoverage": true,
+    "collectCoverageFrom": ["src/**/*.js"],
     "testEnvironment": "node",
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/nock"
