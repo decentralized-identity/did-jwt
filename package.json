@@ -16,7 +16,7 @@
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
     "build": "npm run build:es5 && npm test && npm run build:browser",
     "build:docs:html": "./node_modules/.bin/jsdoc src/* README.md -d docs",
-    "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* --template template.hbs --heading-depth 2 -c js2doc.conf > docs/reference/index.md; echo",
+    "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* --template ./template.hbs --heading-depth 2 -c ./js2doc.conf > docs/reference/index.md; echo",
     "build:docs": "npm run build:docs:html && npm run build:docs:md",
     "prepublish": "npm run build"
   },
