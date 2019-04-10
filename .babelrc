@@ -1,4 +1,4 @@
 {
-  "presets": ["env"],
-  "plugins": ["transform-runtime", "transform-object-rest-spread"]
+  "presets": ["@babel/env"],
+  "plugins": ["@babel/plugin-transform-runtime"]
 }

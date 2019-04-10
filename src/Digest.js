@@ -1,5 +1,5 @@
 import { sha256 as sha256js } from 'js-sha256'
-import { keccak_256 } from 'js-sha3'
+import { keccak_256 } from 'js-sha3' // eslint-disable-line
 import { Buffer } from 'buffer'
 
 export function sha256 (payload) {

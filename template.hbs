@@ -9,6 +9,7 @@ type: "content"
 
 - `ES256K` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1)
 - `ES256K-R` the [secp256k1 ECDSA curve](https://en.bitcoin.it/wiki/Secp256k1) with recovery parameter
+- `Ed25519` the [Edwards 25519 Curve](https://ed25519.cr.yp.to)
 
 ## DID PublicKey Types
 
@@ -19,6 +20,8 @@ Name | Encoding | Algorithm's
 `Secp256k1SignatureVerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
 `Secp256k1VerificationKey2018` | `publicKeyHex` | `ES256K`, `ES256K-R`
 `Secp256k1VerificationKey2018` | `ethereumAddress` | `ES256K-R`
+`Secp256k1SignatureVerificationKey2018` | `publicKeyBase64` | `Ed25519`
+`Secp256k1VerificationKey2018` | `publicKeyBase64` | `Ed25519`
 
 ## Claims
 

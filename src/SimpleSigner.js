@@ -24,7 +24,7 @@ function leftpad (data, size = 64) {
 function SimpleSigner (hexPrivateKey) {
   const privateKey = secp256k1.keyFromPrivate(hexPrivateKey)
   return async (data) => {
-    const {r, s, recoveryParam} = privateKey.sign(sha256(data))
+    const { r, s, recoveryParam } = privateKey.sign(sha256(data))
     return {
       r: leftpad(r.toString('hex')),
       s: leftpad(s.toString('hex')),

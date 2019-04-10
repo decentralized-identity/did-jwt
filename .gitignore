@@ -9,3 +9,7 @@ coverage
 *.tgz
 /docs/.DS_Store
 /.DS_Store
+docs/*.html
+docs/fonts
+docs/scripts
+docs/styles

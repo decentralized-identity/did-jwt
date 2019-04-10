@@ -7,13 +7,13 @@ module.exports = {
       {
         test: /\.js$/,
         loaders: ['babel-loader'],
-        exclude: /node_modules/,
+        exclude: /node_modules/
       },
       {
         test: /\.json$/,
-        loader: 'json-loader',
-      },
-    ],
+        loader: 'json-loader'
+      }
+    ]
   },
   output: {
     filename: 'uport-jwt.js',
