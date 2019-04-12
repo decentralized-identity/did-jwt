@@ -112,6 +112,33 @@ Object {
 }
 `;
 
+exports[`verifyJWT() nacl-did jwt verifies the JWT and return correct profile 1`] = `
+Object {
+  "@context": "https://w3id.org/did/v1",
+  "authentication": Array [
+    Object {
+      "publicKey": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1",
+      "type": "ED25519SigningAuthentication",
+    },
+  ],
+  "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+  "publicKey": Array [
+    Object {
+      "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1",
+      "owner": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+      "publicKeyBase64": "BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU=",
+      "type": "ED25519SignatureVerification",
+    },
+    Object {
+      "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key2",
+      "owner": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+      "publicKeyBase64": "U45OP5q0lvh+WRILEatlJgmgcy0Jetxb2uYdokK5H3k=",
+      "type": "Curve25519EncryptionPublicKey",
+    },
+  ],
+}
+`;
+
 exports[`verifyJWT() pregenerated JWT verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,

@@ -1,11 +1,12 @@
 import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
-import { NaclSigner, decodeBase64Url } from '../NaclSigner'
+import NaclSigner from '../NaclSigner'
 import base64url from 'base64url'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
+import { decodeBase64Url } from 'nacl-did'
 import { sha256 } from '../Digest'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'

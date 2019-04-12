@@ -2,10 +2,12 @@ import { createJWT, verifyJWT, decodeJWT, resolveAuthenticator, IAT_SKEW } from 
 import { TokenVerifier } from 'jsontokens'
 import registerResolver from 'uport-did-resolver'
 import SimpleSigner from '../SimpleSigner'
-import { NaclSigner } from '../NaclSigner'
+import NaclSigner from '../NaclSigner'
+import { registerNaclDID, loadIdentity, verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
 
 registerResolver()
+registerNaclDID()
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -107,6 +109,12 @@ describe('createJWT()', () => {
     const signer = NaclSigner(ed25519PrivateKey)
     const alg = 'Ed25519'
 
+    it('creates a valid JWT', () => {
+      return createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer }).then((jwt) => {
+        return expect(naclVerifyJWT(jwt)).toBeTruthy()
+      })
+    })
+
     it('creates a JWT with correct format', () => {
       return createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer }).then((jwt) => {
         return expect(decodeJWT(jwt)).toMatchSnapshot()
@@ -155,6 +163,45 @@ describe('verifyJWT()', () => {
 
     it('verifies the JWT requiring authentication and return correct signer', () => {
       return verifyJWT(incomingJwt, { auth: true }).then(({ signer }) => expect(signer).toEqual(didDoc.publicKey[0]))
+    })
+  })
+
+  describe('nacl-did jwt', () => {
+    const privateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
+    const did = 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU'
+    const naclId = loadIdentity({ privateKey, did })
+    const payload = { sub: aud, claim: { superChap: true } }
+    const incomingJwt = naclId.createJWT(payload)
+    const publicKey = {
+      id: `${did}#key1`,
+      type: 'ED25519SignatureVerification',
+      owner: did,
+      publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
+    }
+    it('verifies the JWT and return correct payload', () => {
+      return verifyJWT(incomingJwt).then(({ payload }) => {
+        return expect(payload).toEqual(payload)
+      })
+    })
+
+    it('verifies the JWT and return correct profile', () => {
+      return verifyJWT(incomingJwt).then(({ doc }) => {
+        return expect(doc).toMatchSnapshot()
+      })
+    })
+
+    it('verifies the JWT and return correct did for the iss', () => {
+      return verifyJWT(incomingJwt).then(({ issuer }) => {
+        return expect(issuer).toEqual(naclId.did)
+      })
+    })
+
+    it('verifies the JWT and return correct signer', () => {
+      return verifyJWT(incomingJwt).then(({ signer }) => expect(signer).toEqual(publicKey))
+    })
+
+    it('verifies the JWT requiring authentication and return correct signer', () => {
+      return verifyJWT(incomingJwt, { auth: true }).then(({ signer }) => expect(signer).toEqual(publicKey))
     })
   })
 
