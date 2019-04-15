@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
   "source": "src/index.js",
@@ -52,7 +52,7 @@
     "regenerator-runtime": "^0.11.1",
     "sinon": "^4.0.1",
     "standard": "^12.0.1",
-    "uport-did-resolver": "0.0.6",
+    "uport-did-resolver": "0.0.7",
     "webpack": "^3.11.0"
   },
   "dependencies": {

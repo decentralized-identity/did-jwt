@@ -1,6 +1,10 @@
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
-import { encodeBase64Url } from 'nacl-did'
+
+function encodeBase64Url (data) {
+  return naclutil.encodeBase64(data).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
+}
+
 /**
 *  The NaclSigner returns a configured function for signing data using the Ed25519 algorithm. It also defines
 *  an interface that you can also implement yourself and use in our other modules.
