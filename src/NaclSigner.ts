@@ -28,4 +28,4 @@ function NaclSigner (base64PrivateKey) {
   }
 }
 
-module.exports = NaclSigner
+export default NaclSigner

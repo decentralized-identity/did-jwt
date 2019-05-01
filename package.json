@@ -3,40 +3,54 @@
   "version": "0.1.3",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
-  "source": "src/index.js",
+  "source": "src/index.ts",
+  "modules": "lib/index.mjs",
+  "types": "lib/index.d.ts",
+  "umd:main": "lib/index.umd.js",
   "files": [
     "lib",
     "dist",
     "src",
-    "tutorial"
+    "tutorial",
+    "esm"
   ],
   "scripts": {
     "test": "./node_modules/.bin/standard && jest --updateSnapshot",
-    "build:es5": "./node_modules/.bin/babel src -d lib",
+    "build:js": "./node_modules/.bin/microbundle",
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
-    "build": "npm run build:es5 && npm test && npm run build:browser",
-    "build:docs:html": "./node_modules/.bin/jsdoc src/* README.md -d docs",
-    "build:docs:md": "./node_modules/jsdoc-to-markdown/bin/cli.js src/* --template ./template.hbs --heading-depth 2 -c ./js2doc.conf > docs/reference/index.md; echo",
-    "build:docs": "npm run build:docs:html && npm run build:docs:md",
-    "prepublish": "npm run build"
+    "build": "npm run build:js && npm test && npm run build:browser",
+    "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
+    "prepublish": "npm run build",
+    "prepare": "npm run build"
   },
   "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
   "license": "Apache-2.0",
   "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
     "coverageDirectory": "./coverage/",
     "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      "!src/**/*.d.ts",
+      "!**/node_modules/**"
+    ],
     "testEnvironment": "node",
     "unmockedModulePathPatterns": [
       "<rootDir>/node_modules/nock"
     ]
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
-    "babel-jest": "^24.1.0",
-    "babel-loader": "^8.0.5",
+    "@types/jest": "^24.0.12",
     "eslint": "^5.14.1",
     "eslint-config-standard": "^12.0.0",
     "eslint-plugin-import": "^2.16.0",
@@ -44,16 +58,24 @@
     "eslint-plugin-node": "^8.0.1",
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-standard": "^4.0.0",
-    "jest": "^24.1.0",
+    "jest": "^24.7.1",
     "jsdoc-to-markdown": "^4.0.1",
     "jsontokens": "^1.0.0",
+    "microbundle": "^0.11.0",
     "mockdate": "^2.0.2",
     "nacl-did": "^0.4.0",
     "regenerator-runtime": "^0.11.1",
     "sinon": "^4.0.1",
     "standard": "^12.0.1",
     "uport-did-resolver": "0.0.7",
-    "webpack": "^3.11.0"
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1",
+    "prettier": "^1.17.0",
+    "ts-jest": "^24.0.2",
+    "tslint": "^5.16.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-eslint-rules": "^5.4.0",
+    "typescript": "^3.4.5"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1",

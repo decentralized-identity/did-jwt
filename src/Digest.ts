@@ -7,7 +7,7 @@ export function sha256 (payload) {
 }
 
 export function keccak (data) {
-  return Buffer.from(keccak_256.buffer(data))
+  return Buffer.from(keccak_256.arrayBuffer(data))
 }
 
 export function toEthereumAddress (hexPublicKey) {

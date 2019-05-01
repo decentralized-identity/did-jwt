@@ -12,7 +12,7 @@ export function toSignatureObject (signature, recoverable = false) {
   if (rawsig.length !== (recoverable ? 65 : 64)) throw new Error('wrong signature length')
   const r = rawsig.slice(0, 32).toString('hex')
   const s = rawsig.slice(32, 64).toString('hex')
-  const sigObj = { r, s }
+  const sigObj = { r, s, recoveryParam: undefined }
   if (recoverable) {
     sigObj.recoveryParam = rawsig[64]
   }
@@ -57,4 +57,4 @@ function VerifierAlgorithm (alg) {
 
 VerifierAlgorithm.toSignatureObject = toSignatureObject
 
-module.exports = VerifierAlgorithm
+export default VerifierAlgorithm

@@ -1,0 +1,25 @@
+{
+  "extends": [
+    "tslint:recommended",
+    "tslint-eslint-rules",
+    "tslint-config-prettier"
+  ],
+    "defaultSeverity": "warning",
+    "jsRules": {},
+    "rules": {
+      "curly": [true, "ignore-same-line"],
+      "interface-name": [true, "never-prefix"],
+      "max-line-length": [true, 180],
+      "object-literal-sort-keys": false,
+      "trailing-comma": [true, {"multiline": "never", "singleline": "never"}],
+      "arrow-parens": false,
+      "member-access": [true, "no-public"],
+      "eofline": false,
+      "whitespace": [false, "check-module"],
+      "no-angle-bracket-type-assertion": false,
+      "ordered-imports": false,
+      "quotemark": [true, "single", "avoid-escape"],
+      "object-curly-spacing":[true, "always"]
+    },
+    "rulesDirectory": []
+}

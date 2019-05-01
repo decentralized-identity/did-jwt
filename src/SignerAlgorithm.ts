@@ -32,4 +32,5 @@ function SignerAlgorithm (alg) {
   if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
   return impl
 }
-module.exports = SignerAlgorithm
+
+export default SignerAlgorithm

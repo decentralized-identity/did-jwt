@@ -33,4 +33,4 @@ function SimpleSigner (hexPrivateKey) {
   }
 }
 
-module.exports = SimpleSigner
+export default SimpleSigner
