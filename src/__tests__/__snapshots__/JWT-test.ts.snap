@@ -1,0 +1,151 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
+Object {
+  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0",
+  "header": Object {
+    "alg": "ES256K",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "4zZKylwG3_1WPPd0HEpeOt1uUplyXhIGQ7G26wx0T1fnwovYcXQUA-FY3Cp13iA0XwMT8kIlxwsuMFCYMdw1sw",
+}
+`;
+
+exports[`createJWT() ES256K creates a JWT with correct legacy format 1`] = `
+Object {
+  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgifQ",
+  "header": Object {
+    "alg": "ES256K",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "D1Tx-R9g-pyGAb4C486fx_1Scwf74JcoUC2xYRJ6cZFW9zwBs_NZEZg3bptrMfmNRao_2A2cbCncRKPpV7TycQ",
+}
+`;
+
+exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
+Object {
+  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
+  "header": Object {
+    "alg": "Ed25519",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "ZoPf01SxW2n5zngunI942FpviEMP6jBZZb9NJ27M_K7AcmjPeeLH8bm2lv0INmJ2u98JVSzELF8YLWQvPYB1Bw",
+}
+`;
+
+exports[`verifyJWT() accepts a valid MNID audience 1`] = `
+Object {
+  "aud": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() accepts a valid audience 1`] = `
+Object {
+  "aud": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() accepts a valid audience using callback_url 1`] = `
+Object {
+  "aud": "http://pututu.uport.me/unique",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() accepts a valid exp 1`] = `
+Object {
+  "exp": 1485320834,
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() accepts a valid iat 1`] = `
+Object {
+  "iat": 1485321433,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() handles ES256K-R algorithm 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+}
+`;
+
+exports[`verifyJWT() handles ES256K-R algorithm with ethereum address 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY",
+}
+`;
+
+exports[`verifyJWT() nacl-did jwt verifies the JWT and return correct profile 1`] = `
+Object {
+  "@context": "https://w3id.org/did/v1",
+  "authentication": Array [
+    Object {
+      "publicKey": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1",
+      "type": "ED25519SigningAuthentication",
+    },
+  ],
+  "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+  "publicKey": Array [
+    Object {
+      "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1",
+      "owner": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+      "publicKeyBase64": "BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU=",
+      "type": "ED25519SignatureVerification",
+    },
+    Object {
+      "id": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key2",
+      "owner": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+      "publicKeyBase64": "U45OP5q0lvh+WRILEatlJgmgcy0Jetxb2uYdokK5H3k=",
+      "type": "Curve25519EncryptionPublicKey",
+    },
+  ],
+}
+`;
+
+exports[`verifyJWT() pregenerated JWT verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;

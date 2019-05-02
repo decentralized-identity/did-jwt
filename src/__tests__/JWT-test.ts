@@ -84,18 +84,6 @@ describe('createJWT()', () => {
       })
     })
 
-    it('throws an error if no signer is configured', () => {
-      return createJWT({ requested: ['name', 'phone'] }, { issuer: did }).catch(error => {
-        return expect(error.message).toEqual('No Signer functionality has been configured')
-      })
-    })
-
-    it('throws an error if no address is configured', () => {
-      return createJWT({ requested: ['name', 'phone'] }, { signer }).catch(error => {
-        return expect(error.message).toEqual('No issuing DID has been configured')
-      })
-    })
-
     it('throws an error if unsupported algorithm is passed in', () => {
       return createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' }).catch(error => {
         return expect(error.message).toEqual('Unsupported algorithm BADALGO')

@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
-import resolve from 'did-resolver'
+import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
 interface EcdsaSignature {
   r: string,
@@ -14,6 +14,12 @@ interface JWTOptions {
   signer: (data: string) => Promise<EcdsaSignature | string>,
   alg?: string,
   expiresIn?: number
+}
+
+interface JWTVerifyOptions {
+  auth?: boolean,
+  audience?: string,
+  callbackUrl?: string
 }
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
@@ -144,8 +150,8 @@ export async function createJWT(payload: object, {issuer, signer, alg, expiresIn
  *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
  */
 export async function verifyJWT(
-  jwt,
-  options = { audience: null, auth: null, callbackUrl: null }
+  jwt: string,
+  options: JWTVerifyOptions = {auth: null, audience: null, callbackUrl: null},
 ) {
   const aud = options.audience ? normalizeDID(options.audience) : undefined
   const { payload, header, signature, data } = decodeJWT(jwt)
@@ -202,6 +208,12 @@ export async function verifyJWT(
   }
 }
 
+interface DIDAuthenticator {
+  authenticators: PublicKey[],
+  issuer: string,
+  doc: DIDDocument,
+}
+
 /**
  * Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
  *
@@ -218,7 +230,7 @@ export async function verifyJWT(
  *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
  *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
-export async function resolveAuthenticator(alg, mnidOrDid, auth) {
+export async function resolveAuthenticator(alg: string, mnidOrDid: string, auth?: boolean): Promise<DIDAuthenticator> {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0)
     throw new Error(`No supported signature types for algorithm ${alg}`)
