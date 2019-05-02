@@ -3,6 +3,19 @@ import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve from 'did-resolver'
 
+interface EcdsaSignature {
+  r: string,
+  s: string,
+  recoveryParam?: number,
+}
+
+interface JWTOptions {
+  issuer: string,
+  signer: (data: string) => Promise<EcdsaSignature | string>,
+  alg?: string,
+  expiresIn?: number
+}
+
 const SUPPORTED_PUBLIC_KEY_TYPES = {
   ES256K: [
     'Secp256k1VerificationKey2018',
@@ -86,7 +99,8 @@ export function decodeJWT(jwt) {
  *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
-export async function createJWT(payload, { issuer, signer, alg, expiresIn }) {
+// export async function createJWT(payload, { issuer, signer, alg, expiresIn }) {
+export async function createJWT(payload: object, {issuer, signer, alg, expiresIn}: JWTOptions): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header = { ...JOSE_HEADER, alg: alg || defaultAlg }
