@@ -3,15 +3,19 @@ import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'base64url'
 import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
-interface EcdsaSignature {
+export interface EcdsaSignature {
+  discriminator: 'EcdsaSignature',
   r: string,
   s: string,
   recoveryParam?: number,
 }
 
+export type Signer = (data: string) => Promise<EcdsaSignature | string>
+export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
+
 interface JWTOptions {
   issuer: string,
-  signer: (data: string) => Promise<EcdsaSignature | string>,
+  signer: Signer,
   alg?: string,
   expiresIn?: number
 }
