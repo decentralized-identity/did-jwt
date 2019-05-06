@@ -1,9 +1,10 @@
 import { ec as EC } from 'elliptic'
 import { sha256 } from './Digest'
+import { Signer } from './JWT';
 
 const secp256k1 = new EC('secp256k1')
 
-function leftpad (data, size = 64) {
+function leftpad (data:string, size = 64): string {
   if (data.length === size) return data
   return '0'.repeat(size - data.length) + data
 }
@@ -21,7 +22,7 @@ function leftpad (data, size = 64) {
 *  @return   {Function}                     a configured signer function
 */
 
-function SimpleSigner (hexPrivateKey) {
+function SimpleSigner (hexPrivateKey: string): Signer {
   const privateKey = secp256k1.keyFromPrivate(hexPrivateKey)
   return async (data) => {
     const { r, s, recoveryParam } = privateKey.sign(sha256(data))

@@ -4,7 +4,6 @@ import base64url from 'base64url'
 import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
 export interface EcdsaSignature {
-  discriminator: 'EcdsaSignature',
   r: string,
   s: string,
   recoveryParam?: number,
@@ -24,6 +23,12 @@ interface JWTVerifyOptions {
   auth?: boolean,
   audience?: string,
   callbackUrl?: string
+}
+
+interface DIDAuthenticator {
+  authenticators: PublicKey[],
+  issuer: string,
+  doc: DIDDocument,
 }
 
 const SUPPORTED_PUBLIC_KEY_TYPES = {
@@ -210,12 +215,6 @@ export async function verifyJWT(
     return { payload, doc, issuer, signer, jwt }
   } else {
   }
-}
-
-interface DIDAuthenticator {
-  authenticators: PublicKey[],
-  issuer: string,
-  doc: DIDDocument,
 }
 
 /**

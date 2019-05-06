@@ -1,5 +1,6 @@
 import nacl from 'tweetnacl'
 import naclutil from 'tweetnacl-util'
+import { Signer } from './JWT';
 
 function encodeBase64Url(data: Uint8Array): string {
   return naclutil
@@ -25,7 +26,7 @@ function encodeBase64Url(data: Uint8Array): string {
  *  @return   {Function}                     a configured signer function
  */
 
-function NaclSigner(base64PrivateKey: string): (data: string) => Promise<string> {
+function NaclSigner(base64PrivateKey: string): Signer {
   const privateKey = naclutil.decodeBase64(base64PrivateKey)
   return async data => {
     return encodeBase64Url(
