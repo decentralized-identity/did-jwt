@@ -4,34 +4,70 @@ import base64url from 'base64url'
 import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
 export interface EcdsaSignature {
-  r: string,
-  s: string,
-  recoveryParam?: number,
+  r: string
+  s: string
+  recoveryParam?: number
 }
 
 export type Signer = (data: string) => Promise<EcdsaSignature | string>
-export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
+export type SignerAlgorithm = (
+  payload: string,
+  signer: Signer
+) => Promise<string>
 
 interface JWTOptions {
-  issuer: string,
-  signer: Signer,
-  alg?: string,
+  issuer: string
+  signer: Signer
+  alg?: string
   expiresIn?: number
 }
 
 interface JWTVerifyOptions {
-  auth?: boolean,
-  audience?: string,
+  auth?: boolean
+  audience?: string
   callbackUrl?: string
 }
 
 interface DIDAuthenticator {
-  authenticators: PublicKey[],
-  issuer: string,
-  doc: DIDDocument,
+  authenticators: PublicKey[]
+  issuer: string
+  doc: DIDDocument
 }
 
-const SUPPORTED_PUBLIC_KEY_TYPES = {
+interface JWTHeader {
+  type: 'JWT'
+  alg: string
+}
+
+interface JWTPayload {
+  iss?: string
+  sub?: string
+  aud?: string
+  iat?: number
+  type?: string
+  exp?: number
+  rexp?: number
+}
+
+interface JWTDecoded {
+  header: JWTHeader
+  payload: JWTPayload
+  signature: string
+  data: string
+}
+
+interface Verified {
+  payload: any,
+  doc: DIDDocument,
+  issuer: string,
+  signer: object,
+  jwt: string
+}
+
+interface PublicKeyTypes {
+  [name: string]: string[]
+}
+const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256K: [
     'Secp256k1VerificationKey2018',
     'Secp256k1SignatureVerificationKey2018',
@@ -48,25 +84,25 @@ const SUPPORTED_PUBLIC_KEY_TYPES = {
 const JOSE_HEADER = { typ: 'JWT' }
 const defaultAlg = 'ES256K'
 
-function encodeSection(data) {
+function encodeSection(data: any): string {
   return base64url.encode(JSON.stringify(data))
 }
 
-export const IAT_SKEW = 300
+export const IAT_SKEW: number = 300
 
 /**  @module did-jwt/JWT */
 
-function isMNID(id) {
+function isMNID(id: string): RegExpMatchArray {
   return id.match(
     /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/
   )
 }
 
-function isDIDOrMNID(mnidOrDid) {
+function isDIDOrMNID(mnidOrDid: string): RegExpMatchArray {
   return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
 }
 
-export function normalizeDID(mnidOrDid) {
+export function normalizeDID(mnidOrDid: string): string {
   if (mnidOrDid.match(/^did:/)) return mnidOrDid
   // Backwards compatibility
   if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
@@ -82,7 +118,7 @@ export function normalizeDID(mnidOrDid) {
  *  @param    {String}            jwt                a JSON Web Token to verify
  *  @return   {Object}                               a JS object representing the decoded JWT
  */
-export function decodeJWT(jwt) {
+export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
   const parts = jwt.match(
     /^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/
@@ -115,7 +151,10 @@ export function decodeJWT(jwt) {
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
 // export async function createJWT(payload, { issuer, signer, alg, expiresIn }) {
-export async function createJWT(payload: object, {issuer, signer, alg, expiresIn}: JWTOptions): Promise<string> {
+export async function createJWT(
+  payload: object,
+  { issuer, signer, alg, expiresIn }: JWTOptions
+): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header = { ...JOSE_HEADER, alg: alg || defaultAlg }
@@ -160,8 +199,8 @@ export async function createJWT(payload: object, {issuer, signer, alg, expiresIn
  */
 export async function verifyJWT(
   jwt: string,
-  options: JWTVerifyOptions = {auth: null, audience: null, callbackUrl: null},
-) {
+  options: JWTVerifyOptions = { auth: null, audience: null, callbackUrl: null }
+): Promise<Verified> {
   const aud = options.audience ? normalizeDID(options.audience) : undefined
   const { payload, header, signature, data } = decodeJWT(jwt)
   const { doc, authenticators, issuer } = await resolveAuthenticator(
@@ -233,7 +272,11 @@ export async function verifyJWT(
  *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
  *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
-export async function resolveAuthenticator(alg: string, mnidOrDid: string, auth?: boolean): Promise<DIDAuthenticator> {
+export async function resolveAuthenticator(
+  alg: string,
+  mnidOrDid: string,
+  auth?: boolean
+): Promise<DIDAuthenticator> {
   const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0)
     throw new Error(`No supported signature types for algorithm ${alg}`)
@@ -246,7 +289,10 @@ export async function resolveAuthenticator(alg: string, mnidOrDid: string, auth?
   const authenticators = (doc.publicKey || []).filter(({ type, id }) =>
     types.find(
       supported =>
-        supported === type && (!auth || (Array.isArray(authenticationKeys) && authenticationKeys.indexOf(id) >= 0))
+        supported === type &&
+        (!auth ||
+          (Array.isArray(authenticationKeys) &&
+            authenticationKeys.indexOf(id) >= 0))
     )
   )
 
