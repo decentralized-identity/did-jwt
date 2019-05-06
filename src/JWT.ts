@@ -120,7 +120,7 @@ export function normalizeDID(mnidOrDid: string): string {
  */
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
-  const parts = jwt.match(
+  const parts: RegExpMatchArray = jwt.match(
     /^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/
   )
   if (parts) {
@@ -157,8 +157,8 @@ export async function createJWT(
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
-  const header = { ...JOSE_HEADER, alg: alg || defaultAlg }
-  const timestamps = { iat: Math.floor(Date.now() / 1000), exp: undefined }
+  const header: JWTHeader = { type: 'JWT', alg: alg || defaultAlg }
+  const timestamps: { iat: number, exp?: number} = { iat: Math.floor(Date.now() / 1000), exp: undefined }
   if (expiresIn) {
     if (typeof expiresIn === 'number') {
       timestamps.exp = timestamps.iat + Math.floor(expiresIn)
@@ -166,13 +166,13 @@ export async function createJWT(
       throw new Error('JWT expiresIn is not a number')
     }
   }
-  const signingInput = [
+  const signingInput: string = [
     encodeSection(header),
     encodeSection({ ...timestamps, ...payload, iss: issuer })
   ].join('.')
 
-  const jwtSigner = SignerAlgorithm(header.alg)
-  const signature = await jwtSigner(signingInput, signer)
+  const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
+  const signature: string = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
 }
 
@@ -201,15 +201,15 @@ export async function verifyJWT(
   jwt: string,
   options: JWTVerifyOptions = { auth: null, audience: null, callbackUrl: null }
 ): Promise<Verified> {
-  const aud = options.audience ? normalizeDID(options.audience) : undefined
-  const { payload, header, signature, data } = decodeJWT(jwt)
-  const { doc, authenticators, issuer } = await resolveAuthenticator(
+  const aud: string = options.audience ? normalizeDID(options.audience) : undefined
+  const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
+  const { doc, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     header.alg,
     payload.iss,
     options.auth
   )
-  const signer = VerifierAlgorithm(header.alg)(data, signature, authenticators)
-  const now = Math.floor(Date.now() / 1000)
+  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, authenticators)
+  const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     if (payload.iat && payload.iat > now + IAT_SKEW) {
       throw new Error(
@@ -277,16 +277,17 @@ export async function resolveAuthenticator(
   mnidOrDid: string,
   auth?: boolean
 ): Promise<DIDAuthenticator> {
-  const types = SUPPORTED_PUBLIC_KEY_TYPES[alg]
+  const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0)
     throw new Error(`No supported signature types for algorithm ${alg}`)
-  const issuer = normalizeDID(mnidOrDid)
-  const doc = await resolve(issuer)
+  const issuer: string = normalizeDID(mnidOrDid)
+  const doc: DIDDocument = await resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
-  const authenticationKeys = auth
+  // is there some way to have authenticationKeys be a single type?
+  const authenticationKeys: boolean | string[] = auth
     ? (doc.authentication || []).map(({ publicKey }) => publicKey)
     : true
-  const authenticators = (doc.publicKey || []).filter(({ type, id }) =>
+  const authenticators: PublicKey[] = (doc.publicKey || []).filter(({ type, id }) =>
     types.find(
       supported =>
         supported === type &&

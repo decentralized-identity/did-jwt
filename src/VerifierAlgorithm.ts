@@ -46,13 +46,14 @@ export function verifyRecoverableES256K(
 ): PublicKey {
   const sigObj: EcdsaSignature = toSignatureObject(signature, true)
   const hash: Buffer = sha256(data)
-  const recoveredKey = secp256k1.recoverPubKey(
+  // what type is recoveredKey supposed to be?
+  const recoveredKey: any = secp256k1.recoverPubKey(
     hash,
     sigObj,
     sigObj.recoveryParam
   )
-  const recoveredPublicKeyHex = recoveredKey.encode('hex')
-  const recoveredCompressedPublicKeyHex = recoveredKey.encode('hex', true)
+  const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
+  const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
   const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
   const signer: PublicKey = authenticators.find(
     ({ publicKeyHex, ethereumAddress }) =>

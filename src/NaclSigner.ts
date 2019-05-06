@@ -27,7 +27,7 @@ function encodeBase64Url(data: Uint8Array): string {
  */
 
 function NaclSigner(base64PrivateKey: string): Signer {
-  const privateKey = naclutil.decodeBase64(base64PrivateKey)
+  const privateKey: Uint8Array = naclutil.decodeBase64(base64PrivateKey)
   return async data => {
     return encodeBase64Url(
       nacl.sign.detached(naclutil.decodeUTF8(data), privateKey)

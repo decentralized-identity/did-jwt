@@ -10,7 +10,7 @@ export function ES256KSigner(
   recoverable?: boolean
 ): SignerAlgorithm {
   function toJose({ r, s, recoveryParam }: EcdsaSignature): string {
-    const jose = Buffer.alloc(recoverable ? 65 : 64)
+    const jose: Buffer = Buffer.alloc(recoverable ? 65 : 64)
     Buffer.from(r, 'hex').copy(jose, 0)
     Buffer.from(s, 'hex').copy(jose, 32)
     if (recoverable) {
@@ -22,7 +22,7 @@ export function ES256KSigner(
   }
 
   return async function sign(payload: string, signer: Signer): Promise<string> {
-    const signature = await signer(payload)
+    const signature: EcdsaSignature | string = await signer(payload)
     if (instanceOfEcdsaSignature(signature)) {
       return toJose(signature)
     } else {
@@ -33,7 +33,7 @@ export function ES256KSigner(
 
 export function Ed25519Signer(): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
-    const signature = await signer(payload)
+    const signature: EcdsaSignature | string = await signer(payload)
     if (!instanceOfEcdsaSignature(signature)) {
       return signature
     } else {
@@ -53,7 +53,7 @@ const algorithms: SignerAlgorithms = {
 }
 
 function SignerAlgorithm(alg: string): SignerAlgorithm {
-  const impl = algorithms[alg]
+  const impl: SignerAlgorithm = algorithms[alg]
   if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
   return impl
 }
