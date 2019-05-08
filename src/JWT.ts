@@ -57,10 +57,10 @@ interface JWTDecoded {
 }
 
 interface Verified {
-  payload: any,
-  doc: DIDDocument,
-  issuer: string,
-  signer: object,
+  payload: any
+  doc: DIDDocument
+  issuer: string
+  signer: object
   jwt: string
 }
 
@@ -113,7 +113,7 @@ export function normalizeDID(mnidOrDid: string): string {
  *  Decodes a JWT and returns an object representing the payload
  *
  *  @example
- *  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1MjU5Mjc1MTcsImF1ZCI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyIsImV4cCI6MTU1NzQ2MzQyMSwibmFtZSI6InVQb3J0IERldmVsb3BlciIsImlzcyI6ImRpZDp1cG9ydDoyb3NuZko0V3k3TEJBbTJuUEJYaXJlMVdmUW43NVJyVjZUcyJ9.R7owbvNZoL4ti5ec-Kpktb0datw9Y-FshHsF5R7cXuKaiGlQz1dcOOXbXTOb-wg7-30CDfchFERR6Yc8F61ymw')
+ *  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1...')
  *
  *  @param    {String}            jwt                a JSON Web Token to verify
  *  @return   {Object}                               a JS object representing the decoded JWT
@@ -158,7 +158,10 @@ export async function createJWT(
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header: JWTHeader = { type: 'JWT', alg: alg || defaultAlg }
-  const timestamps: { iat: number, exp?: number} = { iat: Math.floor(Date.now() / 1000), exp: undefined }
+  const timestamps: { iat: number; exp?: number } = {
+    iat: Math.floor(Date.now() / 1000),
+    exp: undefined
+  }
   if (expiresIn) {
     if (typeof expiresIn === 'number') {
       timestamps.exp = timestamps.iat + Math.floor(expiresIn)
@@ -201,14 +204,24 @@ export async function verifyJWT(
   jwt: string,
   options: JWTVerifyOptions = { auth: null, audience: null, callbackUrl: null }
 ): Promise<Verified> {
-  const aud: string = options.audience ? normalizeDID(options.audience) : undefined
+  const aud: string = options.audience
+    ? normalizeDID(options.audience)
+    : undefined
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
-  const { doc, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
+  const {
+    doc,
+    authenticators,
+    issuer
+  }: DIDAuthenticator = await resolveAuthenticator(
     header.alg,
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, authenticators)
+  const signer: PublicKey = VerifierAlgorithm(header.alg)(
+    data,
+    signature,
+    authenticators
+  )
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     if (payload.iat && payload.iat > now + IAT_SKEW) {
@@ -252,7 +265,6 @@ export async function verifyJWT(
       }
     }
     return { payload, doc, issuer, signer, jwt }
-  } else {
   }
 }
 
@@ -278,8 +290,9 @@ export async function resolveAuthenticator(
   auth?: boolean
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
-  if (!types || types.length === 0)
+  if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
+  }
   const issuer: string = normalizeDID(mnidOrDid)
   const doc: DIDDocument = await resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
@@ -287,24 +300,27 @@ export async function resolveAuthenticator(
   const authenticationKeys: boolean | string[] = auth
     ? (doc.authentication || []).map(({ publicKey }) => publicKey)
     : true
-  const authenticators: PublicKey[] = (doc.publicKey || []).filter(({ type, id }) =>
-    types.find(
-      supported =>
-        supported === type &&
-        (!auth ||
-          (Array.isArray(authenticationKeys) &&
-            authenticationKeys.indexOf(id) >= 0))
-    )
+  const authenticators: PublicKey[] = (doc.publicKey || []).filter(
+    ({ type, id }) =>
+      types.find(
+        supported =>
+          supported === type &&
+          (!auth ||
+            (Array.isArray(authenticationKeys) &&
+              authenticationKeys.indexOf(id) >= 0))
+      )
   )
 
-  if (auth && (!authenticators || authenticators.length === 0))
+  if (auth && (!authenticators || authenticators.length === 0)) {
     throw new Error(
       `DID document for ${issuer} does not have public keys suitable for authenticationg user`
     )
-  if (!authenticators || authenticators.length === 0)
+  }
+  if (!authenticators || authenticators.length === 0) {
     throw new Error(
       `DID document for ${issuer} does not have public keys for ${alg}`
     )
+  }
   return { authenticators, issuer, doc }
 }
 

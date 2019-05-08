@@ -6,16 +6,15 @@ function instanceOfEcdsaSignature(object: any): object is EcdsaSignature {
   return typeof object === 'object' && 'r' in object && 's' in object
 }
 
-export function ES256KSigner(
-  recoverable?: boolean
-): SignerAlgorithm {
+export function ES256KSigner(recoverable?: boolean): SignerAlgorithm {
   function toJose({ r, s, recoveryParam }: EcdsaSignature): string {
     const jose: Buffer = Buffer.alloc(recoverable ? 65 : 64)
     Buffer.from(r, 'hex').copy(jose, 0)
     Buffer.from(s, 'hex').copy(jose, 32)
     if (recoverable) {
-      if (recoveryParam === undefined)
+      if (recoveryParam === undefined) {
         throw new Error('Signer did not return a recoveryParam')
+      }
       jose[64] = recoveryParam
     }
     return base64url.encode(jose)
@@ -26,7 +25,9 @@ export function ES256KSigner(
     if (instanceOfEcdsaSignature(signature)) {
       return toJose(signature)
     } else {
-      throw new Error('expected a signer function that returns a signature object instead of string')
+      throw new Error(
+        'expected a signer function that returns a signature object instead of string'
+      )
     }
   }
 }
@@ -37,7 +38,9 @@ export function Ed25519Signer(): SignerAlgorithm {
     if (!instanceOfEcdsaSignature(signature)) {
       return signature
     } else {
-      throw new Error('expected a signer function that returns a string instead of signature object')
+      throw new Error(
+        'expected a signer function that returns a string instead of signature object'
+      )
     }
   }
 }

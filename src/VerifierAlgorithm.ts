@@ -14,8 +14,9 @@ export function toSignatureObject(
   recoverable = false
 ): EcdsaSignature {
   const rawsig: Buffer = base64url.toBuffer(signature)
-  if (rawsig.length !== (recoverable ? 65 : 64))
+  if (rawsig.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
+  }
   const r: string = rawsig.slice(0, 32).toString('hex')
   const s: string = rawsig.slice(32, 64).toString('hex')
   const sigObj: EcdsaSignature = { r, s }
@@ -53,7 +54,10 @@ export function verifyRecoverableES256K(
     sigObj.recoveryParam
   )
   const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
-  const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
+  const recoveredCompressedPublicKeyHex: string = recoveredKey.encode(
+    'hex',
+    true
+  )
   const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
   const signer: PublicKey = authenticators.find(
     ({ publicKeyHex, ethereumAddress }) =>
@@ -83,7 +87,11 @@ export function verifyEd25519(
   return signer
 }
 
-type Verifier = (data: string, signature: string, authenticators: PublicKey[]) => PublicKey
+type Verifier = (
+  data: string,
+  signature: string,
+  authenticators: PublicKey[]
+) => PublicKey
 interface Algorithms {
   [name: string]: Verifier
 }

@@ -19,7 +19,8 @@
       "no-angle-bracket-type-assertion": false,
       "ordered-imports": false,
       "quotemark": [true, "single", "avoid-escape"],
-      "object-curly-spacing":[true, "always"]
+      "object-curly-spacing":[true, "always"],
+      "no-shadowed-variable": false,
     },
     "rulesDirectory": []
 }
