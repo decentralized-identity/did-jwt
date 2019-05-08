@@ -20,7 +20,7 @@
       "ordered-imports": false,
       "quotemark": [true, "single", "avoid-escape"],
       "object-curly-spacing":[true, "always"],
-      "no-shadowed-variable": false,
+      "no-shadowed-variable": false
     },
     "rulesDirectory": []
 }

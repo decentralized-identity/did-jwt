@@ -170,9 +170,9 @@ describe('verifyJWT()', () => {
 
   describe('pregenerated JWT', () => {
     const incomingJwt =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiL'
-      + 'CJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLA'
-      + 'xt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw'
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVg' +
+      'iLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrN' +
+      'LAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw'
 
     it('verifies the JWT and return correct payload', () => {
       return verifyJWT(incomingJwt).then(({ payload }) => {
@@ -251,9 +251,9 @@ describe('verifyJWT()', () => {
 
   describe('badJwt', () => {
     const badJwt =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgiL'
-      + 'CJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrNLA'
-      + 'xt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVg' +
+      'iLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrN' +
+      'LAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'
     it('rejects a JWT with bad signature', () => {
       return verifyJWT(badJwt)
         .catch(error =>
