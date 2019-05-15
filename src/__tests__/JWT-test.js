@@ -71,6 +71,12 @@ describe('createJWT()', () => {
       })
     })
 
+    it('creates a JWT without timestamps', () => {
+      return createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, noTimestamp: true }).then((jwt) => {
+        return expect(decodeJWT(jwt)).toMatchSnapshot()
+      })
+    })
+
     it('creates a JWT with correct legacy format', () => {
       return createJWT({ requested: ['name', 'phone'] }, { issuer: mnid, signer }).then((jwt) => {
         return expect(decodeJWT(jwt)).toMatchSnapshot()

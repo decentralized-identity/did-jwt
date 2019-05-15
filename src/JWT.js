@@ -72,18 +72,23 @@ export function decodeJWT (jwt) {
 *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
 *  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K
 *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
+*  @param    {Number}            options.expiresIn   Number of seconds the JWT will be valid for
+*  @param    {Boolean}           options.noTimestamp don't add a timestamp if true
 *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
 */
-export async function createJWT (payload, { issuer, signer, alg, expiresIn }) {
+export async function createJWT (payload, { issuer, signer, alg, expiresIn, noTimestamp }) {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header = { ...JOSE_HEADER, alg: alg || defaultAlg }
-  const timestamps = { iat: Math.floor(Date.now() / 1000) }
-  if (expiresIn) {
-    if (typeof expiresIn === 'number') {
-      timestamps.exp = timestamps.iat + Math.floor(expiresIn)
-    } else {
-      throw new Error('JWT expiresIn is not a number')
+  const timestamps = {}
+  if (!noTimestamp) {
+    timestamps.iat = Math.floor(Date.now() / 1000)
+    if (expiresIn) {
+      if (typeof expiresIn === 'number') {
+        timestamps.exp = timestamps.iat + Math.floor(expiresIn)
+      } else {
+        throw new Error('JWT expiresIn is not a number')
+      }
     }
   }
   const signingInput = [encodeSection(header),
