@@ -27,8 +27,8 @@ const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const kp = secp256k1.keyFromPrivate(privateKey)
-const publicKey = kp.getPublic('hex')
-const compressedPublicKey = kp.getPublic().encode('hex', true)
+const publicKey = String(kp.getPublic('hex'))
+const compressedPublicKey = String(kp.getPublic().encode('hex', true))
 const address = toEthereumAddress(publicKey)
 const signer = SimpleSigner(privateKey)
 
