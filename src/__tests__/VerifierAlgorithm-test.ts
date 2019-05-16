@@ -101,7 +101,7 @@ describe('ES256K', () => {
   })
 })
 
-describe('ES256K-R', async () => {
+describe('ES256K-R', () => {
   const verifier = VerifierAlgorithm('ES256K-R')
 
   it('validates signature and picks correct public key', async () => {

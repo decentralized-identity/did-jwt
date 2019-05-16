@@ -1,5 +1,6 @@
 node_modules
 dist
+esm
 lib
 .vscode/settings.json
 coverage
@@ -13,3 +14,7 @@ docs/*.html
 docs/fonts
 docs/scripts
 docs/styles
+
+.rts2_cache_cjs
+.rts2_cache_es
+.rts2_cache_umd
