@@ -2,9 +2,10 @@ import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import base64url from 'base64url'
 import nacl from 'tweetnacl'
-import naclutil from 'tweetnacl-util'
 import { EcdsaSignature } from './JWT'
 import { PublicKey } from 'did-resolver'
+import { encode } from '@stablelib/utf8'
+import { base64ToBytes } from './util'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -74,13 +75,13 @@ export function verifyEd25519(
   signature: string,
   authenticators: PublicKey[]
 ): PublicKey {
-  const clear: Uint8Array = naclutil.decodeUTF8(data)
-  const sig: Uint8Array = naclutil.decodeBase64(base64url.toBase64(signature))
+  const clear: Uint8Array = encode(data)
+  const sig: Uint8Array = base64ToBytes(base64url.toBase64(signature))
   const signer: PublicKey = authenticators.find(({ publicKeyBase64 }) =>
     nacl.sign.detached.verify(
       clear,
       sig,
-      naclutil.decodeBase64(publicKeyBase64)
+      base64ToBytes(publicKeyBase64)
     )
   )
   if (!signer) throw new Error('Signature invalid for JWT')

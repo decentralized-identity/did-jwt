@@ -1,13 +1,9 @@
 import nacl from 'tweetnacl'
-import naclutil from 'tweetnacl-util'
+import { encode } from '@stablelib/utf8'
 import { Buffer } from 'buffer'
-import { Signer } from './JWT';
+import { Signer } from './JWT'
+import { base64ToBytes } from './util'
 import base64url from 'base64url'
-
-// converts a Buffer to Uint8Array
-function tou8(buf: Buffer): Uint8Array {
-  return new Uint8Array(Array.prototype.slice.call(buf, 0))
-} 
 
 /**
  *  The NaclSigner returns a configured function for signing data using the Ed25519 algorithm. It also defines
@@ -26,10 +22,10 @@ function tou8(buf: Buffer): Uint8Array {
  */
 
 function NaclSigner(base64PrivateKey: string): Signer {
-  const privateKey: Uint8Array = tou8(Buffer.from(base64PrivateKey, 'base64'))
+  const privateKey: Uint8Array = base64ToBytes(base64PrivateKey)
   return async data => {
-    const decodedData: Uint8Array = naclutil.decodeUTF8(data)
-    const sig: Uint8Array = nacl.sign.detached(decodedData, privateKey)
+    const dataBytes: Uint8Array = encode(data)
+    const sig: Uint8Array = nacl.sign.detached(dataBytes, privateKey)
     const b64UrlSig: string = base64url.encode(Buffer.from(sig))
     return b64UrlSig
   }

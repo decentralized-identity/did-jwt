@@ -80,13 +80,13 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1",
+    "@stablelib/utf8": "^0.10.1",
     "buffer": "^5.2.1",
     "did-resolver": "0.0.6",
     "elliptic": "^6.4.0",
     "js-sha256": "^0.9.0",
     "js-sha3": "^0.8.0",
     "tweetnacl": "^1.0.1",
-    "tweetnacl-util": "^0.15.0",
     "uport-base64url": "3.0.2-alpha.0"
   },
   "standard": {
