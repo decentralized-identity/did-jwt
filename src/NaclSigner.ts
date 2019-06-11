@@ -6,9 +6,7 @@ import base64url from 'base64url'
 
 // converts a Buffer to Uint8Array
 function tou8(buf: Buffer): Uint8Array {
-  const a = new Uint8Array(buf.length)
-  for (let i = 0; i < buf.length; i++) a[i] = buf[i]
-  return a
+  return new Uint8Array(Array.prototype.slice.call(buf, 0))
 } 
 
 /**
@@ -30,9 +28,10 @@ function tou8(buf: Buffer): Uint8Array {
 function NaclSigner(base64PrivateKey: string): Signer {
   const privateKey: Uint8Array = tou8(Buffer.from(base64PrivateKey, 'base64'))
   return async data => {
-    const encodedData: Uint8Array = tou8(Buffer.from(data))
-    const signed: string = Buffer.from(nacl.sign.detached(encodedData, privateKey)).toString('utf-8')
-    return base64url.encode(signed)
+    const decodedData: Uint8Array = naclutil.decodeUTF8(data)
+    const sig: Uint8Array = nacl.sign.detached(decodedData, privateKey)
+    const b64UrlSig: string = base64url.encode(Buffer.from(sig))
+    return b64UrlSig
   }
 }
 
