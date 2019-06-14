@@ -323,5 +323,3 @@ export async function resolveAuthenticator(
   }
   return { authenticators, issuer, doc }
 }
-
-export default { decodeJWT, createJWT, verifyJWT, resolveAuthenticator }
