@@ -1,6 +1,6 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
 export interface EcdsaSignature {

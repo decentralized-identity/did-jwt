@@ -1,6 +1,6 @@
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 import nacl from 'tweetnacl'
 import { EcdsaSignature } from './JWT'
 import { PublicKey } from 'did-resolver'

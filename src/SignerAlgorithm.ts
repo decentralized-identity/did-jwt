@@ -1,4 +1,4 @@
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 import { Buffer } from 'buffer'
 import { Signer, EcdsaSignature, SignerAlgorithm } from './JWT'
 

@@ -3,7 +3,7 @@ import { encode } from '@stablelib/utf8'
 import { Buffer } from 'buffer'
 import { Signer } from './JWT'
 import { base64ToBytes } from './util'
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 
 /**
  *  The NaclSigner returns a configured function for signing data using the Ed25519 algorithm. It also defines
