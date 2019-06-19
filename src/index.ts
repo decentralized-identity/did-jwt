@@ -3,7 +3,7 @@ import NaclSigner from './NaclSigner'
 import { verifyJWT, createJWT, decodeJWT, Signer } from './JWT'
 import { toEthereumAddress } from './Digest'
 
-export { 
+export {
   SimpleSigner,
   NaclSigner,
   verifyJWT,
