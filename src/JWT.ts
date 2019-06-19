@@ -1,6 +1,6 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 import resolve, { DIDDocument, PublicKey } from 'did-resolver'
 
 export interface EcdsaSignature {
@@ -323,5 +323,3 @@ export async function resolveAuthenticator(
   }
   return { authenticators, issuer, doc }
 }
-
-export default { decodeJWT, createJWT, verifyJWT, resolveAuthenticator }

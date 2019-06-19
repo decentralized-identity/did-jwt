@@ -4,8 +4,8 @@ import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
-import naclutil from 'tweetnacl-util'
 import { ec as EC } from 'elliptic'
+import { base64ToBytes, bytesToBase64 } from '../util'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -34,9 +34,9 @@ const signer = SimpleSigner(privateKey)
 
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const edSigner = NaclSigner(ed25519PrivateKey)
-const edKp = nacl.sign.keyPair.fromSecretKey(naclutil.decodeBase64(ed25519PrivateKey))
-const edPublicKey = naclutil.encodeBase64(edKp.publicKey)
-const edPublicKey2 = naclutil.encodeBase64(nacl.sign.keyPair().publicKey)
+const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
+const edPublicKey = bytesToBase64(edKp.publicKey)
+const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)
 
 const ecKey1 = {
   id: `${did}#keys-1`,
