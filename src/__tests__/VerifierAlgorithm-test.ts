@@ -4,8 +4,8 @@ import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
-import naclutil from 'tweetnacl-util'
 import { ec as EC } from 'elliptic'
+import { base64ToBytes, bytesToBase64 } from '../util'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -27,16 +27,16 @@ const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const kp = secp256k1.keyFromPrivate(privateKey)
-const publicKey = kp.getPublic('hex')
-const compressedPublicKey = kp.getPublic().encode('hex', true)
+const publicKey = String(kp.getPublic('hex'))
+const compressedPublicKey = String(kp.getPublic().encode('hex', true))
 const address = toEthereumAddress(publicKey)
 const signer = SimpleSigner(privateKey)
 
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const edSigner = NaclSigner(ed25519PrivateKey)
-const edKp = nacl.sign.keyPair.fromSecretKey(naclutil.decodeBase64(ed25519PrivateKey))
-const edPublicKey = naclutil.encodeBase64(edKp.publicKey)
-const edPublicKey2 = naclutil.encodeBase64(nacl.sign.keyPair().publicKey)
+const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
+const edPublicKey = bytesToBase64(edKp.publicKey)
+const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)
 
 const ecKey1 = {
   id: `${did}#keys-1`,
@@ -101,7 +101,7 @@ describe('ES256K', () => {
   })
 })
 
-describe('ES256K-R', async () => {
+describe('ES256K-R', () => {
   const verifier = VerifierAlgorithm('ES256K-R')
 
   it('validates signature and picks correct public key', async () => {

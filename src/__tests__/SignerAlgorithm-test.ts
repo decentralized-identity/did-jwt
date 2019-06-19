@@ -2,19 +2,20 @@ import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
-import base64url from 'base64url'
+import base64url from 'uport-base64url'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
-import naclutil from 'tweetnacl-util'
+import { base64ToBytes } from '../util'
 import { decodeBase64Url } from 'nacl-did'
 import { sha256 } from '../Digest'
+import { encode } from '@stablelib/utf8'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const kp = secp256k1.keyFromPrivate(privateKey)
 const signer = SimpleSigner(privateKey)
 const edSigner = NaclSigner(ed25519PrivateKey)
-const edKp = nacl.sign.keyPair.fromSecretKey(naclutil.decodeBase64(ed25519PrivateKey))
+const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 
 describe('SignerAlgorithm', () => {
   it('supports ES256K', () => {
@@ -86,6 +87,6 @@ describe('Ed25519', () => {
 
   it('can verify the signature', async () => {
     const signature = await jwtSigner('hello', edSigner)
-    expect(nacl.sign.detached.verify(naclutil.decodeUTF8('hello'), decodeBase64Url(signature), edKp.publicKey)).toBeTruthy()
+    expect(nacl.sign.detached.verify(encode('hello'), decodeBase64Url(signature), edKp.publicKey)).toBeTruthy()
   })
 })
