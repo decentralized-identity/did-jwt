@@ -3,7 +3,7 @@ import {
   verifyJWT,
   decodeJWT,
   resolveAuthenticator,
-  IAT_SKEW
+  NBF_SKEW
 } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import registerResolver from 'uport-did-resolver'
@@ -111,7 +111,7 @@ describe('createJWT()', () => {
         { issuer: did, signer, expiresIn: 10000 }
       ).then(jwt => {
         const { payload } = decodeJWT(jwt)
-        return expect(payload.exp).toEqual(payload.iat + 10000)
+        return expect(payload.exp).toEqual(payload.nbf + 10000)
       })
     })
 
@@ -156,7 +156,7 @@ describe('createJWT()', () => {
         { alg, issuer: did, signer, expiresIn: 10000 }
       ).then(jwt => {
         const { payload } = decodeJWT(jwt)
-        return expect(payload.exp).toEqual(payload.iat + 10000)
+        return expect(payload.exp).toEqual(payload.nbf + 10000)
       })
     })
   })
@@ -263,8 +263,8 @@ describe('verifyJWT()', () => {
     })
   })
 
-  it('accepts a valid iat', () => {
-    return createJWT({ iat: NOW + IAT_SKEW }, { issuer: did, signer }).then(
+  it('accepts a valid nbf', () => {
+    return createJWT({ nbf: NOW + NBF_SKEW }, { issuer: did, signer }).then(
       jwt =>
         verifyJWT(jwt).then(
           ({ payload }) => expect(payload).toMatchSnapshot(),
@@ -297,13 +297,13 @@ describe('verifyJWT()', () => {
     )
   })
 
-  it('rejects an iat in the future', () => {
-    return createJWT({ iat: NOW + IAT_SKEW + 1 }, { issuer: did, signer }).then(
+  it('rejects an nbf in the future', () => {
+    return createJWT({ nbf: NOW + NBF_SKEW + 1 }, { issuer: did, signer }).then(
       jwt =>
         verifyJWT(jwt)
           .catch(error =>
             expect(error.message).toEqual(
-              'JWT not valid yet (issued in the future): iat: 1485321434 > now: 1485321133'
+              'JWT not valid yet (issued in the future): nbf: 1485321434 > now: 1485321133'
             )
           )
           .then(p => expect(p).toBeFalsy())
@@ -312,7 +312,7 @@ describe('verifyJWT()', () => {
 
   it('accepts a valid exp', () => {
     return createJWT(
-      { exp: NOW - IAT_SKEW + 1 },
+      { exp: NOW - NBF_SKEW + 1 },
       { issuer: did, signer, expiresIn: 1 }
     ).then(jwt =>
       verifyJWT(jwt).then(({ payload }) => expect(payload).toMatchSnapshot())
@@ -320,7 +320,7 @@ describe('verifyJWT()', () => {
   })
 
   it('rejects an expired JWT', () => {
-    return createJWT({ exp: NOW - IAT_SKEW - 1 }, { issuer: did, signer }).then(
+    return createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer }).then(
       jwt =>
         verifyJWT(jwt)
           .catch(error =>
