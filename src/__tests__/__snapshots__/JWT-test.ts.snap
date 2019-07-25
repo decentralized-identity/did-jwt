@@ -40,20 +40,20 @@ Object {
 
 exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
 Object {
-  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
+  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJuYmYiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
   "header": Object {
     "alg": "Ed25519",
     "typ": "JWT",
   },
   "payload": Object {
-    "iat": 1485321133,
     "iss": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
+    "nbf": 1485321133,
     "requested": Array [
       "name",
       "phone",
     ],
   },
-  "signature": "ZoPf01SxW2n5zngunI942FpviEMP6jBZZb9NJ27M_K7AcmjPeeLH8bm2lv0INmJ2u98JVSzELF8YLWQvPYB1Bw",
+  "signature": "TVkTb7Copwq40dj9a8iorOi0yk_akAAW0VcsUk-XpzxGJiWMas8nXDwnxUvyPBSQLNGHu3teI0HSRBbzAiZAAg",
 }
 `;
 
