@@ -179,6 +179,17 @@ export async function createJWT(
   return [signingInput, signature].join('.')
 }
 
+export function createUnsignedJWT(payload: object): string {
+  return [
+    encodeSection({
+      type: 'JWT',
+      alg: 'none,'
+    }),
+    encodeSection(payload),
+    ''
+  ].join('.')
+}
+
 /**
  *  Verifies given JWT. If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
  *  and the did doc of the issuer of the JWT.
