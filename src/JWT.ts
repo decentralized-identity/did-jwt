@@ -43,7 +43,7 @@ interface JWTPayload {
   iss?: string
   sub?: string
   aud?: string
-  iat?: number
+  nbf?: number
   type?: string
   exp?: number
   rexp?: number
@@ -88,7 +88,7 @@ function encodeSection(data: any): string {
   return base64url.encode(JSON.stringify(data))
 }
 
-export const IAT_SKEW: number = 300
+export const NBF_SKEW: number = 300
 
 /**  @module did-jwt/JWT */
 
@@ -159,12 +159,12 @@ export async function createJWT(
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
   const timestamps: Partial<JWTPayload> = {
-    iat: Math.floor(Date.now() / 1000),
+    nbf: Math.floor(Date.now() / 1000),
     exp: undefined
   }
   if (expiresIn) {
     if (typeof expiresIn === 'number') {
-      timestamps.exp = timestamps.iat + Math.floor(expiresIn)
+      timestamps.exp = timestamps.nbf + Math.floor(expiresIn)
     } else {
       throw new Error('JWT expiresIn is not a number')
     }
@@ -224,14 +224,14 @@ export async function verifyJWT(
   )
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
-    if (payload.iat && payload.iat > now + IAT_SKEW) {
+    if (payload.nbf && payload.nbf > now + NBF_SKEW) {
       throw new Error(
-        `JWT not valid yet (issued in the future): iat: ${
-          payload.iat
+        `JWT not valid yet (issued in the future): nbf: ${
+          payload.nbf
         } > now: ${now}`
       )
     }
-    if (payload.exp && payload.exp <= now - IAT_SKEW) {
+    if (payload.exp && payload.exp <= now - NBF_SKEW) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
