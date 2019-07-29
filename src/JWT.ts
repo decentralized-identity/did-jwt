@@ -156,7 +156,6 @@ export async function createJWT(
   { issuer, signer, alg, expiresIn }: JWTOptions
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
-  if (!issuer) throw new Error('No issuing DID has been configured')
   const header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
   const timestamps: Partial<JWTPayload> = {
     nbf: Math.floor(Date.now() / 1000),
