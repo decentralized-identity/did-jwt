@@ -115,6 +115,40 @@ describe('createJWT()', () => {
       })
     })
 
+    it('ignores expiresIn if nbf is not set', async () => {
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'] },
+        { issuer: did, signer, expiresIn: 10000 }
+      ))
+      return expect(payload.exp).toBeUndefined()
+    })
+
+    it('sets iat to the current time by default', async () => {
+      const timestamp = Math.floor(Date.now() / 1000)
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'] },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toEqual(timestamp)
+    })
+
+    it('sets iat to the value passed in payload', async () => {
+      const timestamp = 2000000
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'], iat: timestamp },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toEqual(timestamp)
+    })
+
+    it('does not set iat if value in payload is null', async () => {
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'], iat: null },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toBeUndefined()
+    })
+
     it('throws an error if unsupported algorithm is passed in', () => {
       return createJWT(
         { requested: ['name', 'phone'] },
