@@ -141,9 +141,9 @@ describe('createJWT()', () => {
       return expect(payload.iat).toEqual(timestamp)
     })
 
-    it('does not set iat if value in payload is null', async () => {
+    it('does not set iat if value in payload is undefined', async () => {
       const { payload } = decodeJWT(await createJWT(
-        { requested: ['name', 'phone'], iat: null },
+        { requested: ['name', 'phone'], iat: undefined },
         { issuer: did, signer }
       ))
       return expect(payload.iat).toBeUndefined()

@@ -170,7 +170,6 @@ export async function createJWT(
       throw new Error('JWT expiresIn is not a number')
     }
   }
-  if (payload.iat === null) payload.iat = undefined
   const signingInput: string = [
     encodeSection(header),
     encodeSection({ ...timestamps, ...payload, iss: issuer })
