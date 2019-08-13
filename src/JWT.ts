@@ -166,7 +166,7 @@ export async function createJWT(
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
   const timestamps: Partial<JWTPayload> = {
-    nbf: Math.floor(Date.now() / 1000),
+    iat: Math.floor(Date.now() / 1000),
     exp: undefined
   }
   if (expiresIn && payload.nbf) {
