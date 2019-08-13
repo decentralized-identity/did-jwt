@@ -26,13 +26,48 @@ jobs:
           name: code-coverage
           command: bash <(curl -s https://codecov.io/bash)
 
+      - run:
+          name: commitlint
+          command: |
+            echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
+            npm install @commitlint/cli @commitlint/config-conventional
+            npx semantic-commitlint -- --ci
+
       - save_cache:
           key: dependency-cache-{{ checksum "package.json" }}
           paths:
             - ./node_modules
+
+  release:
+    working_directory: ~/did-jwt
+    docker:
+      - image: circleci/node:8
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "51:b0:64:c7:62:ec:87:ac:cd:56:96:15:22:2e:e3:eb"
+      - checkout
+      - run:
+          name: release
+          command: |
+            export GITHUB_TOKEN=$GITHUB_TOKEN
+            git config user.email "devops@uport.me"
+            git config user.name "uport-eng"
+            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+            npx semantic-release@beta --debug
 
 workflows:
   version: 2
   build-and-deploy:
     jobs:
       - build
+      - release:
+          requires:
+            - build
+          filters:
+            branches:
+              only:
+                - master
+                - beta
+                - alpha
+                - next
