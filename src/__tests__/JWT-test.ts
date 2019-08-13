@@ -107,7 +107,7 @@ describe('createJWT()', () => {
 
     it('creates a JWT with expiry in 10000 seconds', () => {
       return createJWT(
-        { requested: ['name', 'phone'], nbf: Math.floor(new Date().getTime()/1000) },
+        { requested: ['name', 'phone'], nbf: Math.floor(new Date().getTime() / 1000) },
         { issuer: did, signer, expiresIn: 10000 }
       ).then(jwt => {
         const { payload } = decodeJWT(jwt)
