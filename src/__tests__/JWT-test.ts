@@ -107,12 +107,46 @@ describe('createJWT()', () => {
 
     it('creates a JWT with expiry in 10000 seconds', () => {
       return createJWT(
-        { requested: ['name', 'phone'] },
+        { requested: ['name', 'phone'], nbf: Math.floor(new Date().getTime() / 1000) },
         { issuer: did, signer, expiresIn: 10000 }
       ).then(jwt => {
         const { payload } = decodeJWT(jwt)
         return expect(payload.exp).toEqual(payload.nbf + 10000)
       })
+    })
+
+    it('ignores expiresIn if nbf is not set', async () => {
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'] },
+        { issuer: did, signer, expiresIn: 10000 }
+      ))
+      return expect(payload.exp).toBeUndefined()
+    })
+
+    it('sets iat to the current time by default', async () => {
+      const timestamp = Math.floor(Date.now() / 1000)
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'] },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toEqual(timestamp)
+    })
+
+    it('sets iat to the value passed in payload', async () => {
+      const timestamp = 2000000
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'], iat: timestamp },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toEqual(timestamp)
+    })
+
+    it('does not set iat if value in payload is undefined', async () => {
+      const { payload } = decodeJWT(await createJWT(
+        { requested: ['name', 'phone'], iat: undefined },
+        { issuer: did, signer }
+      ))
+      return expect(payload.iat).toBeUndefined()
     })
 
     it('throws an error if unsupported algorithm is passed in', () => {
@@ -152,7 +186,7 @@ describe('createJWT()', () => {
 
     it('creates a JWT with expiry in 10000 seconds', () => {
       return createJWT(
-        { requested: ['name', 'phone'] },
+        { requested: ['name', 'phone'], nbf: Math.floor(new Date().getTime() / 1000) },
         { alg, issuer: did, signer, expiresIn: 10000 }
       ).then(jwt => {
         const { payload } = decodeJWT(jwt)
