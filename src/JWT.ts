@@ -43,6 +43,7 @@ interface JWTPayload {
   iss?: string
   sub?: string
   aud?: string
+  iat?: number
   nbf?: number
   type?: string
   exp?: number
@@ -152,19 +153,19 @@ export function decodeJWT(jwt: string): JWTDecoded {
  */
 // export async function createJWT(payload, { issuer, signer, alg, expiresIn }) {
 export async function createJWT(
-  payload: object,
+  payload: any,
   { issuer, signer, alg, expiresIn }: JWTOptions
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   const header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
   const timestamps: Partial<JWTPayload> = {
-    nbf: Math.floor(Date.now() / 1000),
+    iat: Math.floor(Date.now() / 1000),
     exp: undefined
   }
-  if (expiresIn) {
+  if (expiresIn && payload.nbf) {
     if (typeof expiresIn === 'number') {
-      timestamps.exp = timestamps.nbf + Math.floor(expiresIn)
+      timestamps.exp = payload.nbf + Math.floor(expiresIn)
     } else {
       throw new Error('JWT expiresIn is not a number')
     }
