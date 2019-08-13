@@ -20,6 +20,8 @@ registerResolver()
 registerNaclDID()
 
 const NOW = 1485321133
+const PAST = NOW - 60000
+const FUTURE = NOW + 60000
 MockDate.set(NOW * 1000 + 123)
 
 const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
@@ -297,14 +299,56 @@ describe('verifyJWT()', () => {
     })
   })
 
-  it('accepts a valid nbf', () => {
-    return createJWT({ nbf: NOW + NBF_SKEW }, { issuer: did, signer }).then(
-      jwt =>
-        verifyJWT(jwt).then(
-          ({ payload }) => expect(payload).toMatchSnapshot(),
-          error => expect(error).toBeNull()
-        )
-    )
+  describe('validFrom timestamp', () => {
+    it('passes when nbf is in the past', async () => {
+      const jwt = await createJWT(
+        { nbf: PAST },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).resolves.not.toThrow()
+    })
+    it('passes when nbf is in the past and iat is in the future', async () => {
+      const jwt = await createJWT(
+        { nbf: PAST, iat: FUTURE },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).resolves.not.toThrow()
+    })
+    it('fails when nbf is in the future', async () => {
+      const jwt = await createJWT(
+        { nbf: FUTURE },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).rejects.toThrow()
+    })
+    it('fails when nbf is in the future and iat is in the past', async () => {
+      const jwt = await createJWT(
+        { nbf: FUTURE, iat: PAST },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).rejects.toThrow()
+    })
+    it('passes when nbf is missing and iat is in the past', async () => {
+      const jwt = await createJWT(
+        { iat: PAST },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).resolves.not.toThrow()
+    })
+    it('fails when nbf is missing and iat is in the future', async () => {
+      const jwt = await createJWT(
+        { iat: FUTURE },
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).rejects.toThrow()
+    })
+    it('passes when nbf and iat are both missing', async () => {
+      const jwt = await createJWT(
+        {},
+        { issuer: did, signer }
+      )
+      expect(verifyJWT(jwt)).resolves.not.toThrow()
+    })
   })
 
   it('handles ES256K-R algorithm', () => {
@@ -331,25 +375,12 @@ describe('verifyJWT()', () => {
     )
   })
 
-  it('rejects an nbf in the future', () => {
-    return createJWT({ nbf: NOW + NBF_SKEW + 1 }, { issuer: did, signer }).then(
-      jwt =>
-        verifyJWT(jwt)
-          .catch(error =>
-            expect(error.message).toEqual(
-              'JWT not valid yet (issued in the future): nbf: 1485321434 > now: 1485321133'
-            )
-          )
-          .then(p => expect(p).toBeFalsy())
-    )
-  })
-
   it('accepts a valid exp', () => {
     return createJWT(
-      { exp: NOW - NBF_SKEW + 1 },
-      { issuer: did, signer, expiresIn: 1 }
+      { exp: NOW + 1000 },
+      { issuer: did, signer }
     ).then(jwt =>
-      verifyJWT(jwt).then(({ payload }) => expect(payload).toMatchSnapshot())
+      verifyJWT(jwt).then(({ payload }) => expect(payload).toBeDefined())
     )
   })
 

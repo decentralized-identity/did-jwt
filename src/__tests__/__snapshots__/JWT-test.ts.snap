@@ -81,22 +81,6 @@ Object {
 }
 `;
 
-exports[`verifyJWT() accepts a valid exp 1`] = `
-Object {
-  "exp": 1485320834,
-  "iat": 1485321133,
-  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
-}
-`;
-
-exports[`verifyJWT() accepts a valid nbf 1`] = `
-Object {
-  "iat": 1485321133,
-  "iss": "did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX",
-  "nbf": 1485321433,
-}
-`;
-
 exports[`verifyJWT() handles ES256K-R algorithm 1`] = `
 Object {
   "hello": "world",
