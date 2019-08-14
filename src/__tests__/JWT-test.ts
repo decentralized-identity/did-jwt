@@ -344,7 +344,7 @@ describe('verifyJWT()', () => {
     })
     it('passes when nbf and iat are both missing', async () => {
       const jwt = await createJWT(
-        {},
+        { iat: undefined },
         { issuer: did, signer }
       )
       expect(verifyJWT(jwt)).resolves.not.toThrow()
@@ -377,7 +377,7 @@ describe('verifyJWT()', () => {
 
   it('accepts a valid exp', () => {
     return createJWT(
-      { exp: NOW + 1000 },
+      { exp: NOW },
       { issuer: did, signer }
     ).then(jwt =>
       verifyJWT(jwt).then(({ payload }) => expect(payload).toBeDefined())
