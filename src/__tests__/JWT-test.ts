@@ -301,52 +301,38 @@ describe('verifyJWT()', () => {
 
   describe('validFrom timestamp', () => {
     it('passes when nbf is in the past', async () => {
-      const jwt = await createJWT(
-        { nbf: PAST },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.btzVz7fZsoSEDa7JyWo3cYWL63pkWTKTz8OUzepIesfSFeBozUjX2oq1xOJ2OyzuinnLGwtSqY303VoyALrafA'
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('passes when nbf is in the past and iat is in the future', async () => {
-      const jwt = await createJWT(
-        { nbf: PAST, iat: FUTURE },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.ELsPnDC_YTTkT5hxw09UCLSjWVje9mDs1n_mpvlo2Wk5VJONSy-FDAzm5TunzzCeLixU04m6dD4w6Uk3-OVkww'
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('fails when nbf is in the future', async () => {
-      const jwt = await createJWT(
-        { nbf: FUTURE },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.rcFuhVHtie3Y09pWxBSf1dnjaVh6FFQLHh-83N-uLty3M5ADJ-jVFFkyt_Eupl8Kr735-oPGn_D1Nj9rl4s_Kw'
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
     it('fails when nbf is in the future and iat is in the past', async () => {
-      const jwt = await createJWT(
-        { nbf: FUTURE, iat: PAST },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.jiVI11IcKNOvnDrJBzojKtNAGaZbEcafcqW-wfP78g6-6RucjYPBi5qvKje35IOvITWvvpXpK48IW-17Srh02w'
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
     it('passes when nbf is missing and iat is in the past', async () => {
-      const jwt = await createJWT(
-        { iat: PAST },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.1VwGHDm7f9V-1Fa545uAwF9NfU3RI8yqRFW6XAHOg0FBeM7krC_rEf0PwqbKFO8MiIBELBwUhW_fT4oZsuggUA'
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('fails when nbf is missing and iat is in the future', async () => {
-      const jwt = await createJWT(
-        { iat: FUTURE },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.jU0R8qP3aUX_3DiFt9tIONiq_P5OooFc-ypUwpqK4plGyw6WiI0FTGfZvq7pOarKrjmSojE9Sm_3ETfMpdQckg'
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
     it('passes when nbf and iat are both missing', async () => {
-      const jwt = await createJWT(
-        { iat: undefined },
-        { issuer: did, signer }
-      )
+      // tslint:disable-next-line: max-line-length
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgifQ.5kGKU9ljebhTqvfVDu9MH7vGAqRH0GDTbZNGH45YmhUySgBTyI7u-MkkRit72eFvQAqBfzw6wNUbGf9FPC5AtQ'
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
   })
