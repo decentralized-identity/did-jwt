@@ -20,8 +20,6 @@ registerResolver()
 registerNaclDID()
 
 const NOW = 1485321133
-const PAST = NOW - 60000
-const FUTURE = NOW + 60000
 MockDate.set(NOW * 1000 + 123)
 
 const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
