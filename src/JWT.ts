@@ -225,12 +225,13 @@ export async function verifyJWT(
   )
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
-    if (payload.nbf && payload.nbf > now + NBF_SKEW) {
-      throw new Error(
-        `JWT not valid yet (issued in the future): nbf: ${
-          payload.nbf
-        } > now: ${now}`
-      )
+    const nowSkewed = now + NBF_SKEW
+    if (payload.nbf) {
+      if (payload.nbf > nowSkewed) {
+        throw new Error(`JWT not valid before nbf: ${payload.nbf}`)
+      }
+    } else if (payload.iat && payload.iat > nowSkewed) {
+      throw new Error(`JWT not valid yet (issued in the future) iat: ${payload.iat}`)
     }
     if (payload.exp && payload.exp <= now - NBF_SKEW) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
