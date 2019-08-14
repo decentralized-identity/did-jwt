@@ -233,7 +233,7 @@ export async function verifyJWT(
     } else if (payload.iat && payload.iat > nowSkewed) {
       throw new Error(`JWT not valid yet (issued in the future) iat: ${payload.iat}`)
     }
-    if (payload.exp && payload.exp <= nowSkewed) {
+    if (payload.exp && payload.exp <= now - NBF_SKEW) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
