@@ -3,29 +3,26 @@ import {
   verifyJWT,
   decodeJWT,
   resolveAuthenticator,
-  NBF_SKEW
+  NBF_SKEW,
+  resolver
 } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
-import registerResolver from 'uport-did-resolver'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import {
-  registerNaclDID,
   loadIdentity,
   verifyJWT as naclVerifyJWT
 } from 'nacl-did'
 import MockDate from 'mockdate'
 
-registerResolver()
-registerNaclDID()
-
+const originalResolve = resolver.resolve
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
-const audMnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY'
-const aud = `did:uport:${audMnid}`
-const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
-const did = `did:uport:${mnid}`
+const audMnid = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
+const aud = `did:ethr:${audMnid}`
+const mnid = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+const did = `did:ethr:${mnid}`
 const alg = 'ES256K'
 
 const privateKey =
@@ -197,16 +194,21 @@ describe('createJWT()', () => {
 })
 
 describe('verifyJWT()', () => {
-  registerResolver((id, cb) => {
-    if (mnid === id) cb(null, didDoc)
-    if (audMnid === id) cb(null, ethDidDoc)
-  })
-
   describe('pregenerated JWT', () => {
-    const incomingJwt =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVg' +
-      'iLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrN' +
-      'LAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCw'
+    // tslint:disable-next-line: max-line-length
+    const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiPA'
+
+    beforeAll(() => {
+      resolver.resolve = jest.fn().mockImplementation(id => {
+        console.log(`mock resolve id=${id}`)
+        if (aud === id) return didDoc
+        if (did === id) return ethDidDoc
+      })
+    })
+
+    afterAll(() => {
+      resolver.resolve = originalResolve
+    })
 
     it('verifies the JWT and return correct payload', () => {
       return verifyJWT(incomingJwt).then(({ payload }) => {
@@ -239,56 +241,10 @@ describe('verifyJWT()', () => {
     })
   })
 
-  describe('nacl-did jwt', () => {
-    const privateKey =
-      'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
-    const did = 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU'
-    const naclId = loadIdentity({ privateKey, did })
-    const payload = { sub: aud, claim: { superChap: true } }
-    const incomingJwt = naclId.createJWT(payload)
-    const publicKey = {
-      id: `${did}#key1`,
-      type: 'ED25519SignatureVerification',
-      owner: did,
-      publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
-    }
-    it('verifies the JWT and return correct payload', () => {
-      return verifyJWT(incomingJwt).then(({ payload }) => {
-        return expect(payload).toEqual(payload)
-      })
-    })
-
-    it('verifies the JWT and return correct profile', () => {
-      return verifyJWT(incomingJwt).then(({ doc }) => {
-        return expect(doc).toMatchSnapshot()
-      })
-    })
-
-    it('verifies the JWT and return correct did for the iss', () => {
-      return verifyJWT(incomingJwt).then(({ issuer }) => {
-        return expect(issuer).toEqual(naclId.did)
-      })
-    })
-
-    it('verifies the JWT and return correct signer', () => {
-      return verifyJWT(incomingJwt).then(({ signer }) =>
-        expect(signer).toEqual(publicKey)
-      )
-    })
-
-    it('verifies the JWT requiring authentication and return correct signer', () => {
-      return verifyJWT(incomingJwt, { auth: true }).then(({ signer }) =>
-        expect(signer).toEqual(publicKey)
-      )
-    })
-  })
-
   describe('badJwt', () => {
-    const badJwt =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVg' +
-      'iLCJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.1hyeUGRBb-cgvjD5KKbpVJBF4TfDjYxrI8SWRJ-GyrJrN' +
-      'LAxt4MutKMFQyF1k_YkxbVozGJ_4XmgZqNaW4OvCX'
-    it('rejects a JWT with bad signature', () => {
+    // tslint:disable-next-line: max-line-length
+    const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
+    it.only('rejects a JWT with bad signature', () => {
       return verifyJWT(badJwt)
         .catch(error =>
           expect(error.message).toEqual('Signature invalid for JWT')
@@ -384,14 +340,6 @@ describe('verifyJWT()', () => {
   it('accepts a valid audience', () => {
     return createJWT({ aud }, { issuer: did, signer }).then(jwt =>
       verifyJWT(jwt, { audience: aud }).then(({ payload }) =>
-        expect(payload).toMatchSnapshot()
-      )
-    )
-  })
-
-  it('accepts a valid MNID audience', () => {
-    return createJWT({ aud }, { issuer: did, signer }).then(jwt =>
-      verifyJWT(jwt, { audience: audMnid }).then(({ payload }) =>
         expect(payload).toMatchSnapshot()
       )
     )
@@ -545,9 +493,13 @@ describe('resolveAuthenticator()', () => {
   }
 
   describe('DID', () => {
+    afterEach(() => {
+      resolver.resolve = originalResolve
+    })
+
     describe('ES256K', () => {
       it('finds public key', async () => {
-        registerResolver((mnid, cb) => cb(null, singleKey))
+        resolver.resolve = jest.fn().mockReturnValue(singleKey)
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1],
@@ -557,7 +509,7 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('filters out irrelevant public keys', async () => {
-        registerResolver((mnid, cb) => cb(null, multipleKeys))
+        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey3],
@@ -567,7 +519,7 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('only list authenticators able to authenticate a user', async () => {
-        registerResolver((mnid, cb) => cb(null, multipleKeys))
+        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
         const authenticators = await resolveAuthenticator(alg, did, true)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2],
@@ -577,7 +529,7 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('errors if no suitable public keys exist', async () => {
-        registerResolver((mnid, cb) => cb(null, unsupportedFormat))
+        resolver.resolve = jest.fn().mockReturnValue(unsupportedFormat)
         return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
           new Error(
             `DID document for ${did} does not have public keys for ${alg}`
@@ -589,7 +541,7 @@ describe('resolveAuthenticator()', () => {
     describe('Ed25519', () => {
       const alg = 'Ed25519'
       it('filters out irrelevant public keys', async () => {
-        registerResolver((mnid, cb) => cb(null, multipleKeys))
+        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey2],
@@ -599,7 +551,7 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('only list authenticators able to authenticate a user', async () => {
-        registerResolver((mnid, cb) => cb(null, multipleKeys))
+        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
         const authenticators = await resolveAuthenticator(alg, did, true)
         return expect(authenticators).toEqual({
           authenticators: [edKey],
@@ -609,7 +561,7 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('errors if no suitable public keys exist', async () => {
-        registerResolver((mnid, cb) => cb(null, unsupportedFormat))
+        resolver.resolve = jest.fn().mockReturnValue(unsupportedFormat)
         return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
           new Error(
             `DID document for ${did} does not have public keys for ${alg}`
@@ -619,7 +571,7 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no suitable public keys exist for authentication', async () => {
-      registerResolver((mnid, cb) => cb(null, singleKey))
+      resolver.resolve = jest.fn().mockReturnValue(singleKey)
       return expect(resolveAuthenticator(alg, did, true)).rejects.toEqual(
         new Error(
           `DID document for ${did} does not have public keys suitable for authenticationg user`
@@ -628,7 +580,7 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no public keys exist', async () => {
-      registerResolver((mnid, cb) => cb(null, noPublicKey))
+      resolver.resolve = jest.fn().mockReturnValue(noPublicKey)
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
         new Error(
           `DID document for ${did} does not have public keys for ${alg}`
@@ -637,29 +589,17 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no DID document exists', async () => {
-      registerResolver((mnid, cb) => cb(null, null))
+      resolver.resolve = jest.fn().mockReturnValue(null)
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
         new Error(`Unable to resolve DID document for ${did}`)
       )
     })
 
     it('errors if no supported signature types exist', async () => {
-      registerResolver((mnid, cb) => cb(null, singleKey))
+      resolver.resolve = jest.fn().mockReturnValue(singleKey)
       return expect(resolveAuthenticator('ESBAD', did)).rejects.toEqual(
         new Error(`No supported signature types for algorithm ESBAD`)
       )
-    })
-  })
-
-  describe('MNID', () => {
-    it('converts MNID to DID and finds public key', async () => {
-      registerResolver((mnid, cb) => cb(null, singleKey))
-      const authenticators = await resolveAuthenticator(alg, mnid)
-      return expect(authenticators).toEqual({
-        authenticators: [ecKey1],
-        issuer: did,
-        doc: singleKey
-      })
     })
   })
 })
