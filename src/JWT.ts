@@ -1,7 +1,9 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'uport-base64url'
-import resolve, { DIDDocument, PublicKey } from 'did-resolver'
+import { Resolver, DIDDocument, PublicKey } from 'did-resolver'
+import ethrDidResolver from 'ethr-did-resolver'
+import getHttpsDidResolver from 'https-did-resolver'
 
 export interface EcdsaSignature {
   r: string
@@ -84,6 +86,13 @@ const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 
 const JOSE_HEADER = { typ: 'JWT' }
 const defaultAlg = 'ES256K'
+
+// this can be removed once the exports of ethr-did-resolver are fixed
+const getEthrDidResolver = ethrDidResolver.default
+const resolver = new Resolver({
+  ...getEthrDidResolver(),
+  ...getHttpsDidResolver()
+})
 
 function encodeSection(data: any): string {
   return base64url.encode(JSON.stringify(data))
@@ -296,7 +305,7 @@ export async function resolveAuthenticator(
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
   const issuer: string = normalizeDID(mnidOrDid)
-  const doc: DIDDocument = await resolve(issuer)
+  const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   // is there some way to have authenticationKeys be a single type?
   const authenticationKeys: boolean | string[] = auth
