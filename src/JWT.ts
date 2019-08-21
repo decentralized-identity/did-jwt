@@ -89,7 +89,7 @@ const defaultAlg = 'ES256K'
 
 // this can be removed once the exports of ethr-did-resolver are fixed
 const getEthrDidResolver = ethrDidResolver.default
-const resolver = new Resolver({
+export const resolver = new Resolver({
   ...getEthrDidResolver(),
   ...getHttpsDidResolver()
 })
