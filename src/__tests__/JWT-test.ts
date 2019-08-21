@@ -196,14 +196,10 @@ describe('createJWT()', () => {
 describe('verifyJWT()', () => {
   describe('pregenerated JWT', () => {
     // tslint:disable-next-line: max-line-length
-    const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiPA'
+    const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
 
     beforeAll(() => {
-      resolver.resolve = jest.fn().mockImplementation(id => {
-        console.log(`mock resolve id=${id}`)
-        if (aud === id) return didDoc
-        if (did === id) return ethDidDoc
-      })
+      resolver.resolve = jest.fn().mockReturnValue(didDoc)
     })
 
     afterAll(() => {
@@ -224,7 +220,7 @@ describe('verifyJWT()', () => {
 
     it('verifies the JWT and return correct did for the iss', () => {
       return verifyJWT(incomingJwt).then(({ issuer }) => {
-        return expect(issuer).toEqual(did)
+        return expect(issuer).toEqual('did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9')
       })
     })
 
@@ -244,7 +240,7 @@ describe('verifyJWT()', () => {
   describe('badJwt', () => {
     // tslint:disable-next-line: max-line-length
     const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
-    it.only('rejects a JWT with bad signature', () => {
+    it('rejects a JWT with bad signature', () => {
       return verifyJWT(badJwt)
         .catch(error =>
           expect(error.message).toEqual('Signature invalid for JWT')
