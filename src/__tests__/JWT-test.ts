@@ -4,7 +4,8 @@ import {
   decodeJWT,
   resolveAuthenticator,
   NBF_SKEW,
-  resolver
+  resolver,
+  normalizeDID
 } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import SimpleSigner from '../SimpleSigner'
@@ -591,6 +592,18 @@ describe('resolveAuthenticator()', () => {
       return expect(resolveAuthenticator('ESBAD', did)).rejects.toEqual(
         new Error(`No supported signature types for algorithm ESBAD`)
       )
+    })
+  })
+
+  describe('normalizeDID', () => {
+    it('returns the value if it is already a did', () => {
+      expect(normalizeDID(did)).toEqual(did)
+    })
+    it('converts an mnid into a did', () => {
+      expect(normalizeDID('2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX')).toEqual('did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX')
+    })
+    it('throws if the value is neither a did nor an mnid', () => {
+      expect(() => normalizeDID('notadid!')).toThrow()
     })
   })
 })

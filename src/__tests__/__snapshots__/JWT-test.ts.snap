@@ -73,14 +73,6 @@ Object {
 }
 `;
 
-exports[`verifyJWT() accepts a valid exp 1`] = `
-Object {
-  "hello": "world",
-  "iat": 1485321133,
-  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
-}
-`;
-
 exports[`verifyJWT() handles ES256K-R algorithm 1`] = `
 Object {
   "hello": "world",
