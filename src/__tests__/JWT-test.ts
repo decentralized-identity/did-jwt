@@ -17,6 +17,9 @@ import MockDate from 'mockdate'
 
 const originalResolve = resolver.resolve
 const NOW = 1485321133
+// TODO: remove next 2 lines
+const PAST = NOW - 60000
+const FUTURE = NOW + 60000
 MockDate.set(NOW * 1000 + 123)
 
 const audMnid = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
@@ -250,39 +253,52 @@ describe('verifyJWT()', () => {
   })
 
   describe('validFrom timestamp', () => {
+    beforeAll(() => {
+      resolver.resolve = jest.fn().mockReturnValue(didDoc)
+    })
+    afterAll(() => {
+      resolver.resolve = originalResolve
+    })
     it('passes when nbf is in the past', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.btzVz7fZsoSEDa7JyWo3cYWL63pkWTKTz8OUzepIesfSFeBozUjX2oq1xOJ2OyzuinnLGwtSqY303VoyALrafA'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.FUasGkOYqGVxQ7S-QQvh4abGO6Dwr961UjjOxtRTyUDnl6q6ElqHqAK-WMDTmOir21pFPKLYZMtLZ4LTLpm3cQ'
+      // const jwt = await createJWT({nbf: PAST}, {issuer:did, signer})
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('passes when nbf is in the past and iat is in the future', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.ELsPnDC_YTTkT5hxw09UCLSjWVje9mDs1n_mpvlo2Wk5VJONSy-FDAzm5TunzzCeLixU04m6dD4w6Uk3-OVkww'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.8BPiSG2e6UBn1osnJ6PJYbPjtPMPaCeutTA9OCp-ZzI-QvvwPCVrrWqTu2YELbzUPwDIJCQ8v8N77xCEjIYSmQ'
+      // const jwt = await createJWT({nbf:PAST,iat:FUTURE},{issuer:did,signer})
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('fails when nbf is in the future', async () => {
       // tslint:disable-next-line: max-line-length
       const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.rcFuhVHtie3Y09pWxBSf1dnjaVh6FFQLHh-83N-uLty3M5ADJ-jVFFkyt_Eupl8Kr735-oPGn_D1Nj9rl4s_Kw'
+      // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
     it('fails when nbf is in the future and iat is in the past', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.jiVI11IcKNOvnDrJBzojKtNAGaZbEcafcqW-wfP78g6-6RucjYPBi5qvKje35IOvITWvvpXpK48IW-17Srh02w'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.JjEn_huxI9SsBY_3PlD0ShpXvrRgUGFDKAgxJBc1Q5GToVpUTw007-o9BTt7JNi_G2XWmcu2aXXnDn0QFsRIrg'
+      // const jwt = await createJWT({nbf:FUTURE,iat:PAST},{issuer:did,signer})
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
     it('passes when nbf is missing and iat is in the past', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.1VwGHDm7f9V-1Fa545uAwF9NfU3RI8yqRFW6XAHOg0FBeM7krC_rEf0PwqbKFO8MiIBELBwUhW_fT4oZsuggUA'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.jkzN5kIVtuRU-Fjte8w5r-ttf9OfhdN38oFJd61CWdI5WnvU1dPCvnx1_kdk2D6Xg-uPqp1VXAb7KA2ZECivmg'
+      // const jwt = await createJWT({iat:PAST},{issuer:did,signer})
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
     it('fails when nbf is missing and iat is in the future', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDp1cG9ydDoyblF0aVFHNkNnbTFHWVRCYWFLQWdyNzZ1WTdpU2V4VWtxWCJ9.jU0R8qP3aUX_3DiFt9tIONiq_P5OooFc-ypUwpqK4plGyw6WiI0FTGfZvq7pOarKrjmSojE9Sm_3ETfMpdQckg'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
+      // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
-    it('passes when nbf and iat are both missing', async () => {
+    it.only('passes when nbf and iat are both missing', async () => {
       // tslint:disable-next-line: max-line-length
-      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6dXBvcnQ6Mm5RdGlRRzZDZ20xR1lUQmFhS0Fncjc2dVk3aVNleFVrcVgifQ.5kGKU9ljebhTqvfVDu9MH7vGAqRH0GDTbZNGH45YmhUySgBTyI7u-MkkRit72eFvQAqBfzw6wNUbGf9FPC5AtQ'
+      const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQifQ.KgnwgMMz-QSOtpba2QMGHMWJoLvhp-H4odjjX1QKnqj4-8dkcK12y7rj7Zq24-1d-1ne86aJCdWtx5VJv3rM7w'
+      // const jwt = await createJWT({iat:undefined},{issuer:did,signer})
       expect(verifyJWT(jwt)).resolves.not.toThrow()
     })
   })
