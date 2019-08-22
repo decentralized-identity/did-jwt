@@ -10,16 +10,12 @@ import { TokenVerifier } from 'jsontokens'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import {
-  loadIdentity,
   verifyJWT as naclVerifyJWT
 } from 'nacl-did'
 import MockDate from 'mockdate'
 
 const originalResolve = resolver.resolve
 const NOW = 1485321133
-// TODO: remove next 2 lines
-const PAST = NOW - 60000
-const FUTURE = NOW + 60000
 MockDate.set(NOW * 1000 + 123)
 
 const audMnid = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
@@ -197,42 +193,35 @@ describe('createJWT()', () => {
 })
 
 describe('verifyJWT()', () => {
+  beforeAll(() => {
+    resolver.resolve = jest.fn().mockReturnValue(didDoc)
+  })
+  afterAll(() => {
+    resolver.resolve = originalResolve
+  })
   describe('pregenerated JWT', () => {
     // tslint:disable-next-line: max-line-length
     const incomingJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
-
-    beforeAll(() => {
-      resolver.resolve = jest.fn().mockReturnValue(didDoc)
-    })
-
-    afterAll(() => {
-      resolver.resolve = originalResolve
-    })
-
     it('verifies the JWT and return correct payload', () => {
       return verifyJWT(incomingJwt).then(({ payload }) => {
         return expect(payload).toMatchSnapshot()
       })
     })
-
     it('verifies the JWT and return correct profile', () => {
       return verifyJWT(incomingJwt).then(({ doc }) => {
         return expect(doc).toEqual(didDoc)
       })
     })
-
     it('verifies the JWT and return correct did for the iss', () => {
       return verifyJWT(incomingJwt).then(({ issuer }) => {
         return expect(issuer).toEqual('did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9')
       })
     })
-
     it('verifies the JWT and return correct signer', () => {
       return verifyJWT(incomingJwt).then(({ signer }) =>
         expect(signer).toEqual(didDoc.publicKey[0])
       )
     })
-
     it('verifies the JWT requiring authentication and return correct signer', () => {
       return verifyJWT(incomingJwt, { auth: true }).then(({ signer }) =>
         expect(signer).toEqual(didDoc.publicKey[0])
@@ -253,12 +242,6 @@ describe('verifyJWT()', () => {
   })
 
   describe('validFrom timestamp', () => {
-    beforeAll(() => {
-      resolver.resolve = jest.fn().mockReturnValue(didDoc)
-    })
-    afterAll(() => {
-      resolver.resolve = originalResolve
-    })
     it('passes when nbf is in the past', async () => {
       // tslint:disable-next-line: max-line-length
       const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.FUasGkOYqGVxQ7S-QQvh4abGO6Dwr961UjjOxtRTyUDnl6q6ElqHqAK-WMDTmOir21pFPKLYZMtLZ4LTLpm3cQ'
@@ -295,7 +278,7 @@ describe('verifyJWT()', () => {
       // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
       expect(verifyJWT(jwt)).rejects.toThrow()
     })
-    it.only('passes when nbf and iat are both missing', async () => {
+    it('passes when nbf and iat are both missing', async () => {
       // tslint:disable-next-line: max-line-length
       const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQifQ.KgnwgMMz-QSOtpba2QMGHMWJoLvhp-H4odjjX1QKnqj4-8dkcK12y7rj7Zq24-1d-1ne86aJCdWtx5VJv3rM7w'
       // const jwt = await createJWT({iat:undefined},{issuer:did,signer})
@@ -371,11 +354,7 @@ describe('verifyJWT()', () => {
   it('rejects invalid audience', () => {
     return createJWT({ aud }, { issuer: did, signer }).then(jwt =>
       verifyJWT(jwt, { audience: did })
-        .catch(error =>
-          expect(error.message).toEqual(
-            'JWT audience does not match your DID: aud: did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqY !== yours: did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
-          )
-        )
+        .catch(error => expect(error.message).toMatch(/JWT audience does not match your DID/))
         .then(p => expect(p).toBeFalsy())
     )
   })

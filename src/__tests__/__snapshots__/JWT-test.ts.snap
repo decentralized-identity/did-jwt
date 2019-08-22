@@ -57,6 +57,22 @@ Object {
 }
 `;
 
+exports[`verifyJWT() accepts a valid audience 1`] = `
+Object {
+  "aud": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
+exports[`verifyJWT() accepts a valid audience using callback_url 1`] = `
+Object {
+  "aud": "http://pututu.uport.me/unique",
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
 exports[`verifyJWT() accepts a valid exp 1`] = `
 Object {
   "hello": "world",
