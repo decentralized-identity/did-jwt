@@ -2,7 +2,7 @@ import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'uport-base64url'
 import { Resolver, DIDDocument, PublicKey } from 'did-resolver'
-import ethrDidResolver from 'ethr-did-resolver'
+import { getResolver as getEthrDidResolver } from 'ethr-did-resolver'
 import getHttpsDidResolver from 'https-did-resolver'
 
 export interface EcdsaSignature {
@@ -84,11 +84,8 @@ const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   Ed25519: ['ED25519SignatureVerification']
 }
 
-const JOSE_HEADER = { typ: 'JWT' }
 const defaultAlg = 'ES256K'
 
-// this can be removed once the exports of ethr-did-resolver are fixed
-const getEthrDidResolver = ethrDidResolver.default
 export const resolver = new Resolver({
   ...getEthrDidResolver(),
   ...getHttpsDidResolver()
