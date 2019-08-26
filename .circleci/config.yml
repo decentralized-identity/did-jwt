@@ -50,6 +50,7 @@ jobs:
       - run:
           name: release
           command: |
+            npm i
             export GITHUB_TOKEN=$GITHUB_TOKEN
             git config user.email "devops@uport.me"
             git config user.name "uport-eng"
