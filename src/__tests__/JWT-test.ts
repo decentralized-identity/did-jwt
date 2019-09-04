@@ -4,7 +4,8 @@ import {
   decodeJWT,
   resolveAuthenticator,
   NBF_SKEW,
-  resolver,
+  getResolver,
+  setResolver,
   normalizeDID
 } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
@@ -13,7 +14,7 @@ import NaclSigner from '../NaclSigner'
 import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
 
-const originalResolve = resolver.resolve
+const originalResolver = getResolver()
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
@@ -186,10 +187,12 @@ describe('createJWT()', () => {
 
 describe('verifyJWT()', () => {
   beforeAll(() => {
-    resolver.resolve = jest.fn().mockReturnValue(didDoc)
+    setResolver({
+      resolve: jest.fn().mockReturnValue(didDoc)
+    })
   })
   afterAll(() => {
-    resolver.resolve = originalResolve
+    setResolver(originalResolver)
   })
   describe('pregenerated JWT', () => {
     // tslint:disable-next-line: max-line-length
@@ -445,12 +448,14 @@ describe('resolveAuthenticator()', () => {
 
   describe('DID', () => {
     afterEach(() => {
-      resolver.resolve = originalResolve
+      setResolver(originalResolver)
     })
 
     describe('ES256K', () => {
       it('finds public key', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(singleKey)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(singleKey)
+        })
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1],
@@ -460,7 +465,9 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('filters out irrelevant public keys', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(multipleKeys)
+        })
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey3],
@@ -470,7 +477,9 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('only list authenticators able to authenticate a user', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(multipleKeys)
+        })
         const authenticators = await resolveAuthenticator(alg, did, true)
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2],
@@ -480,7 +489,9 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('errors if no suitable public keys exist', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(unsupportedFormat)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(unsupportedFormat)
+        })
         return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
           new Error(
             `DID document for ${did} does not have public keys for ${alg}`
@@ -492,7 +503,9 @@ describe('resolveAuthenticator()', () => {
     describe('Ed25519', () => {
       const alg = 'Ed25519'
       it('filters out irrelevant public keys', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(multipleKeys)
+        })
         const authenticators = await resolveAuthenticator(alg, did)
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey2],
@@ -502,7 +515,9 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('only list authenticators able to authenticate a user', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(multipleKeys)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(multipleKeys)
+        })
         const authenticators = await resolveAuthenticator(alg, did, true)
         return expect(authenticators).toEqual({
           authenticators: [edKey],
@@ -512,7 +527,9 @@ describe('resolveAuthenticator()', () => {
       })
 
       it('errors if no suitable public keys exist', async () => {
-        resolver.resolve = jest.fn().mockReturnValue(unsupportedFormat)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(unsupportedFormat)
+        })
         return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
           new Error(
             `DID document for ${did} does not have public keys for ${alg}`
@@ -522,7 +539,9 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no suitable public keys exist for authentication', async () => {
-      resolver.resolve = jest.fn().mockReturnValue(singleKey)
+        setResolver({
+          resolve: jest.fn().mockReturnValue(singleKey)
+        })
       return expect(resolveAuthenticator(alg, did, true)).rejects.toEqual(
         new Error(
           `DID document for ${did} does not have public keys suitable for authenticationg user`
@@ -531,7 +550,9 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no public keys exist', async () => {
-      resolver.resolve = jest.fn().mockReturnValue(noPublicKey)
+      setResolver({
+        resolve: jest.fn().mockReturnValue(noPublicKey)
+      })
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
         new Error(
           `DID document for ${did} does not have public keys for ${alg}`
@@ -540,14 +561,18 @@ describe('resolveAuthenticator()', () => {
     })
 
     it('errors if no DID document exists', async () => {
-      resolver.resolve = jest.fn().mockReturnValue(null)
+      setResolver({
+        resolve: jest.fn().mockReturnValue(null)
+      })
       return expect(resolveAuthenticator(alg, did)).rejects.toEqual(
         new Error(`Unable to resolve DID document for ${did}`)
       )
     })
 
     it('errors if no supported signature types exist', async () => {
-      resolver.resolve = jest.fn().mockReturnValue(singleKey)
+      setResolver({
+        resolve: jest.fn().mockReturnValue(singleKey)
+      })
       return expect(resolveAuthenticator('ESBAD', did)).rejects.toEqual(
         new Error(`No supported signature types for algorithm ESBAD`)
       )
@@ -566,5 +591,20 @@ describe('resolveAuthenticator()', () => {
     it('throws if the value is neither a did nor an mnid', () => {
       expect(() => normalizeDID('notadid!')).toThrow()
     })
+  })
+})
+
+describe('setResolver', () => {
+  it('sets the resolver', async () => {
+    const resolver = {
+      resolve: jest.fn()
+    }
+    setResolver(resolver)
+    await getResolver().resolve(did)
+    expect(resolver.resolve).toBeCalled()
+  })
+
+  it('throws an error if argument does not have a resolve function', () => {
+    expect(() => setResolver({})).toThrow()
   })
 })

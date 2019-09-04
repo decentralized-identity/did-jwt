@@ -86,10 +86,18 @@ const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 
 const defaultAlg = 'ES256K'
 
-export const resolver = new Resolver({
+// tslint:disable-next-line: variable-name
+let _resolver = new Resolver({
   ...getEthrDidResolver(),
   ...getHttpsDidResolver()
 })
+export const getResolver = () => (_resolver)
+export const setResolver = resolver => {
+  if (!resolver.resolve || typeof resolver.resolve !== 'function') {
+    throw new Error('resolver must contain a function named resolve')
+  }
+  _resolver = resolver
+}
 
 function encodeSection(data: any): string {
   return base64url.encode(JSON.stringify(data))
@@ -302,7 +310,7 @@ export async function resolveAuthenticator(
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
   const issuer: string = normalizeDID(mnidOrDid)
-  const doc: DIDDocument = await resolver.resolve(issuer)
+  const doc: DIDDocument = await _resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   // is there some way to have authenticationKeys be a single type?
   const authenticationKeys: boolean | string[] = auth
