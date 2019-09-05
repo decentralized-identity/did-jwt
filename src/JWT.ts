@@ -1,9 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import base64url from 'uport-base64url'
-import { Resolver, DIDDocument, PublicKey } from 'did-resolver'
-import { getResolver as getEthrDidResolver } from 'ethr-did-resolver'
-import getHttpsDidResolver from 'https-did-resolver'
+import { DIDDocument, PublicKey } from 'did-resolver'
 
 export interface EcdsaSignature {
   r: string
@@ -24,10 +22,15 @@ interface JWTOptions {
   expiresIn?: number
 }
 
+interface Resolvable {
+  resolve: (did: string) => Promise<DIDDocument | null>
+}
+
 interface JWTVerifyOptions {
   auth?: boolean
   audience?: string
   callbackUrl?: string
+  resolver?: Resolvable
 }
 
 interface DIDAuthenticator {
@@ -85,11 +88,6 @@ const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 }
 
 const defaultAlg = 'ES256K'
-
-export const resolver = new Resolver({
-  ...getEthrDidResolver(),
-  ...getHttpsDidResolver()
-})
 
 function encodeSection(data: any): string {
   return base64url.encode(JSON.stringify(data))
@@ -209,8 +207,9 @@ export async function createJWT(
  */
 export async function verifyJWT(
   jwt: string,
-  options: JWTVerifyOptions = { auth: null, audience: null, callbackUrl: null }
+  options: JWTVerifyOptions = { resolver: null, auth: null, audience: null, callbackUrl: null }
 ): Promise<Verified> {
+  if (!options.resolver) throw new Error('No DID resolver has been configured')
   const aud: string = options.audience
     ? normalizeDID(options.audience)
     : undefined
@@ -220,6 +219,7 @@ export async function verifyJWT(
     authenticators,
     issuer
   }: DIDAuthenticator = await resolveAuthenticator(
+    options.resolver,
     header.alg,
     payload.iss,
     options.auth
@@ -280,7 +280,7 @@ export async function verifyJWT(
  * Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
  *
  *  @example
- *  resolveAuthenticator('ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
+ *  resolveAuthenticator(resolver, 'ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
  *      const payload = obj.payload
  *      const profile = obj.profile
  *      const jwt = obj.jwt
@@ -293,6 +293,7 @@ export async function verifyJWT(
  *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
+  resolver: Resolvable,
   alg: string,
   mnidOrDid: string,
   auth?: boolean
