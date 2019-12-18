@@ -93,14 +93,14 @@ describe('createJWT()', () => {
       return expect(payload.exp).toEqual(payload.nbf + 10000)
     })
 
-    it('ignores expiresIn if nbf is not set', async () => {
+    it('Uses iat if nbf is not defined but expiresIn is included', async () => {
       const { payload } = decodeJWT(
         await createJWT(
           { requested: ['name', 'phone'] },
           { issuer: did, signer, expiresIn: 10000 }
         )
       )
-      return expect(payload.exp).toBeUndefined()
+      return expect(payload.exp).toEqual(payload.iat + 10000)
     })
 
     it('sets iat to the current time by default', async () => {

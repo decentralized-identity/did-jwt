@@ -167,9 +167,9 @@ export async function createJWT(
     iat: Math.floor(Date.now() / 1000),
     exp: undefined
   }
-  if (expiresIn && payload.nbf) {
+  if (expiresIn) {
     if (typeof expiresIn === 'number') {
-      timestamps.exp = payload.nbf + Math.floor(expiresIn)
+      timestamps.exp = (payload.nbf || timestamps.iat) + Math.floor(expiresIn)
     } else {
       throw new Error('JWT expiresIn is not a number')
     }
