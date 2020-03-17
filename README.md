@@ -89,7 +89,7 @@ Once decoded a did-JWT will resemble:
 
 [verifyJWT](/docs/reference/index.md#did-jwtjwtverifyjwtjwt-config--promiseobject-error)
 
-You ned to provide a did-resolver for the verify function. For this example we will use ethr-did, but there are other methods available above. For more information on configuring the Resolver object please see [did-resolver](https://github.com/decentralized-identity/did-resolver#configure-resolver-object)
+You need to provide a did-resolver for the verify function. For this example we will use ethr-did, but there are other methods available above. For more information on configuring the Resolver object please see [did-resolver](https://github.com/decentralized-identity/did-resolver#configure-resolver-object)
 
 ``` bash
 npm install ethr-did-resolver
