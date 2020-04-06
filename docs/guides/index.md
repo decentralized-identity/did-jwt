@@ -33,7 +33,7 @@ createJWT(payload, options, header)
 Name | Description | Required
 ---- | ----------- | --------
 `payload` | an object containing any claims you want to encode in the JWT including optional standard claims such as `sub`, `aud` and `exp` | yes
-`options.issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | yes
+`options.issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the issuer of the JWT | yes
 `options.signer` | A signing function (see SimpleSigner) | yes
 `options.expiresIn` | How many seconds after signing should the JWT be valid (sets the `exp` claim) | no
 `header` | Object to inject custom headers, e.g. `alg` or `cty` | no
