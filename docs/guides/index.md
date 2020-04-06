@@ -27,20 +27,21 @@ createJWT(
 #### Parameters
 
 ```js
-createJWT(payload, settings)
+createJWT(payload, options, header)
 ```
 
 Name | Description | Required
 ---- | ----------- | --------
 `payload` | an object containing any claims you want to encode in the JWT including optional standard claims such as `sub`, `aud` and `exp` | yes
-`settings.issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | yes
-`settings.signer` | A signing function (see SimpleSigner) | yes
-`settings.expiresIn` | How many seconds after signing should the JWT be valid (sets the `exp` claim) | no
+`options.issuer` | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT | yes
+`options.signer` | A signing function (see SimpleSigner) | yes
+`options.expiresIn` | How many seconds after signing should the JWT be valid (sets the `exp` claim) | no
+`header` | Object to inject custom headers, e.g. `alg` or `cty` | no
 
 #### Promise Return Value
 
 The `createJWT()` function returns a Promise.
-d
+
 A successfull call returns an object containing the following attributes:
 
 Name | Description

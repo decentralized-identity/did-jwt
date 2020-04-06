@@ -42,6 +42,7 @@ interface DIDAuthenticator {
 interface JWTHeader {
   typ: 'JWT'
   alg: string
+  [x: string]: any
 }
 
 interface JWTPayload {
@@ -53,6 +54,7 @@ interface JWTPayload {
   type?: string
   exp?: number
   rexp?: number
+  [x: string]: any
 }
 
 interface JWTDecoded {
@@ -153,16 +155,19 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
  *  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K
  *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
+ *  @param    {Object}            header             optional object to inject custom headers
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
-// export async function createJWT(payload, { issuer, signer, alg, expiresIn }) {
+// export async function createJWT(payload, { issuer, signer, alg, expiresIn }, header) {
 export async function createJWT(
   payload: any,
-  { issuer, signer, alg, expiresIn }: JWTOptions
+  { issuer, signer, alg, expiresIn }: JWTOptions,
+  header: Partial<JWTHeader> = {},
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
-  const header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
+  if (!header.typ) header.typ = 'JWT'
+  if (!header.alg) header.alg = alg || defaultAlg
   const timestamps: Partial<JWTPayload> = {
     iat: Math.floor(Date.now() / 1000),
     exp: undefined
