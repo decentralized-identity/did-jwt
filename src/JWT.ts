@@ -42,7 +42,7 @@ interface DIDAuthenticator {
 interface JWTHeader {
   typ: 'JWT'
   alg: string
-  cty?: 'JWT'
+  [x: string]: any
 }
 
 interface JWTPayload {
@@ -54,6 +54,7 @@ interface JWTPayload {
   type?: string
   exp?: number
   rexp?: number
+  [x: string]: any
 }
 
 interface JWTDecoded {
@@ -160,12 +161,12 @@ export function decodeJWT(jwt: string): JWTDecoded {
 export async function createJWT(
   payload: any,
   { issuer, signer, alg, expiresIn }: JWTOptions,
-  cty?: boolean
+  header: Partial<JWTHeader> = {},
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
-  let header: JWTHeader = { typ: 'JWT', alg: alg || defaultAlg }
-  if (cty) header.cty = 'JWT'
+  if (!header.typ) header.typ = 'JWT'
+  if (!header.alg) header.alg = alg || defaultAlg
   const timestamps: Partial<JWTPayload> = {
     iat: Math.floor(Date.now() / 1000),
     exp: undefined
