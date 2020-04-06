@@ -153,7 +153,8 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            payload            payload object
  *  @param    {Object}            [options]           an unsigned credential object
  *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg         The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K
+ *  @param    {String}            options.alg         [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K.
+ *                                                    Please use `header.alg` to specify the algorithm
  *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
  *  @param    {Object}            header             optional object to inject custom headers
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
