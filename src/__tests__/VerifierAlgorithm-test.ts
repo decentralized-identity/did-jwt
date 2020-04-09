@@ -122,7 +122,7 @@ describe('ES256K', () => {
   })
 
   it('throws error if invalid signature length', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }) + "aa"
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }) + 'aa'
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('wrong signature length'))
   })
