@@ -579,7 +579,7 @@ describe('resolveAuthenticator()', () => {
 
   describe('incorrect format', () => {
     it('throws if token is not valid JWT format', () => {
-      expect( () => decodeJWT("not a jwt") ).toThrow()
+      expect(() => decodeJWT('not a jwt')).toThrow()
     })
   })
 })

@@ -73,7 +73,6 @@ export function verifyRecoverableES256K(
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature) : PublicKey => {
     const hash: Buffer = sha256(data)
-    // what type is recoveredKey supposed to be?
     const recoveredKey: any = secp256k1.recoverPubKey(
       hash,
       sigObj,
