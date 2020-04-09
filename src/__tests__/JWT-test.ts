@@ -47,6 +47,25 @@ const didDoc = {
   ]
 }
 
+const didDocDefault = {
+  '@context': 'https://w3id.org/did/v1',
+  id: did,
+  publicKey: [
+    {
+      id: `${did}#keys-1`,
+      type: 'Secp256k1VerificationKey2018',
+      owner: did,
+      ethereumAddress: address
+    }
+  ],
+  authentication: [
+    {
+      type: 'Secp256k1SignatureAuthentication2018',
+      publicKey: `${did}#keys-1`
+    }
+  ]
+}
+
 describe('createJWT()', () => {
   describe('ES256K', () => {
     it('creates a valid JWT', async () => {
@@ -282,6 +301,16 @@ describe('verifyJWT()', () => {
       { issuer: aud, signer, alg: 'ES256K-R' }
     )
     const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toMatchSnapshot()
+  })
+
+  it('handles ES256K algorithm with ethereum address - github #14', async () => {
+    const ethResolver = { resolve: jest.fn().mockReturnValue(didDocDefault) }
+    const jwt = await createJWT(
+      { hello: 'world' },
+      { issuer: aud, signer, alg: 'ES256K' }
+    )
+    const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
   })
 
