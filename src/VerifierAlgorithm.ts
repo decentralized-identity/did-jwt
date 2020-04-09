@@ -34,9 +34,22 @@ export function verifyES256K(
 ): PublicKey {
   const hash: Buffer = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
-  const signer: PublicKey = authenticators.find(({ publicKeyHex }) =>
-    secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj)
+  const fullPublicKeys = authenticators.filter(({ publicKeyHex }) => { return typeof publicKeyHex !== 'undefined' })
+  const ethAddressKeys = authenticators.filter(({ ethereumAddress }) => { return typeof ethereumAddress !== 'undefined' })
+
+  let signer: PublicKey = fullPublicKeys.find(({ publicKeyHex }) => {
+      try {
+        return secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj)
+      } catch (err) {
+        return false
+      }
+    }
   )
+
+  if (!signer && ethAddressKeys.length > 0) {
+    signer = verifyRecoverableES256K(data, signature, ethAddressKeys)
+  }
+
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }
@@ -46,28 +59,45 @@ export function verifyRecoverableES256K(
   signature: string,
   authenticators: PublicKey[]
 ): PublicKey {
-  const sigObj: EcdsaSignature = toSignatureObject(signature, true)
-  const hash: Buffer = sha256(data)
-  // what type is recoveredKey supposed to be?
-  const recoveredKey: any = secp256k1.recoverPubKey(
-    hash,
-    sigObj,
-    sigObj.recoveryParam
-  )
-  const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
-  const recoveredCompressedPublicKeyHex: string = recoveredKey.encode(
-    'hex',
-    true
-  )
-  const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
-  const signer: PublicKey = authenticators.find(
-    ({ publicKeyHex, ethereumAddress }) =>
-      publicKeyHex === recoveredPublicKeyHex ||
-      publicKeyHex === recoveredCompressedPublicKeyHex ||
-      ethereumAddress === recoveredAddress
-  )
-  if (!signer) throw new Error('Signature invalid for JWT')
-  return signer
+
+  let signatures: EcdsaSignature[]
+  if (signature.length > 86) {
+    signatures = [ toSignatureObject(signature, true) ]
+  } else {
+    const so = toSignatureObject(signature, false)
+    signatures = [
+       {...so, recoveryParam: 0},
+       {...so, recoveryParam: 1}
+     ]
+  }
+
+  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature) : PublicKey => {
+    const hash: Buffer = sha256(data)
+    const recoveredKey: any = secp256k1.recoverPubKey(
+      hash,
+      sigObj,
+      sigObj.recoveryParam
+    )
+    const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
+    const recoveredCompressedPublicKeyHex: string = recoveredKey.encode( 'hex', true )
+    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
+
+    const signer: PublicKey = authenticators.find(
+      ({ publicKeyHex, ethereumAddress }) =>
+        publicKeyHex === recoveredPublicKeyHex ||
+        publicKeyHex === recoveredCompressedPublicKeyHex ||
+        ethereumAddress === recoveredAddress
+    )
+
+    return signer
+  }
+
+  const signer: PublicKey[] = signatures
+                    .map(checkSignatureAgainstSigner)
+                    .filter( key => key != null )
+
+  if (signer.length == 0) throw new Error('Signature invalid for JWT')
+  return signer[0]
 }
 
 export function verifyEd25519(
