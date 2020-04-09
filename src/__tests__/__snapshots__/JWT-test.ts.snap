@@ -73,7 +73,7 @@ Object {
 }
 `;
 
-exports[`verifyJWT() handles ES256K algorithm with ethereum address 1`] = `
+exports[`verifyJWT() handles ES256K algorithm with ethereum address - github #14 1`] = `
 Object {
   "hello": "world",
   "iat": 1485321133,
