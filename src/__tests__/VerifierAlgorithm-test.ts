@@ -80,6 +80,27 @@ const edKey2 = {
   publicKeyBase64: edPublicKey2
 }
 
+const malformedKey1 = {
+  id: `${did}#keys-7`,
+  type: 'Secp256k1VerificationKey2018',
+  owner: did,
+  publicKeyHex: '05613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+}
+
+const malformedKey2 = {
+  id: `${did}#keys-8`,
+  type: 'Secp256k1VerificationKey2018',
+  owner: did,
+  publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062aabbccdd'
+}
+
+const malformedKey3 = {
+  id: `${did}#keys-8`,
+  type: 'Secp256k1VerificationKey2018',
+  owner: did,
+  publicKeyHex: '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06'
+}
+
 describe('ES256K', () => {
   const verifier = VerifierAlgorithm('ES256K')
   it('validates signature and picks correct public key', async () => {
@@ -98,6 +119,18 @@ describe('ES256K', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
+  })
+
+  it('throws error if invalid signature length', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }) + "aa"
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('wrong signature length'))
+  })
+
+  it('validates signature with compressed public key and picks correct public key when malformed keys are encountered first', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [malformedKey1, malformedKey2, malformedKey3, compressedKey])).toEqual(compressedKey)
   })
 
   it('validates signature produced by ethAddress - github #14', async () => {

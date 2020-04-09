@@ -576,4 +576,10 @@ describe('resolveAuthenticator()', () => {
       expect(() => normalizeDID('notadid!')).toThrow()
     })
   })
+
+  describe('incorrect format', () => {
+    it('throws if token is not valid JWT format', () => {
+      expect( () => decodeJWT("not a jwt") ).toThrow()
+    })
+  })
 })
