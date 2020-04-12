@@ -48,7 +48,7 @@ interface JWTHeader {
 interface JWTPayload {
   iss?: string
   sub?: string
-  aud?: string
+  aud?: string | string[]
   iat?: number
   nbf?: number
   type?: string
@@ -107,6 +107,16 @@ function isMNID(id: string): RegExpMatchArray {
 
 function isDIDOrMNID(mnidOrDid: string): RegExpMatchArray {
   return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
+}
+
+function isDIDOrMNIDArray(mnidOrDidArray: string[]): boolean {
+  let result:boolean = false
+  mnidOrDidArray.forEach(mnidOrDid => {
+    if (mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))) {
+      result = true
+    }
+  })
+  return result;
 }
 
 export function normalizeDID(mnidOrDid: string): string {
@@ -249,7 +259,22 @@ export async function verifyJWT(
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
-      if (isDIDOrMNID(payload.aud)) {
+      if (Array.isArray(payload.aud) && isDIDOrMNIDArray(payload.aud)) {
+        if (!aud) {
+          throw new Error(
+            'JWT audience is required but your app address has not been configured'
+          )
+        }
+        let result: boolean = false
+        payload.aud.forEach(audience => {
+          if (aud === normalizeDID(audience)) {
+            result = true
+          }
+        });
+        if (!result) throw new Error(
+          `JWT audience does not match your DID: yours: ${aud}`
+        )
+      } else if (typeof payload.aud === 'string' && isDIDOrMNID(payload.aud)) {
         if (!aud) {
           throw new Error(
             'JWT audience is required but your app address has not been configured'
