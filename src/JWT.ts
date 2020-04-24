@@ -142,6 +142,30 @@ export function decodeJWT(jwt: string): JWTDecoded {
 }
 
 /**
+ *  Creates a signed JWS given a payload, a signer, and an optional header.
+ *
+ *  @example
+ *  const signer = SimpleSigner(process.env.PRIVATE_KEY)
+ *  const jws = await createJWS({ my: 'payload' }, signer)
+ *
+ *  @param    {Object}            payload           payload object
+ *  @param    {SimpleSigner}      signer            a signer, reference our SimpleSigner.js
+ *  @param    {Object}            header            optional object to specify or customize the JWS header
+ *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
+ */
+export async function createJWS (payload: any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
+  if (!header.alg) header.alg = defaultAlg
+  const signingInput: string = [
+    encodeSection(header),
+    encodeSection(payload)
+  ].join('.')
+
+  const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
+  const signature: string = await jwtSigner(signingInput, signer)
+  return [signingInput, signature].join('.')
+}
+
+/**
  *  Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is over.
  *
  *  @example
@@ -159,7 +183,6 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            header             optional object to specify or customize the JWT header
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
-// export async function createJWT(payload, { issuer, signer, alg, expiresIn }, header) {
 export async function createJWT(
   payload: any,
   { issuer, signer, alg, expiresIn }: JWTOptions,
@@ -168,7 +191,7 @@ export async function createJWT(
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
   if (!header.typ) header.typ = 'JWT'
-  if (!header.alg) header.alg = alg || defaultAlg
+  if (!header.alg) header.alg = alg
   const timestamps: Partial<JWTPayload> = {
     iat: Math.floor(Date.now() / 1000),
     exp: undefined
@@ -180,14 +203,30 @@ export async function createJWT(
       throw new Error('JWT expiresIn is not a number')
     }
   }
-  const signingInput: string = [
-    encodeSection(header),
-    encodeSection({ ...timestamps, ...payload, iss: issuer })
-  ].join('.')
+  const fullPayload = { ...timestamps, ...payload, iss: issuer }
+  return createJWS(fullPayload, signer, header)
+}
 
-  const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
-  const signature: string = await jwtSigner(signingInput, signer)
-  return [signingInput, signature].join('.')
+/**
+ *  Verifies given JWS. If the JWS is valid, returns the public key that was
+ *  used to sign the JWS, or throws an `Error` if none of the `pubkeys` match.
+ *
+ *  @example
+ *  const pubkey = verifyJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', { publicKeyHex: '0x12341...' })
+ *
+ *  @param    {String}                          jws         A JWS string to verify
+ *  @param    {Array<PublicKey> | PublicKey}    pubkeys     The public keys used to verify the JWS
+ *  @return   {PublicKey}                       The public key used to sign the JWS
+ */
+export function verifyJWS (jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
+  if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
+  const { header, data, signature }: JWTDecoded = decodeJWT(jws)
+  const signer: PublicKey = VerifierAlgorithm(header.alg)(
+    data,
+    signature,
+    pubkeys
+  )
+  return signer
 }
 
 /**
@@ -230,11 +269,7 @@ export async function verifyJWT(
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(
-    data,
-    signature,
-    authenticators
-  )
+  const signer: PublicKey = await verifyJWS(jwt, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     const nowSkewed = now + NBF_SKEW

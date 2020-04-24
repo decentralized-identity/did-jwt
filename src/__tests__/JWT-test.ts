@@ -235,7 +235,7 @@ describe('verifyJWT()', () => {
     // tslint:disable-next-line: max-line-length
     const badJwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
     it('rejects a JWT with bad signature', async () => {
-      expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(
+      await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(
         /Signature invalid for JWT/
       )
     })
