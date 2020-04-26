@@ -99,33 +99,6 @@ export const NBF_SKEW: number = 300
 
 /**  @module did-jwt/JWT */
 
-function isMNID(id: string): RegExpMatchArray {
-  return id.match(
-    /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/
-  )
-}
-
-function isDIDOrMNID(mnidOrDid: string): RegExpMatchArray {
-  return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
-}
-
-function isDIDOrMNIDArray(mnidOrDidArray: string[]): boolean {
-  let result:boolean = false
-  mnidOrDidArray.forEach(mnidOrDid => {
-    if (mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))) {
-      result = true
-    }
-  })
-  return result;
-}
-
-export function normalizeDID(mnidOrDid: string): string {
-  if (mnidOrDid.match(/^did:/)) return mnidOrDid
-  // Backwards compatibility
-  if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
-  throw new Error(`Not a valid DID '${mnidOrDid}'`)
-}
-
 /**
  *  Decodes a JWT and returns an object representing the payload
  *
@@ -265,9 +238,6 @@ export async function verifyJWT(
   options: JWTVerifyOptions = { resolver: null, auth: null, audience: null, callbackUrl: null }
 ): Promise<Verified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
-  const aud: string = options.audience
-    ? normalizeDID(options.audience)
-    : undefined
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
   const {
     doc,
@@ -294,48 +264,16 @@ export async function verifyJWT(
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
-      if (Array.isArray(payload.aud) && isDIDOrMNIDArray(payload.aud)) {
-        if (!aud) {
-          throw new Error(
-            'JWT audience is required but your app address has not been configured'
-          )
-        }
-        let result: boolean = false
-        payload.aud.forEach(audience => {
-          if (aud === normalizeDID(audience)) {
-            result = true
-          }
-        });
-        if (!result) throw new Error(
-          `JWT audience does not match your DID: yours: ${aud}`
+      if (!options.audience && !options.callbackUrl) {
+        throw new Error(
+          'JWT audience is required but your app address has not been configured'
         )
-      } else if (typeof payload.aud === 'string' && isDIDOrMNID(payload.aud)) {
-        if (!aud) {
-          throw new Error(
-            'JWT audience is required but your app address has not been configured'
-          )
-        }
+      }
+      const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
+      let matchedAudience = audArray.find((item) => options.audience === item || options.callbackUrl === item)
 
-        if (aud !== normalizeDID(payload.aud)) {
-          throw new Error(
-            `JWT audience does not match your DID: aud: ${
-              payload.aud
-            } !== yours: ${aud}`
-          )
-        }
-      } else {
-        if (!options.callbackUrl) {
-          throw new Error(
-            "JWT audience matching your callback url is required but one wasn't passed in"
-          )
-        }
-        if (payload.aud !== options.callbackUrl) {
-          throw new Error(
-            `JWT audience does not match the callback url: aud: ${
-              payload.aud
-            } !== url: ${options.callbackUrl}`
-          )
-        }
+      if (typeof matchedAudience === 'undefined') {
+        throw new Error(`JWT audience does not match your DID or callback url`)
       }
     }
     return { payload, doc, issuer, signer, jwt }
@@ -361,14 +299,13 @@ export async function verifyJWT(
 export async function resolveAuthenticator(
   resolver: Resolvable,
   alg: string,
-  mnidOrDid: string,
+  issuer: string,
   auth?: boolean
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
-  const issuer: string = normalizeDID(mnidOrDid)
   const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   // is there some way to have authenticationKeys be a single type?

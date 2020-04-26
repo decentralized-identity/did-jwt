@@ -3,8 +3,7 @@ import {
   verifyJWT,
   decodeJWT,
   resolveAuthenticator,
-  NBF_SKEW,
-  normalizeDID
+  NBF_SKEW
 } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import SimpleSigner from '../SimpleSigner'
@@ -375,7 +374,7 @@ describe('verifyJWT()', () => {
     )
     expect(verifyJWT(jwt, { resolver, callbackUrl: 'http://pututu.uport.me/unique/1' }))
       .rejects
-      .toThrow(/JWT audience does not match the callback url/)
+      .toThrow(/JWT audience does not match your DID or callback url/)
   })
 
   it('rejects an invalid audience using callback_url where callback is missing', async () => {
@@ -392,7 +391,7 @@ describe('verifyJWT()', () => {
     const jwt = await createJWT({ aud }, { issuer: did, signer })
     expect(verifyJWT(jwt, { resolver }))
       .rejects
-      .toThrow('JWT audience is required but your app address has not been configured')
+      .toThrow(/JWT audience does not match your DID or callback url/)
   })
 })
 
@@ -573,20 +572,6 @@ describe('resolveAuthenticator()', () => {
       return expect(resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, 'ESBAD', did)).rejects.toEqual(
         new Error(`No supported signature types for algorithm ESBAD`)
       )
-    })
-  })
-
-  describe('normalizeDID', () => {
-    it('returns the value if it is already a did', () => {
-      expect(normalizeDID(did)).toEqual(did)
-    })
-    it('converts an mnid into a did', () => {
-      expect(normalizeDID('2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX')).toEqual(
-        'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
-      )
-    })
-    it('throws if the value is neither a did nor an mnid', () => {
-      expect(() => normalizeDID('notadid!')).toThrow()
     })
   })
 
