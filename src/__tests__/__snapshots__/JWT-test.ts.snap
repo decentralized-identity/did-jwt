@@ -73,6 +73,17 @@ Object {
 }
 `;
 
+exports[`verifyJWT() accepts multiple audiences 1`] = `
+Object {
+  "aud": Array [
+    "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+    "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+  ],
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
 exports[`verifyJWT() handles ES256K algorithm with ethereum address - github #14 1`] = `
 Object {
   "hello": "world",

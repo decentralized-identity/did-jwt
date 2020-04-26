@@ -15,12 +15,15 @@
     "esm"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/standard && jest --updateSnapshot",
+    "test": "./node_modules/.bin/standard && jest",
     "build:js": "./node_modules/.bin/microbundle",
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
     "build": "npm run build:js && npm test && npm run build:browser",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
+    "lint": "tslint -p tsconfig.json",
     "prepublish": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
     "prepare": "npm run build"
   },
   "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
