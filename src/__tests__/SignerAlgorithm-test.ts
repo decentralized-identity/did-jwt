@@ -38,7 +38,7 @@ describe('SignerAlgorithm', () => {
 describe('ES256K', () => {
   const jwtSigner = SignerAlgorithm('ES256K')
   it('returns correct signature', async () => {
-    return expect(jwtSigner('hello', signer)).resolves.toEqual(
+    return await expect(jwtSigner('hello', signer)).resolves.toEqual(
       'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
     )
   })
@@ -65,7 +65,7 @@ describe('ES256K', () => {
 describe('ES256K-R', () => {
   const jwtSigner = SignerAlgorithm('ES256K-R')
   it('returns correct signature', async () => {
-    return expect(jwtSigner('hello', signer)).resolves.toEqual(
+    return await expect(jwtSigner('hello', signer)).resolves.toEqual(
       'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQE'
     )
   })
@@ -93,7 +93,7 @@ describe('ES256K-R', () => {
 describe('Ed25519', () => {
   const jwtSigner = SignerAlgorithm('Ed25519')
   it('returns correct signature', async () => {
-    return expect(jwtSigner('hello', edSigner)).resolves.toEqual(
+    return await expect(jwtSigner('hello', edSigner)).resolves.toEqual(
       'lLY_SeplJc_4tgMP1BHmjfxS0UEi-Xvonzbss4GT7yuFz--H28uCwsRjlIwXL4I0ugCrM-zQoA2gW2JdnFRkDQ'
     )
   })
