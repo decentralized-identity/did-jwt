@@ -51,11 +51,10 @@ jobs:
           name: release
           command: |
             npm i
-            export GITHUB_TOKEN=$GITHUB_TOKEN
             git config user.email "devops@uport.me"
-            git config user.name "uport-eng"
+            git config user.name "uport-automation-bot"
             npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-            npx semantic-release@beta --debug
+            npx semantic-release --debug
 
 workflows:
   version: 2
@@ -69,6 +68,3 @@ workflows:
             branches:
               only:
                 - master
-                - beta
-                - alpha
-                - next
