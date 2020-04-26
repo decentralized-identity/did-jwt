@@ -15,7 +15,7 @@
     "esm"
   ],
   "scripts": {
-    "test": "./node_modules/.bin/standard && jest --updateSnapshot",
+    "test": "./node_modules/.bin/standard && jest",
     "build:js": "./node_modules/.bin/microbundle",
     "build:browser": "./node_modules/.bin/webpack --config webpack.config.js",
     "build": "npm run build:js && npm test && npm run build:browser",
