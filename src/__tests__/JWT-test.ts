@@ -336,6 +336,19 @@ describe('verifyJWT()', () => {
     return expect(payload).toMatchSnapshot()
   })
 
+  it('accepts multiple audiences', async () => {
+    const jwt = await createJWT({ aud: [did, aud] }, { issuer: did, signer })
+    const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
+    return expect(payload).toMatchSnapshot()
+  })
+
+  it('rejects invalid multiple audiences', async () => {
+    const jwt = await createJWT({ aud: [did, did] }, { issuer: did, signer })
+    expect(verifyJWT(jwt, { resolver, audience: aud }))
+      .rejects
+      .toThrow(/JWT audience does not match your DID/)
+  })
+
   it('accepts a valid audience using callback_url', async () => {
     const jwt = await createJWT(
       { aud: 'http://pututu.uport.me/unique' },
