@@ -25,9 +25,7 @@ export function ES256KSigner(recoverable?: boolean): SignerAlgorithm {
     if (instanceOfEcdsaSignature(signature)) {
       return toJose(signature)
     } else {
-      throw new Error(
-        'expected a signer function that returns a signature object instead of string'
-      )
+      throw new Error('expected a signer function that returns a signature object instead of string')
     }
   }
 }
@@ -38,9 +36,7 @@ export function Ed25519Signer(): SignerAlgorithm {
     if (!instanceOfEcdsaSignature(signature)) {
       return signature
     } else {
-      throw new Error(
-        'expected a signer function that returns a string instead of signature object'
-      )
+      throw new Error('expected a signer function that returns a string instead of signature object')
     }
   }
 }

@@ -10,10 +10,7 @@ export interface EcdsaSignature {
 }
 
 export type Signer = (data: string) => Promise<EcdsaSignature | string>
-export type SignerAlgorithm = (
-  payload: string,
-  signer: Signer
-) => Promise<string>
+export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
 interface JWTOptions {
   issuer: string
@@ -76,16 +73,8 @@ interface PublicKeyTypes {
   [name: string]: string[]
 }
 const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
-  ES256K: [
-    'Secp256k1VerificationKey2018',
-    'Secp256k1SignatureVerificationKey2018',
-    'EcdsaPublicKeySecp256k1'
-  ],
-  'ES256K-R': [
-    'Secp256k1VerificationKey2018',
-    'Secp256k1SignatureVerificationKey2018',
-    'EcdsaPublicKeySecp256k1'
-  ],
+  ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
+  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
   Ed25519: ['ED25519SignatureVerification']
 }
 
@@ -99,33 +88,6 @@ export const NBF_SKEW: number = 300
 
 /**  @module did-jwt/JWT */
 
-function isMNID(id: string): RegExpMatchArray {
-  return id.match(
-    /^[123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+$/
-  )
-}
-
-function isDIDOrMNID(mnidOrDid: string): RegExpMatchArray {
-  return mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))
-}
-
-function isDIDOrMNIDArray(mnidOrDidArray: string[]): boolean {
-  let result:boolean = false
-  mnidOrDidArray.forEach(mnidOrDid => {
-    if (mnidOrDid && (mnidOrDid.match(/^did:/) || isMNID(mnidOrDid))) {
-      result = true
-    }
-  })
-  return result;
-}
-
-export function normalizeDID(mnidOrDid: string): string {
-  if (mnidOrDid.match(/^did:/)) return mnidOrDid
-  // Backwards compatibility
-  if (isMNID(mnidOrDid)) return `did:uport:${mnidOrDid}`
-  throw new Error(`Not a valid DID '${mnidOrDid}'`)
-}
-
 /**
  *  Decodes a JWT and returns an object representing the payload
  *
@@ -137,9 +99,7 @@ export function normalizeDID(mnidOrDid: string): string {
  */
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
-  const parts: RegExpMatchArray = jwt.match(
-    /^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/
-  )
+  const parts: RegExpMatchArray = jwt.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
     return {
       header: JSON.parse(base64url.decode(parts[1])),
@@ -163,12 +123,9 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
-export async function createJWS (payload: any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
+export async function createJWS(payload: any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
-  const signingInput: string = [
-    encodeSection(header),
-    encodeSection(payload)
-  ].join('.')
+  const signingInput: string = [encodeSection(header), encodeSection(payload)].join('.')
 
   const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
@@ -196,7 +153,7 @@ export async function createJWS (payload: any, signer: Signer, header: Partial<J
 export async function createJWT(
   payload: any,
   { issuer, signer, alg, expiresIn }: JWTOptions,
-  header: Partial<JWTHeader> = {},
+  header: Partial<JWTHeader> = {}
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
   if (!issuer) throw new Error('No issuing DID has been configured')
@@ -228,14 +185,10 @@ export async function createJWT(
  *  @param    {Array<PublicKey> | PublicKey}    pubkeys     The public keys used to verify the JWS
  *  @return   {PublicKey}                       The public key used to sign the JWS
  */
-export function verifyJWS (jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
+export function verifyJWS(jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
   const { header, data, signature }: JWTDecoded = decodeJWT(jws)
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(
-    data,
-    signature,
-    pubkeys
-  )
+  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
   return signer
 }
 
@@ -262,18 +215,16 @@ export function verifyJWS (jws: string, pubkeys: PublicKey | PublicKey[]): Publi
  */
 export async function verifyJWT(
   jwt: string,
-  options: JWTVerifyOptions = { resolver: null, auth: null, audience: null, callbackUrl: null }
+  options: JWTVerifyOptions = {
+    resolver: null,
+    auth: null,
+    audience: null,
+    callbackUrl: null
+  }
 ): Promise<Verified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
-  const aud: string = options.audience
-    ? normalizeDID(options.audience)
-    : undefined
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
-  const {
-    doc,
-    authenticators,
-    issuer
-  }: DIDAuthenticator = await resolveAuthenticator(
+  const { doc, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
     payload.iss,
@@ -294,48 +245,14 @@ export async function verifyJWT(
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
-      if (Array.isArray(payload.aud) && isDIDOrMNIDArray(payload.aud)) {
-        if (!aud) {
-          throw new Error(
-            'JWT audience is required but your app address has not been configured'
-          )
-        }
-        let result: boolean = false
-        payload.aud.forEach(audience => {
-          if (aud === normalizeDID(audience)) {
-            result = true
-          }
-        });
-        if (!result) throw new Error(
-          `JWT audience does not match your DID: yours: ${aud}`
-        )
-      } else if (typeof payload.aud === 'string' && isDIDOrMNID(payload.aud)) {
-        if (!aud) {
-          throw new Error(
-            'JWT audience is required but your app address has not been configured'
-          )
-        }
+      if (!options.audience && !options.callbackUrl) {
+        throw new Error('JWT audience is required but your app address has not been configured')
+      }
+      const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
+      const matchedAudience = audArray.find(item => options.audience === item || options.callbackUrl === item)
 
-        if (aud !== normalizeDID(payload.aud)) {
-          throw new Error(
-            `JWT audience does not match your DID: aud: ${
-              payload.aud
-            } !== yours: ${aud}`
-          )
-        }
-      } else {
-        if (!options.callbackUrl) {
-          throw new Error(
-            "JWT audience matching your callback url is required but one wasn't passed in"
-          )
-        }
-        if (payload.aud !== options.callbackUrl) {
-          throw new Error(
-            `JWT audience does not match the callback url: aud: ${
-              payload.aud
-            } !== url: ${options.callbackUrl}`
-          )
-        }
+      if (typeof matchedAudience === 'undefined') {
+        throw new Error(`JWT audience does not match your DID or callback url`)
       }
     }
     return { payload, doc, issuer, signer, jwt }
@@ -361,40 +278,31 @@ export async function verifyJWT(
 export async function resolveAuthenticator(
   resolver: Resolvable,
   alg: string,
-  mnidOrDid: string,
+  issuer: string,
   auth?: boolean
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
-  const issuer: string = normalizeDID(mnidOrDid)
   const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
   // is there some way to have authenticationKeys be a single type?
   const authenticationKeys: boolean | string[] = auth
     ? (doc.authentication || []).map(({ publicKey }) => publicKey)
     : true
-  const authenticators: PublicKey[] = (doc.publicKey || []).filter(
-    ({ type, id }) =>
-      types.find(
-        supported =>
-          supported === type &&
-          (!auth ||
-            (Array.isArray(authenticationKeys) &&
-              authenticationKeys.indexOf(id) >= 0))
-      )
+  const authenticators: PublicKey[] = (doc.publicKey || []).filter(({ type, id }) =>
+    types.find(
+      supported =>
+        supported === type && (!auth || (Array.isArray(authenticationKeys) && authenticationKeys.indexOf(id) >= 0))
+    )
   )
 
   if (auth && (!authenticators || authenticators.length === 0)) {
-    throw new Error(
-      `DID document for ${issuer} does not have public keys suitable for authenticationg user`
-    )
+    throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticationg user`)
   }
   if (!authenticators || authenticators.length === 0) {
-    throw new Error(
-      `DID document for ${issuer} does not have public keys for ${alg}`
-    )
+    throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   }
   return { authenticators, issuer, doc }
 }
