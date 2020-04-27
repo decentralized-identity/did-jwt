@@ -1,3 +1,10 @@
+## [4.3.2](https://github.com/decentralized-identity/did-jwt/compare/4.3.1...4.3.2) (2020-04-27)
+
+
+### Bug Fixes
+
+* export JWS functions ([897b2a5](https://github.com/decentralized-identity/did-jwt/commit/897b2a5d501ec9d5cf047a947cd5f66a56ec3339))
+
 ## [4.3.1](https://github.com/decentralized-identity/did-jwt/compare/v4.3.0...4.3.1) (2020-04-26)
 
 
