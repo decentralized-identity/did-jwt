@@ -85,7 +85,7 @@ Once decoded a did-JWT will resemble:
 }
 ```
 
-### 2. Verify a did-JWT
+### 3. Verify a did-JWT
 
 [verifyJWT](/docs/reference/index.md#did-jwtjwtverifyjwtjwt-config--promiseobject-error)
 
