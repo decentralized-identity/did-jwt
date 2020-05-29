@@ -23,6 +23,9 @@ function leftpad(data: string, size = 64): string {
  */
 
 function SimpleSigner(hexPrivateKey: string): Signer {
+  if (hexPrivateKey.startsWith('0x')) {
+    hexPrivateKey = hexPrivateKey.substring(2)
+  }
   const privateKey: ec.KeyPair = secp256k1.keyFromPrivate(hexPrivateKey)
   return async data => {
     const { r, s, recoveryParam }: EC.Signature = privateKey.sign(sha256(data))
