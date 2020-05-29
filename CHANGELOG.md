@@ -1,3 +1,10 @@
+## [4.3.3](https://github.com/decentralized-identity/did-jwt/compare/4.3.2...4.3.3) (2020-05-29)
+
+
+### Bug Fixes
+
+* handle SimpleSigner privateKey 0x hex prefix by stripping it ([#93](https://github.com/decentralized-identity/did-jwt/issues/93)) ([47595d3](https://github.com/decentralized-identity/did-jwt/commit/47595d354d167625e243a491fbab237c827991a6))
+
 ## [4.3.2](https://github.com/decentralized-identity/did-jwt/compare/4.3.1...4.3.2) (2020-04-27)
 
 
