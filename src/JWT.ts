@@ -174,6 +174,14 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
+function verifyJWSDecoded(
+  { header, data, signature }: JWTDecoded,
+   pubkeys: PublicKey | PublicKey[]
+): PublicKey {
+  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
+  return signer
+}
+
 /**
  *  Verifies given JWS. If the JWS is valid, returns the public key that was
  *  used to sign the JWS, or throws an `Error` if none of the `pubkeys` match.
@@ -187,9 +195,8 @@ export async function createJWT(
  */
 export function verifyJWS(jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
-  const { header, data, signature }: JWTDecoded = decodeJWT(jws)
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
-  return signer
+  const jwsDecoded: JWTDecoded = decodeJWT(jws)
+  return verifyJWSDecoded(jwsDecoded, pubkeys)
 }
 
 /**
@@ -230,7 +237,7 @@ export async function verifyJWT(
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = await verifyJWS(jwt, authenticators)
+  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature }, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     const nowSkewed = now + NBF_SKEW
