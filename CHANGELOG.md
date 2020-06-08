@@ -1,3 +1,10 @@
+## [4.3.4](https://github.com/decentralized-identity/did-jwt/compare/4.3.3...4.3.4) (2020-06-08)
+
+
+### Bug Fixes
+
+* avoid decoding jws twice in verification ([#95](https://github.com/decentralized-identity/did-jwt/issues/95)) ([bc95cb1](https://github.com/decentralized-identity/did-jwt/commit/bc95cb11c554f4e4022c1d1cabaa7383edcac845))
+
 ## [4.3.3](https://github.com/decentralized-identity/did-jwt/compare/4.3.2...4.3.3) (2020-05-29)
 
 
