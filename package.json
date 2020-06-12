@@ -89,7 +89,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1",
-    "@stablelib/utf8": "^0.10.1",
+    "@stablelib/utf8": "^1.0.0",
     "buffer": "^5.2.1",
     "did-resolver": "^1.0.0",
     "elliptic": "^6.4.0",
