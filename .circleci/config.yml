@@ -1,70 +1,97 @@
-version: 2
-jobs:
-  build:
-    working_directory: ~/did-jwt
-    docker:
-      - image: circleci/node:10
-    steps:
-      - checkout
+###############################################################
+# References
+###############################################################
+version: 2.1
+references:
+  restore-npm-cache: &restore-npm-cache
+    restore_cache:
+      keys:
+        # when lock file changes, use increasingly general patterns to restore cache
+        - npm-packages-v1-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
+        - npm-packages-v1-{{ checksum "package.json" }}
+        - npm-packages-v1-
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - dependencies-cache-{{ checksum "package.json" }}
+  save-npm-cache: &save-npm-cache
+    save_cache:
+      paths:
+        - node_modules/
+      key: npm-packages-v1-{{ checksum "package.json" }}-{{ checksum "yarn.lock" }}
 
-      - run:
-          name: install-dependencies
-          command: |
-            sudo npm i -g  codecov node-gyp
-            yarn
-
-      - run:
-          name: test
-          command: yarn test && codecov
-
-      - run:
-          name: code-coverage
-          command: bash <(curl -s https://codecov.io/bash)
-
-      - run:
-          name: commitlint
-          command: |
-            echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
-            npm install @commitlint/cli @commitlint/config-conventional
-            npx semantic-commitlint -- --ci
-
-      - save_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-          paths:
-            - ./node_modules
-
-  release:
-    working_directory: ~/did-jwt
-    docker:
-      - image: circleci/node:10
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - "51:b0:64:c7:62:ec:87:ac:cd:56:96:15:22:2e:e3:eb"
-      - checkout
-      - run:
-          name: release
-          command: |
-            npm i
-            git config user.email "devops@uport.me"
-            git config user.name "uport-automation-bot"
-            npm set //registry.npmjs.org/:_authToken=$NPM_TOKEN
-            npx semantic-release --debug
-
+###############################################################
+# Workflows
+###############################################################
 workflows:
-  version: 2
-  build-and-deploy:
+  # Trigger workflow for last commit (merge commits) to master
+  # Run unit tests for sanity and if all looks good run semantic release
+  # Semantic release will decide based on commit messages if another release is needed
+  # Always run unit tests on master
+  automatic-semantic-release:
     jobs:
-      - build
-      - release:
-          requires:
-            - build
+      - verify-unit-tests:
           filters:
             branches:
               only:
                 - master
+      - run-semantic-release:
+          requires:
+            - verify-unit-tests
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              # Would be good if we can ignore tagged commits but it won't trigger another build so it's fine
+              ignore: /.*/
+
+  # This gets triggers on every push to all branches except master
+  # It verifies the branch, runs unit tests and coverage
+  verify-test-build:
+    jobs:
+      - verify-unit-tests:
+          filters:
+            branches:
+              ignore:
+                - master
+
+###############################################################
+# Jobs
+###############################################################
+
+jobs:
+  verify-unit-tests:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - *restore-npm-cache
+      - run:
+          name: Install node modules
+          command: yarn install --frozen-lockfile
+      - *save-npm-cache
+      - run:
+          name: Run unit tests
+          command: yarn run test:ci
+      - run:
+          name: Run lint
+          command: yarn run lint
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - node_modules
+
+  run-semantic-release:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout:
+          path: ~/project
+      - attach_workspace:
+          at: ~/project
+      - run:
+          name: Semantic release
+          command: |
+            git config user.email "devops@uport.me"
+            git config user.name "uport-automation-bot"
+            yarn run release
