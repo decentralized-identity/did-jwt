@@ -24,7 +24,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "standard && tslint -p tsconfig.json",
     "prepublishOnly": "npm test && npm run lint",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "release": "semantic-release --debug"
   },
   "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
   "contributors": [
