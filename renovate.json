@@ -1,5 +1,34 @@
 {
   "extends": [
     "config:base"
+  ],
+  "labels": ["maintenance"],
+  "packageRules": [
+    {
+      "updateTypes": ["minor"],
+      "automerge": true
+    },
+    {
+      "updateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "depTypeList": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "packagePatterns": [ "jest" ],
+      "groupName": "jest",
+      "automerge": true,
+      "automergeType": "branch"
+    },
+    {
+      "packagePatterns": [ "lint" ],
+      "groupName": "linters",
+      "automerge": true,
+      "automergeType": "branch"
+    }
   ]
 }
