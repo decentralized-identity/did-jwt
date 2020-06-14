@@ -74,7 +74,7 @@
     "jsdoc-to-markdown": "6.0.1",
     "jsontokens": "3.0.0",
     "microbundle": "0.12.0",
-    "mockdate": "2.0.5",
+    "mockdate": "3.0.2",
     "nacl-did": "0.4.0",
     "prettier": "1.19.1",
     "regenerator-runtime": "0.13.5",
