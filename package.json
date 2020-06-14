@@ -73,7 +73,7 @@
     "jest": "24.9.0",
     "jsdoc-to-markdown": "4.0.1",
     "jsontokens": "1.0.0",
-    "microbundle": "0.11.0",
+    "microbundle": "0.12.0",
     "mockdate": "2.0.5",
     "nacl-did": "0.4.0",
     "prettier": "1.19.1",
