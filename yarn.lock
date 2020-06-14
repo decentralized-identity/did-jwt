@@ -3674,10 +3674,10 @@ dezalgo@^1.0.0, dezalgo@~1.0.3:
     asap "^2.0.0"
     wrappy "1"
 
-did-resolver@0.0.6:
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-0.0.6.tgz#2d4638b8914871c19945fb3243f6f298c1cca9db"
-  integrity sha512-PqxzaoomTbJG3IzEouUGgppu3xrsbGKHS75zS3vS/Hfm56XxLpwIe7yFLokgXUbMWmLa0dczFHOibmebO4wRLA==
+did-resolver@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-1.1.0.tgz#27a63b6f2aa8dee3d622cd8b8b47360661e24f1e"
+  integrity sha512-Q02Sc5VuQnJzzR8fQ/DzyCHiYb31WpQdocOsxppI66wwT4XalYRDeCr3a48mL6sYPQo76AkBh0mxte9ZBuQzxA==
 
 did-resolver@^2.0.1:
   version "2.0.1"
@@ -3869,11 +3869,12 @@ ecdsa-sig-formatter@^1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
-"ed2curve@git+https://github.com/uport-project/ed2curve-js.git":
-  version "0.2.1"
-  resolved "git+https://github.com/uport-project/ed2curve-js.git#0eed8c601a5ad48e8bec1c61c335acac5428f51c"
+ed2curve-esm@^0.3.0-alpha-1:
+  version "0.3.0-alpha-1"
+  resolved "https://registry.yarnpkg.com/ed2curve-esm/-/ed2curve-esm-0.3.0-alpha-1.tgz#67a5722ea97976c3310aeaf0990a2b58ee383aef"
+  integrity sha512-Ydrqcf0NwKUBT4gL0Nnxp8/O5NG8iatN+/zbEgs/7eMGjgSVbgfE1YfWld2qYnoNIxOQvSWOFy5uBoaL3jCanw==
   dependencies:
-    tweetnacl "^1.0.0"
+    tweetnacl "^1.0.1"
 
 editor@~1.0.0:
   version "1.0.0"
@@ -7633,14 +7634,14 @@ mute-stream@0.0.8, mute-stream@~0.0.4:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nacl-did@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/nacl-did/-/nacl-did-0.4.0.tgz#1daf126fd6cdf028d2bd729aa9f87c6ba28de964"
-  integrity sha512-ZUQRynNio1tMKDLuilXEwUymCyh8yDIkxeflRAgTPcg8F2BDolJf4vb1kTIOFHzpBJXRMKxMwNz2Z16s7jmmVw==
+nacl-did@1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/nacl-did/-/nacl-did-1.0.1.tgz#94a253430343038c8fee3ff0ecf394b1d34fe4b2"
+  integrity sha512-eGFtGk8v04QaYYQe0Y+suC0iLarPJh4NC5z/f1+JTQh7nRvA/+5ZT4eh/dtP/JGPtUkh2TdpdeiFtMJ0DEyIKQ==
   dependencies:
-    did-resolver "0.0.6"
-    ed2curve "git+https://github.com/uport-project/ed2curve-js.git"
-    tweetnacl "^1.0.0"
+    did-resolver "^1.0.0"
+    ed2curve-esm "^0.3.0-alpha-1"
+    tweetnacl "^1.0.1"
     tweetnacl-util "^0.15.0"
 
 nan@^2.12.1:
@@ -11234,7 +11235,7 @@ tweetnacl@^0.14.3, tweetnacl@~0.14.0:
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
   integrity sha1-WuaBd/GS1EViadEIr6k/+HQ/T2Q=
 
-tweetnacl@^1.0.0, tweetnacl@^1.0.3:
+tweetnacl@^1.0.1, tweetnacl@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
