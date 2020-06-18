@@ -58,7 +58,6 @@ console.log(jwt);
 
 
 ### 2. Decode a did-JWT
-
 Try decoding the JWT.  You can also do this using [jwt.io](jwt.io)
 
 ```js
