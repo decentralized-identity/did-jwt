@@ -1,3 +1,10 @@
+# [4.4.0](https://github.com/decentralized-identity/did-jwt/compare/4.3.4...4.4.0) (2020-06-18)
+
+
+### Features
+
+* add EllipticSigner that returns string ([#114](https://github.com/decentralized-identity/did-jwt/issues/114)) ([7c93513](https://github.com/decentralized-identity/did-jwt/commit/7c9351309cc7016f682eb93f271ebda465ae8e6a))
+
 ## [4.3.4](https://github.com/decentralized-identity/did-jwt/compare/4.3.3...4.3.4) (2020-06-08)
 
 

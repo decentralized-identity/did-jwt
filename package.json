@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "4.3.4",
+  "version": "4.4.0",
   "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
   "main": "lib/index.js",
   "source": "src/index.ts",
