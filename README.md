@@ -10,7 +10,6 @@ The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https:
 Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the signing identity of the claim, which is passed as the `iss` attribute of the encoded JWT.
 
 ## DID methods
-
 We currently support the following DID methods:
 
 - [`ethr`](https://github.com/uport-project/ethr-did-resolver)
