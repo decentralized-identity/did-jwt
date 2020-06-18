@@ -1,6 +1,7 @@
 import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../SimpleSigner'
+import EllipticSigner from '../EllipticSigner'
 import NaclSigner from '../NaclSigner'
 import base64url from 'uport-base64url'
 import { ec as EC } from 'elliptic'
@@ -15,6 +16,7 @@ const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/
 const kp = secp256k1.keyFromPrivate(privateKey)
 const signer = SimpleSigner(privateKey)
 const edSigner = NaclSigner(ed25519PrivateKey)
+const ecSigner = EllipticSigner(privateKey)
 const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 
 describe('SignerAlgorithm', () => {
@@ -58,6 +60,25 @@ describe('ES256K', () => {
 
   it('can verify the signature', async () => {
     const signature = await jwtSigner('hello', signer)
+    expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
+  })
+})
+
+describe('ES256K signer which returns signature as string ', () => {
+  const jwtSigner = SignerAlgorithm('ES256K')
+  it('returns correct signature', async () => {
+    return await expect(jwtSigner('hello', ecSigner)).resolves.toEqual(
+      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
+    )
+  })
+
+  it('returns signature of 64 bytes', async () => {
+    const signature = await jwtSigner('hello', ecSigner)
+    expect(base64url.toBuffer(signature).length).toEqual(64)
+  })
+
+  it('can verify the signature', async () => {
+    const signature = await jwtSigner('hello', ecSigner)
     expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
 })
