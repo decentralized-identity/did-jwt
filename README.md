@@ -39,7 +39,6 @@ yarn add did-jwt
 ## Example
 
 ### 1. Create a did-JWT
-
 [createJWT](docs/reference/index.md#did-jwtjwtcreatejwtpayload-config--promiseobject-error)
 
 In practice you should secure the key passed to SimpleSigner.  The key provided in code below is for informational purposes; you will need to create an application identity at [My Apps](http://developer.uport.me/myapps) or use our uport-credentials library to [generate an ethereum key pair](https://github.com/uport-project/uport-credentials/blob/develop/docs/guides/index.md#generate-an-ethereum-keypair).
