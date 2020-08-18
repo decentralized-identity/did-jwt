@@ -48,11 +48,8 @@ In practice you should secure the key passed to SimpleSigner.  The key provided 
 const didJWT = require('did-jwt')
 const signer = didJWT.SimpleSigner('278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f');
 
-let jwt = '';
-didJWT.createJWT({aud: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', exp: 1957463421, name: 'uPort Developer'},
-                 {alg: 'ES256K-R', issuer: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', signer}).then( response =>
-                 { jwt = response });
-
+let jwt = await didJWT.createJWT({aud: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', exp: 1957463421, name: 'uPort Developer'},
+                 {alg: 'ES256K', issuer: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', signer})
 console.log(jwt);
 ```
 
@@ -71,7 +68,7 @@ Once decoded a did-JWT will resemble:
 
 ```js
 {
-  header: { typ: 'JWT', alg: 'ES256K-R' },
+  header: { typ: 'JWT', alg: 'ES256K' },
   payload: {
     iat: 1571692233,
     exp: 1957463421,
@@ -95,15 +92,12 @@ npm install ethr-did-resolver
 
 ```js
 const Resolver = require('did-resolver')
-const ethrDid =  require('ethr-did-resolver').getResolver()
+const ethrDid =  require('ethr-did-resolver').getResolver({rpcUrl: 'https://mainnet.infura.io/v3/...'})
 
 let resolver = new Resolver.Resolver(ethrDid)
 
-let verifiedRespone = {};
 // pass the JWT from step 1 & 2
-didJWT.verifyJWT(jwt, {resolver: resolver, audience: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'}).then((response) =>
-{ verifiedRespone = response });
-
+let verifiedRespone = await didJWT.verifyJWT(jwt, {resolver: resolver, audience: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'})
 console.log(verifiedRespone);
 ```
 
