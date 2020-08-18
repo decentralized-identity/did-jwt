@@ -61,6 +61,13 @@ export interface JWTDecoded {
   data: string
 }
 
+export interface JWSDecoded {
+  header: JWTHeader
+  payload: string
+  signature: string
+  data: string
+}
+
 export interface JWTVerified {
   payload: any
   doc: DIDDocument
@@ -86,6 +93,19 @@ function encodeSection(data: any): string {
 
 export const NBF_SKEW: number = 300
 
+function decodeJWS(jws: string): JWSDecoded {
+  const parts: RegExpMatchArray = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+  if (parts) {
+    return {
+      header: JSON.parse(base64url.decode(parts[1])),
+      payload: parts[2],
+      signature: parts[3],
+      data: `${parts[1]}.${parts[2]}`
+    }
+  }
+  throw new Error('Incorrect format JWS')
+}
+
 /**  @module did-jwt/JWT */
 
 /**
@@ -99,16 +119,13 @@ export const NBF_SKEW: number = 300
  */
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
-  const parts: RegExpMatchArray = jwt.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-  if (parts) {
-    return {
-      header: JSON.parse(base64url.decode(parts[1])),
-      payload: JSON.parse(base64url.decode(parts[2])),
-      signature: parts[3],
-      data: `${parts[1]}.${parts[2]}`
-    }
+  try {
+    const jws = decodeJWS(jwt)
+    const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(base64url.decode(jws.payload)) })
+    return decodedJwt
+  } catch(e) {
+    throw new Error('Incorrect format JWT')
   }
-  throw new Error('Incorrect format JWT')
 }
 
 /**
@@ -123,9 +140,10 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
-export async function createJWS(payload: any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
+export async function createJWS(payload: string | Record<string, any>, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
-  const signingInput: string = [encodeSection(header), encodeSection(payload)].join('.')
+  const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
+  const signingInput: string = [encodeSection(header), encodedPayload].join('.')
 
   const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
@@ -174,7 +192,7 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
-function verifyJWSDecoded({ header, data, signature }: JWTDecoded, pubkeys: PublicKey | PublicKey[]): PublicKey {
+function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: PublicKey | PublicKey[]): PublicKey {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
   const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
   return signer
@@ -192,7 +210,7 @@ function verifyJWSDecoded({ header, data, signature }: JWTDecoded, pubkeys: Publ
  *  @return   {PublicKey}                       The public key used to sign the JWS
  */
 export function verifyJWS(jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
-  const jwsDecoded: JWTDecoded = decodeJWT(jws)
+  const jwsDecoded: JWSDecoded = decodeJWS(jws)
   return verifyJWSDecoded(jwsDecoded, pubkeys)
 }
 
@@ -234,7 +252,7 @@ export async function verifyJWT(
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWTDecoded, authenticators)
+  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
   if (signer) {
     const nowSkewed = now + NBF_SKEW
