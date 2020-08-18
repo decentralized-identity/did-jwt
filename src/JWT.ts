@@ -12,37 +12,37 @@ export interface EcdsaSignature {
 export type Signer = (data: string) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
-interface JWTOptions {
+export interface JWTOptions {
   issuer: string
   signer: Signer
   alg?: string
   expiresIn?: number
 }
 
-interface Resolvable {
+export interface Resolvable {
   resolve: (did: string) => Promise<DIDDocument | null>
 }
 
-interface JWTVerifyOptions {
+export interface JWTVerifyOptions {
   auth?: boolean
   audience?: string
   callbackUrl?: string
   resolver?: Resolvable
 }
 
-interface DIDAuthenticator {
+export interface DIDAuthenticator {
   authenticators: PublicKey[]
   issuer: string
   doc: DIDDocument
 }
 
-interface JWTHeader {
+export interface JWTHeader {
   typ: 'JWT'
   alg: string
   [x: string]: any
 }
 
-interface JWTPayload {
+export interface JWTPayload {
   iss?: string
   sub?: string
   aud?: string | string[]
@@ -54,14 +54,14 @@ interface JWTPayload {
   [x: string]: any
 }
 
-interface JWTDecoded {
+export interface JWTDecoded {
   header: JWTHeader
   payload: JWTPayload
   signature: string
   data: string
 }
 
-interface Verified {
+export interface Verified {
   payload: any
   doc: DIDDocument
   issuer: string
@@ -69,10 +69,10 @@ interface Verified {
   jwt: string
 }
 
-interface PublicKeyTypes {
+export interface PublicKeyTypes {
   [name: string]: string[]
 }
-const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
+export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
   'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1'],
   Ed25519: ['ED25519SignatureVerification']
