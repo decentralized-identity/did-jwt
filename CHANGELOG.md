@@ -1,3 +1,10 @@
+## [4.4.2](https://github.com/decentralized-identity/did-jwt/compare/4.4.1...4.4.2) (2020-08-18)
+
+
+### Bug Fixes
+
+* **deps:** upgrade direct dependencies ([#125](https://github.com/decentralized-identity/did-jwt/issues/125)) ([fec222f](https://github.com/decentralized-identity/did-jwt/commit/fec222ff353c5349f8e3f67ce9e6b52d9bf8dc72))
+
 ## [4.4.1](https://github.com/decentralized-identity/did-jwt/compare/4.4.0...4.4.1) (2020-08-18)
 
 
