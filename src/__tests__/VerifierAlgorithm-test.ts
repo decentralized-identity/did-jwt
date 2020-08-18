@@ -41,7 +41,7 @@ const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)
 const ecKey1 = {
   id: `${did}#keys-1`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex:
     '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
 }
@@ -49,42 +49,42 @@ const ecKey1 = {
 const ecKey2 = {
   id: `${did}#keys-2`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex: publicKey
 }
 
 const ethAddress = {
   id: `${did}#keys-3`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   ethereumAddress: address
 }
 
 const compressedKey = {
   id: `${did}#keys-4`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex: compressedPublicKey
 }
 
 const edKey = {
   id: `${did}#keys-5`,
   type: 'ED25519SignatureVerification',
-  owner: did,
+  controller: did,
   publicKeyBase64: edPublicKey
 }
 
 const edKey2 = {
   id: `${did}#keys-6`,
   type: 'ED25519SignatureVerification',
-  owner: did,
+  controller: did,
   publicKeyBase64: edPublicKey2
 }
 
 const malformedKey1 = {
   id: `${did}#keys-7`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex:
     '05613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
 }
@@ -92,7 +92,7 @@ const malformedKey1 = {
 const malformedKey2 = {
   id: `${did}#keys-8`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex:
     '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062aabbccdd'
 }
@@ -100,7 +100,7 @@ const malformedKey2 = {
 const malformedKey3 = {
   id: `${did}#keys-8`,
   type: 'Secp256k1VerificationKey2018',
-  owner: did,
+  controller: did,
   publicKeyHex:
     '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06'
 }
