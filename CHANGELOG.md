@@ -1,3 +1,11 @@
+## [4.4.1](https://github.com/decentralized-identity/did-jwt/compare/4.4.0...4.4.1) (2020-08-18)
+
+
+### Bug Fixes
+
+* export interfaces used for JWT verification ([#123](https://github.com/decentralized-identity/did-jwt/issues/123)) ([76229c5](https://github.com/decentralized-identity/did-jwt/commit/76229c5e7d567db95d842e44649c3f58fa7f1b1a))
+* export more JWT interfaces ([#121](https://github.com/decentralized-identity/did-jwt/issues/121)) ([2fd049c](https://github.com/decentralized-identity/did-jwt/commit/2fd049ca38d39c33941bad7ae4383776618bbdbd))
+
 # [4.4.0](https://github.com/decentralized-identity/did-jwt/compare/4.3.4...4.4.0) (2020-06-18)
 
 
