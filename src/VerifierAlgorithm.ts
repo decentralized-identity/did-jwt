@@ -56,7 +56,10 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
     signatures = [toSignatureObject(signature, true)]
   } else {
     const so = toSignatureObject(signature, false)
-    signatures = [{ ...so, recoveryParam: 0 }, { ...so, recoveryParam: 1 }]
+    signatures = [
+      { ...so, recoveryParam: 0 },
+      { ...so, recoveryParam: 1 }
+    ]
   }
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): PublicKey => {

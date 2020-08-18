@@ -61,7 +61,7 @@ export interface JWTDecoded {
   data: string
 }
 
-export interface Verified {
+export interface JWTVerified {
   payload: any
   doc: DIDDocument
   issuer: string
@@ -174,10 +174,7 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
-function verifyJWSDecoded(
-  { header, data, signature }: JWTDecoded,
-  pubkeys: PublicKey | PublicKey[]
-): PublicKey {
+function verifyJWSDecoded({ header, data, signature }: JWTDecoded, pubkeys: PublicKey | PublicKey[]): PublicKey {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
   const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
   return signer
@@ -228,7 +225,7 @@ export async function verifyJWT(
     audience: null,
     callbackUrl: null
   }
-): Promise<Verified> {
+): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
   const { doc, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(

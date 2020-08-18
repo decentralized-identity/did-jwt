@@ -120,9 +120,9 @@ describe('createJWT()', () => {
     })
 
     it('throws an error if unsupported algorithm is passed in', async () => {
-      await expect(createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' })).rejects.toThrow(
-        'Unsupported algorithm BADALGO'
-      )
+      await expect(
+        createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' })
+      ).rejects.toThrow('Unsupported algorithm BADALGO')
     })
   })
 
@@ -304,7 +304,9 @@ describe('verifyJWT()', () => {
 
   it('rejects invalid audience', async () => {
     const jwt = await createJWT({ aud }, { issuer: did, signer })
-    await expect(verifyJWT(jwt, { resolver, audience: did })).rejects.toThrow(/JWT audience does not match your DID or callback url/)
+    await expect(verifyJWT(jwt, { resolver, audience: did })).rejects.toThrow(
+      /JWT audience does not match your DID or callback url/
+    )
   })
 
   it('rejects an invalid audience using callback_url where callback is wrong', async () => {
@@ -320,13 +322,15 @@ describe('verifyJWT()', () => {
   it('rejects an invalid audience using callback_url where callback is missing', async () => {
     const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(
-      "JWT audience is required but your app address has not been configured"
+      'JWT audience is required but your app address has not been configured'
     )
   })
 
   it('rejects invalid audience as no address is present', async () => {
     const jwt = await createJWT({ aud }, { issuer: did, signer })
-    await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(/JWT audience is required but your app address has not been configured/)
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(
+      /JWT audience is required but your app address has not been configured/
+    )
   })
 })
 
