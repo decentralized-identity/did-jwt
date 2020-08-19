@@ -1,3 +1,10 @@
+# [4.5.0](https://github.com/decentralized-identity/did-jwt/compare/4.4.2...4.5.0) (2020-08-19)
+
+
+### Features
+
+* enable arbitrary payloads for JWS ([#126](https://github.com/decentralized-identity/did-jwt/issues/126)) ([5573e63](https://github.com/decentralized-identity/did-jwt/commit/5573e6390a30f088d5b6d298cf348b1ec58c3b92))
+
 ## [4.4.2](https://github.com/decentralized-identity/did-jwt/compare/4.4.1...4.4.2) (2020-08-18)
 
 
