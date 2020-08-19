@@ -1,9 +1,11 @@
-import { createJWT, verifyJWT, decodeJWT, resolveAuthenticator, NBF_SKEW } from '../JWT'
+import { createJWT, verifyJWT, decodeJWT, createJWS, verifyJWS, resolveAuthenticator, NBF_SKEW } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
 import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
+import base64url from 'base64url'
+import { PublicKey } from 'did-resolver'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -331,6 +333,41 @@ describe('verifyJWT()', () => {
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(
       /JWT audience is required but your app address has not been configured/
     )
+  })
+})
+
+describe('JWS', () => {
+
+  it('createJWS works with JSON payload', async () => {
+    const payload = { some: 'data' }
+    const jws = await createJWS(payload, signer)
+    expect(jws).toMatchSnapshot()
+    expect(JSON.parse(base64url.decode(jws.split('.')[1]))).toEqual(payload)
+  })
+
+  it('createJWS works with base64url payload', async () => {
+    // use the hex public key as an arbitrary payload
+    const encodedPayload = base64url.encode(Buffer.from(publicKey, 'hex'))
+    const jws = await createJWS(encodedPayload, signer)
+    expect(jws).toMatchSnapshot()
+    expect(jws.split('.')[1]).toEqual(encodedPayload)
+  })
+
+  it('verifyJWS works with JSON payload', async () => {
+    const payload = { some: 'data' }
+    const jws = await createJWS(payload, signer)
+    expect(verifyJWS(jws, { publicKeyHex: publicKey } as PublicKey))
+  })
+
+  it('verifyJWS works with base64url payload', async () => {
+    const encodedPayload = base64url.encode(Buffer.from(publicKey, 'hex'))
+    const jws = await createJWS(encodedPayload, signer)
+    expect(verifyJWS(jws, { publicKeyHex: publicKey } as PublicKey))
+  })
+
+  it('verifyJWS fails with bad input', async () => {
+    const badJws = 'abrewguer.fjreoiwfoiew.foirheogu.reoguhwehrg'
+    expect(() => verifyJWS(badJws, { publicKeyHex: publicKey } as PublicKey)).toThrow('Incorrect format JWS')
   })
 })
 

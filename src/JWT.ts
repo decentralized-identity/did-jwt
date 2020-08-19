@@ -140,7 +140,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
-export async function createJWS(payload: string | Record<string, any>, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
+export async function createJWS(payload: string | any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
   const signingInput: string = [encodeSection(header), encodedPayload].join('.')
