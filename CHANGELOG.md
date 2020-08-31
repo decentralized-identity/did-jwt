@@ -1,3 +1,10 @@
+## [4.5.1](https://github.com/decentralized-identity/did-jwt/compare/4.5.0...4.5.1) (2020-08-31)
+
+
+### Bug Fixes
+
+* **deps:** reduce package size by replacing tweetnacl with stablelib([#129](https://github.com/decentralized-identity/did-jwt/issues/129)) ([fe81585](https://github.com/decentralized-identity/did-jwt/commit/fe81585dd5e7686cc3cc58c0763da61a8c8d08a6))
+
 # [4.5.0](https://github.com/decentralized-identity/did-jwt/compare/4.4.2...4.5.0) (2020-08-19)
 
 
