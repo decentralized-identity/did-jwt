@@ -1,4 +1,4 @@
-import nacl from 'tweetnacl'
+import { sign } from '@stablelib/ed25519'
 import { encode } from '@stablelib/utf8'
 import { Buffer } from 'buffer'
 import { Signer } from './JWT'
@@ -25,7 +25,7 @@ function NaclSigner(base64PrivateKey: string): Signer {
   const privateKey: Uint8Array = base64ToBytes(base64PrivateKey)
   return async data => {
     const dataBytes: Uint8Array = encode(data)
-    const sig: Uint8Array = nacl.sign.detached(dataBytes, privateKey)
+    const sig: Uint8Array = sign(privateKey, dataBytes)
     const b64UrlSig: string = base64url.encode(Buffer.from(sig))
     return b64UrlSig
   }
