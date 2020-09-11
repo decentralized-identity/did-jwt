@@ -21,6 +21,10 @@ describe('VerifierAlgorithm', () => {
   it('fails on unsupported algorithm', () => {
     expect(() => VerifierAlgorithm('BADALGO')).toThrowError('Unsupported algorithm BADALGO')
   })
+
+  it('supports EdDSA', () => {
+    expect(typeof VerifierAlgorithm('EdDSA')).toEqual('function')
+  })
 })
 
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
