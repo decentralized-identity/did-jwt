@@ -1,9 +1,7 @@
 import { sign } from '@stablelib/ed25519'
 import { encode } from '@stablelib/utf8'
-import { Buffer } from 'buffer'
 import { Signer } from './JWT'
-import { base64ToBytes } from './util'
-import base64url from 'uport-base64url'
+import { base64ToBytes, bytesToBase64url } from './util'
 
 /**
  *  The NaclSigner returns a configured function for signing data using the Ed25519 algorithm. It also defines
@@ -26,7 +24,7 @@ function NaclSigner(base64PrivateKey: string): Signer {
   return async data => {
     const dataBytes: Uint8Array = encode(data)
     const sig: Uint8Array = sign(privateKey, dataBytes)
-    const b64UrlSig: string = base64url.encode(Buffer.from(sig))
+    const b64UrlSig: string = bytesToBase64url(sig)
     return b64UrlSig
   }
 }

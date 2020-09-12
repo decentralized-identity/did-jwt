@@ -1,22 +1,20 @@
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
-import base64url from 'uport-base64url'
 import { verify } from '@stablelib/ed25519'
-import { EcdsaSignature } from './JWT'
 import { PublicKey } from 'did-resolver'
 import { encode } from '@stablelib/utf8'
-import { base64ToBytes } from './util'
+import { base64ToBytes, base64urlToBytes, bytesToHex, EcdsaSignature } from './util'
 
 const secp256k1 = new EC('secp256k1')
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
-  const rawsig: Buffer = base64url.toBuffer(signature)
+  const rawsig: Uint8Array = base64urlToBytes(signature)
   if (rawsig.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
   }
-  const r: string = rawsig.slice(0, 32).toString('hex')
-  const s: string = rawsig.slice(32, 64).toString('hex')
+  const r: string = bytesToHex(rawsig.slice(0, 32))
+  const s: string = bytesToHex(rawsig.slice(32, 64))
   const sigObj: EcdsaSignature = { r, s }
   if (recoverable) {
     sigObj.recoveryParam = rawsig[64]
@@ -25,7 +23,7 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
 }
 
 export function verifyES256K(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
-  const hash: Buffer = sha256(data)
+  const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
   const fullPublicKeys = authenticators.filter(({ publicKeyHex }) => {
     return typeof publicKeyHex !== 'undefined'
@@ -63,7 +61,7 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
   }
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): PublicKey => {
-    const hash: Buffer = sha256(data)
+    const hash: Uint8Array = sha256(data)
     const recoveredKey: any = secp256k1.recoverPubKey(hash, sigObj, sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
@@ -87,7 +85,7 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
 
 export function verifyEd25519(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
   const clear: Uint8Array = encode(data)
-  const sig: Uint8Array = base64ToBytes(base64url.toBase64(signature))
+  const sig: Uint8Array = base64urlToBytes(signature)
   const signer: PublicKey = authenticators.find(({ publicKeyBase64 }) =>
     verify(base64ToBytes(publicKeyBase64), clear, sig)
   )

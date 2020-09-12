@@ -2,9 +2,9 @@ import { createJWT, verifyJWT, decodeJWT, createJWS, verifyJWS, resolveAuthentic
 import { TokenVerifier } from 'jsontokens'
 import SimpleSigner from '../SimpleSigner'
 import NaclSigner from '../NaclSigner'
+import { bytesToBase64url, decodeBase64url } from '../util'
 import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
-import base64url from 'base64url'
 import { PublicKey } from 'did-resolver'
 
 const NOW = 1485321133
@@ -342,12 +342,12 @@ describe('JWS', () => {
     const payload = { some: 'data' }
     const jws = await createJWS(payload, signer)
     expect(jws).toMatchSnapshot()
-    expect(JSON.parse(base64url.decode(jws.split('.')[1]))).toEqual(payload)
+    expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(payload)
   })
 
   it('createJWS works with base64url payload', async () => {
     // use the hex public key as an arbitrary payload
-    const encodedPayload = base64url.encode(Buffer.from(publicKey, 'hex'))
+    const encodedPayload = bytesToBase64url(Buffer.from(publicKey, 'hex'))
     const jws = await createJWS(encodedPayload, signer)
     expect(jws).toMatchSnapshot()
     expect(jws.split('.')[1]).toEqual(encodedPayload)
@@ -360,7 +360,7 @@ describe('JWS', () => {
   })
 
   it('verifyJWS works with base64url payload', async () => {
-    const encodedPayload = base64url.encode(Buffer.from(publicKey, 'hex'))
+    const encodedPayload = bytesToBase64url(Buffer.from(publicKey, 'hex'))
     const jws = await createJWS(encodedPayload, signer)
     expect(verifyJWS(jws, { publicKeyHex: publicKey } as PublicKey))
   })
