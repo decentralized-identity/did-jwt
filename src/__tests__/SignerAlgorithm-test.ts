@@ -5,7 +5,7 @@ import EllipticSigner from '../EllipticSigner'
 import NaclSigner from '../NaclSigner'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
-import { base64ToBytes, base64urlToBytes, decodeBase64url } from '../util'
+import { base64ToBytes, base64urlToBytes } from '../util'
 import { sha256 } from '../Digest'
 import { encode } from '@stablelib/utf8'
 const secp256k1 = new EC('secp256k1')

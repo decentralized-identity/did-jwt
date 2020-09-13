@@ -7,20 +7,19 @@ export interface EcdsaSignature {
 }
 
 export function bytesToBase64url(b: Uint8Array): string {
-  return bytesToBase64(b).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+  return u8a.toString(b, 'base64url')
 }
 
 export function base64urlToBytes(s: string): Uint8Array {
-  return base64ToBytes(s.replace(/\-/g, '+').replace(/_/g, '/'))
+  return u8a.fromString(s, 'base64url')
 }
 
 export function base64ToBytes(s: string): Uint8Array {
-  s = s.replace(/=/g, '') // u8a lib doesn't support = padding
-  return u8a.fromString(s, 'base64')
+  return u8a.fromString(s, 'base64pad')
 }
 
 export function bytesToBase64(b: Uint8Array): string {
-  return u8a.toString(b, 'base64')
+  return u8a.toString(b, 'base64pad')
 }
 
 export function encodeBase64url(s: string): string {
@@ -46,4 +45,8 @@ export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: bo
     jose[64] = recoveryParam
   }
   return bytesToBase64url(jose)
+}
+
+export function toSealed(ciphertext: string, tag: string): Uint8Array {
+  return u8a.concat([base64urlToBytes(ciphertext), base64urlToBytes(tag)])
 }
