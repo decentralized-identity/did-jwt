@@ -12,7 +12,7 @@ export interface Recipient {
   encrypted_key: string
 }
 
-interface JWE {
+export interface JWE {
   protected: string
   iv: string
   ciphertext: string

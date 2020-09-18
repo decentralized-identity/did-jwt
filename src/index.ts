@@ -14,7 +14,7 @@ import {
   Resolvable
 } from './JWT'
 import { toEthereumAddress } from './Digest'
-export { createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
+export { JWE, createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
 export {
   xc20pDirEncrypter,
   xc20pDirDecrypter,
