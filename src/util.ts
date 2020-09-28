@@ -22,6 +22,10 @@ export function bytesToBase64(b: Uint8Array): string {
   return u8a.toString(b, 'base64pad')
 }
 
+export function base58ToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'base58btc')
+}
+
 export function encodeBase64url(s: string): string {
   return bytesToBase64url(u8a.fromString(s))
 }

@@ -2,8 +2,9 @@ import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { base64urlToBytes, bytesToBase64url, encodeBase64url, toSealed } from './util'
+import { base64urlToBytes, bytesToBase64url, base58ToBytes, encodeBase64url, toSealed } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
+import type { PublicKey, Resolver } from 'did-resolver'
 
 function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
   const cipher = new XChaCha20Poly1305(key)
@@ -74,6 +75,26 @@ export function x25519Encrypter(publicKey: Uint8Array): Encrypter {
     }
   }
   return { alg, enc: 'XC20P', encrypt, encryptCek }
+}
+
+export async function resolveX25519Encrypters(dids: string[], resolver: Resolver): Promise<Encrypter[]> {
+  return Promise.all(
+    dids.map(async (did) => {
+      const didDoc = await resolver.resolve(did)
+      if (!didDoc.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
+      const agreementKeys: PublicKey[] = didDoc.keyAgreement?.map((key) => {
+        if (typeof key === 'string') {
+          return didDoc.publicKey.find((pk) => pk.id === key)
+        }
+        return key
+      })
+      const b58Key = agreementKeys.find((key) => {
+        return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
+      })
+      if (!b58Key) throw new Error(`Could not find x25519 key for ${did}`)
+      return x25519Encrypter(base58ToBytes(b58Key.publicKeyBase58))
+    })
+  )
 }
 
 function validateHeader(header: Record<string, any>) {
