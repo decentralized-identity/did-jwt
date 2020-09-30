@@ -42,7 +42,7 @@ export function xc20pDirDecrypter(key: Uint8Array): Decrypter {
   return { alg: 'dir', enc: 'XC20P', decrypt }
 }
 
-export function x25519Encrypter(publicKey: Uint8Array): Encrypter {
+export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter {
   const alg = 'ECDH-ES+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
@@ -61,6 +61,7 @@ export function x25519Encrypter(publicKey: Uint8Array): Encrypter {
         epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
       }
     }
+    if (kid) recipient.header.kid = kid
     return recipient
   }
   async function encrypt(cleartext, protectedHeader = {}, aad?): Promise<EncryptionResult> {
@@ -88,11 +89,11 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolver
         }
         return key
       })
-      const b58Key = agreementKeys.find((key) => {
+      const pk = agreementKeys.find((key) => {
         return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
       })
-      if (!b58Key) throw new Error(`Could not find x25519 key for ${did}`)
-      return x25519Encrypter(base58ToBytes(b58Key.publicKeyBase58))
+      if (!pk) throw new Error(`Could not find x25519 key for ${did}`)
+      return x25519Encrypter(base58ToBytes(pk.publicKeyBase58), pk.id)
     })
   )
 }

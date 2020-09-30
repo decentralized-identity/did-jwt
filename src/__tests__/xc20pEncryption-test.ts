@@ -61,6 +61,8 @@ describe('xc20pEncryption', () => {
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
 
+      expect(jwe.recipients[0].header.kid).toEqual(did1 +  '#abc')
+      expect(jwe.recipients[1].header.kid).toEqual(did2 +  '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
     })
