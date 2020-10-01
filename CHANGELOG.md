@@ -1,3 +1,10 @@
+## [4.6.1](https://github.com/decentralized-identity/did-jwt/compare/4.6.0...4.6.1) (2020-10-01)
+
+
+### Bug Fixes
+
+* use EdDSA as the 'alg' header for Ed25519 signatures ([#131](https://github.com/decentralized-identity/did-jwt/issues/131)) ([2736ee7](https://github.com/decentralized-identity/did-jwt/commit/2736ee733546bd6cefc9765279ee3d258a5c3d43))
+
 # [4.6.0](https://github.com/decentralized-identity/did-jwt/compare/4.5.1...4.6.0) (2020-10-01)
 
 
