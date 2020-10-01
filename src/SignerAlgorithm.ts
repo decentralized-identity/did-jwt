@@ -1,6 +1,5 @@
-import { Buffer } from 'buffer'
-import { Signer, EcdsaSignature, SignerAlgorithm } from './JWT'
-import { toJose } from './util'
+import { Signer, SignerAlgorithm } from './JWT'
+import { EcdsaSignature, toJose } from './util'
 
 function instanceOfEcdsaSignature(object: any): object is EcdsaSignature {
   return typeof object === 'object' && 'r' in object && 's' in object

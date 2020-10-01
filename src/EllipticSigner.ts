@@ -1,4 +1,4 @@
-import { EcdsaSignature } from './JWT'
+import { EcdsaSignature } from './util'
 import SimpleSigner from './SimpleSigner'
 import { toJose } from './util'
 

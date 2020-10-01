@@ -1,23 +1,56 @@
-import { EcdsaSignature } from './JWT'
-import base64url from 'uport-base64url'
+import * as u8a from 'uint8arrays'
+
+export interface EcdsaSignature {
+  r: string
+  s: string
+  recoveryParam?: number
+}
+
+export function bytesToBase64url(b: Uint8Array): string {
+  return u8a.toString(b, 'base64url')
+}
+
+export function base64urlToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'base64url')
+}
 
 export function base64ToBytes(s: string): Uint8Array {
-  return new Uint8Array(Array.prototype.slice.call(Buffer.from(s, 'base64'), 0))
+  return u8a.fromString(s, 'base64pad')
 }
 
 export function bytesToBase64(b: Uint8Array): string {
-  return Buffer.from(b).toString('base64')
+  return u8a.toString(b, 'base64pad')
+}
+
+export function base58ToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'base58btc')
+}
+
+export function encodeBase64url(s: string): string {
+  return bytesToBase64url(u8a.fromString(s))
+}
+
+export function decodeBase64url(s: string): string {
+  return u8a.toString(base64urlToBytes(s))
+}
+
+export function bytesToHex(b: Uint8Array): string {
+  return u8a.toString(b, 'base16')
 }
 
 export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: boolean): string {
-  const jose: Buffer = Buffer.alloc(recoverable ? 65 : 64)
-  Buffer.from(r, 'hex').copy(jose, 0)
-  Buffer.from(s, 'hex').copy(jose, 32)
+  const jose = new Uint8Array(recoverable ? 65 : 64)
+  jose.set(u8a.fromString(r, 'base16'), 0)
+  jose.set(u8a.fromString(s, 'base16'), 32)
   if (recoverable) {
     if (recoveryParam === undefined) {
       throw new Error('Signer did not return a recoveryParam')
     }
     jose[64] = recoveryParam
   }
-  return base64url.encode(jose)
+  return bytesToBase64url(jose)
+}
+
+export function toSealed(ciphertext: string, tag: string): Uint8Array {
+  return u8a.concat([base64urlToBytes(ciphertext), base64urlToBytes(tag)])
 }

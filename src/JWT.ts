@@ -1,13 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
-import base64url from 'uport-base64url'
+import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
 import { DIDDocument, PublicKey } from 'did-resolver'
-
-export interface EcdsaSignature {
-  r: string
-  s: string
-  recoveryParam?: number
-}
 
 export type Signer = (data: string) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -88,7 +82,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 const defaultAlg = 'ES256K'
 
 function encodeSection(data: any): string {
-  return base64url.encode(JSON.stringify(data))
+  return encodeBase64url(JSON.stringify(data))
 }
 
 export const NBF_SKEW: number = 300
@@ -97,7 +91,7 @@ function decodeJWS(jws: string): JWSDecoded {
   const parts: RegExpMatchArray = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
     return {
-      header: JSON.parse(base64url.decode(parts[1])),
+      header: JSON.parse(decodeBase64url(parts[1])),
       payload: parts[2],
       signature: parts[3],
       data: `${parts[1]}.${parts[2]}`
@@ -121,7 +115,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('no JWT passed into decodeJWT')
   try {
     const jws = decodeJWS(jwt)
-    const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(base64url.decode(jws.payload)) })
+    const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
     return decodedJwt
   } catch(e) {
     throw new Error('Incorrect format JWT')
