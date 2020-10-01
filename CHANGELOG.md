@@ -1,3 +1,10 @@
+# [4.6.0](https://github.com/decentralized-identity/did-jwt/compare/4.5.1...4.6.0) (2020-10-01)
+
+
+### Features
+
+* add support for low level JWE functions ([#132](https://github.com/decentralized-identity/did-jwt/issues/132)) ([dc4e78b](https://github.com/decentralized-identity/did-jwt/commit/dc4e78b371a30b27587de25e9dacf56b825cd22b))
+
 ## [4.5.1](https://github.com/decentralized-identity/did-jwt/compare/4.5.0...4.5.1) (2020-08-31)
 
 
