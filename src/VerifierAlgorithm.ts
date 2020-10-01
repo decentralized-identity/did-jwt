@@ -100,7 +100,10 @@ interface Algorithms {
 const algorithms: Algorithms = {
   ES256K: verifyES256K,
   'ES256K-R': verifyRecoverableES256K,
-  Ed25519: verifyEd25519
+  // This is actually incorrect but retained for backwards compatibility
+  // see https://github.com/decentralized-identity/did-jwt/issues/130
+  Ed25519: verifyEd25519,
+  EdDSA: verifyEd25519
 }
 
 function VerifierAlgorithm(alg: string): Verifier {

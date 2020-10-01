@@ -35,7 +35,10 @@ interface SignerAlgorithms {
 const algorithms: SignerAlgorithms = {
   ES256K: ES256KSigner(),
   'ES256K-R': ES256KSigner(true),
-  Ed25519: Ed25519Signer()
+  // This is actually incorrect but retained for backwards compatibility
+  // see https://github.com/decentralized-identity/did-jwt/issues/130
+  Ed25519: Ed25519Signer(),
+  EdDSA: Ed25519Signer()
 }
 
 function SignerAlgorithm(alg: string): SignerAlgorithm {
