@@ -1,3 +1,10 @@
+## [4.6.2](https://github.com/decentralized-identity/did-jwt/compare/4.6.1...4.6.2) (2020-10-02)
+
+
+### Bug Fixes
+
+* export resolveX25519Encrypters function ([#134](https://github.com/decentralized-identity/did-jwt/issues/134)) ([0c80711](https://github.com/decentralized-identity/did-jwt/commit/0c80711a58ad6e1a3a23bdb864b5fab58202a3f8))
+
 ## [4.6.1](https://github.com/decentralized-identity/did-jwt/compare/4.6.0...4.6.1) (2020-10-01)
 
 
