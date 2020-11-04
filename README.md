@@ -97,8 +97,8 @@ const ethrDid =  require('ethr-did-resolver').getResolver({rpcUrl: 'https://main
 let resolver = new Resolver.Resolver(ethrDid)
 
 // pass the JWT from step 1 & 2
-let verifiedRespone = await didJWT.verifyJWT(jwt, {resolver: resolver, audience: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'})
-console.log(verifiedRespone);
+let verifiedResponse = await didJWT.verifyJWT(jwt, {resolver: resolver, audience: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'})
+console.log(verifiedResponse);
 ```
 
 A verified did-JWT returns an object resembling:
