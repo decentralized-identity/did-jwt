@@ -26,6 +26,10 @@ export function base58ToBytes(s: string): Uint8Array {
   return u8a.fromString(s, 'base58btc')
 }
 
+export function hexToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'base16')
+}
+
 export function encodeBase64url(s: string): string {
   return bytesToBase64url(u8a.fromString(s))
 }
