@@ -96,7 +96,6 @@
     "@stablelib/ed25519": "^1.0.1",
     "@stablelib/random": "^1.0.0",
     "@stablelib/sha256": "^1.0.0",
-    "@stablelib/utf8": "^1.0.0",
     "@stablelib/x25519": "^1.0.0",
     "@stablelib/xchacha20poly1305": "^1.0.0",
     "did-resolver": "^2.1.1",

@@ -38,6 +38,10 @@ export function bytesToHex(b: Uint8Array): string {
   return u8a.toString(b, 'base16')
 }
 
+export function stringToBytes(s: string): Uint8Array {
+  return u8a.fromString(s)
+}
+
 export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: boolean): string {
   const jose = new Uint8Array(recoverable ? 65 : 64)
   jose.set(u8a.fromString(r, 'base16'), 0)
