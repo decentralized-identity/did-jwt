@@ -35,8 +35,8 @@ function extractPublicKeyBytes(pk: PublicKey): Uint8Array {
 export function verifyES256K(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
-  const fullPublicKeys = authenticators.filter(({ publicKeyHex }) => {
-    return typeof publicKeyHex !== 'undefined'
+  const fullPublicKeys = authenticators.filter(({ ethereumAddress }) => {
+    return typeof ethereumAddress === 'undefined'
   })
   const ethAddressKeys = authenticators.filter(({ ethereumAddress }) => {
     return typeof ethereumAddress !== 'undefined'
