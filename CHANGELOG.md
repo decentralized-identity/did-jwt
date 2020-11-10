@@ -1,3 +1,10 @@
+## [4.6.3](https://github.com/decentralized-identity/did-jwt/compare/4.6.2...4.6.3) (2020-11-10)
+
+
+### Bug Fixes
+
+* support multiple pubkey encodings ([#139](https://github.com/decentralized-identity/did-jwt/issues/139)) ([c4ae63a](https://github.com/decentralized-identity/did-jwt/commit/c4ae63a689fef7b15f3ca8c19eb74e3557a010e8)), closes [#128](https://github.com/decentralized-identity/did-jwt/issues/128) [#127](https://github.com/decentralized-identity/did-jwt/issues/127)
+
 ## [4.6.2](https://github.com/decentralized-identity/did-jwt/compare/4.6.1...4.6.2) (2020-10-02)
 
 
