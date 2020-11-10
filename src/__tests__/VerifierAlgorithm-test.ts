@@ -6,6 +6,7 @@ import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
 import { base64ToBytes, bytesToBase64 } from '../util'
+import * as u8a from 'uint8arrays'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -117,6 +118,15 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
 
+  it('validates with publicKeyBase58', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const publicKeyBase58 = u8a.toString(u8a.fromString(ecKey2.publicKeyHex, 'base16'), 'base58btc')
+    const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
   it('validates signature with compressed public key and picks correct public key', async () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
@@ -184,6 +194,15 @@ describe('Ed25519', () => {
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [edKey, edKey2])).toEqual(edKey)
+  })
+
+  it('validates with publicKeyBase58', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const publicKeyBase58 = u8a.toString(u8a.fromString(edKey.publicKeyBase64, 'base64pad'), 'base58btc')
+    const pubkey = Object.assign({ publicKeyBase58 }, edKey)
+    delete pubkey.publicKeyBase64
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
 
   it('throws error if invalid signature', async () => {

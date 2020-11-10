@@ -2,8 +2,7 @@ import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import { PublicKey } from 'did-resolver'
-import { encode } from '@stablelib/utf8'
-import { base64ToBytes, base64urlToBytes, bytesToHex, EcdsaSignature } from './util'
+import { hexToBytes, base58ToBytes, base64ToBytes, base64urlToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -22,19 +21,31 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
+function extractPublicKeyBytes(pk: PublicKey): Uint8Array {
+  if (pk.publicKeyBase58) {
+    return base58ToBytes(pk.publicKeyBase58)
+  } else if (pk.publicKeyBase64) {
+    return base64ToBytes(pk.publicKeyBase64)
+  } else if (pk.publicKeyHex) {
+    return hexToBytes(pk.publicKeyHex)
+  }
+  return new Uint8Array()
+}
+
 export function verifyES256K(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
-  const fullPublicKeys = authenticators.filter(({ publicKeyHex }) => {
-    return typeof publicKeyHex !== 'undefined'
+  const fullPublicKeys = authenticators.filter(({ ethereumAddress }) => {
+    return typeof ethereumAddress === 'undefined'
   })
   const ethAddressKeys = authenticators.filter(({ ethereumAddress }) => {
     return typeof ethereumAddress !== 'undefined'
   })
 
-  let signer: PublicKey = fullPublicKeys.find(({ publicKeyHex }) => {
+  let signer: PublicKey = fullPublicKeys.find((pk: PublicKey) => {
     try {
-      return secp256k1.keyFromPublic(publicKeyHex, 'hex').verify(hash, sigObj)
+      const pubBytes = extractPublicKeyBytes(pk)
+      return secp256k1.keyFromPublic(pubBytes).verify(hash, sigObj)
     } catch (err) {
       return false
     }
@@ -84,10 +95,11 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
 }
 
 export function verifyEd25519(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
-  const clear: Uint8Array = encode(data)
+  const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64urlToBytes(signature)
-  const signer: PublicKey = authenticators.find(({ publicKeyBase64 }) =>
-    verify(base64ToBytes(publicKeyBase64), clear, sig)
+  const signer: PublicKey = authenticators.find((pk: PublicKey) => {
+    return verify(extractPublicKeyBytes(pk), clear, sig)
+  }
   )
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer

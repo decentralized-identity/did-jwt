@@ -5,9 +5,8 @@ import EllipticSigner from '../EllipticSigner'
 import NaclSigner from '../NaclSigner'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
-import { base64ToBytes, base64urlToBytes } from '../util'
+import { base64ToBytes, base64urlToBytes, stringToBytes } from '../util'
 import { sha256 } from '../Digest'
-import { encode } from '@stablelib/utf8'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
@@ -123,6 +122,6 @@ describe('Ed25519', () => {
 
   it('can verify the signature', async () => {
     const signature = await jwtSigner('hello', edSigner)
-    expect(nacl.sign.detached.verify(encode('hello'), base64urlToBytes(signature), edKp.publicKey)).toBeTruthy()
+    expect(nacl.sign.detached.verify(stringToBytes('hello'), base64urlToBytes(signature), edKp.publicKey)).toBeTruthy()
   })
 })

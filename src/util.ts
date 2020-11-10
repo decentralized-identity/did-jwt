@@ -26,6 +26,10 @@ export function base58ToBytes(s: string): Uint8Array {
   return u8a.fromString(s, 'base58btc')
 }
 
+export function hexToBytes(s: string): Uint8Array {
+  return u8a.fromString(s, 'base16')
+}
+
 export function encodeBase64url(s: string): string {
   return bytesToBase64url(u8a.fromString(s))
 }
@@ -36,6 +40,10 @@ export function decodeBase64url(s: string): string {
 
 export function bytesToHex(b: Uint8Array): string {
   return u8a.toString(b, 'base16')
+}
+
+export function stringToBytes(s: string): Uint8Array {
+  return u8a.fromString(s)
 }
 
 export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: boolean): string {
