@@ -1,3 +1,10 @@
+# [4.7.0](https://github.com/decentralized-identity/did-jwt/compare/4.6.3...4.7.0) (2020-11-20)
+
+
+### Features
+
+* **jwt:** add skewTime option that replaces NBF_SKEW if present ([#140](https://github.com/decentralized-identity/did-jwt/issues/140)) ([8a8cb0f](https://github.com/decentralized-identity/did-jwt/commit/8a8cb0f62ba384d39438d8550bdba019cb8a6205))
+
 ## [4.6.3](https://github.com/decentralized-identity/did-jwt/compare/4.6.2...4.6.3) (2020-11-10)
 
 
