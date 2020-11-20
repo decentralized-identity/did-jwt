@@ -22,6 +22,7 @@ export interface JWTVerifyOptions {
   audience?: string
   callbackUrl?: string
   resolver?: Resolvable
+  skewTime?: number
 }
 
 export interface DIDAuthenticator {
@@ -235,7 +236,8 @@ export async function verifyJWT(
     resolver: null,
     auth: null,
     audience: null,
-    callbackUrl: null
+    callbackUrl: null,
+    skewTime: null
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
@@ -248,8 +250,9 @@ export async function verifyJWT(
   )
   const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
+  const skewTime = options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
-    const nowSkewed = now + NBF_SKEW
+    const nowSkewed = now + skewTime
     if (payload.nbf) {
       if (payload.nbf > nowSkewed) {
         throw new Error(`JWT not valid before nbf: ${payload.nbf}`)
@@ -257,7 +260,7 @@ export async function verifyJWT(
     } else if (payload.iat && payload.iat > nowSkewed) {
       throw new Error(`JWT not valid yet (issued in the future) iat: ${payload.iat}`)
     }
-    if (payload.exp && payload.exp <= now - NBF_SKEW) {
+    if (payload.exp && payload.exp <= now - skewTime) {
       throw new Error(`JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {

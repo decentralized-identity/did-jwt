@@ -278,6 +278,11 @@ describe('verifyJWT()', () => {
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(/JWT has expired/)
   })
 
+  it('rejects an expired JWT without skew time', async () => {
+    const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
+    await expect(verifyJWT(jwt, { resolver, skewTime: 0 })).rejects.toThrow(/JWT has expired/)
+  })
+
   it('accepts a valid audience', async () => {
     const jwt = await createJWT({ aud }, { issuer: did, signer })
     const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
