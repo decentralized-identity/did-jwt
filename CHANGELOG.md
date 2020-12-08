@@ -1,3 +1,10 @@
+## [4.7.1](https://github.com/decentralized-identity/did-jwt/compare/4.7.0...4.7.1) (2020-12-08)
+
+
+### Bug Fixes
+
+* **verifyJWT:** fix verification of JWT using EdDSA alg ([#142](https://github.com/decentralized-identity/did-jwt/issues/142)) ([12e2b88](https://github.com/decentralized-identity/did-jwt/commit/12e2b887f74312b0735b8790182b7a220191ad8c)), closes [#141](https://github.com/decentralized-identity/did-jwt/issues/141)
+
 # [4.7.0](https://github.com/decentralized-identity/did-jwt/compare/4.6.3...4.7.0) (2020-11-20)
 
 
