@@ -342,7 +342,6 @@ describe('verifyJWT()', () => {
 })
 
 describe('JWS', () => {
-
   it('createJWS works with JSON payload', async () => {
     const payload = { some: 'data' }
     const jws = await createJWS(payload, signer)
