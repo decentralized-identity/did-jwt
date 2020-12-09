@@ -1,3 +1,10 @@
+# [4.8.0](https://github.com/decentralized-identity/did-jwt/compare/4.7.1...4.8.0) (2020-12-09)
+
+
+### Features
+
+* **did auth:** update resolution of authentication entries in DIDDocument ([#143](https://github.com/decentralized-identity/did-jwt/issues/143)) ([a10ca34](https://github.com/decentralized-identity/did-jwt/commit/a10ca34ddea10019b09f71e81e83ad5e6696ac8d))
+
 ## [4.7.1](https://github.com/decentralized-identity/did-jwt/compare/4.7.0...4.7.1) (2020-12-08)
 
 
