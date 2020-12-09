@@ -436,6 +436,27 @@ describe('resolveAuthenticator()', () => {
     publicKey: edKey.id
   }
 
+  const edKey6 = {
+    id: `${did}#keys-auth6`,
+    type: 'ED25519SignatureVerification',
+    owner: did,
+    publicKeyBase58: 'dummyvalue'
+  }
+  
+  const ecKey7 = {
+    id: `${did}#keys-auth7`,
+    type: 'EcdsaSecp256k1VerificationKey2019',
+    owner: did,
+    publicKeyBase58: 'dummyvalue'
+  }
+
+  const edKey8 = {
+    id: `${did}#keys-auth8`,
+    type: 'Ed25519VerificationKey2018',
+    owner: did,
+    publicKeyBase58: 'dummyvalue'
+  }
+
   const singleKey = {
     '@context': 'https://w3id.org/did/v1',
     id: did,
@@ -447,6 +468,13 @@ describe('resolveAuthenticator()', () => {
     id: did,
     publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2],
     authentication: [authKey1, authKey2, edAuthKey]
+  }
+
+  const multipleAuthTypes = {
+    '@context': 'https://w3id.org/did/v1',
+    id: did,
+    publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2, edKey6, ecKey7],
+    authentication: [authKey1, authKey2, edAuthKey, `${did}#keys-auth6`, `${did}#keys-auth7`, edKey8]
   }
 
   const unsupportedFormat = {
@@ -497,6 +525,20 @@ describe('resolveAuthenticator()', () => {
         })
       })
 
+      it('lists authenticators with multiple key types in doc', async () => {
+        const authenticators = await resolveAuthenticator(
+          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) },
+          alg,
+          did,
+          true
+        )
+        return expect(authenticators).toEqual({
+          authenticators: [ecKey1, ecKey2, ecKey7],
+          issuer: did,
+          doc: multipleAuthTypes
+        })
+      })
+
       it('errors if no suitable public keys exist', async () => {
         return await expect(
           resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) }, alg, did)
@@ -533,6 +575,20 @@ describe('resolveAuthenticator()', () => {
         })
       })
 
+      it('lists authenticators with multiple key types in doc', async () => {
+        const authenticators = await resolveAuthenticator(
+          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) },
+          alg,
+          did,
+          true
+        )
+        return expect(authenticators).toEqual({
+          authenticators: [edKey, edKey6, edKey8],
+          issuer: did,
+          doc: multipleAuthTypes
+        })
+      })
+
       it('errors if no suitable public keys exist', async () => {
         return await expect(
           resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) }, alg, did)
@@ -544,7 +600,7 @@ describe('resolveAuthenticator()', () => {
       return await expect(
         resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did, true)
       ).rejects.toEqual(
-        new Error(`DID document for ${did} does not have public keys suitable for authenticationg user`)
+        new Error(`DID document for ${did} does not have public keys suitable for authenticating user`)
       )
     })
 

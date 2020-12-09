@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import { DIDDocument, PublicKey } from 'did-resolver'
+import { DIDDocument, PublicKey, Authentication } from 'did-resolver'
 
 export type Signer = (data: string) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -75,8 +75,18 @@ export interface PublicKeyTypes {
   [name: string]: string[]
 }
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
-  ES256K: ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1', 'EcdsaSecp256k1VerificationKey2019'],
-  'ES256K-R': ['Secp256k1VerificationKey2018', 'Secp256k1SignatureVerificationKey2018', 'EcdsaPublicKeySecp256k1', 'EcdsaSecp256k1VerificationKey2019'],
+  ES256K: [
+    'Secp256k1VerificationKey2018',
+    'Secp256k1SignatureVerificationKey2018',
+    'EcdsaPublicKeySecp256k1',
+    'EcdsaSecp256k1VerificationKey2019'
+  ],
+  'ES256K-R': [
+    'Secp256k1VerificationKey2018',
+    'Secp256k1SignatureVerificationKey2018',
+    'EcdsaPublicKeySecp256k1',
+    'EcdsaSecp256k1VerificationKey2019'
+  ],
   Ed25519: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018']
 }
@@ -119,7 +129,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
     return decodedJwt
-  } catch(e) {
+  } catch (e) {
     throw new Error('Incorrect format JWT')
   }
 }
@@ -136,7 +146,11 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
-export async function createJWS(payload: string | any, signer: Signer, header: Partial<JWTHeader> = {}): Promise<string> {
+export async function createJWS(
+  payload: string | any,
+  signer: Signer,
+  header: Partial<JWTHeader> = {}
+): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
   const signingInput: string = [encodeSection(header), encodedPayload].join('.')
@@ -269,7 +283,7 @@ export async function verifyJWT(
         throw new Error('JWT audience is required but your app address has not been configured')
       }
       const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
-      const matchedAudience = audArray.find(item => options.audience === item || options.callbackUrl === item)
+      const matchedAudience = audArray.find((item) => options.audience === item || options.callbackUrl === item)
 
       if (typeof matchedAudience === 'undefined') {
         throw new Error(`JWT audience does not match your DID or callback url`)
@@ -307,19 +321,33 @@ export async function resolveAuthenticator(
   }
   const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
-  // is there some way to have authenticationKeys be a single type?
-  const authenticationKeys: boolean | string[] = auth
-    ? (doc.authentication || []).map(({ publicKey }) => publicKey)
-    : true
-  const authenticators: PublicKey[] = (doc.publicKey || []).filter(({ type, id }) =>
-    types.find(
-      supported =>
-        supported === type && (!auth || (Array.isArray(authenticationKeys) && authenticationKeys.indexOf(id) >= 0))
-    )
+
+  let getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
+    const filtered = doc.publicKey.filter(({ id }) => pubid === id)
+    return filtered.length > 0 ? filtered[0] : null
+  }
+
+  let publicKeysToCheck: PublicKey[] = doc.publicKey || []
+  if (auth) {
+    publicKeysToCheck = (doc.authentication || [])
+      .map((authEntry) => {
+        if (typeof authEntry === 'string') {
+          return getPublicKeyById(doc, authEntry)
+        } else if (typeof (<Authentication>authEntry).publicKey === 'string') {
+          return getPublicKeyById(doc, (<Authentication>authEntry).publicKey)
+        } else {
+          return <PublicKey>authEntry
+        }
+      })
+      .filter((key) => key != null)
+  }
+
+  const authenticators: PublicKey[] = publicKeysToCheck.filter(({ type }) =>
+    types.find((supported) => supported === type)
   )
 
   if (auth && (!authenticators || authenticators.length === 0)) {
-    throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticationg user`)
+    throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticating user`)
   }
   if (!authenticators || authenticators.length === 0) {
     throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
