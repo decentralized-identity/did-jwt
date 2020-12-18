@@ -11895,13 +11895,13 @@ uid-number@0.0.6:
   resolved "https://registry.yarnpkg.com/uid-number/-/uid-number-0.0.6.tgz#0ea10e8035e8eb5b8e4449f06da1c730663baa81"
   integrity sha1-DqEOgDXo61uOREnwbaHHMGY7qoE=
 
-uint8arrays@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-1.1.0.tgz#d034aa65399a9fd213a1579e323f0b29f67d0ed2"
-  integrity sha512-cLdlZ6jnFczsKf5IH1gPHTtcHtPGho5r4CvctohmQjw8K7Q3gFdfIGHxSTdTaCKrL4w09SsPRJTqRS0drYeszA==
+uint8arrays@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-2.0.1.tgz#ac275b0a76a057728d63c0e8b4afeaa24a58c2b4"
+  integrity sha512-ZFUY3nt1Sq7LAIVAf41WjgLsWrJEZ84WzCTTROfw2mOqC5RxT4Z63YE14T7SpUXEdtdG6DAVkTMXVPiCXczbYw==
   dependencies:
     multibase "^3.0.0"
-    web-encoding "^1.0.2"
+    web-encoding "^1.0.5"
 
 umask@^1.1.0, umask@~1.1.0:
   version "1.1.0"
@@ -12256,6 +12256,11 @@ web-encoding@^1.0.2:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/web-encoding/-/web-encoding-1.0.4.tgz#0398d39ce2cbef5ed2617080750ed874e6153aea"
   integrity sha512-DcXs2lbVPzuJmn2kuDEwul2oZg7p4YMa5J2f0YzsOBHaAnBYGPNUB/rJ74DTjTKpw7F0+lSsVM8sFHE2UyBixg==
+
+web-encoding@^1.0.5:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/web-encoding/-/web-encoding-1.0.6.tgz#ec631356ee523b4474ecbcae680440bd1e79416a"
+  integrity sha512-26wEnRPEFAc5d5lmH1Q/DuvWEYsRF1D2alX2jlKpdmqv7cj+BbANL7Xlcl9r4s72Eg9kItZa9RWVbBMC9dMv4w==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
