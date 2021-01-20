@@ -79,7 +79,7 @@
     "nacl-did": "1.0.1",
     "prettier": "2.2.1",
     "regenerator-runtime": "0.13.7",
-    "semantic-release": "17.3.3",
+    "semantic-release": "17.3.4",
     "sinon": "9.2.3",
     "standard": "14.3.4",
     "ts-jest": "26.4.4",
