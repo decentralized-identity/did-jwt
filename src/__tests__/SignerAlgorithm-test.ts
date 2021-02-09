@@ -1,14 +1,14 @@
 import SignerAlgorithm from '../SignerAlgorithm'
 import { toSignatureObject } from '../VerifierAlgorithm'
-import SimpleSigner from '../SimpleSigner'
-import EllipticSigner from '../EllipticSigner'
-import NaclSigner from '../NaclSigner'
+import SimpleSigner from '../signers/SimpleSigner'
+import EllipticSigner from '../signers/EllipticSigner'
+import NaclSigner from '../signers/NaclSigner'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
 import { base64ToBytes, base64urlToBytes, stringToBytes } from '../util'
 import { sha256 } from '../Digest'
 const secp256k1 = new EC('secp256k1')
-const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
+const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const kp = secp256k1.keyFromPrivate(privateKey)
 const signer = SimpleSigner(privateKey)
@@ -42,7 +42,7 @@ describe('ES256K', () => {
   const jwtSigner = SignerAlgorithm('ES256K')
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
+      'kusriMloyA3ygS-Z7Lhqa0YatZA4l2UYtn39Fe8u6IWgopkV_RdK7WvjVp2k3I-08O9ZoDpWJcniSpuwukuoEw'
     )
   })
 
@@ -54,8 +54,8 @@ describe('ES256K', () => {
   it('contains only r and s of signature', async () => {
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature)).toEqual({
-      r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
-      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945'
+      r: '92eb2b88c968c80df2812f99ecb86a6b461ab59038976518b67dfd15ef2ee885',
+      s: 'a0a29915fd174aed6be3569da4dc8fb4f0ef59a03a5625c9e24a9bb0ba4ba813'
     })
   })
 
@@ -69,7 +69,7 @@ describe('ES256K signer which returns signature as string ', () => {
   const jwtSigner = SignerAlgorithm('ES256K')
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', ecSigner)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
+      'kusriMloyA3ygS-Z7Lhqa0YatZA4l2UYtn39Fe8u6IWgopkV_RdK7WvjVp2k3I-08O9ZoDpWJcniSpuwukuoEw'
     )
   })
 
@@ -88,7 +88,7 @@ describe('ES256K-R', () => {
   const jwtSigner = SignerAlgorithm('ES256K-R')
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQE'
+      'kusriMloyA3ygS-Z7Lhqa0YatZA4l2UYtn39Fe8u6IWgopkV_RdK7WvjVp2k3I-08O9ZoDpWJcniSpuwukuoEwE'
     )
   })
 
@@ -100,8 +100,8 @@ describe('ES256K-R', () => {
   it('contains r, s and recoveryParam of signature', async () => {
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature, true)).toEqual({
-      r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
-      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945',
+      r: '92eb2b88c968c80df2812f99ecb86a6b461ab59038976518b67dfd15ef2ee885',
+      s: 'a0a29915fd174aed6be3569da4dc8fb4f0ef59a03a5625c9e24a9bb0ba4ba813',
       recoveryParam: 1
     })
   })

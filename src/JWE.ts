@@ -1,4 +1,4 @@
-import { base64urlToBytes, bytesToBase64url, encodeBase64url, decodeBase64url, toSealed } from './util'
+import { base64urlToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
 
 interface RecipientHeader {
   alg: string

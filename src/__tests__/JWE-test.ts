@@ -27,25 +27,25 @@ describe('JWE', () => {
 
       test.each(vectors.dir.invalid)('throws on invalid jwe', async ({ jwe }) => {
         const decrypter = xc20pDirDecrypter(randomBytes(32))
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Invalid JWE')
       })
     })
 
     describe('X25519 key exchange', () => {
       test.each(vectors.x25519.pass)('decrypts valid jwe', async ({ key, cleartext, jwe }) => {
         const decrypter = x25519Decrypter(u8a.fromString(key, 'base64pad'))
-        const cleartextU8a = await decryptJWE(jwe, decrypter)
+        const cleartextU8a = await decryptJWE(jwe as any, decrypter)
         expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
       })
 
       test.each(vectors.x25519.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
         const decrypter = x25519Decrypter(u8a.fromString(key, 'base64pad'))
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Failed to decrypt')
       })
 
       test.each(vectors.x25519.invalid)('throws on invalid jwe', async ({ jwe }) => {
         const decrypter = x25519Decrypter(randomBytes(32))
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Invalid JWE')
       })
     })
   })

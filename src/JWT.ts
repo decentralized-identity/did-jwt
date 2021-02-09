@@ -3,7 +3,7 @@ import SignerAlgorithm from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
 import { DIDDocument, PublicKey, Authentication } from 'did-resolver'
 
-export type Signer = (data: string) => Promise<EcdsaSignature | string>
+export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
 export interface JWTOptions {
@@ -322,7 +322,7 @@ export async function resolveAuthenticator(
   const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
 
-  let getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
+  const getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
     const filtered = doc.publicKey.filter(({ id }) => pubid === id)
     return filtered.length > 0 ? filtered[0] : null
   }

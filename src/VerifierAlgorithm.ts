@@ -96,7 +96,7 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
 
 export function verifyEd25519(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
   const clear: Uint8Array = stringToBytes(data)
-  const sig: Uint8Array = base64urlToBytes(signature)
+  const sig: Uint8Array = base64ToBytes(signature)
   const signer: PublicKey = authenticators.find((pk: PublicKey) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
   }
