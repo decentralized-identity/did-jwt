@@ -145,7 +145,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  const jws = await createJWS({ my: 'payload' }, signer)
  *
  *  @param    {Object}            payload           payload object
- *  @param    {SimpleSigner}      signer            a signer, reference our SimpleSigner.js
+ *  @param    {Signer}            signer            a signer, see `ES256KSigner or `EdDSASigner`
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
@@ -173,11 +173,11 @@ export async function createJWS(
  *  })
  *
  *  @param    {Object}            payload            payload object
- *  @param    {Object}            [options]           an unsigned credential object
- *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg         [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
- *                                                    Please use `header.alg` to specify the algorithm
- *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
+ *  @param    {Object}            [options]          an unsigned credential object
+ *  @param    {String}            options.issuer     The DID of the issuer (signer) of JWT
+ *  @param    {String}            options.alg        [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
+ *                                                   Please use `header.alg` to specify the algorithm
+ *  @param    {Signer}            options.signer     a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
  *  @param    {Object}            header             optional object to specify or customize the JWT header
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
