@@ -2,7 +2,7 @@ import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { base64urlToBytes, bytesToBase64url, base58ToBytes, encodeBase64url, toSealed } from './util'
+import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
 import type { PublicKey, Resolver } from 'did-resolver'
 
@@ -115,14 +115,14 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
   async function decrypt(sealed, iv, aad, recipient): Promise<Uint8Array> {
     validateHeader(recipient.header)
     if (recipient.header.epk.crv !== crv) return null
-    const publicKey = base64urlToBytes(recipient.header.epk.x)
+    const publicKey = base64ToBytes(recipient.header.epk.x)
     const sharedSecret = sharedKey(secretKey, publicKey)
 
     // Key Encryption Key
     const kek = concatKDF(sharedSecret, keyLen, alg)
     // Content Encryption Key
     const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
-    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64urlToBytes(recipient.header.iv))
+    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
     if (cek === null) return null
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)

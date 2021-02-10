@@ -3,12 +3,15 @@ import SignerAlgorithm from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
 import { DIDDocument, PublicKey, Authentication } from 'did-resolver'
 
-export type Signer = (data: string) => Promise<EcdsaSignature | string>
+export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
 export interface JWTOptions {
   issuer: string
   signer: Signer
+  /**
+   * @deprecated Please use `header.alg` to specify the JWT algorithm.
+   */
   alg?: string
   expiresIn?: number
 }
@@ -138,11 +141,11 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  Creates a signed JWS given a payload, a signer, and an optional header.
  *
  *  @example
- *  const signer = SimpleSigner(process.env.PRIVATE_KEY)
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
  *  const jws = await createJWS({ my: 'payload' }, signer)
  *
  *  @param    {Object}            payload           payload object
- *  @param    {SimpleSigner}      signer            a signer, reference our SimpleSigner.js
+ *  @param    {Signer}            signer            a signer, see `ES256KSigner or `EdDSASigner`
  *  @param    {Object}            header            optional object to specify or customize the JWS header
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
@@ -164,17 +167,17 @@ export async function createJWS(
  *  Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is over.
  *
  *  @example
- *  const signer = SimpleSigner(process.env.PRIVATE_KEY)
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
  *  createJWT({address: '5A8bRWU3F7j3REx3vkJ...', signer}, {key1: 'value', key2: ..., ... }).then(jwt => {
  *      ...
  *  })
  *
  *  @param    {Object}            payload            payload object
- *  @param    {Object}            [options]           an unsigned credential object
- *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg         [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K.
- *                                                    Please use `header.alg` to specify the algorithm
- *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
+ *  @param    {Object}            [options]          an unsigned credential object
+ *  @param    {String}            options.issuer     The DID of the issuer (signer) of JWT
+ *  @param    {String}            options.alg        [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
+ *                                                   Please use `header.alg` to specify the algorithm
+ *  @param    {Signer}            options.signer     a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
  *  @param    {Object}            header             optional object to specify or customize the JWT header
  *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
  */
@@ -322,7 +325,7 @@ export async function resolveAuthenticator(
   const doc: DIDDocument = await resolver.resolve(issuer)
   if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
 
-  let getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
+  const getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
     const filtered = doc.publicKey.filter(({ id }) => pubid === id)
     return filtered.length > 0 ? filtered[0] : null
   }

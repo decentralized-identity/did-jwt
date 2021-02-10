@@ -2,13 +2,13 @@ import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import { PublicKey } from 'did-resolver'
-import { hexToBytes, base58ToBytes, base64ToBytes, base64urlToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
+import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 
 const secp256k1 = new EC('secp256k1')
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
-  const rawsig: Uint8Array = base64urlToBytes(signature)
+  const rawsig: Uint8Array = base64ToBytes(signature)
   if (rawsig.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
   }
@@ -96,7 +96,7 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
 
 export function verifyEd25519(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
   const clear: Uint8Array = stringToBytes(data)
-  const sig: Uint8Array = base64urlToBytes(signature)
+  const sig: Uint8Array = base64ToBytes(signature)
   const signer: PublicKey = authenticators.find((pk: PublicKey) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
   }
@@ -111,6 +111,8 @@ interface Algorithms {
 }
 const algorithms: Algorithms = {
   ES256K: verifyES256K,
+  // This is a non-standard algorithm but retained for backwards compatibility
+  // see https://github.com/decentralized-identity/did-jwt/issues/146
   'ES256K-R': verifyRecoverableES256K,
   // This is actually incorrect but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/130
