@@ -1,3 +1,10 @@
+# [4.9.0](https://github.com/decentralized-identity/did-jwt/compare/4.8.1...4.9.0) (2021-02-10)
+
+
+### Features
+
+* add `ES256KSigner` and `EdDSASigner` with uniform APIs ([#149](https://github.com/decentralized-identity/did-jwt/issues/149))([#78](https://github.com/decentralized-identity/did-jwt/issues/78)) ([cdd3c0f](https://github.com/decentralized-identity/did-jwt/commit/cdd3c0f75915b4ff161f2813eae22a9d254fb90f))
+
 ## [4.8.1](https://github.com/decentralized-identity/did-jwt/compare/4.8.0...4.8.1) (2020-12-18)
 
 
