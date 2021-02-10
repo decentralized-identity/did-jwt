@@ -37,6 +37,7 @@ describe('EdDSASigner', () => {
       '1y_N9v6xI4DyG9vIuloivxm91EV96nDM3HXBUI4P2Owk0IxazqX63rQ5jlBih6tP_4H5QhkHHqbree7ExmTBCw'
     )
   })
+
   it('signs data with prefixed hex key', async () => {
     const privKey =
       '0x9e55d1e1aa1f455b8baad9fdf975503655f8b359d542fa7e4ce84106d625b35206fac1f22240cffd637ead6647188429fafda9c9cb7eae43386ac17f61115075'
@@ -51,7 +52,7 @@ describe('EdDSASigner', () => {
     const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
     expect(() => {
       EdDSASigner(privateKey)
-    }).toThrowError(new RegExp('^Invalid private key format.*'))
+    }).toThrowError(/^Invalid private key format.*/)
   })
 
   it('refuses wrong key size', async () => {
@@ -59,6 +60,6 @@ describe('EdDSASigner', () => {
       '9e55d1e1aa1f455b8baad9fdf975503655f8b359d542fa7e4ce84106d625b35206fac1f22240cffd637ead6647188429fafda9c9cb7eae43386ac17f611150'
     expect(() => {
       EdDSASigner(privateKey)
-    }).toThrowError(new RegExp('^Invalid private key format.*'))
+    }).toThrowError(/^Invalid private key format.*/)
   })
 })

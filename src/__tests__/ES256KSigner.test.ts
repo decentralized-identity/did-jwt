@@ -40,7 +40,7 @@ describe('Secp256k1 Signer', () => {
     const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d2538'
     expect(() => {
       ES256KSigner(privateKey)
-    }).toThrowError(new RegExp('^Invalid private key format.*'))
+    }).toThrowError(/^Invalid private key format.*/)
   })
 
   it('refuses wrong key size (double)', async () => {
@@ -48,6 +48,6 @@ describe('Secp256k1 Signer', () => {
       '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
     expect(() => {
       ES256KSigner(privateKey)
-    }).toThrowError(new RegExp('^Invalid private key format.*'))
+    }).toThrowError(/^Invalid private key format.*/)
   })
 })

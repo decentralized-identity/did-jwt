@@ -1,7 +1,7 @@
 import * as u8a from 'uint8arrays'
 
 /**
- * @deprecated
+ * @deprecated Signers will be expected to return base64url `string` signatures.
  */
 export interface EcdsaSignature {
   r: string
@@ -99,13 +99,11 @@ const base64Matcher = /^([0-9a-zA-Z=\-_\+\/]{43}|[0-9a-zA-Z=\-_\+\/]{86})(={0,2}
 export function parseKey(input: string | Uint8Array): Uint8Array {
   if (typeof input === 'string') {
     if (hexMatcher.test(input)) {
-      const parts = hexMatcher.exec(input)
-      return hexToBytes(parts[2])
+      return hexToBytes(input)
     } else if (base58Matcher.test(input)) {
-      return u8a.fromString(input, 'base58btc')
+      return base58ToBytes(input)
     } else if (base64Matcher.test(input)) {
-      const inputBase64Url = input.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-      return u8a.fromString(inputBase64Url, 'base64url')
+      return base64ToBytes(input)
     } else {
       throw TypeError('Invalid private key format')
     }
