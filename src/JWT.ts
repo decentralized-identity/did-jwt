@@ -9,6 +9,9 @@ export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<strin
 export interface JWTOptions {
   issuer: string
   signer: Signer
+  /**
+   * @deprecated Please use `header.alg` to specify the JWT algorithm.
+   */
   alg?: string
   expiresIn?: number
 }
@@ -138,7 +141,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  Creates a signed JWS given a payload, a signer, and an optional header.
  *
  *  @example
- *  const signer = SimpleSigner(process.env.PRIVATE_KEY)
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
  *  const jws = await createJWS({ my: 'payload' }, signer)
  *
  *  @param    {Object}            payload           payload object
@@ -164,7 +167,7 @@ export async function createJWS(
  *  Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is over.
  *
  *  @example
- *  const signer = SimpleSigner(process.env.PRIVATE_KEY)
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
  *  createJWT({address: '5A8bRWU3F7j3REx3vkJ...', signer}, {key1: 'value', key2: ..., ... }).then(jwt => {
  *      ...
  *  })
@@ -172,7 +175,7 @@ export async function createJWS(
  *  @param    {Object}            payload            payload object
  *  @param    {Object}            [options]           an unsigned credential object
  *  @param    {String}            options.issuer      The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg         [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519], Defaults to: ES256K.
+ *  @param    {String}            options.alg         [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
  *                                                    Please use `header.alg` to specify the algorithm
  *  @param    {SimpleSigner}      options.signer      a signer, reference our SimpleSigner.js
  *  @param    {Object}            header             optional object to specify or customize the JWT header

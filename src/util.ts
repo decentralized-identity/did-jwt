@@ -13,13 +13,6 @@ export function bytesToBase64url(b: Uint8Array): string {
   return u8a.toString(b, 'base64url')
 }
 
-/**
- * @deprecated Please use base64ToBytes()
- */
-export function base64urlToBytes(s: string): Uint8Array {
-  return base64ToBytes(s)
-}
-
 export function base64ToBytes(s: string): Uint8Array {
   const inputBase64Url = s.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
   return u8a.fromString(inputBase64Url, 'base64url')
@@ -43,7 +36,7 @@ export function encodeBase64url(s: string): string {
 }
 
 export function decodeBase64url(s: string): string {
-  return u8a.toString(base64urlToBytes(s))
+  return u8a.toString(base64ToBytes(s))
 }
 
 export function bytesToHex(b: Uint8Array): string {
@@ -70,9 +63,7 @@ export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: bo
 export function fromJose(signature: string): { r: string; s: string; recoveryParam: number } {
   const signatureBytes: Uint8Array = base64ToBytes(signature)
   if (signatureBytes.length < 64 || signatureBytes.length > 65) {
-    throw new TypeError(
-      `Wrong size for signature. Expected 64 or 65 bytes, but got ${signatureBytes.length}`
-    )
+    throw new TypeError(`Wrong size for signature. Expected 64 or 65 bytes, but got ${signatureBytes.length}`)
   }
   const r = bytesToHex(signatureBytes.slice(0, 32))
   const s = bytesToHex(signatureBytes.slice(32, 64))
@@ -81,7 +72,7 @@ export function fromJose(signature: string): { r: string; s: string; recoveryPar
 }
 
 export function toSealed(ciphertext: string, tag: string): Uint8Array {
-  return u8a.concat([base64urlToBytes(ciphertext), base64urlToBytes(tag)])
+  return u8a.concat([base64ToBytes(ciphertext), base64ToBytes(tag)])
 }
 
 const hexMatcher = /^(0x)?([a-fA-F0-9]{64}|[a-fA-F0-9]{128})$/
@@ -93,7 +84,7 @@ const base64Matcher = /^([0-9a-zA-Z=\-_\+\/]{43}|[0-9a-zA-Z=\-_\+\/]{86})(={0,2}
  * This method uses an heuristic to determine the key encoding to then be able to parse it into 32 or 64 bytes.
  *
  * @param input a 32 or 64 byte key presented either as a Uint8Array or as a hex, base64, or base58btc encoded string
- * 
+ *
  * @throws TypeError('Invalid private key format') if the key doesn't match any of the accepted formats or length
  */
 export function parseKey(input: string | Uint8Array): Uint8Array {

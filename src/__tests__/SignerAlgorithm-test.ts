@@ -5,7 +5,7 @@ import EllipticSigner from '../signers/EllipticSigner'
 import NaclSigner from '../signers/NaclSigner'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
-import { base64ToBytes, base64urlToBytes, stringToBytes } from '../util'
+import { base64ToBytes, stringToBytes } from '../util'
 import { sha256 } from '../Digest'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
@@ -48,7 +48,7 @@ describe('ES256K', () => {
 
   it('returns signature of 64 bytes', async () => {
     const signature = await jwtSigner('hello', signer)
-    expect(base64urlToBytes(signature).length).toEqual(64)
+    expect(base64ToBytes(signature).length).toEqual(64)
   })
 
   it('contains only r and s of signature', async () => {
@@ -75,7 +75,7 @@ describe('ES256K signer which returns signature as string ', () => {
 
   it('returns signature of 64 bytes', async () => {
     const signature = await jwtSigner('hello', ecSigner)
-    expect(base64urlToBytes(signature).length).toEqual(64)
+    expect(base64ToBytes(signature).length).toEqual(64)
   })
 
   it('can verify the signature', async () => {
@@ -94,7 +94,7 @@ describe('ES256K-R', () => {
 
   it('returns signature of 64 bytes', async () => {
     const signature = await jwtSigner('hello', signer)
-    expect(base64urlToBytes(signature).length).toEqual(65)
+    expect(base64ToBytes(signature).length).toEqual(65)
   })
 
   it('contains r, s and recoveryParam of signature', async () => {
@@ -122,6 +122,6 @@ describe('Ed25519', () => {
 
   it('can verify the signature', async () => {
     const signature = await jwtSigner('hello', edSigner)
-    expect(nacl.sign.detached.verify(stringToBytes('hello'), base64urlToBytes(signature), edKp.publicKey)).toBeTruthy()
+    expect(nacl.sign.detached.verify(stringToBytes('hello'), base64ToBytes(signature), edKp.publicKey)).toBeTruthy()
   })
 })

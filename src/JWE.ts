@@ -1,4 +1,4 @@
-import { base64urlToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
 
 interface RecipientHeader {
   alg: string
@@ -111,7 +111,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
   const aad = new Uint8Array(Buffer.from(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected))
   let cleartext = null
   if (protHeader.alg === 'dir' && decrypter.alg === 'dir') {
-    cleartext = await decrypter.decrypt(sealed, base64urlToBytes(jwe.iv), aad)
+    cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)
   } else if (!jwe.recipients || jwe.recipients.length === 0) {
     throw new Error('Invalid JWE')
   } else {
@@ -119,7 +119,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
       const recipient = jwe.recipients[i]
       Object.assign(recipient.header, protHeader)
       if (recipient.header.alg === decrypter.alg) {
-        cleartext = await decrypter.decrypt(sealed, base64urlToBytes(jwe.iv), aad, recipient)
+        cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad, recipient)
       }
     }
   }
