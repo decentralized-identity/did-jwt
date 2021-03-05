@@ -1,7 +1,7 @@
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
-import { PublicKey } from 'did-resolver'
+import type { VerificationMethod } from 'did-resolver'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 
 const secp256k1 = new EC('secp256k1')
@@ -21,10 +21,18 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
-function extractPublicKeyBytes(pk: PublicKey): Uint8Array {
+interface LegacyVerificationMethod extends VerificationMethod {
+  publicKeyBase64: string
+}
+
+function isLegacyVerMethod(verMethod: any): verMethod is LegacyVerificationMethod {
+  return typeof(verMethod?.publicKeyBase64) === 'string'
+}
+
+function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
     return base58ToBytes(pk.publicKeyBase58)
-  } else if (pk.publicKeyBase64) {
+  } else if (isLegacyVerMethod(pk) && pk.publicKeyBase64) {
     return base64ToBytes(pk.publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
@@ -32,7 +40,7 @@ function extractPublicKeyBytes(pk: PublicKey): Uint8Array {
   return new Uint8Array()
 }
 
-export function verifyES256K(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
+export function verifyES256K(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress }) => {
@@ -42,7 +50,7 @@ export function verifyES256K(data: string, signature: string, authenticators: Pu
     return typeof ethereumAddress !== 'undefined'
   })
 
-  let signer: PublicKey = fullPublicKeys.find((pk: PublicKey) => {
+  let signer: VerificationMethod = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const pubBytes = extractPublicKeyBytes(pk)
       return secp256k1.keyFromPublic(pubBytes).verify(hash, sigObj)
@@ -59,7 +67,7 @@ export function verifyES256K(data: string, signature: string, authenticators: Pu
   return signer
 }
 
-export function verifyRecoverableES256K(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
+export function verifyRecoverableES256K(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   let signatures: EcdsaSignature[]
   if (signature.length > 86) {
     signatures = [toSignatureObject(signature, true)]
@@ -71,14 +79,14 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
     ]
   }
 
-  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): PublicKey => {
+  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod => {
     const hash: Uint8Array = sha256(data)
     const recoveredKey: any = secp256k1.recoverPubKey(hash, sigObj, sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
     const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
 
-    const signer: PublicKey = authenticators.find(
+    const signer: VerificationMethod = authenticators.find(
       ({ publicKeyHex, ethereumAddress }) =>
         publicKeyHex === recoveredPublicKeyHex ||
         publicKeyHex === recoveredCompressedPublicKeyHex ||
@@ -88,16 +96,16 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
     return signer
   }
 
-  const signer: PublicKey[] = signatures.map(checkSignatureAgainstSigner).filter(key => key != null)
+  const signer: VerificationMethod[] = signatures.map(checkSignatureAgainstSigner).filter(key => key != null)
 
   if (signer.length === 0) throw new Error('Signature invalid for JWT')
   return signer[0]
 }
 
-export function verifyEd25519(data: string, signature: string, authenticators: PublicKey[]): PublicKey {
+export function verifyEd25519(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64ToBytes(signature)
-  const signer: PublicKey = authenticators.find((pk: PublicKey) => {
+  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
   }
   )
@@ -105,7 +113,7 @@ export function verifyEd25519(data: string, signature: string, authenticators: P
   return signer
 }
 
-type Verifier = (data: string, signature: string, authenticators: PublicKey[]) => PublicKey
+type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
 interface Algorithms {
   [name: string]: Verifier
 }

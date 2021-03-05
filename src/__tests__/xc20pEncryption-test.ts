@@ -25,32 +25,36 @@ describe('xc20pEncryption', () => {
         resolve: jest.fn(did => {
           if (did === did1) {
             return {
-              publicKey: [{
-                id: did1 + '#abc',
-                type: 'X25519KeyAgreementKey2019',
-                controller: did1,
-                publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc')
-              }],
-              keyAgreement: [{
-                id: 'irrelevant key'
-              },
-              did1 + '#abc'
-              ]
+              didDocument: {
+                verificationMethod: [{
+                  id: did1 + '#abc',
+                  type: 'X25519KeyAgreementKey2019',
+                  controller: did1,
+                  publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc')
+                }],
+                keyAgreement: [{
+                  id: 'irrelevant key'
+                },
+                did1 + '#abc'
+                ]
+              }
             }
           } else if (did === did2) {
             return {
-              publicKey: [],
-              keyAgreement: [{
-                id: did2 + '#abc',
-                type: 'X25519KeyAgreementKey2019',
-                controller: did2,
-                publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc')
-              }]
+              didDocument: {
+                verificationMethod: [],
+                keyAgreement: [{
+                  id: did2 + '#abc',
+                  type: 'X25519KeyAgreementKey2019',
+                  controller: did2,
+                  publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc')
+                }]
+              }
             }
           } else if (did === did3) {
-            return { publicKey: [] }
+            return { didResolutionMetadata: { error: 'notFound' }, didDocument: null }
           } else if (did === did4) {
-            return { publicKey: [], keyAgreement: [{ type: 'wrong type' }] }
+            return { didDocument: { publicKey: [], keyAgreement: [{ type: 'wrong type' }] } }
           }
         })
       }

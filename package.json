@@ -98,7 +98,7 @@
     "@stablelib/sha256": "^1.0.0",
     "@stablelib/x25519": "^1.0.0",
     "@stablelib/xchacha20poly1305": "^1.0.0",
-    "did-resolver": "^2.1.2",
+    "did-resolver": "^3.0.1",
     "elliptic": "^6.5.3",
     "js-sha3": "^0.8.0",
     "uint8arrays": "^2.0.0"

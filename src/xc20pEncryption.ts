@@ -4,7 +4,7 @@ import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
-import type { PublicKey, Resolver } from 'did-resolver'
+import type { VerificationMethod, Resolver } from 'did-resolver'
 
 function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
   const cipher = new XChaCha20Poly1305(key)
@@ -81,11 +81,14 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolver): Promise<Encrypter[]> {
   return Promise.all(
     dids.map(async (did) => {
-      const didDoc = await resolver.resolve(did)
-      if (!didDoc.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
-      const agreementKeys: PublicKey[] = didDoc.keyAgreement?.map((key) => {
+      const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
+      if (didResolutionMetadata?.error) {
+        throw new Error(`Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`)
+      }
+      if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
+      const agreementKeys: VerificationMethod[] = didDocument.keyAgreement?.map((key) => {
         if (typeof key === 'string') {
-          return didDoc.publicKey.find((pk) => pk.id === key)
+          return didDocument.verificationMethod.find((pk) => pk.id === key)
         }
         return key
       })
