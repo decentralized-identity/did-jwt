@@ -349,7 +349,7 @@ export async function resolveAuthenticator(
   }
 
   const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
-    types.indexOf(type) !== -1
+    types.find((supported) => supported === type)
   )
 
   if (auth && (!authenticators || authenticators.length === 0)) {

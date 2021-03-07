@@ -88,7 +88,10 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolver
       if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
       const agreementKeys: VerificationMethod[] = didDocument.keyAgreement?.map((key) => {
         if (typeof key === 'string') {
-          return didDocument.verificationMethod.find((pk) => pk.id === key)
+          return [
+            ...(didDocument.publicKey || []),
+            ...(didDocument.verificationMethod || [])
+            ].find((pk) => pk.id === key)
         }
         return key
       })

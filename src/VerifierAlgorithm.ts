@@ -25,15 +25,11 @@ interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
 
-function isLegacyVerMethod(verMethod: any): verMethod is LegacyVerificationMethod {
-  return typeof(verMethod?.publicKeyBase64) === 'string'
-}
-
 function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
     return base58ToBytes(pk.publicKeyBase58)
-  } else if (isLegacyVerMethod(pk) && pk.publicKeyBase64) {
-    return base64ToBytes(pk.publicKeyBase64)
+  } else if ((<LegacyVerificationMethod>pk).publicKeyBase64) {
+    return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
   }
