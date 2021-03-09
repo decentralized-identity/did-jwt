@@ -1,3 +1,15 @@
+# [5.0.0](https://github.com/decentralized-identity/did-jwt/compare/4.9.0...5.0.0) (2021-03-09)
+
+
+### Features
+
+* upgrade did-resolver to v3 ([#151](https://github.com/decentralized-identity/did-jwt/issues/151)) ([e02f56b](https://github.com/decentralized-identity/did-jwt/commit/e02f56b45a8af7031473888f8bff265268f73717))
+
+
+### BREAKING CHANGES
+
+* The `Resolver` used during verification is expected to conform to the latest spec.
+
 # [4.9.0](https://github.com/decentralized-identity/did-jwt/compare/4.8.1...4.9.0) (2021-02-10)
 
 
