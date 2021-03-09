@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import { DIDDocument, PublicKey, Authentication } from 'did-resolver'
+import type { Resolver, DIDDocument, VerificationMethod, DIDResolutionResult } from 'did-resolver'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -16,22 +16,18 @@ export interface JWTOptions {
   expiresIn?: number
 }
 
-export interface Resolvable {
-  resolve: (did: string) => Promise<DIDDocument | null>
-}
-
 export interface JWTVerifyOptions {
   auth?: boolean
   audience?: string
   callbackUrl?: string
-  resolver?: Resolvable
+  resolver?: Resolver
   skewTime?: number
 }
 
 export interface DIDAuthenticator {
-  authenticators: PublicKey[]
+  authenticators: VerificationMethod[]
   issuer: string
-  doc: DIDDocument
+  didResolutionResult: DIDResolutionResult
 }
 
 export interface JWTHeader {
@@ -68,7 +64,7 @@ export interface JWSDecoded {
 
 export interface JWTVerified {
   payload: any
-  doc: DIDDocument
+  didResolutionResult: DIDResolutionResult
   issuer: string
   signer: object
   jwt: string
@@ -95,6 +91,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 }
 
 const defaultAlg = 'ES256K'
+const DID_JSON = 'application/did+json'
 
 function encodeSection(data: any): string {
   return encodeBase64url(JSON.stringify(data))
@@ -205,9 +202,9 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
-function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: PublicKey | PublicKey[]): PublicKey {
+function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
-  const signer: PublicKey = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
+  const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
   return signer
 }
 
@@ -219,10 +216,10 @@ function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: Publ
  *  const pubkey = verifyJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', { publicKeyHex: '0x12341...' })
  *
  *  @param    {String}                          jws         A JWS string to verify
- *  @param    {Array<PublicKey> | PublicKey}    pubkeys     The public keys used to verify the JWS
- *  @return   {PublicKey}                       The public key used to sign the JWS
+ *  @param    {Array<VerificationMethod> | VerificationMethod}    pubkeys     The public keys used to verify the JWS
+ *  @return   {VerificationMethod}                       The public key used to sign the JWS
  */
-export function verifyJWS(jws: string, pubkeys: PublicKey | PublicKey[]): PublicKey {
+export function verifyJWS(jws: string, pubkeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
   return verifyJWSDecoded(jwsDecoded, pubkeys)
 }
@@ -260,13 +257,13 @@ export async function verifyJWT(
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
-  const { doc, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
+  const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
     payload.iss,
     options.auth
   )
-  const signer: PublicKey = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
+  const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
   const skewTime = options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
@@ -292,7 +289,7 @@ export async function verifyJWT(
         throw new Error(`JWT audience does not match your DID or callback url`)
       }
     }
-    return { payload, doc, issuer, signer, jwt }
+    return { payload, didResolutionResult, issuer, signer, jwt }
   }
 }
 
@@ -313,7 +310,7 @@ export async function verifyJWT(
  *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
-  resolver: Resolvable,
+  resolver: Resolver,
   alg: string,
   issuer: string,
   auth?: boolean
@@ -322,30 +319,36 @@ export async function resolveAuthenticator(
   if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
-  const doc: DIDDocument = await resolver.resolve(issuer)
-  if (!doc) throw new Error(`Unable to resolve DID document for ${issuer}`)
+  const result: DIDResolutionResult = await resolver.resolve(issuer, { accept: DID_JSON })
+  if (result.didResolutionMetadata?.error) {
+    const { error, message } = result.didResolutionMetadata
+    throw new Error(`Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
+  }
 
-  const getPublicKeyById = (doc: DIDDocument, pubid: string): PublicKey | null => {
-    const filtered = doc.publicKey.filter(({ id }) => pubid === id)
+  const getPublicKeyById = (verificationMethods: VerificationMethod[], pubid: string): VerificationMethod | null => {
+    const filtered = verificationMethods.filter(({ id }) => pubid === id)
     return filtered.length > 0 ? filtered[0] : null
   }
 
-  let publicKeysToCheck: PublicKey[] = doc.publicKey || []
+  let publicKeysToCheck: VerificationMethod[] = []
+  if (result.didDocument.verificationMethod) publicKeysToCheck.push(...result.didDocument.verificationMethod)
+  if (result.didDocument.publicKey) publicKeysToCheck.push(...result.didDocument.publicKey)
   if (auth) {
-    publicKeysToCheck = (doc.authentication || [])
+    publicKeysToCheck = (result.didDocument.authentication || [])
       .map((authEntry) => {
         if (typeof authEntry === 'string') {
-          return getPublicKeyById(doc, authEntry)
-        } else if (typeof (<Authentication>authEntry).publicKey === 'string') {
-          return getPublicKeyById(doc, (<Authentication>authEntry).publicKey)
+          return getPublicKeyById(publicKeysToCheck, authEntry)
+        } else if (typeof (<any>authEntry).publicKey === 'string') {
+          // this is a legacy format
+          return getPublicKeyById(publicKeysToCheck, (<any>authEntry).publicKey)
         } else {
-          return <PublicKey>authEntry
+          return <VerificationMethod>authEntry
         }
       })
       .filter((key) => key != null)
   }
 
-  const authenticators: PublicKey[] = publicKeysToCheck.filter(({ type }) =>
+  const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
     types.find((supported) => supported === type)
   )
 
@@ -355,5 +358,5 @@ export async function resolveAuthenticator(
   if (!authenticators || authenticators.length === 0) {
     throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   }
-  return { authenticators, issuer, doc }
+  return { authenticators, issuer, didResolutionResult: result }
 }

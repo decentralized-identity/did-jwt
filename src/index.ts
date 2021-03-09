@@ -13,7 +13,6 @@ import {
   JWTHeader,
   JWTPayload,
   JWTVerified,
-  Resolvable
 } from './JWT'
 import { toEthereumAddress } from './Digest'
 export { JWE, createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
@@ -41,5 +40,4 @@ export {
   JWTHeader,
   JWTPayload,
   JWTVerified,
-  Resolvable
 }
