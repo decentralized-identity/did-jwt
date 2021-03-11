@@ -1,3 +1,10 @@
+## [5.0.1](https://github.com/decentralized-identity/did-jwt/compare/5.0.0...5.0.1) (2021-03-11)
+
+
+### Bug Fixes
+
+* add explicit support for EcdsaSecp256k1RecoveryMethod2020 ([#153](https://github.com/decentralized-identity/did-jwt/issues/153)) ([2b04c34](https://github.com/decentralized-identity/did-jwt/commit/2b04c347b1115e2de22c604093521a04d44c2629))
+
 # [5.0.0](https://github.com/decentralized-identity/did-jwt/compare/4.9.0...5.0.0) (2021-03-09)
 
 
