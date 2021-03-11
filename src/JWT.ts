@@ -76,24 +76,40 @@ export interface PublicKeyTypes {
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256K: [
     'EcdsaSecp256k1VerificationKey2019',
-    /** Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress */
+    /**
+     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
+     */
     'EcdsaSecp256k1RecoveryMethod2020',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'Secp256k1VerificationKey2018',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'Secp256k1SignatureVerificationKey2018',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'EcdsaPublicKeySecp256k1'
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
-    /** Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress */
+    /**
+     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
+     */
     'EcdsaSecp256k1RecoveryMethod2020',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'Secp256k1VerificationKey2018',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'Secp256k1SignatureVerificationKey2018',
-    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     */
     'EcdsaPublicKeySecp256k1'
   ],
   Ed25519: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],

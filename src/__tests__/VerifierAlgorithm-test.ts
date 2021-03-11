@@ -5,7 +5,7 @@ import NaclSigner from '../signers/NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
-import { base58ToBytes, base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes } from '../util'
+import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes } from '../util'
 import * as u8a from 'uint8arrays'
 
 const secp256k1 = new EC('secp256k1')
@@ -174,7 +174,7 @@ describe('ES256K', () => {
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
-  
+
   it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
