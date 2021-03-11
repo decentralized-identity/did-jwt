@@ -41,7 +41,7 @@ const signer = didJWT.ES256KSigner('278a5de700e29faae8e40e366ec5012b5ec63d36ec77
 let jwt = await didJWT.createJWT(
   { aud: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', exp: 1957463421, name: 'uPort Developer' },
   { issuer: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74', signer },
-  { alg: 'ES256K' } 
+  { alg: 'ES256K' }
 )
 console.log(jwt)
 ```
@@ -99,7 +99,7 @@ console.log(verificationResponse)
 
 A verification response is an object resembling:
 
-```js
+```typescript
 {
   payload: {
     iat: 1571692448,
@@ -108,11 +108,15 @@ A verification response is an object resembling:
     name: 'uPort Developer',
     iss: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
   },
-  doc: {
-    '@context': 'https://w3id.org/did/v1',
-    id: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74',
-    publicKey: [ [Object] ],
-    authentication: [ [Object] ]
+  didResolutionResult: {
+    didDocumentMetadata: {},
+    didResolutionMetadata: {},
+    didDocument: {
+      '@context': 'https://w3id.org/did/v1',
+      id: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74',
+      publicKey: [ [Object] ],
+      authentication: [ [Object] ]
+    }
   },
   issuer: 'did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74',
   signer: {
