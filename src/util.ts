@@ -26,6 +26,10 @@ export function base58ToBytes(s: string): Uint8Array {
   return u8a.fromString(s, 'base58btc')
 }
 
+export function bytesToBase58(b: Uint8Array): string {
+  return u8a.toString(b, 'base58btc')
+}
+
 export function hexToBytes(s: string): Uint8Array {
   const input = s.startsWith('0x') ? s.substring(2) : s
   return u8a.fromString(input.toLowerCase(), 'base16')

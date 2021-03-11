@@ -11,7 +11,8 @@ export function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
     if (instanceOfEcdsaSignature(signature)) {
       return toJose(signature, recoverable)
     } else {
-      if (recoverable && typeof fromJose(signature).recoveryParam === 'undefined') throw new Error(`ES256K-R not supported when signer doesn't provide a recovery param`)
+      if (recoverable && typeof fromJose(signature).recoveryParam === 'undefined')
+        throw new Error(`ES256K-R not supported when signer doesn't provide a recovery param`)
       return signature
     }
   }

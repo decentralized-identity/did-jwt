@@ -3,7 +3,7 @@ import * as u8a from 'uint8arrays'
 import { keccak_256 } from 'js-sha3' // eslint-disable-line
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
-  const data = (typeof payload === 'string') ? u8a.fromString(payload) : payload
+  const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
   return hash(data)
 }
 
@@ -37,5 +37,5 @@ export function concatKDF(secret: Uint8Array, keyLen: number, alg: string): Uint
   ])
   // since our key lenght is 256 we only have to do one round
   const roundNumber = 1
-  return hash(u8a.concat([ writeUint32BE(roundNumber), secret, value ]))
+  return hash(u8a.concat([writeUint32BE(roundNumber), secret, value]))
 }

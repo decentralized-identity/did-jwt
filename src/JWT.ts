@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlgorithm from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import type { Resolver, DIDDocument, VerificationMethod, DIDResolutionResult } from 'did-resolver'
+import type { Resolver, VerificationMethod, DIDResolutionResult } from 'did-resolver'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -75,16 +75,26 @@ export interface PublicKeyTypes {
 }
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256K: [
+    'EcdsaSecp256k1VerificationKey2019',
+    /** Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress */
+    'EcdsaSecp256k1RecoveryMethod2020',
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
     'Secp256k1VerificationKey2018',
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
     'Secp256k1SignatureVerificationKey2018',
-    'EcdsaPublicKeySecp256k1',
-    'EcdsaSecp256k1VerificationKey2019'
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    'EcdsaPublicKeySecp256k1'
   ],
   'ES256K-R': [
+    'EcdsaSecp256k1VerificationKey2019',
+    /** Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress */
+    'EcdsaSecp256k1RecoveryMethod2020',
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
     'Secp256k1VerificationKey2018',
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
     'Secp256k1SignatureVerificationKey2018',
-    'EcdsaPublicKeySecp256k1',
-    'EcdsaSecp256k1VerificationKey2019'
+    /**@deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress */
+    'EcdsaPublicKeySecp256k1'
   ],
   Ed25519: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018']
@@ -202,7 +212,10 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header)
 }
 
-function verifyJWSDecoded({ header, data, signature }: JWSDecoded, pubkeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
+function verifyJWSDecoded(
+  { header, data, signature }: JWSDecoded,
+  pubkeys: VerificationMethod | VerificationMethod[]
+): VerificationMethod {
   if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
   const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
   return signer

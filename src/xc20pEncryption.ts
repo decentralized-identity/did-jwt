@@ -27,7 +27,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
     const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
     const encodedAad = new Uint8Array(Buffer.from(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader))
     return {
-      ...(xc20pEncrypt(cleartext, encodedAad)),
+      ...xc20pEncrypt(cleartext, encodedAad),
       protectedHeader: protHeader
     }
   }
@@ -83,15 +83,16 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolver
     dids.map(async (did) => {
       const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
       if (didResolutionMetadata?.error) {
-        throw new Error(`Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`)
+        throw new Error(
+          `Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
+        )
       }
       if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
       const agreementKeys: VerificationMethod[] = didDocument.keyAgreement?.map((key) => {
         if (typeof key === 'string') {
-          return [
-            ...(didDocument.publicKey || []),
-            ...(didDocument.verificationMethod || [])
-            ].find((pk) => pk.id === key)
+          return [...(didDocument.publicKey || []), ...(didDocument.verificationMethod || [])].find(
+            (pk) => pk.id === key
+          )
         }
         return key
       })
@@ -105,11 +106,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolver
 }
 
 function validateHeader(header: Record<string, any>) {
-  if(!(
-    header.epk &&
-    header.iv &&
-    header.tag
-  )) {
+  if (!(header.epk && header.iv && header.tag)) {
     throw new Error('Invalid JWE')
   }
 }

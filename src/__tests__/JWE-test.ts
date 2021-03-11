@@ -1,11 +1,6 @@
 import { decryptJWE, createJWE, Encrypter } from '../JWE'
 import vectors from './jwe-vectors.js'
-import {
-  xc20pDirEncrypter,
-  xc20pDirDecrypter,
-  x25519Encrypter,
-  x25519Decrypter
-} from '../xc20pEncryption'
+import { xc20pDirEncrypter, xc20pDirDecrypter, x25519Encrypter, x25519Decrypter } from '../xc20pEncryption'
 import { decodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
@@ -64,14 +59,14 @@ describe('JWE', () => {
       it('Creates with only ciphertext', async () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg:'dir', enc:'XC20P' })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg: 'dir', enc: 'XC20P' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
       it('Creates with data in protected header', async () => {
         const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' })
         expect(jwe.aad).toBeUndefined()
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg:'dir', enc:'XC20P', more: 'protected' })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg: 'dir', enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -79,7 +74,7 @@ describe('JWE', () => {
         const aad = u8a.fromString('this data is authenticated')
         const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
         expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg:'dir', enc:'XC20P', more: 'protected' })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg: 'dir', enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
         await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
@@ -101,14 +96,14 @@ describe('JWE', () => {
         it('Creates with only ciphertext', async () => {
           const jwe = await createJWE(cleartext, [encrypter])
           expect(jwe.aad).toBeUndefined()
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         })
 
         it('Creates with data in protected header', async () => {
           const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' })
           expect(jwe.aad).toBeUndefined()
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P', more: 'protected' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         })
 
@@ -116,7 +111,7 @@ describe('JWE', () => {
           const aad = u8a.fromString('this data is authenticated')
           const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
           expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P', more: 'protected' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
           delete jwe.aad
           await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
@@ -142,7 +137,7 @@ describe('JWE', () => {
         it('Creates with only ciphertext', async () => {
           const jwe = await createJWE(cleartext, [encrypter1, encrypter2])
           expect(jwe.aad).toBeUndefined()
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
           expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
         })
@@ -150,7 +145,7 @@ describe('JWE', () => {
         it('Creates with data in protected header', async () => {
           const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' })
           expect(jwe.aad).toBeUndefined()
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P', more: 'protected' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
         })
@@ -159,7 +154,7 @@ describe('JWE', () => {
           const aad = u8a.fromString('this data is authenticated')
           const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' }, aad)
           expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
-          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc:'XC20P', more: 'protected' })
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
           delete jwe.aad

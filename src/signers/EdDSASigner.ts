@@ -22,7 +22,7 @@ export function EdDSASigner(secretKey: string | Uint8Array): Signer {
     throw new Error(`Invalid private key format. Expecting 64 bytes, but got ${privateKeyBytes.length}`)
   }
   return async (data: string | Uint8Array): Promise<string> => {
-    const dataBytes: Uint8Array = (typeof data === 'string') ? stringToBytes(data) : data
+    const dataBytes: Uint8Array = typeof data === 'string' ? stringToBytes(data) : data
     const sig: Uint8Array = sign(privateKeyBytes, dataBytes)
     return bytesToBase64url(sig)
   }
