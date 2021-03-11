@@ -12,7 +12,7 @@ import { ES256KSigner } from './ES256KSigner'
  *    ...
  *  })
  *  ```
- * 
+ *
  *  @param    {String}         hexPrivateKey    a hex encoded private key
  *  @return   {Function}                        a configured signer function
  */

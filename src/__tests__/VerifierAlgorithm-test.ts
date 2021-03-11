@@ -5,7 +5,7 @@ import NaclSigner from '../signers/NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
-import { base64ToBytes, bytesToBase64 } from '../util'
+import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes } from '../util'
 import * as u8a from 'uint8arrays'
 
 const secp256k1 = new EC('secp256k1')
@@ -34,6 +34,8 @@ const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25
 const kp = secp256k1.keyFromPrivate(privateKey)
 const publicKey = String(kp.getPublic('hex'))
 const compressedPublicKey = String(kp.getPublic().encode('hex', true))
+const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
+const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
 const address = toEthereumAddress(publicKey)
 const signer = SimpleSigner(privateKey)
 
@@ -70,6 +72,13 @@ const compressedKey = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   publicKeyHex: compressedPublicKey
+}
+
+const recoveryMethod2020Key = {
+  id: `${did}#keys-recovery`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  ethereumAddress: address
 }
 
 const edKey = {
@@ -121,8 +130,15 @@ describe('ES256K', () => {
   it('validates with publicKeyBase58', async () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    const publicKeyBase58 = u8a.toString(u8a.fromString(ecKey2.publicKeyHex, 'base16'), 'base58btc')
     const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyBase64', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
     delete pubkey.publicKeyHex
     return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
@@ -158,6 +174,12 @@ describe('ES256K', () => {
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
+
+  it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [recoveryMethod2020Key])).toEqual(recoveryMethod2020Key)
+  })
 })
 
 describe('ES256K-R', () => {
@@ -179,6 +201,28 @@ describe('ES256K-R', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ethAddress])).toEqual(ethAddress)
+  })
+
+  it('validates signature with EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, recoveryMethod2020Key])).toEqual(recoveryMethod2020Key)
+  })
+
+  it('validates with publicKeyBase58', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyBase64', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
 
   it('throws error if invalid signature', async () => {

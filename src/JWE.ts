@@ -41,7 +41,12 @@ export interface Encrypter {
 export interface Decrypter {
   alg: string
   enc: string
-  decrypt: (sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array, recipient?: Record<string, any>) => Promise<Uint8Array>
+  decrypt: (
+    sealed: Uint8Array,
+    iv: Uint8Array,
+    aad?: Uint8Array,
+    recipient?: Record<string, any>
+  ) => Promise<Uint8Array>
 }
 
 function validateJWE(jwe: JWE) {
@@ -49,7 +54,7 @@ function validateJWE(jwe: JWE) {
     throw new Error('Invalid JWE')
   }
   if (jwe.recipients) {
-    jwe.recipients.map(rec => {
+    jwe.recipients.map((rec) => {
       if (!(rec.header && rec.encrypted_key)) {
         throw new Error('Invalid JWE')
       }
@@ -57,16 +62,7 @@ function validateJWE(jwe: JWE) {
   }
 }
 
-function encodeJWE(
-  {
-    ciphertext,
-    tag,
-    iv,
-    protectedHeader,
-    recipient
-  }: EncryptionResult,
-  aad?: Uint8Array
-): JWE {
+function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: EncryptionResult, aad?: Uint8Array): JWE {
   const jwe: JWE = {
     protected: protectedHeader,
     iv: bytesToBase64url(iv),
@@ -78,7 +74,12 @@ function encodeJWE(
   return jwe
 }
 
-export async function createJWE(cleartext: Uint8Array, encrypters: Encrypter[], protectedHeader = {}, aad?: Uint8Array): Promise<JWE> {
+export async function createJWE(
+  cleartext: Uint8Array,
+  encrypters: Encrypter[],
+  protectedHeader = {},
+  aad?: Uint8Array
+): Promise<JWE> {
   if (encrypters[0].alg === 'dir') {
     if (encrypters.length > 1) throw new Error('Can only do "dir" encryption to one key.')
     const encryptionResult = await encrypters[0].encrypt(cleartext, protectedHeader, aad)

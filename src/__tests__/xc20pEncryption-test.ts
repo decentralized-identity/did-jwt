@@ -1,7 +1,4 @@
-import {
-  x25519Decrypter,
-  resolveX25519Encrypters
-} from '../xc20pEncryption'
+import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption'
 import { decryptJWE, createJWE } from '../JWE'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
@@ -22,20 +19,23 @@ describe('xc20pEncryption', () => {
       decrypter1 = x25519Decrypter(kp1.secretKey)
       decrypter2 = x25519Decrypter(kp2.secretKey)
       resolver = {
-        resolve: jest.fn(did => {
+        resolve: jest.fn((did) => {
           if (did === did1) {
             return {
               didDocument: {
-                verificationMethod: [{
-                  id: did1 + '#abc',
-                  type: 'X25519KeyAgreementKey2019',
-                  controller: did1,
-                  publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc')
-                }],
-                keyAgreement: [{
-                  id: 'irrelevant key'
-                },
-                did1 + '#abc'
+                verificationMethod: [
+                  {
+                    id: did1 + '#abc',
+                    type: 'X25519KeyAgreementKey2019',
+                    controller: did1,
+                    publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc')
+                  }
+                ],
+                keyAgreement: [
+                  {
+                    id: 'irrelevant key'
+                  },
+                  did1 + '#abc'
                 ]
               }
             }
@@ -43,12 +43,14 @@ describe('xc20pEncryption', () => {
             return {
               didDocument: {
                 verificationMethod: [],
-                keyAgreement: [{
-                  id: did2 + '#abc',
-                  type: 'X25519KeyAgreementKey2019',
-                  controller: did2,
-                  publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc')
-                }]
+                keyAgreement: [
+                  {
+                    id: did2 + '#abc',
+                    type: 'X25519KeyAgreementKey2019',
+                    controller: did2,
+                    publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc')
+                  }
+                ]
               }
             }
           } else if (did === did3) {
@@ -72,8 +74,12 @@ describe('xc20pEncryption', () => {
     })
 
     it('throws error if key is not found', async () => {
-      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrow('Could not find x25519 key for did:test:3')
-      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrow('Could not find x25519 key for did:test:4')
+      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrow(
+        'Could not find x25519 key for did:test:3'
+      )
+      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrow(
+        'Could not find x25519 key for did:test:4'
+      )
     })
   })
 })

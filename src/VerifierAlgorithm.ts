@@ -36,7 +36,11 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
-export function verifyES256K(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+export function verifyES256K(
+  data: string,
+  signature: string,
+  authenticators: VerificationMethod[]
+): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress }) => {
@@ -63,7 +67,11 @@ export function verifyES256K(data: string, signature: string, authenticators: Ve
   return signer
 }
 
-export function verifyRecoverableES256K(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+export function verifyRecoverableES256K(
+  data: string,
+  signature: string,
+  authenticators: VerificationMethod[]
+): VerificationMethod {
   let signatures: EcdsaSignature[]
   if (signature.length > 86) {
     signatures = [toSignatureObject(signature, true)]
@@ -82,29 +90,34 @@ export function verifyRecoverableES256K(data: string, signature: string, authent
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
     const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
 
-    const signer: VerificationMethod = authenticators.find(
-      ({ publicKeyHex, ethereumAddress }) =>
-        publicKeyHex === recoveredPublicKeyHex ||
-        publicKeyHex === recoveredCompressedPublicKeyHex ||
-        ethereumAddress === recoveredAddress
-    )
+    const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+      const keyHex = bytesToHex(extractPublicKeyBytes(pk))
+      return (
+        keyHex === recoveredPublicKeyHex ||
+        keyHex === recoveredCompressedPublicKeyHex ||
+        pk.ethereumAddress === recoveredAddress
+      )
+    })
 
     return signer
   }
 
-  const signer: VerificationMethod[] = signatures.map(checkSignatureAgainstSigner).filter(key => key != null)
+  const signer: VerificationMethod[] = signatures.map(checkSignatureAgainstSigner).filter((key) => key != null)
 
   if (signer.length === 0) throw new Error('Signature invalid for JWT')
   return signer[0]
 }
 
-export function verifyEd25519(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+export function verifyEd25519(
+  data: string,
+  signature: string,
+  authenticators: VerificationMethod[]
+): VerificationMethod {
   const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64ToBytes(signature)
   const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
-  }
-  )
+  })
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
 }

@@ -12,7 +12,7 @@ import {
   Signer,
   JWTHeader,
   JWTPayload,
-  JWTVerified,
+  JWTVerified
 } from './JWT'
 import { toEthereumAddress } from './Digest'
 export { JWE, createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
@@ -39,5 +39,5 @@ export {
   Signer,
   JWTHeader,
   JWTPayload,
-  JWTVerified,
+  JWTVerified
 }
