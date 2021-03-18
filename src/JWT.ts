@@ -1,5 +1,5 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
-import SignerAlgorithm from './SignerAlgorithm'
+import SignerAlg from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
 import type { Resolver, VerificationMethod, DIDResolutionResult } from 'did-resolver'
 
@@ -181,7 +181,7 @@ export async function createJWS(
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
   const signingInput: string = [encodeSection(header), encodedPayload].join('.')
 
-  const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
+  const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
 }
@@ -336,7 +336,7 @@ export async function verifyJWT(
  *  @param    {String}            alg                a JWT algorithm
  *  @param    {String}            did                a Decentralized IDentifier (DID) to lookup
  *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
- *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
+ *  @return   {Promise<DIDAuthenticator>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
   resolver: Resolver,
@@ -359,9 +359,10 @@ export async function resolveAuthenticator(
     return filtered.length > 0 ? filtered[0] : null
   }
 
-  let publicKeysToCheck: VerificationMethod[] = []
-  if (result.didDocument.verificationMethod) publicKeysToCheck.push(...result.didDocument.verificationMethod)
-  if (result.didDocument.publicKey) publicKeysToCheck.push(...result.didDocument.publicKey)
+  let publicKeysToCheck: VerificationMethod[] = [
+    ...result?.didDocument?.verificationMethod || [],
+    ...result?.didDocument?.publicKey || [],
+  ]
   if (auth) {
     publicKeysToCheck = (result.didDocument.authentication || [])
       .map((authEntry) => {
