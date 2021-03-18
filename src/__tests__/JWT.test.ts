@@ -21,7 +21,7 @@ const publicKey = '03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea53
 const verifier = new TokenVerifier(alg, publicKey)
 const signer = SimpleSigner(privateKey)
 
-const didDoc = {
+const didDocLegacy = {
   didDocument: {
     '@context': 'https://w3id.org/did/v1',
     id: did,
@@ -42,24 +42,19 @@ const didDoc = {
   }
 }
 
-const didDocDefault = {
+const didDoc = {
   didDocument: {
     '@context': 'https://w3id.org/did/v1',
     id: did,
-    publicKey: [
+    verificationMethod: [
       {
         id: `${did}#keys-1`,
-        type: 'Secp256k1VerificationKey2018',
-        owner: did,
-        ethereumAddress: address
+        type: 'EcdsaSecp256k1VerificationKey2019',
+        controller: did,
+        publicKeyHex: publicKey
       }
     ],
-    authentication: [
-      {
-        type: 'Secp256k1SignatureAuthentication2018',
-        publicKey: `${did}#keys-1`
-      }
-    ]
+    authentication: [`${did}#keys-1`]
   }
 }
 
@@ -185,11 +180,11 @@ describe('verifyJWT()', () => {
     })
     it('verifies the JWT and return correct signer', async () => {
       const { signer } = await verifyJWT(incomingJwt, { resolver })
-      return expect(signer).toEqual(didDoc.didDocument.publicKey[0])
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
     })
     it('verifies the JWT requiring authentication and return correct signer', async () => {
       const { signer } = await verifyJWT(incomingJwt, { resolver, auth: true })
-      return expect(signer).toEqual(didDoc.didDocument.publicKey[0])
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
     })
   })
 
@@ -267,7 +262,7 @@ describe('verifyJWT()', () => {
   })
 
   it('handles ES256K algorithm with ethereum address - github #14', async () => {
-    const ethResolver = ({ resolve: jest.fn().mockReturnValue(didDocDefault) } as unknown) as Resolver
+    const ethResolver = ({ resolve: jest.fn().mockReturnValue(didDocLegacy) } as unknown) as Resolver
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
