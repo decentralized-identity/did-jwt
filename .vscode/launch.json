@@ -6,7 +6,7 @@
       "request": "launch",
       "name": "Jest All",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--runInBand", "--coverage=false", "JWT-test"],
+      "args": ["--runInBand", "--coverage=false"],
       "sourceMaps": true,
       "disableOptimisticBPs": true,
       "windows": {
@@ -14,6 +14,19 @@
       },
       "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/typescript/lib/typescript.js.map"],
       "runtimeArgs": ["--preserve-symlinks"]
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Current File",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["${relativeFile}", "--detectOpenHandles", "--runInBand", "--coverage=false"],
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
   ]
 }

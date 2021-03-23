@@ -67,6 +67,13 @@ const ethAddress = {
   ethereumAddress: address
 }
 
+const blockchainAddress = {
+  id: `${did}#keys-blockchain`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  blockchainAccountId: `${address}@eip155:1`
+}
+
 const compressedKey = {
   id: `${did}#keys-4`,
   type: 'Secp256k1VerificationKey2018',
@@ -175,6 +182,12 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
 
+  it('validates signature produced by blockchainAccountId - github #14, #110', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [blockchainAddress])).toEqual(blockchainAddress)
+  })
+
   it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
@@ -201,6 +214,12 @@ describe('ES256K-R', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ethAddress])).toEqual(ethAddress)
+  })
+
+  it('validates signature with blockchainAccountId - github #110', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddress])).toEqual(blockchainAddress)
   })
 
   it('validates signature with EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {

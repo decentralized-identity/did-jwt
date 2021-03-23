@@ -466,7 +466,7 @@ describe('resolveAuthenticator()', () => {
     }
   }
 
-  const multipleKeys = {
+  const multipleKeysLegacy = {
     didDocument: {
       '@context': 'https://w3id.org/did/v1',
       id: did,
@@ -515,20 +515,20 @@ describe('resolveAuthenticator()', () => {
 
       it('filters out irrelevant public keys', async () => {
         const authenticators = await resolveAuthenticator(
-          ({ resolve: jest.fn().mockReturnValue(multipleKeys) } as unknown) as Resolver,
+          ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did
         )
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey3],
           issuer: did,
-          didResolutionResult: multipleKeys
+          didResolutionResult: multipleKeysLegacy
         })
       })
 
       it('only list authenticators able to authenticate a user', async () => {
         const authenticators = await resolveAuthenticator(
-          ({ resolve: jest.fn().mockReturnValue(multipleKeys) } as unknown) as Resolver,
+          ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did,
           true
@@ -536,7 +536,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2],
           issuer: did,
-          didResolutionResult: multipleKeys
+          didResolutionResult: multipleKeysLegacy
         })
       })
 
@@ -569,20 +569,20 @@ describe('resolveAuthenticator()', () => {
       const alg = 'Ed25519'
       it('filters out irrelevant public keys', async () => {
         const authenticators = await resolveAuthenticator(
-          ({ resolve: jest.fn().mockReturnValue(multipleKeys) } as unknown) as Resolver,
+          ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did
         )
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey2],
           issuer: did,
-          didResolutionResult: multipleKeys
+          didResolutionResult: multipleKeysLegacy
         })
       })
 
       it('only list authenticators able to authenticate a user', async () => {
         const authenticators = await resolveAuthenticator(
-          ({ resolve: jest.fn().mockReturnValue(multipleKeys) } as unknown) as Resolver,
+          ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did,
           true
@@ -590,7 +590,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [edKey],
           issuer: did,
-          didResolutionResult: multipleKeys
+          didResolutionResult: multipleKeysLegacy
         })
       })
 

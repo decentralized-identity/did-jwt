@@ -43,11 +43,11 @@ export function verifyES256K(
 ): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
-  const fullPublicKeys = authenticators.filter(({ ethereumAddress }) => {
-    return typeof ethereumAddress === 'undefined'
+  const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
+    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
   })
-  const ethAddressKeys = authenticators.filter(({ ethereumAddress }) => {
-    return typeof ethereumAddress !== 'undefined'
+  const ethAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
+    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== undefined
   })
 
   let signer: VerificationMethod = fullPublicKeys.find((pk: VerificationMethod) => {
@@ -95,7 +95,8 @@ export function verifyRecoverableES256K(
       return (
         keyHex === recoveredPublicKeyHex ||
         keyHex === recoveredCompressedPublicKeyHex ||
-        pk.ethereumAddress === recoveredAddress
+        pk.ethereumAddress?.toLowerCase() === recoveredAddress ||
+        pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress
       )
     })
 
