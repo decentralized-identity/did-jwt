@@ -1,3 +1,10 @@
+## [5.0.2](https://github.com/decentralized-identity/did-jwt/compare/5.0.1...5.0.2) (2021-03-23)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies ([#157](https://github.com/decentralized-identity/did-jwt/issues/157)) ([82da9e2](https://github.com/decentralized-identity/did-jwt/commit/82da9e2248f3861097e72edf519db5337d2aa3ad)), closes [#135](https://github.com/decentralized-identity/did-jwt/issues/135)
+
 ## [5.0.1](https://github.com/decentralized-identity/did-jwt/compare/5.0.0...5.0.1) (2021-03-11)
 
 
