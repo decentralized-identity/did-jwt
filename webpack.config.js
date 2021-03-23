@@ -1,4 +1,4 @@
-var path = require('path')
+const path = require('path')
 
 module.exports = {
   entry: './lib/index.js',
@@ -7,7 +7,7 @@ module.exports = {
     fallback: {
       crypto: false,
       // crypto: require.resolve('crypto-browserify'),
-      util: false,
+      util: false
       // util: require.resolve('util/'),
     }
   },
