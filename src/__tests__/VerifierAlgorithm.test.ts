@@ -1,7 +1,5 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { createJWT } from '../JWT'
-import SimpleSigner from '../signers/SimpleSigner'
-import NaclSigner from '../signers/NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'

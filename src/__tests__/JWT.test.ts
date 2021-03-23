@@ -147,8 +147,15 @@ describe('createJWT()', () => {
     it('creates a valid JWT', async () => {
       expect.assertions(1)
       const jwt = await createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer })
-      // return await expect(naclVerifyJWT(jwt)).toBeTruthy()
-      return await expect(verifyJWT(jwt)).toBeTruthy()
+      return await expect(naclVerifyJWT(jwt)).toEqual({
+        issuer: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+        payload: {
+          iat: 1485321133,
+          iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+          requested: ['name', 'phone']
+        }
+      })
+      // return await expect(verifyJWT(jwt)).toBeTruthy()
     })
 
     it('creates a JWT with correct format', async () => {
@@ -293,19 +300,21 @@ describe('verifyJWT()', () => {
 
   it('handles ES256K algorithm with ethereum address - github #14', async () => {
     expect.assertions(1)
-    const ethResolver = ({ resolve: jest.fn().mockReturnValue({
-      didDocument: {
-        id: did,
-        publicKey: [
-          {
-            id: `${did}#keys-1`,
-            type: 'Secp256k1VerificationKey2018',
-            owner: did,
-            ethereumAddress: address
-          }
-        ],
-      }
-    }) } as unknown) as Resolver
+    const ethResolver = ({
+      resolve: jest.fn().mockReturnValue({
+        didDocument: {
+          id: did,
+          publicKey: [
+            {
+              id: `${did}#keys-1`,
+              type: 'Secp256k1VerificationKey2018',
+              owner: did,
+              ethereumAddress: address
+            }
+          ]
+        }
+      })
+    } as unknown) as Resolver
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
@@ -313,19 +322,21 @@ describe('verifyJWT()', () => {
 
   it('handles ES256K algorithm with blockchainAccountId - github #14, #110', async () => {
     expect.assertions(1)
-    const ethResolver = ({ resolve: jest.fn().mockReturnValue({
-      didDocument: {
-        id: did,
-        publicKey: [
-          {
-            id: `${did}#keys-1`,
-            type: 'EcdsaSecp256k1RecoveryMethod2020',
-            owner: did,
-            blockchainAccountId: `${address}@eip155:1`
-          }
-        ],
-      }
-    }) } as unknown) as Resolver
+    const ethResolver = ({
+      resolve: jest.fn().mockReturnValue({
+        didDocument: {
+          id: did,
+          publicKey: [
+            {
+              id: `${did}#keys-1`,
+              type: 'EcdsaSecp256k1RecoveryMethod2020',
+              owner: did,
+              blockchainAccountId: `${address}@eip155:1`
+            }
+          ]
+        }
+      })
+    } as unknown) as Resolver
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()

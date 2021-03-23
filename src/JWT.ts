@@ -360,8 +360,8 @@ export async function resolveAuthenticator(
   }
 
   let publicKeysToCheck: VerificationMethod[] = [
-    ...result?.didDocument?.verificationMethod || [],
-    ...result?.didDocument?.publicKey || [],
+    ...(result?.didDocument?.verificationMethod || []),
+    ...(result?.didDocument?.publicKey || [])
   ]
   if (auth) {
     publicKeysToCheck = (result.didDocument.authentication || [])
