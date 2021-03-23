@@ -41,17 +41,20 @@ describe('SignerAlgorithm', () => {
 describe('ES256K', () => {
   const jwtSigner = SignerAlgorithm('ES256K')
   it('returns correct signature', async () => {
+    expect.assertions(1)
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
       'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
     )
   })
 
   it('returns signature of 64 bytes', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(base64ToBytes(signature).length).toEqual(64)
   })
 
   it('contains only r and s of signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
@@ -60,6 +63,7 @@ describe('ES256K', () => {
   })
 
   it('can verify the signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
@@ -68,17 +72,20 @@ describe('ES256K', () => {
 describe('ES256K signer which returns signature as string ', () => {
   const jwtSigner = SignerAlgorithm('ES256K')
   it('returns correct signature', async () => {
+    expect.assertions(1)
     return await expect(jwtSigner('hello', ecSigner)).resolves.toEqual(
       'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
     )
   })
 
   it('returns signature of 64 bytes', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', ecSigner)
     expect(base64ToBytes(signature).length).toEqual(64)
   })
 
   it('can verify the signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', ecSigner)
     expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
@@ -86,6 +93,7 @@ describe('ES256K signer which returns signature as string ', () => {
 
 describe('ES256K-R', () => {
   const jwtSigner = SignerAlgorithm('ES256K-R')
+  expect.assertions(1)
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
       'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQE'
@@ -93,11 +101,13 @@ describe('ES256K-R', () => {
   })
 
   it('returns signature of 64 bytes', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(base64ToBytes(signature).length).toEqual(65)
   })
 
   it('contains r, s and recoveryParam of signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature, true)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
@@ -107,6 +117,7 @@ describe('ES256K-R', () => {
   })
 
   it('can verify the signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
     expect(kp.verify(sha256('hello'), toSignatureObject(signature, true))).toBeTruthy()
   })
@@ -115,12 +126,14 @@ describe('ES256K-R', () => {
 describe('Ed25519', () => {
   const jwtSigner = SignerAlgorithm('Ed25519')
   it('returns correct signature', async () => {
+    expect.assertions(1)
     return await expect(jwtSigner('hello', edSigner)).resolves.toEqual(
       'lLY_SeplJc_4tgMP1BHmjfxS0UEi-Xvonzbss4GT7yuFz--H28uCwsRjlIwXL4I0ugCrM-zQoA2gW2JdnFRkDQ'
     )
   })
 
   it('can verify the signature', async () => {
+    expect.assertions(1)
     const signature = await jwtSigner('hello', edSigner)
     expect(nacl.sign.detached.verify(stringToBytes('hello'), base64ToBytes(signature), edKp.publicKey)).toBeTruthy()
   })
