@@ -61,7 +61,7 @@ jobs:
   verify-unit-tests:
     working_directory: ~/project
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     steps:
       - checkout
       - *restore-npm-cache
