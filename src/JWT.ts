@@ -17,7 +17,7 @@ export interface JWTOptions {
 }
 
 export interface JWTVerifyOptions {
-  /**@deprecated Please use `proofPurpose: 'authentication' instead` */
+  /** @deprecated Please use `proofPurpose: 'authentication' instead` */
   auth?: boolean
   audience?: string
   callbackUrl?: string
@@ -360,6 +360,7 @@ export async function resolveAuthenticator(
   let didResult: DIDResolutionResult
 
   const result = (await resolver.resolve(issuer, { accept: DID_JSON })) as unknown
+  // support legacy resolvers that do not produce DIDResolutionResult
   if (Object.getOwnPropertyNames(result).indexOf('didDocument') === -1) {
     didResult = {
       didDocument: result as DIDDocument,
@@ -385,6 +386,11 @@ export async function resolveAuthenticator(
     ...(didResult?.didDocument?.publicKey || [])
   ]
   if (typeof proofPurpose === 'string') {
+    // support legacy DID Documents that do not list assertionMethod
+    if (proofPurpose.startsWith('assertion') && !didResult.didDocument.hasOwnProperty('assertionMethod')) {
+      didResult.didDocument.assertionMethod = [...publicKeysToCheck.map((pk) => pk.id)]
+    }
+
     publicKeysToCheck = (didResult.didDocument[proofPurpose] || [])
       .map((verificationMethod) => {
         if (typeof verificationMethod === 'string') {
@@ -403,8 +409,10 @@ export async function resolveAuthenticator(
     types.find((supported) => supported === type)
   )
 
-  if (proofPurpose === 'authentication' && (!authenticators || authenticators.length === 0)) {
-    throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticating user`)
+  if (typeof proofPurpose === 'string' && (!authenticators || authenticators.length === 0)) {
+    throw new Error(
+      `DID document for ${issuer} does not have public keys suitable for ${alg} with ${proofPurpose} purpose`
+    )
   }
   if (!authenticators || authenticators.length === 0) {
     throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)

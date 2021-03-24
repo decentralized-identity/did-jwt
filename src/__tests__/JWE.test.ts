@@ -19,13 +19,13 @@ describe('JWE', () => {
       test.each(vectors.dir.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(u8a.fromString(key, 'base64pad'))
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
+        await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
 
       test.each(vectors.dir.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(randomBytes(32))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
       })
     })
 
@@ -40,13 +40,13 @@ describe('JWE', () => {
       test.each(vectors.x25519.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(u8a.fromString(key, 'base64pad'))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Failed to decrypt')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
 
       test.each(vectors.x25519.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(randomBytes(32))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrow('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
       })
     })
   })
@@ -86,7 +86,7 @@ describe('JWE', () => {
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg: 'dir', enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
+        await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
     })
 
@@ -126,7 +126,7 @@ describe('JWE', () => {
           expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
           delete jwe.aad
-          await expect(decryptJWE(jwe, decrypter)).rejects.toThrow('Failed to decrypt')
+          await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
         })
       })
 
@@ -173,15 +173,15 @@ describe('JWE', () => {
           expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
           delete jwe.aad
-          await expect(decryptJWE(jwe, decrypter1)).rejects.toThrow('Failed to decrypt')
-          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrow('Failed to decrypt')
+          await expect(decryptJWE(jwe, decrypter1)).rejects.toThrowError('Failed to decrypt')
+          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')
         })
 
         it('Incompatible encrypters throw', async () => {
           expect.assertions(1)
           const enc1 = { enc: 'cool enc alg1' } as Encrypter
           const enc2 = { enc: 'cool enc alg2' } as Encrypter
-          await expect(createJWE(cleartext, [enc1, enc2])).rejects.toThrow('Incompatible encrypters passed')
+          await expect(createJWE(cleartext, [enc1, enc2])).rejects.toThrowError('Incompatible encrypters passed')
         })
       })
     })

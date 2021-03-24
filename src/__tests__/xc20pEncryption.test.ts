@@ -76,10 +76,10 @@ describe('xc20pEncryption', () => {
 
     it('throws error if key is not found', async () => {
       expect.assertions(2)
-      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrow(
+      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrowError(
         'Could not find x25519 key for did:test:3'
       )
-      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrow(
+      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
         'Could not find x25519 key for did:test:4'
       )
     })
