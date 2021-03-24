@@ -657,7 +657,7 @@ describe('resolveAuthenticator()', () => {
           ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did,
-          true
+          "authentication"
         )
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2],
@@ -672,7 +672,7 @@ describe('resolveAuthenticator()', () => {
           ({ resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as unknown) as Resolver,
           alg,
           did,
-          true
+          "authentication"
         )
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey7],
@@ -715,7 +715,7 @@ describe('resolveAuthenticator()', () => {
           ({ resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as unknown) as Resolver,
           alg,
           did,
-          true
+          "authentication"
         )
         return expect(authenticators).toEqual({
           authenticators: [edKey],
@@ -730,7 +730,7 @@ describe('resolveAuthenticator()', () => {
           ({ resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as unknown) as Resolver,
           alg,
           did,
-          true
+          "authentication"
         )
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey6, edKey8],
@@ -754,7 +754,7 @@ describe('resolveAuthenticator()', () => {
     it('errors if no suitable public keys exist for authentication', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator(({ resolve: jest.fn().mockReturnValue(singleKey) } as unknown) as Resolver, alg, did, true)
+        resolveAuthenticator(({ resolve: jest.fn().mockReturnValue(singleKey) } as unknown) as Resolver, alg, did, "authentication")
       ).rejects.toEqual(new Error(`DID document for ${did} does not have public keys suitable for authenticating user`))
     })
 

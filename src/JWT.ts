@@ -17,11 +17,14 @@ export interface JWTOptions {
 }
 
 export interface JWTVerifyOptions {
+  /**@deprecated Please use `proofPurpose: 'authentication' instead` */
   auth?: boolean
   audience?: string
   callbackUrl?: string
   resolver?: Resolver
   skewTime?: number
+  /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
+  proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
 }
 
 export interface DIDAuthenticator {
@@ -281,16 +284,22 @@ export async function verifyJWT(
     auth: null,
     audience: null,
     callbackUrl: null,
-    skewTime: null
+    skewTime: null,
+    proofPurpose: null
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
+  const proofPurpose: string | undefined = options.hasOwnProperty('auth')
+    ? options.auth
+      ? 'authentication'
+      : undefined
+    : options.proofPurpose
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
     payload.iss,
-    options.auth
+    proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
@@ -342,7 +351,7 @@ export async function resolveAuthenticator(
   resolver: Resolver,
   alg: string,
   issuer: string,
-  auth?: boolean
+  proofPurpose?: string
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
@@ -375,16 +384,16 @@ export async function resolveAuthenticator(
     ...(didResult?.didDocument?.verificationMethod || []),
     ...(didResult?.didDocument?.publicKey || [])
   ]
-  if (auth) {
-    publicKeysToCheck = (didResult.didDocument.authentication || [])
-      .map((authEntry) => {
-        if (typeof authEntry === 'string') {
-          return getPublicKeyById(publicKeysToCheck, authEntry)
-        } else if (typeof (<any>authEntry).publicKey === 'string') {
+  if (typeof proofPurpose === 'string') {
+    publicKeysToCheck = (didResult.didDocument[proofPurpose] || [])
+      .map((verificationMethod) => {
+        if (typeof verificationMethod === 'string') {
+          return getPublicKeyById(publicKeysToCheck, verificationMethod)
+        } else if (typeof (<any>verificationMethod).publicKey === 'string') {
           // this is a legacy format
-          return getPublicKeyById(publicKeysToCheck, (<any>authEntry).publicKey)
+          return getPublicKeyById(publicKeysToCheck, (<any>verificationMethod).publicKey)
         } else {
-          return <VerificationMethod>authEntry
+          return <VerificationMethod>verificationMethod
         }
       })
       .filter((key) => key != null)
@@ -394,7 +403,7 @@ export async function resolveAuthenticator(
     types.find((supported) => supported === type)
   )
 
-  if (auth && (!authenticators || authenticators.length === 0)) {
+  if (proofPurpose === 'authentication' && (!authenticators || authenticators.length === 0)) {
     throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticating user`)
   }
   if (!authenticators || authenticators.length === 0) {
