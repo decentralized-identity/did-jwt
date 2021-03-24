@@ -33,6 +33,19 @@
     "Joel Thorstensson <oed@3box.io>"
   ],
   "license": "Apache-2.0",
+  "jest": {
+    "clearMocks": true,
+    "collectCoverageFrom": [
+      "src/**/*.{ts,tsx}",
+      ",!src/**/*.d.ts",
+      ",!**/node_modules/**",
+      "!src/**/index.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/**/*.test.[jt]s"
+    ]
+  },
   "devDependencies": {
     "@babel/preset-typescript": "^7.13.0",
     "@semantic-release/changelog": "5.0.1",
