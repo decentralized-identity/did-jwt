@@ -1,3 +1,10 @@
+# [5.1.0](https://github.com/decentralized-identity/did-jwt/compare/5.0.2...5.1.0) (2021-03-24)
+
+
+### Features
+
+* adapt to did core spec ([#156](https://github.com/decentralized-identity/did-jwt/issues/156)) ([4283ab3](https://github.com/decentralized-identity/did-jwt/commit/4283ab39ce33fddfb13be09df99db0f0cd0cd988)), closes [#155](https://github.com/decentralized-identity/did-jwt/issues/155)
+
 ## [5.0.2](https://github.com/decentralized-identity/did-jwt/compare/5.0.1...5.0.2) (2021-03-23)
 
 
