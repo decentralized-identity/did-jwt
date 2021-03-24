@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
-import SignerAlgorithm from './SignerAlgorithm'
+import SignerAlg from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import type { Resolver, VerificationMethod, DIDResolutionResult } from 'did-resolver'
+import type { Resolver, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -17,11 +17,14 @@ export interface JWTOptions {
 }
 
 export interface JWTVerifyOptions {
+  /** @deprecated Please use `proofPurpose: 'authentication' instead` */
   auth?: boolean
   audience?: string
   callbackUrl?: string
   resolver?: Resolver
   skewTime?: number
+  /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
+  proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
 }
 
 export interface DIDAuthenticator {
@@ -181,7 +184,7 @@ export async function createJWS(
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
   const signingInput: string = [encodeSection(header), encodedPayload].join('.')
 
-  const jwtSigner: SignerAlgorithm = SignerAlgorithm(header.alg)
+  const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
 }
@@ -281,16 +284,22 @@ export async function verifyJWT(
     auth: null,
     audience: null,
     callbackUrl: null,
-    skewTime: null
+    skewTime: null,
+    proofPurpose: null
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
+  const proofPurpose: string | undefined = options.hasOwnProperty('auth')
+    ? options.auth
+      ? 'authentication'
+      : undefined
+    : options.proofPurpose
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
     payload.iss,
-    options.auth
+    proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
@@ -336,21 +345,34 @@ export async function verifyJWT(
  *  @param    {String}            alg                a JWT algorithm
  *  @param    {String}            did                a Decentralized IDentifier (DID) to lookup
  *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
- *  @return   {Promise<Object, Error>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
+ *  @return   {Promise<DIDAuthenticator>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
   resolver: Resolver,
   alg: string,
   issuer: string,
-  auth?: boolean
+  proofPurpose?: string
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
-  const result: DIDResolutionResult = await resolver.resolve(issuer, { accept: DID_JSON })
-  if (result.didResolutionMetadata?.error) {
-    const { error, message } = result.didResolutionMetadata
+  let didResult: DIDResolutionResult
+
+  const result = (await resolver.resolve(issuer, { accept: DID_JSON })) as unknown
+  // support legacy resolvers that do not produce DIDResolutionResult
+  if (Object.getOwnPropertyNames(result).indexOf('didDocument') === -1) {
+    didResult = {
+      didDocument: result as DIDDocument,
+      didDocumentMetadata: {},
+      didResolutionMetadata: { contentType: DID_JSON }
+    }
+  } else {
+    didResult = result as DIDResolutionResult
+  }
+
+  if (didResult.didResolutionMetadata?.error) {
+    const { error, message } = didResult.didResolutionMetadata
     throw new Error(`Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
   }
 
@@ -359,19 +381,25 @@ export async function resolveAuthenticator(
     return filtered.length > 0 ? filtered[0] : null
   }
 
-  let publicKeysToCheck: VerificationMethod[] = []
-  if (result.didDocument.verificationMethod) publicKeysToCheck.push(...result.didDocument.verificationMethod)
-  if (result.didDocument.publicKey) publicKeysToCheck.push(...result.didDocument.publicKey)
-  if (auth) {
-    publicKeysToCheck = (result.didDocument.authentication || [])
-      .map((authEntry) => {
-        if (typeof authEntry === 'string') {
-          return getPublicKeyById(publicKeysToCheck, authEntry)
-        } else if (typeof (<any>authEntry).publicKey === 'string') {
+  let publicKeysToCheck: VerificationMethod[] = [
+    ...(didResult?.didDocument?.verificationMethod || []),
+    ...(didResult?.didDocument?.publicKey || [])
+  ]
+  if (typeof proofPurpose === 'string') {
+    // support legacy DID Documents that do not list assertionMethod
+    if (proofPurpose.startsWith('assertion') && !didResult.didDocument.hasOwnProperty('assertionMethod')) {
+      didResult.didDocument.assertionMethod = [...publicKeysToCheck.map((pk) => pk.id)]
+    }
+
+    publicKeysToCheck = (didResult.didDocument[proofPurpose] || [])
+      .map((verificationMethod) => {
+        if (typeof verificationMethod === 'string') {
+          return getPublicKeyById(publicKeysToCheck, verificationMethod)
+        } else if (typeof (<any>verificationMethod).publicKey === 'string') {
           // this is a legacy format
-          return getPublicKeyById(publicKeysToCheck, (<any>authEntry).publicKey)
+          return getPublicKeyById(publicKeysToCheck, (<any>verificationMethod).publicKey)
         } else {
-          return <VerificationMethod>authEntry
+          return <VerificationMethod>verificationMethod
         }
       })
       .filter((key) => key != null)
@@ -381,11 +409,13 @@ export async function resolveAuthenticator(
     types.find((supported) => supported === type)
   )
 
-  if (auth && (!authenticators || authenticators.length === 0)) {
-    throw new Error(`DID document for ${issuer} does not have public keys suitable for authenticating user`)
+  if (typeof proofPurpose === 'string' && (!authenticators || authenticators.length === 0)) {
+    throw new Error(
+      `DID document for ${issuer} does not have public keys suitable for ${alg} with ${proofPurpose} purpose`
+    )
   }
   if (!authenticators || authenticators.length === 0) {
     throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   }
-  return { authenticators, issuer, didResolutionResult: result }
+  return { authenticators, issuer, didResolutionResult: didResult }
 }

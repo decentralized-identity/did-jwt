@@ -88,6 +88,14 @@ Object {
 }
 `;
 
+exports[`verifyJWT() handles ES256K algorithm with blockchainAccountId - github #14, #155 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+}
+`;
+
 exports[`verifyJWT() handles ES256K algorithm with ethereum address - github #14 1`] = `
 Object {
   "hello": "world",
@@ -104,7 +112,7 @@ Object {
 }
 `;
 
-exports[`verifyJWT() handles ES256K-R algorithm with ethereum address 1`] = `
+exports[`verifyJWT() handles ES256K-R algorithm with publicKeyHex address 1`] = `
 Object {
   "hello": "world",
   "iat": 1485321133,
@@ -113,6 +121,17 @@ Object {
 `;
 
 exports[`verifyJWT() pregenerated JWT verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;
+
+exports[`verifyJWT() pregenerated JWT with legacy resolver verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,
   "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",

@@ -45,10 +45,10 @@ const algorithms: SignerAlgorithms = {
   EdDSA: Ed25519SignerAlg()
 }
 
-function SignerAlgorithm(alg: string): SignerAlgorithm {
+function SignerAlg(alg: string): SignerAlgorithm {
   const impl: SignerAlgorithm = algorithms[alg]
   if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
   return impl
 }
 
-export default SignerAlgorithm
+export default SignerAlg

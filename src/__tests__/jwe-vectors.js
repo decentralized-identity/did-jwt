@@ -1,5 +1,5 @@
 /* eslint-disable */
-it.skip('not a test', () => {})
+// it.skip('not a test', () => {})
 module.exports = {
   dir: {
     pass: [

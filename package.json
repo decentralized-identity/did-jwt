@@ -34,19 +34,7 @@
   ],
   "license": "Apache-2.0",
   "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json"
-    ],
-    "coverageDirectory": "./coverage/",
-    "collectCoverage": true,
+    "clearMocks": true,
     "collectCoverageFrom": [
       "src/**/*.{ts,tsx}",
       "!src/**/*.d.ts",
@@ -54,11 +42,12 @@
       "!src/**/index.ts"
     ],
     "testEnvironment": "node",
-    "unmockedModulePathPatterns": [
-      "<rootDir>/node_modules/nock"
+    "testMatch": [
+      "**/__tests__/**/*.test.[jt]s"
     ]
   },
   "devDependencies": {
+    "@babel/preset-typescript": "^7.13.0",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
     "@types/elliptic": "6.4.12",

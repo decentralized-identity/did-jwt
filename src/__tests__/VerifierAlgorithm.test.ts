@@ -1,12 +1,12 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { createJWT } from '../JWT'
-import SimpleSigner from '../signers/SimpleSigner'
-import NaclSigner from '../signers/NaclSigner'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
 import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes } from '../util'
 import * as u8a from 'uint8arrays'
+import { EdDSASigner } from '../signers/EdDSASigner'
+import { ES256KSigner } from '../signers/ES256KSigner'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -37,10 +37,11 @@ const compressedPublicKey = String(kp.getPublic().encode('hex', true))
 const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
 const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
 const address = toEthereumAddress(publicKey)
-const signer = SimpleSigner(privateKey)
+const signer = ES256KSigner(privateKey)
+const recoverySigner = ES256KSigner(privateKey, true)
 
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
-const edSigner = NaclSigner(ed25519PrivateKey)
+const edSigner = EdDSASigner(ed25519PrivateKey)
 const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 const edPublicKey = bytesToBase64(edKp.publicKey)
 const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)
@@ -65,6 +66,13 @@ const ethAddress = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   ethereumAddress: address
+}
+
+const blockchainAddress = {
+  id: `${did}#keys-blockchain`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  blockchainAccountId: `${address}@eip155:1`
 }
 
 const compressedKey = {
@@ -122,12 +130,14 @@ const malformedKey3 = {
 describe('ES256K', () => {
   const verifier = VerifierAlgorithm('ES256K')
   it('validates signature and picks correct public key', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
 
   it('validates with publicKeyBase58', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
@@ -136,6 +146,7 @@ describe('ES256K', () => {
   })
 
   it('validates with publicKeyBase64', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
@@ -144,18 +155,21 @@ describe('ES256K', () => {
   })
 
   it('validates signature with compressed public key and picks correct public key', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, compressedKey])).toEqual(compressedKey)
   })
 
   it('throws error if invalid signature', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
   })
 
   it('throws error if invalid signature length', async () => {
+    expect.assertions(1)
     const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer })) + 'aa'
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('wrong signature length'))
@@ -170,12 +184,21 @@ describe('ES256K', () => {
   })
 
   it('validates signature produced by ethAddress - github #14', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
 
+  it('validates signature produced by blockchainAccountId - github #14, #155', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [blockchainAddress])).toEqual(blockchainAddress)
+  })
+
   it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [recoveryMethod2020Key])).toEqual(recoveryMethod2020Key)
@@ -186,31 +209,43 @@ describe('ES256K-R', () => {
   const verifier = VerifierAlgorithm('ES256K-R')
 
   it('validates signature and picks correct public key', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
 
   it('validates signature and picks correct compressed public key', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, compressedKey])).toEqual(compressedKey)
   })
 
   it('validates signature with ethereum address', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ethAddress])).toEqual(ethAddress)
   })
 
+  it('validates signature with blockchainAccountId - github #155', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddress])).toEqual(blockchainAddress)
+  })
+
   it('validates signature with EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, recoveryMethod2020Key])).toEqual(recoveryMethod2020Key)
   })
 
   it('validates with publicKeyBase58', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
     delete pubkey.publicKeyHex
@@ -218,7 +253,8 @@ describe('ES256K-R', () => {
   })
 
   it('validates with publicKeyBase64', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
     delete pubkey.publicKeyHex
@@ -226,7 +262,8 @@ describe('ES256K-R', () => {
   })
 
   it('throws error if invalid signature', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer, alg: 'ES256K-R' })
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
   })
@@ -235,12 +272,14 @@ describe('ES256K-R', () => {
 describe('Ed25519', () => {
   const verifier = VerifierAlgorithm('Ed25519')
   it('validates signature and picks correct public key', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [edKey, edKey2])).toEqual(edKey)
   })
 
   it('validates with publicKeyBase58', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const publicKeyBase58 = u8a.toString(u8a.fromString(edKey.publicKeyBase64, 'base64pad'), 'base58btc')
@@ -250,6 +289,7 @@ describe('Ed25519', () => {
   })
 
   it('throws error if invalid signature', async () => {
+    expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(new Error('Signature invalid for JWT'))

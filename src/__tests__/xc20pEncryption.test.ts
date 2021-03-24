@@ -63,6 +63,7 @@ describe('xc20pEncryption', () => {
     })
 
     it('correctly resolves encrypters for DIDs', async () => {
+      expect.assertions(4)
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
@@ -74,10 +75,11 @@ describe('xc20pEncryption', () => {
     })
 
     it('throws error if key is not found', async () => {
-      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrow(
+      expect.assertions(2)
+      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrowError(
         'Could not find x25519 key for did:test:3'
       )
-      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrow(
+      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
         'Could not find x25519 key for did:test:4'
       )
     })
