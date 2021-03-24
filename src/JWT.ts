@@ -16,12 +16,14 @@ export interface JWTOptions {
   expiresIn?: number
 }
 
+export type Public<T> = { [P in keyof T]: T[P] }
+
 export interface JWTVerifyOptions {
   /** @deprecated Please use `proofPurpose: 'authentication' instead` */
   auth?: boolean
   audience?: string
   callbackUrl?: string
-  resolver?: Resolver
+  resolver?: Public<Resolver>
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
@@ -348,7 +350,7 @@ export async function verifyJWT(
  *  @return   {Promise<DIDAuthenticator>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
-  resolver: Resolver,
+  resolver: Public<Resolver>,
   alg: string,
   issuer: string,
   proofPurpose?: string
