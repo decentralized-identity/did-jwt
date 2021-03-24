@@ -23,24 +23,22 @@ const signer = ES256KSigner(privateKey)
 const recoverySigner = ES256KSigner(privateKey, true)
 
 const didDocLegacy = {
-  didDocument: {
-    '@context': 'https://w3id.org/did/v1',
-    id: did,
-    publicKey: [
-      {
-        id: `${did}#keys-1`,
-        type: 'Secp256k1VerificationKey2018',
-        owner: did,
-        publicKeyHex: publicKey
-      }
-    ],
-    authentication: [
-      {
-        type: 'Secp256k1SignatureAuthentication2018',
-        publicKey: `${did}#keys-1`
-      }
-    ]
-  }
+  '@context': 'https://w3id.org/did/v1',
+  id: did,
+  publicKey: [
+    {
+      id: `${did}#keys-1`,
+      type: 'Secp256k1VerificationKey2018',
+      owner: did,
+      publicKeyHex: publicKey
+    }
+  ],
+  authentication: [
+    {
+      type: 'Secp256k1SignatureAuthentication2018',
+      publicKey: `${did}#keys-1`
+    }
+  ]
 }
 
 const didDoc = {
@@ -215,6 +213,41 @@ describe('verifyJWT()', () => {
     })
   })
 
+  describe('pregenerated JWT with legacy resolver', () => {
+    // tslint:disable-next-line: max-line-length
+    const incomingJwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
+    const legacyResolver = ({ resolve: jest.fn().mockReturnValue(didDocLegacy) } as unknown) as Resolver
+
+    it('verifies the JWT and return correct payload', async () => {
+      expect.assertions(1)
+      const { payload } = await verifyJWT(incomingJwt, { resolver: legacyResolver })
+      return expect(payload).toMatchSnapshot()
+    })
+    it('verifies the JWT and return correct profile', async () => {
+      expect.assertions(1)
+      const {
+        didResolutionResult: { didDocument }
+      } = await verifyJWT(incomingJwt, { resolver: legacyResolver })
+      return expect(didDocument).toEqual(didDocLegacy)
+    })
+    it('verifies the JWT and return correct did for the iss', async () => {
+      expect.assertions(1)
+      const { issuer } = await verifyJWT(incomingJwt, { resolver: legacyResolver })
+      return expect(issuer).toEqual('did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9')
+    })
+    it('verifies the JWT and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver: legacyResolver })
+      return expect(signer).toEqual(didDocLegacy.publicKey[0])
+    })
+    it('verifies the JWT requiring authentication and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver: legacyResolver, auth: true })
+      return expect(signer).toEqual(didDocLegacy.publicKey[0])
+    })
+  })
+
   describe('badJwt', () => {
     // tslint:disable-next-line: max-line-length
     const badJwt =
@@ -320,7 +353,7 @@ describe('verifyJWT()', () => {
     return expect(payload).toMatchSnapshot()
   })
 
-  it('handles ES256K algorithm with blockchainAccountId - github #14, #110', async () => {
+  it('handles ES256K algorithm with blockchainAccountId - github #14, #155', async () => {
     expect.assertions(1)
     const ethResolver = ({
       resolve: jest.fn().mockReturnValue({

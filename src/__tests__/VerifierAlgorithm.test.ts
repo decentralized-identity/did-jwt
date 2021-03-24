@@ -190,7 +190,7 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
 
-  it('validates signature produced by blockchainAccountId - github #14, #110', async () => {
+  it('validates signature produced by blockchainAccountId - github #14, #155', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
@@ -229,7 +229,7 @@ describe('ES256K-R', () => {
     return expect(verifier(parts[1], parts[2], [ecKey1, ethAddress])).toEqual(ethAddress)
   })
 
-  it('validates signature with blockchainAccountId - github #110', async () => {
+  it('validates signature with blockchainAccountId - github #155', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)

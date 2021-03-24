@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlg from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import type { Resolver, VerificationMethod, DIDResolutionResult } from 'did-resolver'
+import type { Resolver, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -348,9 +348,21 @@ export async function resolveAuthenticator(
   if (!types || types.length === 0) {
     throw new Error(`No supported signature types for algorithm ${alg}`)
   }
-  const result: DIDResolutionResult = await resolver.resolve(issuer, { accept: DID_JSON })
-  if (result.didResolutionMetadata?.error) {
-    const { error, message } = result.didResolutionMetadata
+  let didResult: DIDResolutionResult
+
+  const result = (await resolver.resolve(issuer, { accept: DID_JSON })) as unknown
+  if (Object.getOwnPropertyNames(result).indexOf('didDocument') === -1) {
+    didResult = {
+      didDocument: result as DIDDocument,
+      didDocumentMetadata: {},
+      didResolutionMetadata: { contentType: DID_JSON }
+    }
+  } else {
+    didResult = result as DIDResolutionResult
+  }
+
+  if (didResult.didResolutionMetadata?.error) {
+    const { error, message } = didResult.didResolutionMetadata
     throw new Error(`Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
   }
 
@@ -360,11 +372,11 @@ export async function resolveAuthenticator(
   }
 
   let publicKeysToCheck: VerificationMethod[] = [
-    ...(result?.didDocument?.verificationMethod || []),
-    ...(result?.didDocument?.publicKey || [])
+    ...(didResult?.didDocument?.verificationMethod || []),
+    ...(didResult?.didDocument?.publicKey || [])
   ]
   if (auth) {
-    publicKeysToCheck = (result.didDocument.authentication || [])
+    publicKeysToCheck = (didResult.didDocument.authentication || [])
       .map((authEntry) => {
         if (typeof authEntry === 'string') {
           return getPublicKeyById(publicKeysToCheck, authEntry)
@@ -388,5 +400,5 @@ export async function resolveAuthenticator(
   if (!authenticators || authenticators.length === 0) {
     throw new Error(`DID document for ${issuer} does not have public keys for ${alg}`)
   }
-  return { authenticators, issuer, didResolutionResult: result }
+  return { authenticators, issuer, didResolutionResult: didResult }
 }
