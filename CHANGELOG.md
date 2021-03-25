@@ -1,3 +1,10 @@
+## [5.1.1](https://github.com/decentralized-identity/did-jwt/compare/5.1.0...5.1.1) (2021-03-25)
+
+
+### Bug Fixes
+
+* simplify expected Resolver type in verify methods ([#159](https://github.com/decentralized-identity/did-jwt/issues/159)) ([969de89](https://github.com/decentralized-identity/did-jwt/commit/969de8942c95ed8e82d092685ac3586c18c19d25)), closes [#158](https://github.com/decentralized-identity/did-jwt/issues/158)
+
 # [5.1.0](https://github.com/decentralized-identity/did-jwt/compare/5.0.2...5.1.0) (2021-03-24)
 
 
