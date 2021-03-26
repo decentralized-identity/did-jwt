@@ -4142,10 +4142,10 @@ did-resolver@^1.0.0:
   resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-1.1.0.tgz#27a63b6f2aa8dee3d622cd8b8b47360661e24f1e"
   integrity sha512-Q02Sc5VuQnJzzR8fQ/DzyCHiYb31WpQdocOsxppI66wwT4XalYRDeCr3a48mL6sYPQo76AkBh0mxte9ZBuQzxA==
 
-did-resolver@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.0.2.tgz#c44750b1b6536d8ea30298d1cfb3fba9eb97e5a9"
-  integrity sha512-1RpCnyjHrCNuUuMwJusuKtl9K7DX61uP3PHZ1qyKWflCBA9Tec+wrTDhJsCA3wQyWNRVfRn0tlhEn3z6tS53lg==
+did-resolver@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.1.0.tgz#84f0e3d16abe9711dc04c34a5a0e2f63868c9611"
+  integrity sha512-uf3/4LfHoDn3Ek8bFegO72OemHMytBhAkud6CA1HlB5I0iVwrCpG4oh+DA6DXUuBdhrA0cY4cGz1D0VNDTlgnw==
 
 diff-sequences@^26.5.0:
   version "26.5.0"

@@ -4,8 +4,7 @@ import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
-import type { VerificationMethod, Resolver } from 'did-resolver'
-import { Public } from './JWT'
+import type { VerificationMethod, Resolvable } from 'did-resolver'
 
 function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
   const cipher = new XChaCha20Poly1305(key)
@@ -79,7 +78,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
-export async function resolveX25519Encrypters(dids: string[], resolver: Public<Resolver>): Promise<Encrypter[]> {
+export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
   return Promise.all(
     dids.map(async (did) => {
       const { didResolutionMetadata, didDocument } = await resolver.resolve(did)

@@ -1,7 +1,7 @@
 import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlg from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import type { Resolver, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
+import type { Resolvable, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -16,14 +16,12 @@ export interface JWTOptions {
   expiresIn?: number
 }
 
-export type Public<T> = { [P in keyof T]: T[P] }
-
 export interface JWTVerifyOptions {
   /** @deprecated Please use `proofPurpose: 'authentication' instead` */
   auth?: boolean
   audience?: string
   callbackUrl?: string
-  resolver?: Public<Resolver>
+  resolver?: Resolvable
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
@@ -350,7 +348,7 @@ export async function verifyJWT(
  *  @return   {Promise<DIDAuthenticator>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
  */
 export async function resolveAuthenticator(
-  resolver: Public<Resolver>,
+  resolver: Resolvable,
   alg: string,
   issuer: string,
   proofPurpose?: string
