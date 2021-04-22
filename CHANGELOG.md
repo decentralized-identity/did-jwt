@@ -1,3 +1,10 @@
+# [5.2.0](https://github.com/decentralized-identity/did-jwt/compare/5.1.2...5.2.0) (2021-04-22)
+
+
+### Features
+
+* add support for secp256k1 publicKeyJwk ([#160](https://github.com/decentralized-identity/did-jwt/issues/160)) ([1d578ba](https://github.com/decentralized-identity/did-jwt/commit/1d578ba9ab6afc48c9b7449ce3e495cd7a4d8449))
+
 ## [5.1.2](https://github.com/decentralized-identity/did-jwt/compare/5.1.1...5.1.2) (2021-03-26)
 
 
