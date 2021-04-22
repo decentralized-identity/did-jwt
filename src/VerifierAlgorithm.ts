@@ -32,6 +32,15 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1') {
+    return hexToBytes(
+      secp256k1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y))
+        })
+        .getPublic('hex')
+    )
   }
   return new Uint8Array()
 }

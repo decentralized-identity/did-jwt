@@ -3,7 +3,7 @@ import { createJWT } from '../JWT'
 import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
-import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes } from '../util'
+import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
@@ -36,6 +36,12 @@ const publicKey = String(kp.getPublic('hex'))
 const compressedPublicKey = String(kp.getPublic().encode('hex', true))
 const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
 const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
+const publicKeyJwk = {
+  crv: 'secp256k1',
+  kty: 'EC',
+  x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
+  y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex')))
+}
 const address = toEthereumAddress(publicKey)
 const signer = ES256KSigner(privateKey)
 const recoverySigner = ES256KSigner(privateKey, true)
@@ -154,6 +160,15 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
 
+  it('validates with publicKeyJwk', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyJwk }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
   it('validates signature with compressed public key and picks correct public key', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
@@ -257,6 +272,15 @@ describe('ES256K-R', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
+    delete pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyJwk', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyJwk }, ecKey2)
     delete pubkey.publicKeyHex
     return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
