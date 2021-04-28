@@ -207,7 +207,6 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid })
-        console.log('JWE: ' + JSON.stringify(jwe))
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -216,7 +215,6 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid })
-        console.log('JWE: ' + JSON.stringify(jwe))
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -225,7 +223,6 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' })
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid, more: 'protected' })
-        console.log('JWE: ' + JSON.stringify(jwe))
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -236,67 +233,66 @@ describe('JWE', () => {
         expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid, more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
-        console.log('JWE: ' + JSON.stringify(jwe))
         delete jwe.aad
         await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')        
       })
     })
 
-  //   describe('Multiple recipients', () => {
-  //     let pubkey1, secretkey1, pubkey2, secretkey2, cleartext
-  //     let encrypter1, decrypter1, encrypter2, decrypter2
+    describe('Multiple recipients', () => {
+      let cleartext, recipientKey1, recipientKey2, senderKey, encrypter1,
+          encrypter2, decrypter1, decrypter2
+      let kid1 = 'did:example:receiver1#key-1'
+      let kid2 = 'did:example:receiver2#key-1'
+      let skid = 'did:example:sender#key-1'
 
-  //     beforeEach(() => {
-  //       secretkey1 = randomBytes(32)
-  //       pubkey1 = generateKeyPairFromSeed(secretkey1).publicKey
-  //       secretkey2 = randomBytes(32)
-  //       pubkey2 = generateKeyPairFromSeed(secretkey2).publicKey
-  //       cleartext = u8a.fromString('my secret message')
-  //       encrypter1 = x25519Encrypter(pubkey1)
-  //       decrypter1 = x25519Decrypter(secretkey1)
-  //       encrypter2 = x25519Encrypter(pubkey2)
-  //       decrypter2 = x25519Decrypter(secretkey2)
-  //     })
+      beforeEach(() => {
+        senderKey = generateKeyPairFromSeed(randomBytes(32))        
+        recipientKey1 = generateKeyPairFromSeed(randomBytes(32))
+        recipientKey2 = generateKeyPairFromSeed(randomBytes(32))        
+        cleartext = u8a.fromString('my secret message')
+        encrypter1 = x25519AuthEncrypter(recipientKey1.publicKey, senderKey.secretKey, kid1, skid)
+        encrypter2 = x25519AuthEncrypter(recipientKey2.publicKey, senderKey.secretKey, kid2, skid)
+        decrypter1 = x25519AuthDecrypter(recipientKey1.secretKey, senderKey.publicKey)
+        decrypter2 = x25519AuthDecrypter(recipientKey2.secretKey, senderKey.publicKey)
+      })
 
-  //     it('Creates with only ciphertext', async () => {
-  //       expect.assertions(4)
-  //       const jwe = await createJWE(cleartext, [encrypter1, encrypter2])
-  //       expect(jwe.aad).toBeUndefined()
-  //       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
-  //       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
-  //       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
-  //     })
+      it('Creates with only ciphertext', async () => {
+        expect.assertions(4)
+        const jwe = await createJWE(cleartext, [encrypter1, encrypter2])
+        expect(jwe.aad).toBeUndefined()
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid })
+        expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
+        expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
+      })
 
-  //     it('Creates with data in protected header', async () => {
-  //       expect.assertions(4)
-  //       const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' })
-  //       expect(jwe.aad).toBeUndefined()
-  //       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
-  //       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
-  //       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
-  //     })
+      it('Creates with data in protected header', async () => {
+        expect.assertions(4)
+        const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' })
+        expect(jwe.aad).toBeUndefined()
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid, more: 'protected' })
+        expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
+        expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
+      })
 
-  //     it('Creates with aad', async () => {
-  //       expect.assertions(6)
-  //       const aad = u8a.fromString('this data is authenticated')
-  //       const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' }, aad)
-  //       expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
-  //       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
-  //       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
-  //       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
-  //       delete jwe.aad
-  //       await expect(decryptJWE(jwe, decrypter1)).rejects.toThrowError('Failed to decrypt')
-  //       await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')
-  //     })
+      it('Creates with aad', async () => {
+        expect.assertions(6)
+        const aad = u8a.fromString('this data is authenticated')
+        const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' }, aad)
+        expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid: skid, more: 'protected' })
+        expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
+        expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
+        delete jwe.aad
+        await expect(decryptJWE(jwe, decrypter1)).rejects.toThrowError('Failed to decrypt')
+        await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')
+      })
 
-  //     it('Incompatible encrypters throw', async () => {
-  //       expect.assertions(1)
-  //       const enc1 = { enc: 'cool enc alg1' } as Encrypter
-  //       const enc2 = { enc: 'cool enc alg2' } as Encrypter
-  //       await expect(createJWE(cleartext, [enc1, enc2])).rejects.toThrowError('Incompatible encrypters passed')
-  //     })
-  //   })
-  // })
-})
-
+      it('Incompatible encrypters throw', async () => {
+        expect.assertions(1)
+        const enc1 = { enc: 'cool enc alg1' } as Encrypter
+        const enc2 = { enc: 'cool enc alg2' } as Encrypter
+        await expect(createJWE(cleartext, [enc1, enc2])).rejects.toThrowError('Incompatible encrypters passed')
+      })
+    })
+  })
 })

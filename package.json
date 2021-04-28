@@ -30,7 +30,8 @@
   "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
   "contributors": [
     "Mircea Nistor <mircea.nistor@consensys.net>",
-    "Joel Thorstensson <oed@3box.io>"
+    "Joel Thorstensson <oed@3box.io>",
+    "Oliver Terbu <oliver.terbu@mesh.xyz>"
   ],
   "repository": {
     "type": "git",
