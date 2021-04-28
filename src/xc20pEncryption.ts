@@ -112,6 +112,9 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
       }
     }
     if (kid) recipient.header.kid = kid
+    if (apu) recipient.header.apu = apu
+    if (apv) recipient.header.apv = apv
+
     return recipient
   }
   async function encrypt(cleartext, protectedHeader = {}, aad?): Promise<EncryptionResult> {
@@ -202,7 +205,7 @@ export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublic
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg)
+    const kek = concatKDF(sharedSecret, keyLen, alg, recipient.header.apu, recipient.header.apv)
     // Content Encryption Key
     const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
     const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
