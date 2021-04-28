@@ -81,7 +81,8 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
-export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, kid?: string, skid?: string): Encrypter {
+export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
+                                    kid?: string, skid?: string, apu?: string, apv?:string): Encrypter {
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
@@ -98,7 +99,7 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg)
+    const kek = concatKDF(sharedSecret, keyLen, alg, apu, apv)
 
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
