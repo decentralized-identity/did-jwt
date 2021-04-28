@@ -81,6 +81,52 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
+export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, kid?: string, skid?: string): Encrypter {
+  const alg = 'ECDH-1PU+XC20PKW'
+  const keyLen = 256
+  const crv = 'X25519'
+  async function encryptCek(cek): Promise<Recipient> {
+    const epk = generateKeyPair()
+    const zE = sharedKey(epk.secretKey, recipientPublicKey)
+
+    // ECDH-1PU requires additional shared secret between 
+    // static key of sender and static key of recipient
+    const zS = sharedKey(senderSecretKey, recipientPublicKey)
+    
+    var sharedSecret = new Uint8Array(zE.length + zS.length);
+    sharedSecret.set(zE);
+    sharedSecret.set(zS, zE.length);
+
+    // Key Encryption Key
+    const kek = concatKDF(sharedSecret, keyLen, alg)
+
+    const res = xc20pEncrypter(kek)(cek)
+    const recipient: Recipient = {
+      encrypted_key: bytesToBase64url(res.ciphertext),
+      header: {
+        alg,
+        iv: bytesToBase64url(res.iv),
+        tag: bytesToBase64url(res.tag),
+        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
+      }
+    }
+    if (kid) recipient.header.kid = kid
+    return recipient
+  }
+  async function encrypt(cleartext, protectedHeader = {}, aad?): Promise<EncryptionResult> {
+    // we won't want alg to be set to dir from xc20pDirEncrypter
+    Object.assign(protectedHeader, { alg: undefined, skid: skid })
+    // Content Encryption Key
+    const cek = randomBytes(32)
+    return {
+      ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
+      recipient: await encryptCek(cek),
+      cek
+    }
+  }
+  return { alg, enc: 'XC20P', encrypt, encryptCek }
+}
+
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
   const encryptersForDID = async (did): Promise<Encrypter[]> => {
     const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
@@ -124,6 +170,35 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
     if (recipient.header.epk.crv !== crv) return null
     const publicKey = base64ToBytes(recipient.header.epk.x)
     const sharedSecret = sharedKey(secretKey, publicKey)
+
+    // Key Encryption Key
+    const kek = concatKDF(sharedSecret, keyLen, alg)
+    // Content Encryption Key
+    const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
+    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
+    if (cek === null) return null
+
+    return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
+  }
+  return { alg, enc: 'XC20P', decrypt }
+}
+
+export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
+  const alg = 'ECDH-1PU+XC20PKW'
+  const keyLen = 256
+  const crv = 'X25519'
+  async function decrypt(sealed, iv, aad, recipient): Promise<Uint8Array> {
+    validateHeader(recipient.header)
+    if (recipient.header.epk.crv !== crv) return null
+    // ECDH-1PU requires additional shared secret between 
+    // static key of sender and static key of recipient
+    const publicKey = base64ToBytes(recipient.header.epk.x)
+    const zE = sharedKey(recipientSecretKey, publicKey)
+    const zS = sharedKey(recipientSecretKey, senderPublicKey)
+    
+    var sharedSecret = new Uint8Array(zE.length + zS.length);
+    sharedSecret.set(zE);
+    sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
     const kek = concatKDF(sharedSecret, keyLen, alg)
