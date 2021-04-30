@@ -2,6 +2,7 @@ import VerifierAlgorithm from './VerifierAlgorithm'
 import SignerAlg from './SignerAlgorithm'
 import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
 import type { Resolvable, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
+import stringify from 'json-stable-stringify';
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -123,7 +124,7 @@ const defaultAlg = 'ES256K'
 const DID_JSON = 'application/did+json'
 
 function encodeSection(data: any): string {
-  return encodeBase64url(JSON.stringify(data))
+  return encodeBase64url(stringify(data))
 }
 
 export const NBF_SKEW: number = 300

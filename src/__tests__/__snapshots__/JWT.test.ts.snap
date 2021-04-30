@@ -6,7 +6,7 @@ exports[`JWS createJWS works with base64url payload 1`] = `"eyJhbGciOiJFUzI1Nksi
 
 exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
 Object {
-  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
+  "data": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0",
   "header": Object {
     "alg": "ES256K",
     "typ": "JWT",
@@ -19,13 +19,13 @@ Object {
       "phone",
     ],
   },
-  "signature": "tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvHJrDFQhNbSDzCP2Pe7WdXySosTCuI1T-IQ6SddcWuj_A",
+  "signature": "KeedpQ9Z1Nd1wdINmcVHdiNjWOEUf1llBVI5IRgKFGo_alOxqW6K30grzD0jkMVzQS6_xMJFFmticFgILGlVaw",
 }
 `;
 
 exports[`createJWT() ES256K creates a JWT with correct legacy format 1`] = `
 Object {
-  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
+  "data": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6IjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0",
   "header": Object {
     "alg": "ES256K",
     "typ": "JWT",
@@ -38,13 +38,13 @@ Object {
       "phone",
     ],
   },
-  "signature": "Ma6o2byDEFmLxmqxJCOXgjAPZftSglFAzzKzv-3kBUkquDPWZyVYK0-vVhH-SbyasahIuHZCDGl4jQrW7hFsAw",
+  "signature": "RMxZj8vDH151eumt-M147Ok-XkVpP7k3QYTMe7eCSzronyqSzww5V4UOMMrZkWy1hH7TFNv9_aqV50Xf1B8fTQ",
 }
 `;
 
 exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
 Object {
-  "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
+  "data": "eyJhbGciOiJFZDI1NTE5IiwidHlwIjoiSldUIn0.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpuYWNsOkJ2ckI4aUpBel8xamZxMW1SeGlFS2ZyOXFjbkxmcTVET0dyQmYyRVJVSFUiLCJyZXF1ZXN0ZWQiOlsibmFtZSIsInBob25lIl19",
   "header": Object {
     "alg": "Ed25519",
     "typ": "JWT",
@@ -57,7 +57,7 @@ Object {
       "phone",
     ],
   },
-  "signature": "ZoPf01SxW2n5zngunI942FpviEMP6jBZZb9NJ27M_K7AcmjPeeLH8bm2lv0INmJ2u98JVSzELF8YLWQvPYB1Bw",
+  "signature": "MMjmWLR1YShMF5MneteDmzOOEUxAzV2UWkDxuSf12iu9gD7zj5y0-NcoqRUzvkqO-hbUU_QzT_r2nmiLXtPtAQ",
 }
 `;
 
