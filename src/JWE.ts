@@ -118,7 +118,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
   } else if (!jwe.recipients || jwe.recipients.length === 0) {
     throw new Error('Invalid JWE')
   } else {
-    for (let i = 0; !cleartext && i < jwe.recipients.length; i++) {
+    for (let i = 0; !cleartext && i < jwe.recipients.length; i++) {      
       const recipient = jwe.recipients[i]
       Object.assign(recipient.header, protHeader)
       if (recipient.header.alg === decrypter.alg) {

@@ -86,6 +86,11 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
+  
+  var encodedApu, encodedApv
+  if(!apu && skid) encodedApu = encodeBase64url(skid)
+  if(!apv && kid) encodedApv = encodeBase64url(kid)
+  
   async function encryptCek(cek): Promise<Recipient> {
     const epk = generateKeyPair()
     const zE = sharedKey(epk.secretKey, recipientPublicKey)
@@ -94,12 +99,12 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
     // static key of sender and static key of recipient
     const zS = sharedKey(senderSecretKey, recipientPublicKey)
     
-    var sharedSecret = new Uint8Array(zE.length + zS.length);
+    let sharedSecret = new Uint8Array(zE.length + zS.length);
     sharedSecret.set(zE);
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg, apu, apv)
+    const kek = concatKDF(sharedSecret, keyLen, alg, encodedApu, encodedApv)
 
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
@@ -112,8 +117,8 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
       }
     }
     if (kid) recipient.header.kid = kid
-    if (apu) recipient.header.apu = apu
-    if (apv) recipient.header.apv = apv
+    if (encodedApu) recipient.header.apu = encodedApu
+    if (encodedApv) recipient.header.apv = encodedApv
 
     return recipient
   }
@@ -200,7 +205,7 @@ export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublic
     const zE = sharedKey(recipientSecretKey, publicKey)
     const zS = sharedKey(recipientSecretKey, senderPublicKey)
     
-    var sharedSecret = new Uint8Array(zE.length + zS.length);
+    let sharedSecret = new Uint8Array(zE.length + zS.length);
     sharedSecret.set(zE);
     sharedSecret.set(zS, zE.length);
 
