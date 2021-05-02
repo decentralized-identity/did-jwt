@@ -2,58 +2,86 @@ import { decryptJWE, createJWE, Encrypter } from '../JWE'
 import vectors from './jwe-vectors.js'
 import { xc20pDirEncrypter, xc20pDirDecrypter, x25519Encrypter, x25519Decrypter,
          x25519AuthEncrypter, x25519AuthDecrypter } from '../xc20pEncryption'
-import { decodeBase64url } from '../util'
+import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
 
 describe('JWE', () => {
   describe('decryptJWE', () => {
-    describe('ECDH-ES (X25519), Direct Mode with XChacha20Poly1305 content encryption', () => {
-      test.each(vectors.dir.pass)('decrypts valid jwe', async ({ key, cleartext, jwe }) => {
+    describe('ECDH-ES (X25519), Direct Mode with XC20P content encryption', () => {
+      test.each(vectors.ecdhEsXc20p.pass)('decrypts valid jwe', async ({ key, cleartext, jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(u8a.fromString(key, 'base64pad'))
         const cleartextU8a = await decryptJWE(jwe, decrypter)
         expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
       })
 
-      test.each(vectors.dir.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
+      test.each(vectors.ecdhEsXc20p.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(u8a.fromString(key, 'base64pad'))
         await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
 
-      test.each(vectors.dir.invalid)('throws on invalid jwe', async ({ jwe }) => {
+      test.each(vectors.ecdhEsXc20p.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(randomBytes(32))
         await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
       })
     })
 
-    describe('ECDH-ES+XC20PKW (X25519), Key Wrapping Mode with with XChacha20Poly1305 content encryption', () => {
-      test.each(vectors.x25519.pass)('decrypts valid jwe', async ({ key, cleartext, jwe }) => {
+    describe('ECDH-ES+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
+      test.each(vectors.ecdhEsXc20Pkw.pass)('decrypts valid jwe', async ({ key, cleartext, jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(u8a.fromString(key, 'base64pad'))
         const cleartextU8a = await decryptJWE(jwe as any, decrypter)
         expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
       })
 
-      test.each(vectors.x25519.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
+      test.each(vectors.ecdhEsXc20Pkw.fail)('fails to decrypt bad jwe', async ({ key, jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(u8a.fromString(key, 'base64pad'))
         await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
 
-      test.each(vectors.x25519.invalid)('throws on invalid jwe', async ({ jwe }) => {
+      test.each(vectors.ecdhEsXc20Pkw.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(randomBytes(32))
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
+      })
+    })
+
+    describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
+      test.each(vectors.ecdh1PuXc20Pkw.pass)('decrypts valid jwe', async ({         
+        senderkey, recipientkeys, cleartext, jwe }) => {
+        expect.assertions(recipientkeys.length)
+        for(let recipientkey of recipientkeys) {
+          const decrypter = x25519AuthDecrypter(u8a.fromString(recipientkey, 'base64pad'), u8a.fromString(senderkey, 'base64pad'))
+          var cleartextU8a = await decryptJWE(jwe, decrypter)
+          expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
+        }
+      })
+
+      test.each(vectors.ecdh1PuXc20Pkw.fail)('fails to decrypt bad jwe', async ({ 
+        senderkey, recipientkeys, jwe }) => {        
+        expect.assertions(recipientkeys.length)
+        for(let recipientkey of recipientkeys) {
+          const decrypter = x25519AuthDecrypter(u8a.fromString(recipientkeys[0], 'base64pad'), u8a.fromString(senderkey, 'base64pad'),)
+          await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Failed to decrypt')  
+        }
+      })
+
+      test.each(vectors.ecdh1PuXc20Pkw.invalid)('throws on invalid jwe', async ({ 
+        jwe }) => {
+        expect.assertions(1)
+        const decrypter = x25519AuthDecrypter(randomBytes(32), randomBytes(32))
         await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
       })
     })
   })
 
   describe('createJWE', () => {
-    describe('ECDH-ES (X25519), Direct Mode with XChacha20Poly1305 content encryption', () => {
+    describe('ECDH-ES (X25519), Direct Mode with XC20P content encryption', () => {
       let key, cleartext, encrypter, decrypter
 
       beforeEach(() => {
@@ -91,7 +119,7 @@ describe('JWE', () => {
       })
     })
 
-    describe('ECDH-ES+XC20PKW (X25519), Key Wrapping Mode with XChacha20Poly1305 content encryption', () => {
+    describe('ECDH-ES+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
       describe('One recipient', () => {
         let pubkey, secretkey, cleartext, encrypter, decrypter
 
@@ -175,7 +203,7 @@ describe('JWE', () => {
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
           delete jwe.aad
           await expect(decryptJWE(jwe, decrypter1)).rejects.toThrowError('Failed to decrypt')
-          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')
+          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')        
         })
 
         it('Incompatible encrypters throw', async () => {
@@ -188,7 +216,7 @@ describe('JWE', () => {
     })
   })
 
-  describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XChacha20Poly1305 content encryption', () => {
+  describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
     describe('One recipient', () => {
       let cleartext, recipientKey, senderKey, encrypter, decrypter
       let kid = 'did:example:receiver#key-1'
