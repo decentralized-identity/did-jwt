@@ -52,7 +52,7 @@ describe('JWE', () => {
     })
 
     describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
-      test.each(vectors.ecdh1PuXc20Pkw.pass)('decrypts valid jwe', async ({         
+      test.each(vectors.ecdh1PuXc20Pkw.pass)('decrypts valid jwe', async ({
         senderkey, recipientkeys, cleartext, jwe }) => {
         expect.assertions(recipientkeys.length)
         for(let recipientkey of recipientkeys) {
@@ -63,7 +63,7 @@ describe('JWE', () => {
       })
 
       test.each(vectors.ecdh1PuXc20Pkw.fail)('fails to decrypt bad jwe', async ({ 
-        senderkey, recipientkeys, jwe }) => {        
+        senderkey, recipientkeys, jwe }) => {
         expect.assertions(recipientkeys.length)
         for(let recipientkey of recipientkeys) {
           const decrypter = x25519AuthDecrypter(u8a.fromString(recipientkey, 'base64pad'), u8a.fromString(senderkey, 'base64pad'),)
@@ -222,7 +222,7 @@ describe('JWE', () => {
 
       beforeEach(() => {
         recipientKey = generateKeyPairFromSeed(randomBytes(32))
-        senderKey = generateKeyPairFromSeed(randomBytes(32))        
+        senderKey = generateKeyPairFromSeed(randomBytes(32))
         cleartext = u8a.fromString('/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==') // ('my secret message')
         decrypter = x25519AuthDecrypter(recipientKey.secretKey, senderKey.publicKey)
       })
@@ -298,7 +298,7 @@ describe('JWE', () => {
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
-        await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')        
+        await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
       })
     })
 

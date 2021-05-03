@@ -141,7 +141,7 @@ module.exports = {
     ]
   },
   ecdh1PuXc20Pkw: {
-    pass: [      
+    pass: [
       {
         senderkey: 'HdmW0L3OqwfexSG163ejwIfGkFrsuNhRZjof2kTrWRY=',
         recipientkeys: [ 'O6njObW/PQ/RAPtQz9gCDigp05xA7agTuKfZm5eJJIs=' ],
