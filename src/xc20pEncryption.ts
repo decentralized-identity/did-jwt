@@ -94,9 +94,10 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
   const crv = 'X25519'
 
   // It is RECOMMENDED by the ECDH-1PU spec to set apu and apv 
-  // to base64url encoded kid and base64url encoded skid. If
-  // not provided, PartyVInfo and PartyUInfo should contain
-  // the base64url decoded skid/kid in case no apu/apv was provided.
+  // to base64url encoded kid and base64url encoded skid in the
+  // recipient header. For the KDF, if no apu and apv is provided,
+  // it is RECOMMENDED that PartyVInfo and PartyUInfo contain
+  // the base64url decoded skid and kid.
   function setPartyInfo(partyInfo, fallback): { encoded: string, raw: Uint8Array } {
     if (typeof partyInfo === 'undefined') {
       return (typeof fallback !== 'undefined') ? 
