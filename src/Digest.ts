@@ -32,8 +32,8 @@ export function concatKDF(secret: Uint8Array, keyLen: number, alg: string, produ
   if (keyLen !== 256) throw new Error(`Unsupported key length: ${keyLen}`)
   const value = u8a.concat([
     lengthAndInput(u8a.fromString(alg)),    
-    lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo),
-    lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo),
+    lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo), // apu
+    lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo), // apv
     writeUint32BE(keyLen)
   ])
 
