@@ -223,7 +223,7 @@ describe('JWE', () => {
       beforeEach(() => {
         recipientKey = generateKeyPairFromSeed(randomBytes(32))
         senderKey = generateKeyPairFromSeed(randomBytes(32))
-        cleartext = u8a.fromString('/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==') // ('my secret message')
+        cleartext = u8a.fromString('my secret message')
         decrypter = x25519AuthDecrypter(recipientKey.secretKey, senderKey.publicKey)
       })
 
@@ -309,7 +309,7 @@ describe('JWE', () => {
 
       beforeEach(() => {
         senderkey = generateKeyPairFromSeed(randomBytes(32))
-        cleartext = u8a.fromString('/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==')//('my secret message')
+        cleartext = u8a.fromString('my secret message')
 
         recipients[0] = { kid: 'did:example:receiver1#key-1', recipientkey: generateKeyPairFromSeed(randomBytes(32)) }
         recipients[0] = { ...recipients[0], ...{ 
