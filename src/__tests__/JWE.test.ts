@@ -203,7 +203,7 @@ describe('JWE', () => {
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
           delete jwe.aad
           await expect(decryptJWE(jwe, decrypter1)).rejects.toThrowError('Failed to decrypt')
-          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')        
+          await expect(decryptJWE(jwe, decrypter2)).rejects.toThrowError('Failed to decrypt')
         })
 
         it('Incompatible encrypters throw', async () => {
