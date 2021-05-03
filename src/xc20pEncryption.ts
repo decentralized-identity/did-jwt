@@ -137,9 +137,9 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
         epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
       }
     }
-    if (typeof options.kid !== 'undefined') recipient.header.kid = options.kid
-    if (typeof partyUInfo.encoded !== 'undefined') recipient.header.apu = partyUInfo.encoded
-    if (typeof partyVInfo.encoded !== 'undefined') recipient.header.apv = partyVInfo.encoded
+    if (options.kid) recipient.header.kid = options.kid
+    if (partyUInfo.encoded) recipient.header.apu = partyUInfo.encoded
+    if (partyVInfo.encoded) recipient.header.apv = partyVInfo.encoded
 
     return recipient
   }
