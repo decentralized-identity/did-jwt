@@ -1,6 +1,7 @@
 import { hash } from '@stablelib/sha256'
 import * as u8a from 'uint8arrays'
 import { keccak_256 } from 'js-sha3' // eslint-disable-line
+import { decodeBase64url } from './util'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
@@ -27,12 +28,12 @@ const lengthAndInput = (input: Uint8Array): Uint8Array => u8a.concat([writeUint3
 // This implementation of concatKDF was inspired by these two implementations:
 // https://github.com/digitalbazaar/minimal-cipher/blob/master/algorithms/ecdhkdf.js
 // https://github.com/panva/jose/blob/master/lib/jwa/ecdh/derive.js
-export function concatKDF(secret: Uint8Array, keyLen: number, alg: string, apu?:string, apv?:string): Uint8Array {
+export function concatKDF(secret: Uint8Array, keyLen: number, alg: string, producerInfo?:Uint8Array, consumerInfo?:Uint8Array): Uint8Array {
   if (keyLen !== 256) throw new Error(`Unsupported key length: ${keyLen}`)
   const value = u8a.concat([
-    lengthAndInput(u8a.fromString(alg)),
-    lengthAndInput((apu == undefined) ? new Uint8Array(0) : u8a.fromString(apu)),
-    lengthAndInput((apv == undefined) ? new Uint8Array(0) : u8a.fromString(apv)),
+    lengthAndInput(u8a.fromString(alg)),    
+    lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo),
+    lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo),
     writeUint32BE(keyLen)
   ])
 

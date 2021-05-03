@@ -2,9 +2,10 @@ import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
+import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, decodeBase64url } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
+import { fromString } from 'uint8arrays'
 
 // remove when targeting node 11+ or ES2019
 const flatten = <T>(arrays: T[]) => [].concat.apply([], arrays)
@@ -81,16 +82,38 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
+export type X25519AuthEncryptParams = {
+  kid?: string,
+  skid?: string,
+  apu?: string,
+  apv?: string
+}
+
 export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
-                                    kid?: string, skid?: string, apu?: string, apv?:string): Encrypter {
+  options: Partial<X25519AuthEncryptParams> = {}): Encrypter {
+
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
-  
-  var encodedApu, encodedApv
-  if(!apu && skid) encodedApu = encodeBase64url(skid)
-  if(!apv && kid) encodedApv = encodeBase64url(kid)
-  
+
+  // It is RECOMMENDED by the ECDH-1PU spec to set apu and apv 
+  // to base64url encoded kid and base64url encoded skid. If
+  // not provided, PartyVInfo and PartyUInfo should contain
+  // the base64url decoded skid/kid in case no apu/apv was provided.
+  function setPartyInfo(partyInfo, fallback): { encoded: string, raw: Uint8Array } {
+    if (typeof partyInfo === 'undefined') {
+      return (typeof fallback !== 'undefined') ? 
+        { encoded: encodeBase64url(fallback), raw: fromString(fallback) } :
+         { encoded: undefined, raw: undefined }
+    } else {
+      return {
+        encoded: encodeBase64url(partyInfo), raw: fromString(partyInfo)
+      }
+    }
+  }
+  const partyUInfo = setPartyInfo(options.apu, options.skid)
+  const partyVInfo = setPartyInfo(options.apv, options.kid)
+
   async function encryptCek(cek): Promise<Recipient> {
     const epk = generateKeyPair()
     const zE = sharedKey(epk.secretKey, recipientPublicKey)
@@ -104,7 +127,7 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg, encodedApu, encodedApv)
+    const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo.raw, partyVInfo.raw)
 
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
@@ -116,15 +139,15 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
         epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
       }
     }
-    if (kid) recipient.header.kid = kid
-    if (encodedApu) recipient.header.apu = encodedApu
-    if (encodedApv) recipient.header.apv = encodedApv
+    if (typeof options.kid !== 'undefined') recipient.header.kid = options.kid
+    if (typeof partyUInfo.encoded !== 'undefined') recipient.header.apu = partyUInfo.encoded
+    if (typeof partyVInfo.encoded !== 'undefined') recipient.header.apv = partyVInfo.encoded
 
     return recipient
   }
   async function encrypt(cleartext, protectedHeader = {}, aad?): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
-    Object.assign(protectedHeader, { alg: undefined, skid: skid })
+    Object.assign(protectedHeader, { alg: undefined, skid: options.skid })
     // Content Encryption Key
     const cek = randomBytes(32)
     return {
@@ -210,7 +233,11 @@ export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublic
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg, recipient.header.apu, recipient.header.apv)
+    let producerInfo, consumerInfo
+    if (recipient.header.apu) producerInfo = fromString(decodeBase64url(recipient.header.apu))
+    if (recipient.header.apv) consumerInfo = fromString(decodeBase64url(recipient.header.apv))    
+
+    const kek = concatKDF(sharedSecret, keyLen, alg, producerInfo, consumerInfo)
     // Content Encryption Key
     const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
     const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
