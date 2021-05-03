@@ -1,7 +1,6 @@
 import { createJWT, verifyJWT, decodeJWT, createJWS, verifyJWS, resolveAuthenticator, NBF_SKEW } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import { bytesToBase64url, decodeBase64url } from '../util'
-import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
 import { VerificationMethod, Resolver } from 'did-resolver'
 import { ES256KSigner } from '../signers/ES256KSigner'
@@ -146,16 +145,18 @@ describe('createJWT()', () => {
     const alg = 'Ed25519'
 
     it('creates a valid JWT', async () => {
-      expect.assertions(1)
+      expect.assertions(2)
       const jwt = await createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer })
-      return await expect(naclVerifyJWT(jwt)).toEqual({
-        issuer: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-        payload: {
-          iat: 1485321133,
-          iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-          requested: ['name', 'phone']
-        }
-      })
+      const decodedJwt = decodeJWT(jwt);
+      expect(decodedJwt.header).toEqual({
+        "alg": "Ed25519",
+        "typ": "JWT"
+      });
+      expect(decodedJwt.payload).toEqual({
+        iat: 1485321133,
+        iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+        requested: ['name', 'phone']
+      });
       // return await expect(verifyJWT(jwt)).toBeTruthy()
     })
 

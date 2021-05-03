@@ -4137,11 +4137,6 @@ dezalgo@^1.0.0, dezalgo@~1.0.3:
     asap "^2.0.0"
     wrappy "1"
 
-did-resolver@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-1.1.0.tgz#27a63b6f2aa8dee3d622cd8b8b47360661e24f1e"
-  integrity sha512-Q02Sc5VuQnJzzR8fQ/DzyCHiYb31WpQdocOsxppI66wwT4XalYRDeCr3a48mL6sYPQo76AkBh0mxte9ZBuQzxA==
-
 did-resolver@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.1.0.tgz#84f0e3d16abe9711dc04c34a5a0e2f63868c9611"
@@ -4297,13 +4292,6 @@ ecdsa-sig-formatter@^1.0.11:
   integrity sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==
   dependencies:
     safe-buffer "^5.0.1"
-
-ed2curve-esm@^0.3.0-alpha-1:
-  version "0.3.0-alpha-1"
-  resolved "https://registry.yarnpkg.com/ed2curve-esm/-/ed2curve-esm-0.3.0-alpha-1.tgz#67a5722ea97976c3310aeaf0990a2b58ee383aef"
-  integrity sha512-Ydrqcf0NwKUBT4gL0Nnxp8/O5NG8iatN+/zbEgs/7eMGjgSVbgfE1YfWld2qYnoNIxOQvSWOFy5uBoaL3jCanw==
-  dependencies:
-    tweetnacl "^1.0.1"
 
 editor@~1.0.0:
   version "1.0.0"
@@ -7819,16 +7807,6 @@ mute-stream@~0.0.4:
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.8.tgz#1630c42b2251ff81e2a283de96a5497ea92e5e0d"
   integrity sha512-nnbWWOkoWyUsTjKrhgD0dcz22mdkSnpYqbEjIm2nhwhuxlSkpywJmBo8h0ZqJdkp73mb90SssHkN4rsRaBAfAA==
 
-nacl-did@1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/nacl-did/-/nacl-did-1.0.1.tgz#94a253430343038c8fee3ff0ecf394b1d34fe4b2"
-  integrity sha512-eGFtGk8v04QaYYQe0Y+suC0iLarPJh4NC5z/f1+JTQh7nRvA/+5ZT4eh/dtP/JGPtUkh2TdpdeiFtMJ0DEyIKQ==
-  dependencies:
-    did-resolver "^1.0.0"
-    ed2curve-esm "^0.3.0-alpha-1"
-    tweetnacl "^1.0.1"
-    tweetnacl-util "^0.15.0"
-
 nanoid@^3.1.20:
   version "3.1.20"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.20.tgz#badc263c6b1dcf14b71efaa85f6ab4c1d6cfc788"
@@ -11062,12 +11040,7 @@ tunnel-agent@^0.6.0:
   dependencies:
     safe-buffer "^5.0.1"
 
-tweetnacl-util@^0.15.0:
-  version "0.15.1"
-  resolved "https://registry.yarnpkg.com/tweetnacl-util/-/tweetnacl-util-0.15.1.tgz#b80fcdb5c97bcc508be18c44a4be50f022eea00b"
-  integrity sha512-RKJBIj8lySrShN4w6i/BonWp2Z/uxwC3h4y7xsRrpP59ZboCd0GpEVsOnMDYLMmKBpYhb5TgHzZXy7wTfYFBRw==
-
-tweetnacl@1.0.3, tweetnacl@^1.0.1:
+tweetnacl@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==
