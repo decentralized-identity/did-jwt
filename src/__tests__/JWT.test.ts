@@ -143,21 +143,34 @@ describe('createJWT()', () => {
     const did = 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU'
     const signer = EdDSASigner(ed25519PrivateKey)
     const alg = 'Ed25519'
+    const resolver = {
+      resolve: jest.fn().mockReturnValue({
+        didDocumentMetadata: {},
+        didResolutionMetadata: {},
+        didDocument: {
+          id: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+          publicKey: [
+            {
+              id: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1',
+              type: 'ED25519SignatureVerification',
+              owner: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+              publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
+            }
+          ],
+          authentication: []
+        }
+      })
+    }
 
-    it('creates a valid JWT', async () => {
-      expect.assertions(2)
+    it('creates a valid JWT with did:nacl issuer', async () => {
+      expect.assertions(1)
       const jwt = await createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer })
-      const decodedJwt = decodeJWT(jwt);
-      expect(decodedJwt.header).toEqual({
-        "alg": "Ed25519",
-        "typ": "JWT"
-      });
-      expect(decodedJwt.payload).toEqual({
+      const { payload } = await verifyJWT(jwt, { resolver })
+      expect(payload).toEqual({
         iat: 1485321133,
         iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
         requested: ['name', 'phone']
-      });
-      // return await expect(verifyJWT(jwt)).toBeTruthy()
+      })
     })
 
     it('creates a JWT with correct format', async () => {
