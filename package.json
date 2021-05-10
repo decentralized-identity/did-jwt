@@ -64,7 +64,7 @@
     "jsontokens": "3.0.0",
     "microbundle": "0.13.0",
     "mockdate": "3.0.5",
-    "prettier": "2.2.1",
+    "prettier": "2.3.0",
     "regenerator-runtime": "0.13.7",
     "semantic-release": "17.4.2",
     "sinon": "10.0.0",
