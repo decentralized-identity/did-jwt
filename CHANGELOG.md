@@ -1,3 +1,10 @@
+# [5.3.0](https://github.com/decentralized-identity/did-jwt/compare/5.2.0...5.3.0) (2021-05-11)
+
+
+### Features
+
+* use multiple keyAgreementKeys when creating JWE ([#166](https://github.com/decentralized-identity/did-jwt/issues/166)) ([e327ef2](https://github.com/decentralized-identity/did-jwt/commit/e327ef2a2af6f351079374c75fd473e3d9f38c74))
+
 # [5.2.0](https://github.com/decentralized-identity/did-jwt/compare/5.1.2...5.2.0) (2021-04-22)
 
 
