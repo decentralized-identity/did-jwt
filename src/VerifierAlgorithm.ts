@@ -1,3 +1,4 @@
+import * as rsa from 'node-rsa';
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
@@ -132,6 +133,21 @@ export function verifyEd25519(
   return signer
 }
 
+export function verifyRSA(
+  data: string,
+  signature: string,
+  authenticators: VerificationMethod[]
+): VerificationMethod {
+  const clear: Uint8Array = stringToBytes(data)
+  const sig: Uint8Array = base64ToBytes(signature)
+  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+    const key = rsa.importKey(pk)
+    return key.verify(clear, sig)
+  })
+  if (!signer) throw new Error('Signature invalid for JWT')
+  return signer
+}
+
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
 interface Algorithms {
   [name: string]: Verifier
@@ -144,7 +160,8 @@ const algorithms: Algorithms = {
   // This is actually incorrect but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: verifyEd25519,
-  EdDSA: verifyEd25519
+  EdDSA: verifyEd25519,
+  RSA: verifyRSA,
 }
 
 function VerifierAlgorithm(alg: string): Verifier {
