@@ -5,7 +5,6 @@ function instanceOfEcdsaSignature(object: any): object is EcdsaSignature {
   return typeof object === 'object' && 'r' in object && 's' in object
 }
 
-
 export function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
     const signature: EcdsaSignature | string = await signer(payload)
@@ -37,7 +36,12 @@ export function Ed25519SignerAlg(): SignerAlgorithm {
  */
 export function RSASignerAlg(): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
-    const signature: any = await signer(payload)
+    let signature
+    try {
+      signature = await signer(payload)
+    } catch (e) {
+      console.log(e)
+    }
     if (signature) {
       return signature
     } else {
@@ -59,7 +63,7 @@ const algorithms: SignerAlgorithms = {
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: Ed25519SignerAlg(),
   EdDSA: Ed25519SignerAlg(),
-  RSA: RSASignerAlg(),
+  RSA: RSASignerAlg()
 }
 
 function SignerAlg(alg: string): SignerAlgorithm {

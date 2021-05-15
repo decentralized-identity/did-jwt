@@ -186,7 +186,6 @@ export async function createJWS(
   if (!header.alg) header.alg = defaultAlg
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
   const signingInput: string = [encodeSection(header), encodedPayload].join('.')
-
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
   return [signingInput, signature].join('.')
