@@ -1,3 +1,10 @@
+## [5.3.1](https://github.com/decentralized-identity/did-jwt/compare/5.3.0...5.3.1) (2021-05-15)
+
+
+### Bug Fixes
+
+* add repository to package.json ([#167](https://github.com/decentralized-identity/did-jwt/issues/167)) ([5ecbb32](https://github.com/decentralized-identity/did-jwt/commit/5ecbb322375e5eb998d6a8f2116b0980a997915e))
+
 # [5.3.0](https://github.com/decentralized-identity/did-jwt/compare/5.2.0...5.3.0) (2021-05-11)
 
 
