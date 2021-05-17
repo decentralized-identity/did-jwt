@@ -173,12 +173,32 @@ describe('createJWT()', () => {
       })
     })
 
-    it('creates a jwt in a stable way', async () => {
+    it('can create a jwt in the default non-canonical way', async () => {
       expect.assertions(1)
       // Same payload, slightly different ordering
-      const jwtA = await createJWT({ reason: 'verification', requested: ['name', 'phone'] }, { alg, issuer: did, signer })
-      const jwtB = await createJWT({ requested: ['name', 'phone'], reason: 'verification', }, { alg, issuer: did, signer })
-      expect(jwtA).toEqual(jwtB);
+      const jwtA = await createJWT(
+        { reason: 'verification', requested: ['name', 'phone'] },
+        { alg, issuer: did, signer }
+      )
+      const jwtB = await createJWT(
+        { requested: ['name', 'phone'], reason: 'verification' },
+        { alg, issuer: did, signer }
+      )
+      expect(jwtA).not.toEqual(jwtB)
+    })
+
+    it('can create a jwt in a canonical way', async () => {
+      expect.assertions(1)
+      // Same payload, slightly different ordering
+      const jwtA = await createJWT(
+        { reason: 'verification', requested: ['name', 'phone'] },
+        { alg, issuer: did, signer, canonicalize: true }
+      )
+      const jwtB = await createJWT(
+        { requested: ['name', 'phone'], reason: 'verification' },
+        { alg, issuer: did, signer, canonicalize: true }
+      )
+      expect(jwtA).toEqual(jwtB)
     })
 
     it('creates a JWT with correct format', async () => {
@@ -528,6 +548,14 @@ describe('JWS', () => {
     const jws = await createJWS(payload, signer)
     expect(jws).toMatchSnapshot()
     expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(payload)
+  })
+
+  it('createJWS can canonicalize a JSON payload', async () => {
+    expect.assertions(2)
+    const payload = { z: 'z', a: 'a' }
+    const jws = await createJWS(payload, signer, {}, { canonicalize: true })
+    expect(jws).toMatchSnapshot()
+    expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(JSON.stringify({ a: 'a', z: 'z' }))
   })
 
   it('createJWS works with base64url payload', async () => {
