@@ -1,10 +1,17 @@
-# did-jwt
+# ifesa-did-jwt
+
+## Interim fork that adds RSA algorithm feature
+
+
+`npm i -S ifesa-did-jwt`
+
+===========================
 
 [![npm](https://img.shields.io/npm/dt/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
 [![npm](https://img.shields.io/npm/v/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
 [![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
 
-The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) using `ES256K` and `Ed25519` algorithms.
+The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) using `RSA`,`ES256K` and `Ed25519` algorithms.
 The non-standard `ES256K-R` is also supported for backward compatibility reasons.
 
 Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the signing identity of the token, which is passed as the `iss` attribute of the JWT payload.
