@@ -1,7 +1,6 @@
 import { createJWT, verifyJWT, decodeJWT, createJWS, verifyJWS, resolveAuthenticator, NBF_SKEW } from '../JWT'
 import { TokenVerifier } from 'jsontokens'
 import { bytesToBase64url, decodeBase64url } from '../util'
-import { verifyJWT as naclVerifyJWT } from 'nacl-did'
 import MockDate from 'mockdate'
 import { VerificationMethod, Resolver } from 'did-resolver'
 import { ES256KSigner } from '../signers/ES256KSigner'
@@ -144,19 +143,34 @@ describe('createJWT()', () => {
     const did = 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU'
     const signer = EdDSASigner(ed25519PrivateKey)
     const alg = 'Ed25519'
-
-    it('creates a valid JWT', async () => {
-      expect.assertions(1)
-      const jwt = await createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer })
-      return await expect(naclVerifyJWT(jwt)).toEqual({
-        issuer: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-        payload: {
-          iat: 1485321133,
-          iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-          requested: ['name', 'phone']
+    const resolver = {
+      resolve: jest.fn().mockReturnValue({
+        didDocumentMetadata: {},
+        didResolutionMetadata: {},
+        didDocument: {
+          id: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+          publicKey: [
+            {
+              id: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1',
+              type: 'ED25519SignatureVerification',
+              owner: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+              publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
+            }
+          ],
+          authentication: []
         }
       })
-      // return await expect(verifyJWT(jwt)).toBeTruthy()
+    }
+
+    it('creates a valid JWT with did:nacl issuer', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { alg, issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver })
+      expect(payload).toEqual({
+        iat: 1485321133,
+        iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
+        requested: ['name', 'phone']
+      })
     })
 
     it('creates a JWT with correct format', async () => {

@@ -7,6 +7,9 @@ import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { fromString } from 'uint8arrays'
 
+// remove when targeting node 11+ or ES2019
+const flatten = <T>(arrays: T[]) => [].concat.apply([], arrays)
+
 function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
   const cipher = new XChaCha20Poly1305(key)
   return (cleartext: Uint8Array, aad?: Uint8Array) => {
@@ -158,30 +161,31 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
 }
 
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
-  return Promise.all(
-    dids.map(async (did) => {
-      const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
-      if (didResolutionMetadata?.error) {
-        throw new Error(
-          `Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
-        )
+  const encryptersForDID = async (did): Promise<Encrypter[]> => {
+    const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
+    if (didResolutionMetadata?.error) {
+      throw new Error(
+        `Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
+      )
+    }
+    if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
+    const agreementKeys: VerificationMethod[] = didDocument.keyAgreement?.map((key) => {
+      if (typeof key === 'string') {
+        return [...(didDocument.publicKey || []), ...(didDocument.verificationMethod || [])].find((pk) => pk.id === key)
       }
-      if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
-      const agreementKeys: VerificationMethod[] = didDocument.keyAgreement?.map((key) => {
-        if (typeof key === 'string') {
-          return [...(didDocument.publicKey || []), ...(didDocument.verificationMethod || [])].find(
-            (pk) => pk.id === key
-          )
-        }
-        return key
-      })
-      const pk = agreementKeys.find((key) => {
-        return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
-      })
-      if (!pk) throw new Error(`Could not find x25519 key for ${did}`)
-      return x25519Encrypter(base58ToBytes(pk.publicKeyBase58), pk.id)
+      return key
     })
-  )
+    const pks = agreementKeys.filter((key) => {
+      return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
+    })
+    if (!pks.length) throw new Error(`Could not find x25519 key for ${did}`)
+    return pks.map((pk) => x25519Encrypter(base58ToBytes(pk.publicKeyBase58), pk.id))
+  }
+
+  const encrypterPromises = dids.map((did) => encryptersForDID(did))
+  const encrypterArrays = await Promise.all(encrypterPromises)
+
+  return flatten(encrypterArrays)
 }
 
 function validateHeader(header: Record<string, any>) {
