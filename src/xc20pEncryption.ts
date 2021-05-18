@@ -2,10 +2,9 @@ import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, decodeBase64url } from './util'
+import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
-import { fromString } from 'uint8arrays'
 
 // remove when targeting node 11+ or ES2019
 const flatten = <T>(arrays: T[]) => [].concat.apply([], arrays)
