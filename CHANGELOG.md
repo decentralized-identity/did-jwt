@@ -1,3 +1,10 @@
+# [5.4.0](https://github.com/decentralized-identity/did-jwt/compare/5.3.1...5.4.0) (2021-05-18)
+
+
+### Features
+
+* add option to canonicalize JSON payloads ([#161](https://github.com/decentralized-identity/did-jwt/issues/161)) ([4cfd3ee](https://github.com/decentralized-identity/did-jwt/commit/4cfd3eef41d93cd0829b50c9a9bde9be3a0512d0))
+
 ## [5.3.1](https://github.com/decentralized-identity/did-jwt/compare/5.3.0...5.3.1) (2021-05-15)
 
 
