@@ -63,7 +63,8 @@ const algorithms: SignerAlgorithms = {
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: Ed25519SignerAlg(),
   EdDSA: Ed25519SignerAlg(),
-  RSA: RSASignerAlg()
+  
+  RS256: RSASignerAlg()
 }
 
 function SignerAlg(alg: string): SignerAlgorithm {

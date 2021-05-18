@@ -117,7 +117,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ],
   Ed25519: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
-  RSA: ['RsaSignature2018', 'RsaVerificationKey2018']
+  RS256: ['RsaSignature2018', 'RsaVerificationKey2018']
 }
 
 // TODO: Implement https://w3c-ccg.github.io/ld-cryptosuite-registry/#rsa

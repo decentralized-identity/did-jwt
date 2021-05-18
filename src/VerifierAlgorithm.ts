@@ -1,4 +1,5 @@
-const nodersa = require('node-rsa');
+const nodersa = require('node-rsa')
+import * as jwt from 'jsonwebtoken'
 import { ec as EC } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
@@ -133,19 +134,14 @@ export function verifyEd25519(
   return signer
 }
 
-export function verifyRSA(
-  data: string,
-  signature: string,
-  authenticators: VerificationMethod[]
-): VerificationMethod {
+export function verifyRS256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64ToBytes(signature)
-  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {    
-    // const k = new nodersa()
-    // const key = k.importKey(pk.publicKeyPem, 'pkcs8-public-pem')
-    // const a = key.verify(data, signature)
-    // console.log(pk.publicKeyPem, data, signature, a)
-    return true
+  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+console.log(`${data}.${signature}`)
+  return jwt.verify(`${data}.${signature}`, pk.publicKeyPem, {
+      algorithms: ['RS256', 'RSA']
+    })
   })
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
@@ -164,7 +160,7 @@ const algorithms: Algorithms = {
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: verifyEd25519,
   EdDSA: verifyEd25519,
-  RSA: verifyRSA,
+  RS256: verifyRS256
 }
 
 function VerifierAlgorithm(alg: string): Verifier {
