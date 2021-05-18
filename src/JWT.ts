@@ -1,7 +1,8 @@
-import VerifierAlgorithm from './VerifierAlgorithm'
+import canonicalizeData from 'canonicalize'
+import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
-import { encodeBase64url, decodeBase64url, EcdsaSignature } from './util'
-import type { Resolvable, VerificationMethod, DIDResolutionResult, DIDDocument } from 'did-resolver'
+import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
+import VerifierAlgorithm from './VerifierAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -14,6 +15,7 @@ export interface JWTOptions {
    */
   alg?: string
   expiresIn?: number
+  canonicalize?: boolean
 }
 
 export interface JWTVerifyOptions {
@@ -25,6 +27,10 @@ export interface JWTVerifyOptions {
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
+}
+
+export interface JWSCreationOptions {
+  canonicalize?: boolean
 }
 
 export interface DIDAuthenticator {
@@ -122,8 +128,12 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 const defaultAlg = 'ES256K'
 const DID_JSON = 'application/did+json'
 
-function encodeSection(data: any): string {
-  return encodeBase64url(JSON.stringify(data))
+function encodeSection(data: any, shouldCanonicalize: boolean = false): string {
+  if (shouldCanonicalize) {
+    return encodeBase64url(JSON.stringify(canonicalizeData(data)))
+  } else {
+    return encodeBase64url(JSON.stringify(data))
+  }
 }
 
 export const NBF_SKEW: number = 300
@@ -178,11 +188,12 @@ export function decodeJWT(jwt: string): JWTDecoded {
 export async function createJWS(
   payload: string | any,
   signer: Signer,
-  header: Partial<JWTHeader> = {}
+  header: Partial<JWTHeader> = {},
+  options: JWSCreationOptions = {}
 ): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
-  const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload)
-  const signingInput: string = [encodeSection(header), encodedPayload].join('.')
+  const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload, options.canonicalize)
+  const signingInput: string = [encodeSection(header, options.canonicalize), encodedPayload].join('.')
 
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
@@ -198,18 +209,19 @@ export async function createJWS(
  *      ...
  *  })
  *
- *  @param    {Object}            payload            payload object
- *  @param    {Object}            [options]          an unsigned credential object
- *  @param    {String}            options.issuer     The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg        [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
- *                                                   Please use `header.alg` to specify the algorithm
- *  @param    {Signer}            options.signer     a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
- *  @param    {Object}            header             optional object to specify or customize the JWT header
- *  @return   {Promise<Object, Error>}               a promise which resolves with a signed JSON Web Token or rejects with an error
+ *  @param    {Object}            payload               payload object
+ *  @param    {Object}            [options]             an unsigned credential object
+ *  @param    {String}            options.issuer        The DID of the issuer (signer) of JWT
+ *  @param    {String}            options.alg           [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
+ *                                                      Please use `header.alg` to specify the algorithm
+ *  @param    {Signer}            options.signer        a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
+ *  @param    {boolean}           options.canonicalize  optional flag to canonicalize header and payload before signing
+ *  @param    {Object}            header                optional object to specify or customize the JWT header
+ *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or rejects with an error
  */
 export async function createJWT(
   payload: any,
-  { issuer, signer, alg, expiresIn }: JWTOptions,
+  { issuer, signer, alg, expiresIn, canonicalize }: JWTOptions,
   header: Partial<JWTHeader> = {}
 ): Promise<string> {
   if (!signer) throw new Error('No Signer functionality has been configured')
@@ -228,7 +240,7 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header)
+  return createJWS(fullPayload, signer, header, { canonicalize })
 }
 
 function verifyJWSDecoded(

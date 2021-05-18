@@ -1,10 +1,10 @@
-import { createJWT, verifyJWT, decodeJWT, createJWS, verifyJWS, resolveAuthenticator, NBF_SKEW } from '../JWT'
+import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
-import { bytesToBase64url, decodeBase64url } from '../util'
 import MockDate from 'mockdate'
-import { VerificationMethod, Resolver } from 'did-resolver'
-import { ES256KSigner } from '../signers/ES256KSigner'
+import { createJWS, createJWT, decodeJWT, NBF_SKEW, resolveAuthenticator, verifyJWS, verifyJWT } from '../JWT'
 import { EdDSASigner } from '../signers/EdDSASigner'
+import { ES256KSigner } from '../signers/ES256KSigner'
+import { bytesToBase64url, decodeBase64url } from '../util'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -171,6 +171,34 @@ describe('createJWT()', () => {
         iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
         requested: ['name', 'phone']
       })
+    })
+
+    it('can create a jwt in the default non-canonical way', async () => {
+      expect.assertions(1)
+      // Same payload, slightly different ordering
+      const jwtA = await createJWT(
+        { reason: 'verification', requested: ['name', 'phone'] },
+        { alg, issuer: did, signer }
+      )
+      const jwtB = await createJWT(
+        { requested: ['name', 'phone'], reason: 'verification' },
+        { alg, issuer: did, signer }
+      )
+      expect(jwtA).not.toEqual(jwtB)
+    })
+
+    it('can create a jwt in a canonical way', async () => {
+      expect.assertions(1)
+      // Same payload, slightly different ordering
+      const jwtA = await createJWT(
+        { reason: 'verification', requested: ['name', 'phone'] },
+        { alg, issuer: did, signer, canonicalize: true }
+      )
+      const jwtB = await createJWT(
+        { requested: ['name', 'phone'], reason: 'verification' },
+        { alg, issuer: did, signer, canonicalize: true }
+      )
+      expect(jwtA).toEqual(jwtB)
     })
 
     it('creates a JWT with correct format', async () => {
@@ -520,6 +548,14 @@ describe('JWS', () => {
     const jws = await createJWS(payload, signer)
     expect(jws).toMatchSnapshot()
     expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(payload)
+  })
+
+  it('createJWS can canonicalize a JSON payload', async () => {
+    expect.assertions(2)
+    const payload = { z: 'z', a: 'a' }
+    const jws = await createJWS(payload, signer, {}, { canonicalize: true })
+    expect(jws).toMatchSnapshot()
+    expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(JSON.stringify({ a: 'a', z: 'z' }))
   })
 
   it('createJWS works with base64url payload', async () => {
