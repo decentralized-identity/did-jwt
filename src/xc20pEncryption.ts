@@ -85,36 +85,26 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
 export type X25519AuthEncryptParams = {
   kid?: string,
   skid?: string,
+  // base64url encoded
   apu?: string,
+  // base64url encoded
   apv?: string
 }
 
+// Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
+// - XC20PKW from https://tools.ietf.org/html/draft-amringer-jose-chacha-02
+// - ECDH-1PU from https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03
 export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
   options: Partial<X25519AuthEncryptParams> = {}): Encrypter {
 
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
-
-  // It is RECOMMENDED by the ECDH-1PU spec to set apu and apv 
-  // to base64url encoded kid and base64url encoded skid in the
-  // recipient header. For the KDF, if no apu and apv is provided,
-  // it is RECOMMENDED that PartyVInfo and PartyUInfo contain
-  // the base64url decoded skid and kid.
-  function setPartyInfo(partyInfo, fallback): { encoded: string, raw: Uint8Array } {
-    if (typeof partyInfo === 'undefined') {
-      return (typeof fallback !== 'undefined') ? 
-        { encoded: encodeBase64url(fallback), raw: fromString(fallback) } :
-         { encoded: undefined, raw: undefined }
-    } else {
-      return {
-        encoded: encodeBase64url(partyInfo), raw: fromString(partyInfo)
-      }
-    }
-  }
-  const partyUInfo = setPartyInfo(options.apu, options.skid)
-  const partyVInfo = setPartyInfo(options.apv, options.kid)
-
+  
+  let partyUInfo, partyVInfo
+  if (options.apu !== undefined) partyUInfo = base64ToBytes(options.apu)
+  if (options.apv !== undefined) partyVInfo = base64ToBytes(options.apv)
+  
   async function encryptCek(cek): Promise<Recipient> {
     const epk = generateKeyPair()
     const zE = sharedKey(epk.secretKey, recipientPublicKey)
@@ -128,7 +118,7 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
     sharedSecret.set(zS, zE.length);
 
     // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo.raw, partyVInfo.raw)
+    const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo, partyVInfo)
 
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
@@ -141,8 +131,8 @@ export function x25519AuthEncrypter(recipientPublicKey: Uint8Array, senderSecret
       }
     }
     if (options.kid) recipient.header.kid = options.kid
-    if (partyUInfo.encoded) recipient.header.apu = partyUInfo.encoded
-    if (partyVInfo.encoded) recipient.header.apv = partyVInfo.encoded
+    if (options.apu) recipient.header.apu = options.apu
+    if (options.apv) recipient.header.apv = options.apv
 
     return recipient
   }
@@ -216,6 +206,9 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
   return { alg, enc: 'XC20P', decrypt }
 }
 
+// Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
+// - XC20PKW from https://tools.ietf.org/html/draft-amringer-jose-chacha-02
+// - ECDH-1PU from https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03
 export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
@@ -235,8 +228,8 @@ export function x25519AuthDecrypter(recipientSecretKey: Uint8Array, senderPublic
 
     // Key Encryption Key
     let producerInfo, consumerInfo
-    if (recipient.header.apu) producerInfo = fromString(decodeBase64url(recipient.header.apu))
-    if (recipient.header.apv) consumerInfo = fromString(decodeBase64url(recipient.header.apv))    
+    if (recipient.header.apu) producerInfo = base64ToBytes(recipient.header.apu)
+    if (recipient.header.apv) consumerInfo = base64ToBytes(recipient.header.apv)
 
     const kek = concatKDF(sharedSecret, keyLen, alg, producerInfo, consumerInfo)
     // Content Encryption Key
