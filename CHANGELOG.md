@@ -1,3 +1,10 @@
+## [5.4.1](https://github.com/decentralized-identity/did-jwt/compare/5.4.0...5.4.1) (2021-05-19)
+
+
+### Bug Fixes
+
+* don't run JSON.stringify on canonicalized data ([#172](https://github.com/decentralized-identity/did-jwt/issues/172)) ([5480bfc](https://github.com/decentralized-identity/did-jwt/commit/5480bfc55989620ff248540921563679bd204635)), closes [#171](https://github.com/decentralized-identity/did-jwt/issues/171)
+
 # [5.4.0](https://github.com/decentralized-identity/did-jwt/compare/5.3.1...5.4.0) (2021-05-18)
 
 
