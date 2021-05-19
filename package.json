@@ -1,7 +1,7 @@
 {
-  "name": "ifesa-did-jwt",
+  "name": "did-jwt-rsa",
   "version": "0.1.0",
-  "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
+  "description": "did-jwt fork for signing with RSA keys and smartcards",
   "main": "lib/index.js",
   "source": "src/index.ts",
   "modules": "lib/index.mjs",
