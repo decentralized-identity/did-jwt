@@ -551,11 +551,13 @@ describe('JWS', () => {
   })
 
   it('createJWS can canonicalize a JSON payload', async () => {
-    expect.assertions(2)
+    expect.assertions(3)
     const payload = { z: 'z', a: 'a' }
     const jws = await createJWS(payload, signer, {}, { canonicalize: true })
     expect(jws).toMatchSnapshot()
-    expect(JSON.parse(decodeBase64url(jws.split('.')[1]))).toEqual(JSON.stringify({ a: 'a', z: 'z' }))
+    const parsedPayload = JSON.parse(decodeBase64url(jws.split('.')[1]))
+    expect(parsedPayload).toEqual(payload)
+    expect(JSON.stringify(parsedPayload)).toEqual(JSON.stringify({ a: 'a', z: 'z' }))
   })
 
   it('createJWS works with base64url payload', async () => {

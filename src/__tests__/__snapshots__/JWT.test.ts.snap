@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"IntcImFsZ1wiOlwiRVMyNTZLXCJ9Ig.IntcImFcIjpcImFcIixcInpcIjpcInpcIn0i.aKyOmGo5Dx2VsvDZAAHMxNtgqBeI0-qij4OB2AsISFdGsnNDJNEptZkQjY497mzX1LdMPS84pzykqalPtMwqMQ"`;
+exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqeo4OTA7OYheYmlRy1OpNYbtYhDyZj0w1NfCpgsgDMGjw"`;
 
 exports[`JWS createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJzb21lIjoiZGF0YSJ9.dblNz-7BVLknOFIBPmt5VTG0MDls_Q69WI8OfQuqNdUp4y50-b8Ubn0xujm1ijfmfqRunpks5TyWqgMsQkR_GQ"`;
 
