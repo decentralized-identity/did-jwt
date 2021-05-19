@@ -9,7 +9,7 @@ interface LegacyVerificationMethod extends VerificationMethod {
 
 
 export function verifyRS256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
-  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+  const signer: any = authenticators.find((pk: any) => {
   return jwt.verify(`${data}.${signature}`, pk.publicKeyPem, {
       algorithms: ['RS256']
     })
