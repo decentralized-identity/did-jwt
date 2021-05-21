@@ -1,23 +1,23 @@
 {
   "name": "did-jwt",
   "version": "5.5.0",
-  "description": "Library for Signing and Verifying JWTs compatible uPort and DID standards",
-  "main": "lib/index.js",
+  "description": "Library for Signing and Verifying JWTs that use DIDs as issuers",
   "source": "src/index.ts",
-  "modules": "lib/index.mjs",
-  "types": "lib/index.d.ts",
-  "umd:main": "lib/index.umd.js",
+  "main": "./lib/index.js",
+  "exports": "./lib/index.modern.js",
+  "module": "./lib/index.module.js",
+  "unpkg": "./lib/index.umd.js",
+  "types": "./lib/index.d.ts",
+  "umd:main": "./lib/index.umd.js",
   "files": [
     "lib",
     "dist",
-    "src",
-    "tutorial",
-    "esm"
+    "src"
   ],
   "scripts": {
     "test": "jest",
     "test:ci": "jest --coverage && codecov",
-    "build:js": "microbundle",
+    "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.js",
     "build": "npm run build:js && npm test && npm run build:browser",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
@@ -27,9 +27,9 @@
     "prepare": "npm run build",
     "release": "semantic-release --debug"
   },
-  "author": "Pelle Braendgaard <pelle.braendgaard@consensys.net>",
+  "author": "Pelle Braendgaard",
   "contributors": [
-    "Mircea Nistor <mircea.nistor@consensys.net>",
+    "Mircea Nistor <mircea.nistor@mesh.xyz>",
     "Joel Thorstensson <oed@3box.io>"
   ],
   "repository": {
