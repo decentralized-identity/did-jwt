@@ -6,7 +6,7 @@ import * as u8a from 'uint8arrays'
 export interface EcdsaSignature {
   r: string
   s: string
-  recoveryParam?: number
+  recoveryParam?: number | null
 }
 
 export function bytesToBase64url(b: Uint8Array): string {
@@ -56,15 +56,15 @@ export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: bo
   jose.set(u8a.fromString(r, 'base16'), 0)
   jose.set(u8a.fromString(s, 'base16'), 32)
   if (recoverable) {
-    if (recoveryParam === undefined) {
+    if (typeof recoveryParam === 'undefined') {
       throw new Error('Signer did not return a recoveryParam')
     }
-    jose[64] = recoveryParam
+    jose[64] = <number>recoveryParam
   }
   return bytesToBase64url(jose)
 }
 
-export function fromJose(signature: string): { r: string; s: string; recoveryParam: number } {
+export function fromJose(signature: string): { r: string; s: string; recoveryParam?: number } {
   const signatureBytes: Uint8Array = base64ToBytes(signature)
   if (signatureBytes.length < 64 || signatureBytes.length > 65) {
     throw new TypeError(`Wrong size for signature. Expected 64 or 65 bytes, but got ${signatureBytes.length}`)

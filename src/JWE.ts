@@ -48,7 +48,7 @@ export interface Decrypter {
     iv: Uint8Array,
     aad?: Uint8Array,
     recipient?: Record<string, any>
-  ) => Promise<Uint8Array>
+  ) => Promise<Uint8Array | null>
 }
 
 function validateJWE(jwe: JWE) {
@@ -66,7 +66,7 @@ function validateJWE(jwe: JWE) {
 
 function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: EncryptionResult, aad?: Uint8Array): JWE {
   const jwe: JWE = {
-    protected: protectedHeader,
+    protected: <string>protectedHeader,
     iv: bytesToBase64url(iv),
     ciphertext: bytesToBase64url(ciphertext),
     tag: bytesToBase64url(tag)
@@ -99,10 +99,13 @@ export async function createJWE(
         cek = encryptionResult.cek
         jwe = encodeJWE(encryptionResult, aad)
       } else {
-        jwe.recipients.push(await encrypter.encryptCek(cek))
+        const recipient = await encrypter.encryptCek?.(cek)
+        if (recipient) {
+          jwe?.recipients?.push(recipient)
+        }
       }
     }
-    return jwe
+    return <JWE>jwe
   }
 }
 

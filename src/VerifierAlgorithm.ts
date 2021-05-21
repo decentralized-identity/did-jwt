@@ -1,4 +1,4 @@
-import { ec as EC } from 'elliptic'
+import { ec as EC, SignatureInput } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
@@ -8,15 +8,15 @@ const secp256k1 = new EC('secp256k1')
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
-  const rawsig: Uint8Array = base64ToBytes(signature)
-  if (rawsig.length !== (recoverable ? 65 : 64)) {
+  const rawSig: Uint8Array = base64ToBytes(signature)
+  if (rawSig.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
   }
-  const r: string = bytesToHex(rawsig.slice(0, 32))
-  const s: string = bytesToHex(rawsig.slice(32, 64))
+  const r: string = bytesToHex(rawSig.slice(0, 32))
+  const s: string = bytesToHex(rawSig.slice(32, 64))
   const sigObj: EcdsaSignature = { r, s }
   if (recoverable) {
-    sigObj.recoveryParam = rawsig[64]
+    sigObj.recoveryParam = rawSig[64]
   }
   return sigObj
 }
@@ -32,7 +32,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
-  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1') {
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256k1
         .keyFromPublic({
@@ -59,10 +59,10 @@ export function verifyES256K(
     return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== undefined
   })
 
-  let signer: VerificationMethod = fullPublicKeys.find((pk: VerificationMethod) => {
+  let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const pubBytes = extractPublicKeyBytes(pk)
-      return secp256k1.keyFromPublic(pubBytes).verify(hash, sigObj)
+      return secp256k1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
     } catch (err) {
       return false
     }
@@ -92,14 +92,14 @@ export function verifyRecoverableES256K(
     ]
   }
 
-  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod => {
+  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
     const hash: Uint8Array = sha256(data)
-    const recoveredKey: any = secp256k1.recoverPubKey(hash, sigObj, sigObj.recoveryParam)
+    const recoveredKey: any = secp256k1.recoverPubKey(hash, <SignatureInput>sigObj, <number>sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
     const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
 
-    const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+    const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
       const keyHex = bytesToHex(extractPublicKeyBytes(pk))
       return (
         keyHex === recoveredPublicKeyHex ||
@@ -112,7 +112,9 @@ export function verifyRecoverableES256K(
     return signer
   }
 
-  const signer: VerificationMethod[] = signatures.map(checkSignatureAgainstSigner).filter((key) => key != null)
+  const signer: VerificationMethod[] = signatures
+    .map(checkSignatureAgainstSigner)
+    .filter((key) => typeof key !== 'undefined') as VerificationMethod[]
 
   if (signer.length === 0) throw new Error('Signature invalid for JWT')
   return signer[0]
@@ -125,7 +127,7 @@ export function verifyEd25519(
 ): VerificationMethod {
   const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64ToBytes(signature)
-  const signer: VerificationMethod = authenticators.find((pk: VerificationMethod) => {
+  const signer = authenticators.find((pk: VerificationMethod) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
   })
   if (!signer) throw new Error('Signature invalid for JWT')

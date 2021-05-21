@@ -7,6 +7,13 @@ import VerifierAlgorithm from './VerifierAlgorithm'
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
+export type ProofPurposeTypes =
+  | 'assertionMethod'
+  | 'authentication'
+  | 'keyAgreement'
+  | 'capabilityDelegation'
+  | 'capabilityInvocation'
+
 export interface JWTOptions {
   issuer: string
   signer: Signer
@@ -26,7 +33,7 @@ export interface JWTVerifyOptions {
   resolver?: Resolvable
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
-  proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
+  proofPurpose?: ProofPurposeTypes
 }
 
 export interface JWSCreationOptions {
@@ -139,7 +146,7 @@ function encodeSection(data: any, shouldCanonicalize: boolean = false): string {
 export const NBF_SKEW: number = 300
 
 function decodeJWS(jws: string): JWSDecoded {
-  const parts: RegExpMatchArray = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+  const parts = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
     return {
       header: JSON.parse(decodeBase64url(parts[1])),
@@ -292,17 +299,17 @@ export function verifyJWS(jws: string, pubkeys: VerificationMethod | Verificatio
 export async function verifyJWT(
   jwt: string,
   options: JWTVerifyOptions = {
-    resolver: null,
-    auth: null,
-    audience: null,
-    callbackUrl: null,
-    skewTime: null,
-    proofPurpose: null
+    resolver: undefined,
+    auth: undefined,
+    audience: undefined,
+    callbackUrl: undefined,
+    skewTime: undefined,
+    proofPurpose: undefined
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
-  const proofPurpose: string | undefined = options.hasOwnProperty('auth')
+  const proofPurpose: ProofPurposeTypes | undefined = options.hasOwnProperty('auth')
     ? options.auth
       ? 'authentication'
       : undefined
@@ -310,12 +317,12 @@ export async function verifyJWT(
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
-    payload.iss,
+    payload.iss || '',
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
-  const skewTime = options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+  const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
     const nowSkewed = now + skewTime
     if (payload.nbf) {
@@ -341,6 +348,9 @@ export async function verifyJWT(
     }
     return { payload, didResolutionResult, issuer, signer, jwt }
   }
+  throw new Error(
+    `JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
+  )
 }
 
 /**
@@ -363,7 +373,7 @@ export async function resolveAuthenticator(
   resolver: Resolvable,
   alg: string,
   issuer: string,
-  proofPurpose?: string
+  proofPurpose?: ProofPurposeTypes
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
@@ -383,7 +393,7 @@ export async function resolveAuthenticator(
     didResult = result as DIDResolutionResult
   }
 
-  if (didResult.didResolutionMetadata?.error) {
+  if (didResult.didResolutionMetadata?.error || didResult.didDocument == null) {
     const { error, message } = didResult.didResolutionMetadata
     throw new Error(`Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
   }
@@ -399,7 +409,8 @@ export async function resolveAuthenticator(
   ]
   if (typeof proofPurpose === 'string') {
     // support legacy DID Documents that do not list assertionMethod
-    if (proofPurpose.startsWith('assertion') && !didResult.didDocument.hasOwnProperty('assertionMethod')) {
+    if (proofPurpose.startsWith('assertion') && !didResult?.didDocument?.hasOwnProperty('assertionMethod')) {
+      didResult.didDocument = { ...(<DIDDocument>didResult.didDocument) }
       didResult.didDocument.assertionMethod = [...publicKeysToCheck.map((pk) => pk.id)]
     }
 
@@ -414,7 +425,7 @@ export async function resolveAuthenticator(
           return <VerificationMethod>verificationMethod
         }
       })
-      .filter((key) => key != null)
+      .filter((key) => key != null) as VerificationMethod[]
   }
 
   const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
