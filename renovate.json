@@ -3,32 +3,33 @@
     "config:base",
     "group:allNonMajor"
   ],
-  "labels": ["maintenance"],
+  "labels": [
+    "maintenance"
+  ],
+  "automergeType": "branch",
+  "automerge": true,
   "packageRules": [
     {
-      "packagePatterns": [ "jest", "sinon", "codecov", "lint", "jsdoc", "bundle", "prettier", "webpack", "typescript" ],
-      "groupName": "builders-and-testers",
-      "automerge": true,
-      "automergeType": "branch",
-      "schedule": ["before 5am"]
+      "matchPackagePatterns": [
+        "did"
+      ],
+      "matchUpdateTypes": [
+        "bump",
+        "patch",
+        "minor",
+        "major"
+      ],
+      "groupName": "did-dependencies",
+      "commitMessagePrefix": "fix(deps):"
     },
     {
-      "packagePatterns": [ "semantic", "commitlint" ],
-      "groupName": "automation",
-      "automerge": true,
-      "automergeType": "branch",
-      "schedule": ["before 5am"]
-    },
-    {
-      "depTypeList": ["devDependencies"],
+      "matchDepTypes": [
+        "devDependencies"
+      ],
       "groupName": "devDeps",
-      "automerge": true,
-      "automergeType": "branch",
-      "schedule": ["before 5am"]
-    },
-    {
-      "updateTypes": ["minor", "patch"],
-      "automerge": true
+      "schedule": [
+        "before 5am on Monday"
+      ]
     }
   ]
 }
