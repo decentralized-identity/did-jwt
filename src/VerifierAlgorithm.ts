@@ -4,11 +4,12 @@ import type { VerificationMethod } from 'did-resolver'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 
 interface LegacyVerificationMethod extends VerificationMethod {
-  publicKeyBase64: string
+  publicKeyPem?: string;
+  publicKeyBase64?: string;
 }
 
 
-export function verifyRS256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+export function verifyRS256(data: string, signature: string, authenticators: LegacyVerificationMethod[]): LegacyVerificationMethod {
   const signer: any = authenticators.find((pk: any) => {
   return jwt.verify(`${data}.${signature}`, pk.publicKeyPem, {
       algorithms: ['RS256']
@@ -18,7 +19,7 @@ export function verifyRS256(data: string, signature: string, authenticators: Ver
   return signer
 }
 
-type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
+type Verifier = (data: string, signature: string, authenticators: LegacyVerificationMethod[]) => LegacyVerificationMethod
 interface Algorithms {
   [name: string]: Verifier
 }

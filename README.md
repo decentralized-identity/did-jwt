@@ -1,9 +1,9 @@
-# ifesa-did-jwt
+# did-jwt-rsa
 
-## Interim fork that adds RSA algorithm feature
+## did-jwt fork that adds RSA algorithm feature
 
 
-`npm i -S ifesa-did-jwt`
+`npm i -S did-jwt-rsa`
 
 ===========================
 
