@@ -1,6 +1,6 @@
 {
   "name": "did-jwt-rsa",
-  "version": "0.1.3",
+  "version": "0.1.7",
   "description": "did-jwt fork for signing with RSA keys and smartcards",
   "main": "lib/index.js",
   "source": "src/index.ts",
@@ -24,7 +24,6 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "standard && tslint -p tsconfig.json",
     "prepublishOnly": "npm test && npm run lint",
-    "prepare": "npm run build",
     "release": "semantic-release --debug"
   },
   "author": "Rogelio Morrell <molekilla@gmail.com>",

@@ -11,6 +11,7 @@ import {
 } from './JWT'
 import { toEthereumAddress } from './Digest'
 import { RSASigner } from './signers/RSASigner'
+import { DIDOptions, DID } from './dids'
 export { JWE, createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
 
 
@@ -22,6 +23,8 @@ export {
   createJWS,
   toEthereumAddress,
   Signer,
+  DID,
+  DIDOptions,
   RSASigner,
   JWTHeader,
   JWTPayload,
