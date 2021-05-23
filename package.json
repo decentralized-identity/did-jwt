@@ -1,6 +1,6 @@
 {
   "name": "did-jwt-rsa",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "did-jwt fork for signing with RSA keys and smartcards",
   "main": "lib/index.js",
   "source": "src/index.ts",
