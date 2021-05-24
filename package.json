@@ -1,6 +1,6 @@
 {
   "name": "did-jwt-rsa",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "did-jwt fork for signing with RSA keys and smartcards",
   "main": "lib/index.js",
   "source": "src/index.ts",
@@ -64,6 +64,8 @@
     "eslint-plugin-standard": "5.0.0",
     "jest": "26.6.3",
     "jsonwebtoken": "^8.5.1",
+    "jsrsasign": "^10.2.0",
+    "jsrsasign-util": "^1.0.5",
     "jws": "^3.2.2",
     "microbundle": "0.13.0",
     "mockdate": "3.0.5",

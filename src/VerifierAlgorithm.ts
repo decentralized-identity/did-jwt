@@ -1,7 +1,11 @@
-const nodersa = require('node-rsa')
-import * as jwt from 'jsonwebtoken'
 import type { VerificationMethod } from 'did-resolver'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
+
+const rs = require('jsrsasign');
+const rsu = require('jsrsasign-util');
+const path = require('path');
+const JWS = rs.jws.JWS;
+
 
 interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyPem?: string;
@@ -11,9 +15,14 @@ interface LegacyVerificationMethod extends VerificationMethod {
 
 export function verifyRS256(data: string, signature: string, authenticators: LegacyVerificationMethod[]): LegacyVerificationMethod {
   const signer: any = authenticators.find((pk: any) => {
-  return jwt.verify(`${data}.${signature}`, pk.publicKeyPem, {
-      algorithms: ['RS256']
-    })
+    const pubKeyObj = rs.KEYUTIL.getKey(pk.publicKeyPem);
+    const acceptField = { alg: [] }
+    acceptField.alg = ['RS256', 'RS384', 'RS512',
+                     'PS256', 'PS384', 'PS512',
+                     'ES256', 'ES384', 'ES512'];
+    const isValid = rs.jws.JWS.verifyJWT(`${data}.${signature}`, pubKeyObj, acceptField);
+
+    return isValid
   })
   if (!signer) throw new Error('Signature invalid for JWT')
   return signer
