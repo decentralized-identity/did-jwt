@@ -54,7 +54,6 @@ export function AnonEncrypter(publicKey: Uint8Array,
  * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and 
  * XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
  * 
- * 
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
  * are subject to change as new revisions or until the offical CFRG specification are released. 
  */
@@ -145,9 +144,11 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
   
-// Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
-// - XC20PKW from https://tools.ietf.org/html/draft-amringer-jose-chacha-02
-// - ECDH-1PU from https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03
+/**
+ * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
+ *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
+ *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
+ */
 export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
   options: Partial<AuthEncryptParams> = {}): Encrypter {
 
@@ -260,10 +261,12 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
   return { alg, enc: 'XC20P', decrypt }
 }
 
-// Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
-// - XC20PKW from https://tools.ietf.org/html/draft-amringer-jose-chacha-02
-// - ECDH-1PU from https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03
-export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
+/**
+ * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
+ *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
+ *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
+ */
+ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
   
   const alg = 'ECDH-1PU+XC20PKW'
