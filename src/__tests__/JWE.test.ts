@@ -51,8 +51,8 @@ describe('JWE', () => {
       })
     })
 
-    describe('ECDH-1PU(v3)+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
-      test.each(vectors.ecdh1PuV3Xc20Pkw.pass)('decrypts valid jwe', async ({
+    describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
+      test.each(vectors.ecdh1PuV3Xc20PkwV2.pass)('decrypts valid jwe', async ({
         senderkey, recipientkeys, cleartext, jwe }) => {
         expect.assertions(recipientkeys.length)
         for(let recipientkey of recipientkeys) {
@@ -63,7 +63,7 @@ describe('JWE', () => {
         }
       })
 
-      test.each(vectors.ecdh1PuV3Xc20Pkw.fail)('fails to decrypt bad jwe', async ({ 
+      test.each(vectors.ecdh1PuV3Xc20PkwV2.fail)('fails to decrypt bad jwe', async ({ 
         senderkey, recipientkeys, jwe }) => {
         expect.assertions(recipientkeys.length)
         for(let recipientkey of recipientkeys) {
@@ -73,7 +73,7 @@ describe('JWE', () => {
         }
       })
 
-      test.each(vectors.ecdh1PuV3Xc20Pkw.invalid)('throws on invalid jwe', async ({ 
+      test.each(vectors.ecdh1PuV3Xc20PkwV2.invalid)('throws on invalid jwe', async ({ 
         jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(randomBytes(32), randomBytes(32))
@@ -218,7 +218,7 @@ describe('JWE', () => {
     })
   })
 
-  describe('ECDH-1PU(v3)+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
+  describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
     describe('One recipient', () => {
       let cleartext, recipientKey, senderKey, decrypter
 

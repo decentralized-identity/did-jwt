@@ -140,7 +140,7 @@ module.exports = {
       }
     ]
   },
-  ecdh1PuV3Xc20Pkw: {
+  ecdh1PuV3Xc20PkwV2: {
     pass: [
       {
         senderkey: 'Ga6k9NGzLLbyz4uDF/25rmxL6kcMpIUfAB6q4jyErEI=',
