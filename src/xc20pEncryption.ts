@@ -45,7 +45,7 @@ export function AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: U
  */
 export function AnonEncrypter(publicKey: Uint8Array, 
   options: Partial<AnonEncryptParams> = {}): Encrypter {
-  return x25519Encrypter(publicKey, options.kid)
+    return (options !== undefined) ? x25519Encrypter(publicKey, options.kid) : x25519Encrypter(publicKey)
 }
 
 /** 
