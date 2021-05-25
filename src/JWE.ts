@@ -5,7 +5,9 @@ interface RecipientHeader {
   iv: string
   tag: string
   epk?: Record<string, any> // Ephemeral  Public Key
-  kid?: string
+  kid?: string,
+  apv?: string
+  apu?: string
 }
 
 export interface Recipient {

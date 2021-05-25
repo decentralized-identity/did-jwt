@@ -27,14 +27,15 @@ const lengthAndInput = (input: Uint8Array): Uint8Array => u8a.concat([writeUint3
 // This implementation of concatKDF was inspired by these two implementations:
 // https://github.com/digitalbazaar/minimal-cipher/blob/master/algorithms/ecdhkdf.js
 // https://github.com/panva/jose/blob/master/lib/jwa/ecdh/derive.js
-export function concatKDF(secret: Uint8Array, keyLen: number, alg: string): Uint8Array {
+export function concatKDF(secret: Uint8Array, keyLen: number, alg: string, producerInfo?:Uint8Array, consumerInfo?:Uint8Array): Uint8Array {
   if (keyLen !== 256) throw new Error(`Unsupported key length: ${keyLen}`)
   const value = u8a.concat([
-    lengthAndInput(u8a.fromString(alg)),
-    lengthAndInput(new Uint8Array(0)), // apu
-    lengthAndInput(new Uint8Array(0)), // apv
+    lengthAndInput(u8a.fromString(alg)),    
+    lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo), // apu
+    lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo), // apv
     writeUint32BE(keyLen)
   ])
+
   // since our key lenght is 256 we only have to do one round
   const roundNumber = 1
   return hash(u8a.concat([writeUint32BE(roundNumber), secret, value]))
