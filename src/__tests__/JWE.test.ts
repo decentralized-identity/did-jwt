@@ -1,7 +1,7 @@
 import { decryptJWE, createJWE, Encrypter } from '../JWE'
 import vectors from './jwe-vectors.js'
 import { xc20pDirEncrypter, xc20pDirDecrypter, x25519Encrypter, x25519Decrypter, 
-  xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2, xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2 } from '../xc20pEncryption'
+  xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2, xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2, AnonEncrypter, AuthEncrypter } from '../xc20pEncryption'
 import { decodeBase64url, encodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'

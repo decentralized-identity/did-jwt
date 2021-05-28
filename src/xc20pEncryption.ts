@@ -31,7 +31,7 @@ export type AnonEncryptParams = {
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
  * are subject to change as new revisions or until the offical CFRG specification are released. 
  */
-export function AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
+export function createAuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
   options: Partial<AuthEncryptParams> = {}): Encrypter {
   return xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientPublicKey, senderSecretKey, options);
 }
@@ -43,7 +43,7 @@ export function AuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: U
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
  * is subject to change as new revisions or until the offical CFRG specification is released. 
  */
-export function AnonEncrypter(publicKey: Uint8Array, 
+export function createAnonEncrypter(publicKey: Uint8Array, 
   options: Partial<AnonEncryptParams> = {}): Encrypter {
     return (options !== undefined) ? x25519Encrypter(publicKey, options.kid) : x25519Encrypter(publicKey)
 }
@@ -57,7 +57,7 @@ export function AnonEncrypter(publicKey: Uint8Array,
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
  * are subject to change as new revisions or until the offical CFRG specification are released. 
  */
-export function AuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
+export function createAuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
   return xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(recipientSecretKey, senderPublicKey);
 }
 
@@ -68,7 +68,7 @@ export function AuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: U
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
  * is subject to change as new revisions or until the offical CFRG specification is released. 
  */
-export function AnonDecrypter(secretKey: Uint8Array): Decrypter {
+export function createAnonDecrypter(secretKey: Uint8Array): Decrypter {
   return x25519Decrypter(secretKey)
 }
 
