@@ -10,10 +10,10 @@ import type { VerificationMethod, Resolvable } from 'did-resolver'
 const flatten = <T>(arrays: T[]) => [].concat.apply([], arrays)
 
 export type AuthEncryptParams = {
-  kid?: string,
-  skid?: string,
+  kid?: string
+  skid?: string
   // base64url encoded
-  apu?: string,
+  apu?: string
   // base64url encoded
   apv?: string
 }
@@ -22,51 +22,53 @@ export type AnonEncryptParams = {
   kid?: string
 }
 
-/** 
+/**
  * Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
- * sender private key to encrypt the data). 
- * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and 
+ * sender private key to encrypt the data).
+ * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and
  * XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
- * 
+ *
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
- * are subject to change as new revisions or until the offical CFRG specification are released. 
+ * are subject to change as new revisions or until the offical CFRG specification are released.
  */
-export function createAuthEncrypter(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
-  options: Partial<AuthEncryptParams> = {}): Encrypter {
-  return xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientPublicKey, senderSecretKey, options);
+export function createAuthEncrypter(
+  recipientPublicKey: Uint8Array,
+  senderSecretKey: Uint8Array,
+  options: Partial<AuthEncryptParams> = {}
+): Encrypter {
+  return xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientPublicKey, senderSecretKey, options)
 }
 
-/** 
+/**
  * Recommended encrypter for anonymous encryption (i.e. no sender authentication).
  * Uses ECDH-ES+XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
- * 
+ *
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
- * is subject to change as new revisions or until the offical CFRG specification is released. 
+ * is subject to change as new revisions or until the offical CFRG specification is released.
  */
-export function createAnonEncrypter(publicKey: Uint8Array, 
-  options: Partial<AnonEncryptParams> = {}): Encrypter {
-    return (options !== undefined) ? x25519Encrypter(publicKey, options.kid) : x25519Encrypter(publicKey)
+export function createAnonEncrypter(publicKey: Uint8Array, options: Partial<AnonEncryptParams> = {}): Encrypter {
+  return options !== undefined ? x25519Encrypter(publicKey, options.kid) : x25519Encrypter(publicKey)
 }
 
-/** 
+/**
  * Recommended decrypter for authenticated encryption (i.e. sender authentication and requires
  * sender public key to decrypt the data).
- * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and 
+ * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and
  * XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
- * 
+ *
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
- * are subject to change as new revisions or until the offical CFRG specification are released. 
+ * are subject to change as new revisions or until the offical CFRG specification are released.
  */
 export function createAuthDecrypter(recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
-  return xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(recipientSecretKey, senderPublicKey);
+  return xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(recipientSecretKey, senderPublicKey)
 }
 
-/** 
+/**
  * Recommended decrypter for anonymous encryption (i.e. no sender authentication).
  * Uses ECDH-ES+XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
- * 
+ *
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
- * is subject to change as new revisions or until the offical CFRG specification is released. 
+ * is subject to change as new revisions or until the offical CFRG specification is released.
  */
 export function createAnonDecrypter(secretKey: Uint8Array): Decrypter {
   return x25519Decrypter(secretKey)
@@ -143,34 +145,37 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   }
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
-  
+
 /**
  * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
  *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
  *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
  */
-export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientPublicKey: Uint8Array, senderSecretKey: Uint8Array, 
-  options: Partial<AuthEncryptParams> = {}): Encrypter {
-
+export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
+  recipientPublicKey: Uint8Array,
+  senderSecretKey: Uint8Array,
+  options: Partial<AuthEncryptParams> = {}
+): Encrypter {
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
-  
-  let partyUInfo, partyVInfo
+
+  let partyUInfo
+  let partyVInfo
   if (options.apu !== undefined) partyUInfo = base64ToBytes(options.apu)
   if (options.apv !== undefined) partyVInfo = base64ToBytes(options.apv)
-  
+
   async function encryptCek(cek): Promise<Recipient> {
     const epk = generateKeyPair()
     const zE = sharedKey(epk.secretKey, recipientPublicKey)
 
-    // ECDH-1PU requires additional shared secret between 
+    // ECDH-1PU requires additional shared secret between
     // static key of sender and static key of recipient
     const zS = sharedKey(senderSecretKey, recipientPublicKey)
-    
-    let sharedSecret = new Uint8Array(zE.length + zS.length);
-    sharedSecret.set(zE);
-    sharedSecret.set(zS, zE.length);
+
+    const sharedSecret = new Uint8Array(zE.length + zS.length)
+    sharedSecret.set(zE)
+    sharedSecret.set(zS, zE.length)
 
     // Key Encryption Key
     const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo, partyVInfo)
@@ -266,27 +271,29 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
  *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
  *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
  */
- export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
-  recipientSecretKey: Uint8Array, senderPublicKey: Uint8Array): Decrypter {
-  
+export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
+  recipientSecretKey: Uint8Array,
+  senderPublicKey: Uint8Array
+): Decrypter {
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
   async function decrypt(sealed, iv, aad, recipient): Promise<Uint8Array> {
     validateHeader(recipient.header)
     if (recipient.header.epk.crv !== crv) return null
-    // ECDH-1PU requires additional shared secret between 
+    // ECDH-1PU requires additional shared secret between
     // static key of sender and static key of recipient
     const publicKey = base64ToBytes(recipient.header.epk.x)
     const zE = sharedKey(recipientSecretKey, publicKey)
     const zS = sharedKey(recipientSecretKey, senderPublicKey)
-    
-    let sharedSecret = new Uint8Array(zE.length + zS.length);
-    sharedSecret.set(zE);
-    sharedSecret.set(zS, zE.length);
+
+    const sharedSecret = new Uint8Array(zE.length + zS.length)
+    sharedSecret.set(zE)
+    sharedSecret.set(zS, zE.length)
 
     // Key Encryption Key
-    let producerInfo, consumerInfo
+    let producerInfo
+    let consumerInfo
     if (recipient.header.apu) producerInfo = base64ToBytes(recipient.header.apu)
     if (recipient.header.apv) consumerInfo = base64ToBytes(recipient.header.apv)
 

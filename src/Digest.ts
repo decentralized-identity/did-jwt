@@ -27,7 +27,13 @@ const lengthAndInput = (input: Uint8Array): Uint8Array => u8a.concat([writeUint3
 // This implementation of concatKDF was inspired by these two implementations:
 // https://github.com/digitalbazaar/minimal-cipher/blob/master/algorithms/ecdhkdf.js
 // https://github.com/panva/jose/blob/master/lib/jwa/ecdh/derive.js
-export function concatKDF(secret: Uint8Array, keyLen: number, alg: string, producerInfo?:Uint8Array, consumerInfo?:Uint8Array): Uint8Array {
+export function concatKDF(
+  secret: Uint8Array,
+  keyLen: number,
+  alg: string,
+  producerInfo?: Uint8Array,
+  consumerInfo?: Uint8Array
+): Uint8Array {
   if (keyLen !== 256) throw new Error(`Unsupported key length: ${keyLen}`)
   const value = u8a.concat([
     lengthAndInput(u8a.fromString(alg)),
