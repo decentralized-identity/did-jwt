@@ -137,7 +137,7 @@ const DID_JSON = 'application/did+json'
 
 function encodeSection(data: any, shouldCanonicalize: boolean = false): string {
   if (shouldCanonicalize) {
-    return encodeBase64url(canonicalizeData(data))
+    return encodeBase64url(<string>canonicalizeData(data))
   } else {
     return encodeBase64url(JSON.stringify(data))
   }
