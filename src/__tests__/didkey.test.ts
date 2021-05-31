@@ -1,6 +1,5 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { verifyJWT } from '../JWT'
-import type { Resolver } from 'did-resolver'
 
 const edKey58 = {
   id: 'did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM#z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM',

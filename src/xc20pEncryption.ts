@@ -3,7 +3,7 @@ import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter } from './JWE'
+import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 
 export type AuthEncryptParams = {
@@ -90,7 +90,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
   const alg = 'dir'
   async function encrypt(
     cleartext: Uint8Array,
-    protectedHeader: Record<string, any> = {},
+    protectedHeader: ProtectedHeader = {},
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
@@ -135,7 +135,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   }
   async function encrypt(
     cleartext: Uint8Array,
-    protectedHeader: Record<string, any> = {},
+    protectedHeader: ProtectedHeader = {},
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
@@ -203,7 +203,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
   }
   async function encrypt(
     cleartext: Uint8Array,
-    protectedHeader: Record<string, any> = {},
+    protectedHeader: ProtectedHeader = {},
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
@@ -252,8 +252,8 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
   return flattenedArray
 }
 
-function validateHeader(header: Record<string, any>) {
-  if (!(header.epk && header.iv && header.tag)) {
+function validateHeader(header?: ProtectedHeader) {
+  if (!(header && header.epk && header.iv && header.tag)) {
     throw new Error('Invalid JWE')
   }
 }
@@ -266,18 +266,18 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
     sealed: Uint8Array,
     iv: Uint8Array,
     aad?: Uint8Array,
-    recipient?: Record<string, any>
+    recipient?: Recipient
   ): Promise<Uint8Array | null> {
-    recipient = recipient || {}
-    validateHeader(recipient.header)
-    if (recipient.header.epk.crv !== crv) return null
+    validateHeader(recipient?.header)
+    recipient = <Recipient>recipient
+    if (recipient.header.epk?.crv !== crv) return null
     const publicKey = base64ToBytes(recipient.header.epk.x)
     const sharedSecret = sharedKey(secretKey, publicKey)
 
     // Key Encryption Key
     const kek = concatKDF(sharedSecret, keyLen, alg)
     // Content Encryption Key
-    const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
+    const sealedCek = toSealed(<string>recipient.encrypted_key, recipient.header.tag)
     const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
     if (cek === null) return null
 
@@ -302,11 +302,11 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
     sealed: Uint8Array,
     iv: Uint8Array,
     aad?: Uint8Array,
-    recipient?: Record<string, any>
+    recipient?: Recipient
   ): Promise<Uint8Array | null> {
-    recipient = recipient || {}
+    recipient = <Recipient>recipient
     validateHeader(recipient.header)
-    if (recipient.header.epk.crv !== crv) return null
+    if (recipient.header.epk?.crv !== crv) return null
     // ECDH-1PU requires additional shared secret between
     // static key of sender and static key of recipient
     const publicKey = base64ToBytes(recipient.header.epk.x)

@@ -94,6 +94,7 @@ export function verifyRecoverableES256K(
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
     const hash: Uint8Array = sha256(data)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recoveredKey: any = secp256k1.recoverPubKey(hash, <SignatureInput>sigObj, <number>sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)

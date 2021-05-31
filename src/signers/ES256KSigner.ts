@@ -21,7 +21,7 @@ const secp256k1: EC = new EC('secp256k1')
  *  @param    {Boolean}   recoverable  an optional flag to add the recovery param to the generated signatures
  *  @return   {Function}               a configured signer function `(data: string | Uint8Array): Promise<string>`
  */
-export function ES256KSigner(privateKey: string | Uint8Array, recoverable: boolean = false): Signer {
+export function ES256KSigner(privateKey: string | Uint8Array, recoverable = false): Signer {
   const privateKeyBytes: Uint8Array = parseKey(privateKey)
   if (privateKeyBytes.length !== 32) {
     throw new Error(`Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)

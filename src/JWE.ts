@@ -1,10 +1,19 @@
 import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type ProtectedHeader = Record<string, any>
+
+interface EphemeralPublicKey {
+  kty: string
+  crv: string
+  x: string
+}
+
 interface RecipientHeader {
   alg: string
   iv: string
   tag: string
-  epk?: Record<string, any> // Ephemeral  Public Key
+  epk?: EphemeralPublicKey
   kid?: string
   apv?: string
   apu?: string
@@ -36,19 +45,14 @@ export interface EncryptionResult {
 export interface Encrypter {
   alg: string
   enc: string
-  encrypt: (cleartext: Uint8Array, protectedHeader: Record<string, any>, aad?: Uint8Array) => Promise<EncryptionResult>
+  encrypt: (cleartext: Uint8Array, protectedHeader: ProtectedHeader, aad?: Uint8Array) => Promise<EncryptionResult>
   encryptCek?: (cek: Uint8Array) => Promise<Recipient>
 }
 
 export interface Decrypter {
   alg: string
   enc: string
-  decrypt: (
-    sealed: Uint8Array,
-    iv: Uint8Array,
-    aad?: Uint8Array,
-    recipient?: Record<string, any>
-  ) => Promise<Uint8Array | null>
+  decrypt: (sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array, recipient?: Recipient) => Promise<Uint8Array | null>
 }
 
 function validateJWE(jwe: JWE) {
