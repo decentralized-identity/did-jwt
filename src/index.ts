@@ -21,7 +21,13 @@ export {
   xc20pDirDecrypter,
   x25519Encrypter,
   x25519Decrypter,
-  resolveX25519Encrypters
+  resolveX25519Encrypters,
+  createAuthEncrypter,
+  createAnonEncrypter,
+  createAuthDecrypter,
+  createAnonDecrypter,
+  xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
+  xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2
 } from './xc20pEncryption'
 
 export {

@@ -139,5 +139,104 @@ module.exports = {
         jwe: {"protected":"eyJlbmMiOiJYQzIwUCJ9","recipients":[{"header":{"alg":"ECDH-ES+XC20PKW","tag":"fH6nMnuRhiwQU2GJ4WjIPA","epk":{"kty":"EC","crv":"P-256","x":"2mH373XQ_4IolX_FHzz1sztPs3UwwrP9Bm0D22gy4-U","y":"l8Yg3yTOOqhI9C5qNJhBqfJD9b0eacJZE0-pLCqImag"}},"encrypted_key":"sRAp3GM1vcOs-xQdCEb1OAl6WJxn0hJThRVUfkkW7es"},{"header":{"alg":"ECDH-ES+XC20PKW","tag":"tMK8ojOBHlzvATpzPwVqtQ","iv":"eMtFNTA1nKVgdYiEjWte3aZ-yto3Pp0g","epk":{"kty":"OKP","crv":"X25519","x":"6B5sqfpzjPedAPYpzMGeq6jc3w__GL_EI4dnl9u0ES0"}},"encrypted_key":"EL331vcSsYSDCt4rhLo009bxhCq9vmy07UFf31Ez9mk"}],"iv":"fgrzpDg-3TCKuNC5DMa1pwssyweKJ4Jo","ciphertext":"Kc3J_Z6l8wakQphIa7aO-9y-yvU276aukH-7V18vnT5_H3Y_XNjZlLen_Lxcy7NCq7zuiHjsGl0I3r6ihpdis6aFFQTFYfuTuNJOKO6k8uXU2AQ-KnTazg","tag":"9CF_koFccgK6w9WZho_9eQ"},
       }
     ]
-  }
+  },
+  ecdh1PuV3Xc20PkwV2: {
+    pass: [
+      {
+        senderkey: 'Ga6k9NGzLLbyz4uDF/25rmxL6kcMpIUfAB6q4jyErEI=',
+        recipientkeys: [ 'eGftJuIHIOQ4pIhpdHGgqJAYGvNRQyL1UgbuHCJKrlw=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJlbmMiOiJYQzIwUCJ9","iv":"tqp15TShA-eDERy2qEgCLmDl1QJSDZ4j","ciphertext":"5jPbpy_tj3FVszRzrEHwc6J0o-KluNSa56zyN3D7EHiJ_hgQDwUN8B-U1AJ_1uaBuPBmV0e-zAE4iX9ils_POcvwdpEB0LVnJ6QPYoOdbMx94uLb6pd6xw","tag":"QAdzJ4M8bSqvvuYY9-H_tw","recipients":[{"encrypted_key":"R8CAGP5rj3IZsKHWnSKrb_Z5iFwtLvDIn_WqO3pIko0","header":{"alg":"ECDH-1PU+XC20PKW","iv":"uedotKy0c6EhJMrWZC8r4_60n-vqUdAK","tag":"BImFz89iFXrhX_OmwqZRPA","epk":{"kty":"OKP","crv":"X25519","x":"ZHdwr-bpjEIYvvmcVyTT-UvjJS1DxUOLMNo5CxjcQns"},"enc":"XC20P"}}]}
+      },
+      {
+        senderkey: '4pJFgMDsu0JqjFT9l2NnFv+/Q/1qUP9dzt0lFdu1+00=',
+        recipientkeys: [ 'G7MtaOo6BMsi8VoEgu4DEJmfgl088DIHLm6BbMFNnMk=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJza2lkIjoiZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0xIiwiZW5jIjoiWEMyMFAifQ","iv":"4wcrBHUEBhhi1jYQWeGXzFSmf013CWjE","ciphertext":"nCCKJTjHI8IzNNC7OoCrKtXhkqzYUp2EeBkcSDy6rn4Z0oDc1-GAfJumQw83MO3aNKxEkF_iFEZiE6dlZKmvX5o9VDMk-pG8dd9gTlBS8Jx5V7GIotATkg","tag":"1U7BeQvvkGrK5idhUrwxOw","recipients":[{"encrypted_key":"2o2Ponu58YToFT1fi4jh6XADnLZK_2HV629zPB39FmY","header":{"alg":"ECDH-1PU+XC20PKW","iv":"DFTIc_GxomeBBNW0Ne5pYarqCFpCNEAQ","tag":"eGtKwjevonz39if11DIe3g","epk":{"kty":"OKP","crv":"X25519","x":"an9B9-jgsR53lrLIRVdgd2_AOglxnFv6JFmHhiBXniw"},"kid":"did:example:receiver#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 'o9+nnB/a7L7OaHpDKV3ZNqO8kMxN87bTfc3PPHwdmAY=',
+        recipientkeys: [ 'aHCSf53GyAsi2NEPN7jSJCiBNPI6caFZSnTsARA2/JU=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJlbmMiOiJYQzIwUCJ9","iv":"Mv2AaWtIV9xKPkR0Z4YWwHbPWNYfkQUm","ciphertext":"bO4O_N4LDn0LXovMFr-YUIguYAOgRwEilWikeehEigMlHuRMhk9gXAxzgEXOVR3EeAY0rOiJBs3kM0lXbkibbq5jD7dkoTO8d4f9VwJTvjh1n5T7dIS_4g","tag":"Fp4irT84Ry261664HeDixQ","recipients":[{"encrypted_key":"xm_rMaWJbyi5d1Hy3DvGc-ShjBMmtBLBaBrgYbjbqqs","header":{"alg":"ECDH-1PU+XC20PKW","iv":"CfJBZwkmufgbkhH5RMmAGmnAO7_TeiEy","tag":"U1ffVZr8hhnAgJKmr9tgzA","epk":{"kty":"OKP","crv":"X25519","x":"ZtKE_n4apf8xJxPfrk_22fHeYz1oMVV-9Ilsjkt9GWQ"},"apu":"QWxpY2U","apv":"Qm9i","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 'gEBhMCE0zlLPTPY6TW/X1nFC+6Gn22KSuqdj8xuMDC8=',
+        recipientkeys: [ 'TnDUuo7hbVWYw/49HjZfWGDnDGZ/6tRdvwina0kYGwM=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJza2lkIjoiZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0xIiwiZW5jIjoiWEMyMFAifQ","iv":"MDK1vppdO1fBhnWYBw5Vcj7OzXFoWLI6","ciphertext":"6orRa7wBlgRKsyaTxbHSEzphYRH_1HwC5FDJDsuBQ7Fv7XwAJ12gvkxSKx4HvFNRgcgsODmdjYGyQQFnkqswFyZwyNylYpJyh5bAaqV61Z7R79kYHuMRVg","tag":"NHflobCWt6lplerL8dj36w","recipients":[{"encrypted_key":"7swx_oZVz5Zwv1nfHx1ls8ZFaK2w-U-SbKN425GLrKQ","header":{"alg":"ECDH-1PU+XC20PKW","iv":"CgpZBwuh4UQMiE_ESRBdH7V9X4ZEo7cf","tag":"jm6l1jIaI8mOEn_wzTXHTQ","epk":{"kty":"OKP","crv":"X25519","x":"SGslzCO9UZ7p4jU3_jqgu-bHh7ojq0RxR3rswAhcvGo"},"kid":"did:example:receiver#key-1","apu":"QWxpY2U","apv":"Qm9i","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 'winSRtxUQasfBLcd8HPmF85kS6HMa0RLRtA8PblTsFc=',
+        recipientkeys: [ '2EITYEbrM3CtbggjtIWb+XR1nXn33ak2f8x5U0+tUs8=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwiZW5jIjoiWEMyMFAifQ","iv":"0AgTZOUg3yw0wayLySRVij8I7bDxQ0oZ","ciphertext":"3fYjaPgzawEdGbRir1dPzhTKNTtGlUvSkEFsW7wA3fpBrwN5qx3K_jyeixKkotOvn7kCG-NTgGAJ77ValW1Cl2X3fbb84YkYd1-UYr_qdBO_7-UELu145Q","tag":"H9h1pnOyWBpHUf76vnNobA","recipients":[{"encrypted_key":"mGqF1GmWGTzTQ1dtEHYuib1PEJs9bnezJBC0Qdw4Ih0","header":{"alg":"ECDH-1PU+XC20PKW","iv":"kQ9GZb3X3BGbf5KajtR7GhpW2Jneo1yp","tag":"cKZ6ilsGPmmA2X9rO3wOBQ","epk":{"kty":"OKP","crv":"X25519","x":"JhZV5gNSZ9LxoqKZ1tfkFUoisdqTUPpZXPThe-7pVnI"},"more":"protected","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 'Jec1EkYpuvVj2vKXIyMjSo2JS7KXwMA1rvVGj7umYlw=',
+        recipientkeys: [ 'L16P46IUqXyxbdG3vxq0HqwzBbMwkVU9/SKjRy7Nubo=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwiZW5jIjoiWEMyMFAifQ","iv":"HtAxWrZXeFYQqhTX3VvTaPoo_iW78xhZ","ciphertext":"CPlGjk7prypqISuF0bMNgemNTG2JCLBrZbmsIAFBpqyUsJR9ZR6QA1osOb-ENZGqzem-TQvd8hn1EWtQiDBN_Sg8vt41GAfBvP3jYTxSvOMO4co2SZ864Q","tag":"6lvid-vUJHIIrTTdqtZWjQ","aad":"dGhpcyBkYXRhIGlzIGF1dGhlbnRpY2F0ZWQ","recipients":[{"encrypted_key":"-gFoPiUt1Ooqm6OfBxCS7zPntO_H13-a4fRah7OXNU4","header":{"alg":"ECDH-1PU+XC20PKW","iv":"WqVUpQgsjdkLeJ_9h3_cGq5F9bA49r84","tag":"OjXw26fPv6YYx0BAGK4r0w","epk":{"kty":"OKP","crv":"X25519","x":"yO4REF7yeuojtAgO7Zv4aBlopDhoId6RdKm4ByPYVG4"},"more":"protected","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 's1mmgl42lUYs/m9NFcZXsrejKxpu0wpmExmskyXWsUQ=',
+        recipientkeys: [ 'OG/mkqO2noX0/7E0I+HTHGMTpYxbPLG8X9ak7ADGOtY=', '0I452d/J7+xl5OB/4ZGXoRPKBwpJdvd7E20SGLy9IAQ=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJza2lkIjoiZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0xIiwiZW5jIjoiWEMyMFAifQ","iv":"Hzl9pqbvncH10U6MFRpOZ7xyYqZTJkP_","ciphertext":"wvHImSFeFG6NpCEfpoAVe-DT8YgFPHt0dyPIS3nP3t6wY8A2GWf3z9-uzgX0ZVNr73_d0M_rhnPnBzlBiocsXrq7HLuBBucHoM2bC3NX2W_PoOoUHcf3zw","tag":"vDIWnftTdrkrHjiireD4aw","recipients":[{"encrypted_key":"DJYCzKQcf5heWMeOIcgVvCY99GVRMAcsrXsuElKK54s","header":{"alg":"ECDH-1PU+XC20PKW","iv":"XdcU-TJ2ZflgIDmQBJUDyDvHSCKdZpur","tag":"lGHm5Iofs-RZaGp3N4z0dQ","epk":{"kty":"OKP","crv":"X25519","x":"ZKI_CUgkKm2BSGZl61wCU8C94eiJMBYLZqZzFDTTJy4"},"kid":"did:example:receiver1#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}},{"encrypted_key":"6hTnZ6Lw1PUtWXISFMTqI8BmQ9TQo3svwiC5CI8dhcg","header":{"alg":"ECDH-1PU+XC20PKW","iv":"ZgGZNiv_Zcm-dnoNl3keXAXMPO-ZSuAb","tag":"-zU7jiF-tNWdI7oDVzk52Q","epk":{"kty":"OKP","crv":"X25519","x":"oP9HpmTjYJpDvK1TJN0u9bZH70E7RLRVsx47-5zosUk"},"kid":"did:example:receiver2#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      },
+      {
+        senderkey: 'L9q9/9Ja+sRXsgtaoJu4BKsU4tPShkD43q2q/J6QhS8=',
+        recipientkeys: [ 'NDj9lf1KGYV62+suEaV7eM9Jyf52IcNOgfk/gq2ZM88=', 'FjYBTXCaNXqOafuznKOiDsdza6seF6O1THL/aaOCoQ0=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwic2tpZCI6ImRpZDpleGFtcGxlOnNlbmRlciNrZXktMSIsImVuYyI6IlhDMjBQIn0","iv":"BN5rEL2D8n6O4X5qFVD1NgspGtKABgXR","ciphertext":"lNbDB1MsqC654o5vuV2NlYjXp26WgPcYMWxU2xx1lTIuK1V3loF3vrRG7gItxWQp3KHJL4TZVYcGd29hFkB_Aw4JIp2t1-sLtjPsvs7P9hf0I-60Em3pFA","tag":"U2gFdvyJgTbhnt3WxIZv6A","recipients":[{"encrypted_key":"GoUONl8e-5lkG9nl4xgCmyGCJG6cR3l-PsTpWFAJ2-4","header":{"alg":"ECDH-1PU+XC20PKW","iv":"QHMSdRjuHQamlyiDG11xdI6ZRbMXxrd1","tag":"F7N6Gr_3kbS5uscGgrNEkg","epk":{"kty":"OKP","crv":"X25519","x":"4__NuoaZRG124GpJYReph2VsYSRYELNYiLIf6hXtVXQ"},"kid":"did:example:receiver1#key-1","more":"protected","skid":"did:example:sender#key-1","enc":"XC20P"}},{"encrypted_key":"H2GfRVKHOwdEsmvSoZWu7jP1Y--kwh3nKYMUtBiQzM8","header":{"alg":"ECDH-1PU+XC20PKW","iv":"gTF_tpp8FIOKqGItFwilpOhEhOErqa9j","tag":"mKP5Ey4c0CEt6R0inWhuRA","epk":{"kty":"OKP","crv":"X25519","x":"BGB0V4X_XJLVV5fXM-CbGyF6x7EQh4fWE6NxdAueXSE"},"kid":"did:example:receiver2#key-1"}}]}
+      },
+      {
+        senderkey: 'DMk0fWkt2Y8Y717xbUps8o+g9vXgqhIvUzG22u3YoVQ=',
+        recipientkeys: [ 'aK2tDSxuQB3wE0+pW2xhez+jd2Nlnlsn40TfmG/290A=', 'MBJmtMzmfH86xjiuFZ7yObzhUlWZyTSkXgNvClB7Nz8=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwic2tpZCI6ImRpZDpleGFtcGxlOnNlbmRlciNrZXktMSIsImVuYyI6IlhDMjBQIn0","iv":"WEAjww6hpVW-q0qOHDtEEN-AwWVEkHgf","ciphertext":"OuSj8p9DJ2O4cOXRWHi3bLQbnsTRNuSKjgAr5ig1AcsXRj0olOOEK-gb5Qs7sNREUUBqUyK9SC2_cW2JD5BC-MKal08eriN7N2e-m5SS9OOIsZiyGtnI-A","tag":"MHAFgLIHcNS-m42OiVvNwQ","aad":"dGhpcyBkYXRhIGlzIGF1dGhlbnRpY2F0ZWQ","recipients":[{"encrypted_key":"puuKXBUXSBlRZCICaQnG-OLX_F_-GVE4lESLqZ4QDTk","header":{"alg":"ECDH-1PU+XC20PKW","iv":"zZqI4m9XO-aA6u2EVEZUGJexnMuSnxC4","tag":"HDZdndyMdRf77I2IO-zUow","epk":{"kty":"OKP","crv":"X25519","x":"KZfzLUZMwvlc7mItQyx0F9b1caC0SxiGuNemmYQ8nF8"},"kid":"did:example:receiver1#key-1","more":"protected","skid":"did:example:sender#key-1","enc":"XC20P"}},{"encrypted_key":"X85SlJ6WEJv4TFTxn2SYH1w0fEKH_HkI_oZZaK_VglE","header":{"alg":"ECDH-1PU+XC20PKW","iv":"HtBD10hnvYwqFB7BcHe9PPrOAV4qybHZ","tag":"p0ySr_KDlUWRAwSwE2ifNQ","epk":{"kty":"OKP","crv":"X25519","x":"zAkbzcZYPveVuE5nEiNGq4bN8Ja3ImJG_BI0UkTs_ys"},"kid":"did:example:receiver2#key-1","more":"protected","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      }
+    ],
+    fail: [
+      {
+        // wrong sender key
+        senderkey: 'DMk0fWkt2Y8Y717xbUps8o+g9vXgqhIvUzG22u3YoVQ=',
+        recipientkeys: [ 'eGftJuIHIOQ4pIhpdHGgqJAYGvNRQyL1UgbuHCJKrlw=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJlbmMiOiJYQzIwUCJ9","iv":"tqp15TShA-eDERy2qEgCLmDl1QJSDZ4j","ciphertext":"5jPbpy_tj3FVszRzrEHwc6J0o-KluNSa56zyN3D7EHiJ_hgQDwUN8B-U1AJ_1uaBuPBmV0e-zAE4iX9ils_POcvwdpEB0LVnJ6QPYoOdbMx94uLb6pd6xw","tag":"QAdzJ4M8bSqvvuYY9-H_tw","recipients":[{"encrypted_key":"R8CAGP5rj3IZsKHWnSKrb_Z5iFwtLvDIn_WqO3pIko0","header":{"alg":"ECDH-1PU+XC20PKW","iv":"uedotKy0c6EhJMrWZC8r4_60n-vqUdAK","tag":"BImFz89iFXrhX_OmwqZRPA","epk":{"kty":"OKP","crv":"X25519","x":"ZHdwr-bpjEIYvvmcVyTT-UvjJS1DxUOLMNo5CxjcQns"},"enc":"XC20P"}}]}
+      },
+      {
+        // wrong recipient keys
+        senderkey: 'Ga6k9NGzLLbyz4uDF/25rmxL6kcMpIUfAB6q4jyErEI=',
+        recipientkeys: [ 'aK2tDSxuQB3wE0+pW2xhez+jd2Nlnlsn40TfmG/290A=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJlbmMiOiJYQzIwUCJ9","iv":"tqp15TShA-eDERy2qEgCLmDl1QJSDZ4j","ciphertext":"5jPbpy_tj3FVszRzrEHwc6J0o-KluNSa56zyN3D7EHiJ_hgQDwUN8B-U1AJ_1uaBuPBmV0e-zAE4iX9ils_POcvwdpEB0LVnJ6QPYoOdbMx94uLb6pd6xw","tag":"QAdzJ4M8bSqvvuYY9-H_tw","recipients":[{"encrypted_key":"R8CAGP5rj3IZsKHWnSKrb_Z5iFwtLvDIn_WqO3pIko0","header":{"alg":"ECDH-1PU+XC20PKW","iv":"uedotKy0c6EhJMrWZC8r4_60n-vqUdAK","tag":"BImFz89iFXrhX_OmwqZRPA","epk":{"kty":"OKP","crv":"X25519","x":"ZHdwr-bpjEIYvvmcVyTT-UvjJS1DxUOLMNo5CxjcQns"},"enc":"XC20P"}}]}
+      },
+      {
+        // wrong sender key
+        senderkey: 'DMk0fWkt2Y8Y717xbUps8o+g9vXgqhIvUzG22u3YoVQ=',
+        recipientkeys: [ 'OG/mkqO2noX0/7E0I+HTHGMTpYxbPLG8X9ak7ADGOtY=', '0I452d/J7+xl5OB/4ZGXoRPKBwpJdvd7E20SGLy9IAQ=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJza2lkIjoiZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0xIiwiZW5jIjoiWEMyMFAifQ","iv":"Hzl9pqbvncH10U6MFRpOZ7xyYqZTJkP_","ciphertext":"wvHImSFeFG6NpCEfpoAVe-DT8YgFPHt0dyPIS3nP3t6wY8A2GWf3z9-uzgX0ZVNr73_d0M_rhnPnBzlBiocsXrq7HLuBBucHoM2bC3NX2W_PoOoUHcf3zw","tag":"vDIWnftTdrkrHjiireD4aw","recipients":[{"encrypted_key":"DJYCzKQcf5heWMeOIcgVvCY99GVRMAcsrXsuElKK54s","header":{"alg":"ECDH-1PU+XC20PKW","iv":"XdcU-TJ2ZflgIDmQBJUDyDvHSCKdZpur","tag":"lGHm5Iofs-RZaGp3N4z0dQ","epk":{"kty":"OKP","crv":"X25519","x":"ZKI_CUgkKm2BSGZl61wCU8C94eiJMBYLZqZzFDTTJy4"},"kid":"did:example:receiver1#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}},{"encrypted_key":"6hTnZ6Lw1PUtWXISFMTqI8BmQ9TQo3svwiC5CI8dhcg","header":{"alg":"ECDH-1PU+XC20PKW","iv":"ZgGZNiv_Zcm-dnoNl3keXAXMPO-ZSuAb","tag":"-zU7jiF-tNWdI7oDVzk52Q","epk":{"kty":"OKP","crv":"X25519","x":"oP9HpmTjYJpDvK1TJN0u9bZH70E7RLRVsx47-5zosUk"},"kid":"did:example:receiver2#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      },
+      {
+        // wrong recipient keys
+        senderkey: 's1mmgl42lUYs/m9NFcZXsrejKxpu0wpmExmskyXWsUQ=',
+        recipientkeys: [ 'aK2tDSxuQB3wE0+pW2xhez+jd2Nlnlsn40TfmG/290A=', 'aK2tDSxuQB3wE0+pW2xhez+jd2Nlnlsn40TfmG/290A=' ],
+        cleartext: '/GOQlvtSg2V6m9L1IfjPpoyunkmjtvzZX5/gh+lo847Ys3oP+1wd0NmAsCGHiSTB58aAx6PG1+Vi4sXUtRP4kw==',
+        jwe: {"protected":"eyJza2lkIjoiZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0xIiwiZW5jIjoiWEMyMFAifQ","iv":"Hzl9pqbvncH10U6MFRpOZ7xyYqZTJkP_","ciphertext":"wvHImSFeFG6NpCEfpoAVe-DT8YgFPHt0dyPIS3nP3t6wY8A2GWf3z9-uzgX0ZVNr73_d0M_rhnPnBzlBiocsXrq7HLuBBucHoM2bC3NX2W_PoOoUHcf3zw","tag":"vDIWnftTdrkrHjiireD4aw","recipients":[{"encrypted_key":"DJYCzKQcf5heWMeOIcgVvCY99GVRMAcsrXsuElKK54s","header":{"alg":"ECDH-1PU+XC20PKW","iv":"XdcU-TJ2ZflgIDmQBJUDyDvHSCKdZpur","tag":"lGHm5Iofs-RZaGp3N4z0dQ","epk":{"kty":"OKP","crv":"X25519","x":"ZKI_CUgkKm2BSGZl61wCU8C94eiJMBYLZqZzFDTTJy4"},"kid":"did:example:receiver1#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}},{"encrypted_key":"6hTnZ6Lw1PUtWXISFMTqI8BmQ9TQo3svwiC5CI8dhcg","header":{"alg":"ECDH-1PU+XC20PKW","iv":"ZgGZNiv_Zcm-dnoNl3keXAXMPO-ZSuAb","tag":"-zU7jiF-tNWdI7oDVzk52Q","epk":{"kty":"OKP","crv":"X25519","x":"oP9HpmTjYJpDvK1TJN0u9bZH70E7RLRVsx47-5zosUk"},"kid":"did:example:receiver2#key-1","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      }
+    ],
+    invalid: [
+      {
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwic2tpZCI6ImRpZDpleGFtcGxlOnNlbmRlciNrZXktMSIsImVuYyI6IlhDMjBQIn0","ciphertext":"6DehIR6ps5yh5Mepwj6XluBSk5AS0d18Y27XTWvV5T0uCRtcxBGO1finKBqzgblJA7dPQ55TZuVd41UERiq9FhsPgp7ehR4bBoyHnm8ftnjSHVpyORxLBw","tag":"T2fKAQQgJGFpI0kfpGXFkg","aad":"dGhpcyBkYXRhIGlzIGF1dGhlbnRpY2F0ZWQ","recipients":[{"encrypted_key":"OKUxwt7G1VbLhl0K5yHGkEQe2Ii8CHblLREK304ub6M","header":{"alg":"ECDH-1PU+XC20PKW","iv":"Gnt5p0e8eG012SfLxh-uo9lKs8cYsYGy","tag":"XWZYufnclg_Ei4JsBMpYNA","epk":{"kty":"OKP","crv":"X25519","x":"u7j3sQuuUbDVFoujne22_1b9HcwHkbAUxRsyAmhGz14"},"kid":"did:example:receiver#key-1","apu":"ZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0x","apv":"ZGlkOmV4YW1wbGU6cmVjZWl2ZXIja2V5LTE","more":"protected","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      },
+      {
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwic2tpZCI6ImRpZDpleGFtcGxlOnNlbmRlciNrZXktMSIsImVuYyI6IlhDMjBQIn0","iv":"yZakU656sGJS9UKV5zyC1HV7cIhu0MPs","ciphertext":"6DehIR6ps5yh5Mepwj6XluBSk5AS0d18Y27XTWvV5T0uCRtcxBGO1finKBqzgblJA7dPQ55TZuVd41UERiq9FhsPgp7ehR4bBoyHnm8ftnjSHVpyORxLBw","tag":"T2fKAQQgJGFpI0kfpGXFkg","aad":"dGhpcyBkYXRhIGlzIGF1dGhlbnRpY2F0ZWQ","recipients":[]}
+      },
+      {
+        jwe: {"protected":"eyJtb3JlIjoicHJvdGVjdGVkIiwic2tpZCI6ImRpZDpleGFtcGxlOnNlbmRlciNrZXktMSIsImVuYyI6IlhDMjBQIn0","iv":"yZakU656sGJS9UKV5zyC1HV7cIhu0MPs","ciphertext":"6DehIR6ps5yh5Mepwj6XluBSk5AS0d18Y27XTWvV5T0uCRtcxBGO1finKBqzgblJA7dPQ55TZuVd41UERiq9FhsPgp7ehR4bBoyHnm8ftnjSHVpyORxLBw","aad":"dGhpcyBkYXRhIGlzIGF1dGhlbnRpY2F0ZWQ","recipients":[{"encrypted_key":"OKUxwt7G1VbLhl0K5yHGkEQe2Ii8CHblLREK304ub6M","header":{"alg":"ECDH-1PU+XC20PKW","iv":"Gnt5p0e8eG012SfLxh-uo9lKs8cYsYGy","tag":"XWZYufnclg_Ei4JsBMpYNA","epk":{"kty":"OKP","crv":"X25519","x":"u7j3sQuuUbDVFoujne22_1b9HcwHkbAUxRsyAmhGz14"},"kid":"did:example:receiver#key-1","apu":"ZGlkOmV4YW1wbGU6c2VuZGVyI2tleS0x","apv":"ZGlkOmV4YW1wbGU6cmVjZWl2ZXIja2V5LTE","more":"protected","skid":"did:example:sender#key-1","enc":"XC20P"}}]}
+      }
+    ]
+  }  
 }
