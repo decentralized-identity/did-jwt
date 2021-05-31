@@ -1,3 +1,10 @@
+# [5.5.0](https://github.com/decentralized-identity/did-jwt/compare/5.4.1...5.5.0) (2021-05-31)
+
+
+### Features
+
+* Add support for authenticated encryption ([#177](https://github.com/decentralized-identity/did-jwt/issues/177)) ([9a71b07](https://github.com/decentralized-identity/did-jwt/commit/9a71b077b2f0f6ad548e60e3e0222a3bfaa6a404))
+
 ## [5.4.1](https://github.com/decentralized-identity/did-jwt/compare/5.4.0...5.4.1) (2021-05-19)
 
 
