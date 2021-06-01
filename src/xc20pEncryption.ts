@@ -270,7 +270,7 @@ export function x25519Decrypter(secretKey: Uint8Array): Decrypter {
   ): Promise<Uint8Array | null> {
     validateHeader(recipient?.header)
     recipient = <Recipient>recipient
-    if (recipient.header.epk?.crv !== crv) return null
+    if (recipient.header.epk?.crv !== crv || typeof recipient.header.epk.x == 'undefined') return null
     const publicKey = base64ToBytes(recipient.header.epk.x)
     const sharedSecret = sharedKey(secretKey, publicKey)
 
@@ -306,7 +306,7 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   ): Promise<Uint8Array | null> {
     recipient = <Recipient>recipient
     validateHeader(recipient.header)
-    if (recipient.header.epk?.crv !== crv) return null
+    if (recipient.header.epk?.crv !== crv || typeof recipient.header.epk.x == 'undefined') return null
     // ECDH-1PU requires additional shared secret between
     // static key of sender and static key of recipient
     const publicKey = base64ToBytes(recipient.header.epk.x)

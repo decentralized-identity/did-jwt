@@ -3,10 +3,19 @@ import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './ut
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ProtectedHeader = Record<string, any>
 
+/**
+ * The JWK representation of an ephemeral public key.
+ * See https://www.rfc-editor.org/rfc/rfc7518.html#section-6
+ */
 interface EphemeralPublicKey {
-  kty: string
-  crv: string
-  x: string
+  kty?: string
+  //ECC
+  crv?: string
+  x?: string
+  y?: string
+  //RSA
+  n?: string
+  e?: string
 }
 
 interface RecipientHeader {

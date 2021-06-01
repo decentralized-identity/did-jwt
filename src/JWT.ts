@@ -10,7 +10,7 @@ export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<strin
 export type ProofPurposeTypes =
   | 'assertionMethod'
   | 'authentication'
-  | 'keyAgreement'
+  // | 'keyAgreement' // keyAgreement VerificationMethod should not be used for signing
   | 'capabilityDelegation'
   | 'capabilityInvocation'
 
