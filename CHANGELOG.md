@@ -1,3 +1,11 @@
+## [5.5.1](https://github.com/decentralized-identity/did-jwt/compare/5.5.0...5.5.1) (2021-06-02)
+
+
+### Bug Fixes
+
+* **build:** non-minified outputs and better handling of strict mode ([#175](https://github.com/decentralized-identity/did-jwt/issues/175)) ([029b429](https://github.com/decentralized-identity/did-jwt/commit/029b429aa5fd9e1bc57ad6013c71a644f7b885ff)), closes [#173](https://github.com/decentralized-identity/did-jwt/issues/173) [#174](https://github.com/decentralized-identity/did-jwt/issues/174)
+* **ci:** add GH push ability to build bot ([e50edf6](https://github.com/decentralized-identity/did-jwt/commit/e50edf6715272d10ca2accae2a73014d696f9c52))
+
 # [5.5.0](https://github.com/decentralized-identity/did-jwt/compare/5.4.1...5.5.0) (2021-05-31)
 
 
