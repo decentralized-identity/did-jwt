@@ -1,3 +1,10 @@
+## [5.5.2](https://github.com/decentralized-identity/did-jwt/compare/5.5.1...5.5.2) (2021-06-02)
+
+
+### Bug Fixes
+
+* remove `exports` statement from package.json ([#182](https://github.com/decentralized-identity/did-jwt/issues/182)) ([5dbd6df](https://github.com/decentralized-identity/did-jwt/commit/5dbd6df2308065c1abc03c89438589a4af274467)), closes [#181](https://github.com/decentralized-identity/did-jwt/issues/181)
+
 ## [5.5.1](https://github.com/decentralized-identity/did-jwt/compare/5.5.0...5.5.1) (2021-06-02)
 
 
