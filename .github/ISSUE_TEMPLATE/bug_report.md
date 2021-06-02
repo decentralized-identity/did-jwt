@@ -9,20 +9,27 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+1. Using this piece of code 
+```typescript
+const didJWT = require('did-jwt')
+const signer = didJWT.ES256KSigner(myKey)
+
+let token = await didJWT.createJWT(/*...*/)
+///...
+```
+2. in this context...
+3. I see this error
 
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Samples**
+The ideal bug report links to a sample project that reproduces the error,
+or includes a failing test that will pass once the error is fixed. 
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
+ - Browser/Node [e.g. chrome, safari, node 14.17.0]
  - Version [e.g. 22]
 
 **Smartphone (please complete the following information):**
