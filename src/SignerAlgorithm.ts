@@ -1,6 +1,7 @@
 import { Signer, SignerAlgorithm } from './JWT'
 import { EcdsaSignature, fromJose, toJose } from './util'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function instanceOfEcdsaSignature(object: any): object is EcdsaSignature {
   return typeof object === 'object' && 'r' in object && 's' in object
 }

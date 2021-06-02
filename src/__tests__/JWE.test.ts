@@ -62,12 +62,12 @@ describe('JWE', () => {
         'decrypts valid jwe',
         async ({ senderkey, recipientkeys, cleartext, jwe }) => {
           expect.assertions(recipientkeys.length)
-          for (let recipientkey of recipientkeys) {
+          for (const recipientkey of recipientkeys) {
             const decrypter = xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
               u8a.fromString(recipientkey, 'base64pad'),
               u8a.fromString(senderkey, 'base64pad')
             )
-            var cleartextU8a = await decryptJWE(jwe, decrypter)
+            const cleartextU8a = await decryptJWE(jwe, decrypter)
             expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
           }
         }
@@ -77,7 +77,7 @@ describe('JWE', () => {
         'fails to decrypt bad jwe',
         async ({ senderkey, recipientkeys, jwe }) => {
           expect.assertions(recipientkeys.length)
-          for (let recipientkey of recipientkeys) {
+          for (const recipientkey of recipientkeys) {
             const decrypter = xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
               u8a.fromString(recipientkey, 'base64pad'),
               u8a.fromString(senderkey, 'base64pad')
@@ -330,8 +330,8 @@ describe('JWE', () => {
 
     describe('Multiple recipients', () => {
       let cleartext, senderkey
-      let recipients = []
-      let skid = 'did:example:sender#key-1'
+      const recipients = []
+      const skid = 'did:example:sender#key-1'
 
       beforeEach(() => {
         senderkey = generateKeyPairFromSeed(randomBytes(32))

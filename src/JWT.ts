@@ -7,6 +7,13 @@ import VerifierAlgorithm from './VerifierAlgorithm'
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
+export type ProofPurposeTypes =
+  | 'assertionMethod'
+  | 'authentication'
+  // | 'keyAgreement' // keyAgreement VerificationMethod should not be used for signing
+  | 'capabilityDelegation'
+  | 'capabilityInvocation'
+
 export interface JWTOptions {
   issuer: string
   signer: Signer
@@ -26,7 +33,7 @@ export interface JWTVerifyOptions {
   resolver?: Resolvable
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
-  proofPurpose?: 'authentication' | 'assertionMethod' | 'capabilityDelegation' | 'capabilityInvocation' | string
+  proofPurpose?: ProofPurposeTypes
 }
 
 export interface JWSCreationOptions {
@@ -42,6 +49,7 @@ export interface DIDAuthenticator {
 export interface JWTHeader {
   typ: 'JWT'
   alg: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any
 }
 
@@ -54,6 +62,7 @@ export interface JWTPayload {
   type?: string
   exp?: number
   rexp?: number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any
 }
 
@@ -72,10 +81,10 @@ export interface JWSDecoded {
 }
 
 export interface JWTVerified {
-  payload: any
+  payload: Partial<JWTPayload>
   didResolutionResult: DIDResolutionResult
   issuer: string
-  signer: object
+  signer: VerificationMethod
   jwt: string
 }
 
@@ -125,21 +134,24 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018']
 }
 
+type LegacyVerificationMethod = { publicKey?: string }
+
 const defaultAlg = 'ES256K'
 const DID_JSON = 'application/did+json'
 
-function encodeSection(data: any, shouldCanonicalize: boolean = false): string {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function encodeSection(data: any, shouldCanonicalize = false): string {
   if (shouldCanonicalize) {
-    return encodeBase64url(canonicalizeData(data))
+    return encodeBase64url(<string>canonicalizeData(data))
   } else {
     return encodeBase64url(JSON.stringify(data))
   }
 }
 
-export const NBF_SKEW: number = 300
+export const NBF_SKEW = 300
 
 function decodeJWS(jws: string): JWSDecoded {
-  const parts: RegExpMatchArray = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+  const parts = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
     return {
       header: JSON.parse(decodeBase64url(parts[1])),
@@ -186,7 +198,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
  */
 export async function createJWS(
-  payload: string | any,
+  payload: string | Partial<JWTPayload>,
   signer: Signer,
   header: Partial<JWTHeader> = {},
   options: JWSCreationOptions = {}
@@ -220,7 +232,7 @@ export async function createJWS(
  *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or rejects with an error
  */
 export async function createJWT(
-  payload: any,
+  payload: Partial<JWTPayload>,
   { issuer, signer, alg, expiresIn, canonicalize }: JWTOptions,
   header: Partial<JWTHeader> = {}
 ): Promise<string> {
@@ -234,7 +246,7 @@ export async function createJWT(
   }
   if (expiresIn) {
     if (typeof expiresIn === 'number') {
-      timestamps.exp = (payload.nbf || timestamps.iat) + Math.floor(expiresIn)
+      timestamps.exp = <number>(payload.nbf || timestamps.iat) + Math.floor(expiresIn)
     } else {
       throw new Error('JWT expiresIn is not a number')
     }
@@ -245,27 +257,27 @@ export async function createJWT(
 
 function verifyJWSDecoded(
   { header, data, signature }: JWSDecoded,
-  pubkeys: VerificationMethod | VerificationMethod[]
+  pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
-  if (!Array.isArray(pubkeys)) pubkeys = [pubkeys]
-  const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubkeys)
+  if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
+  const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubKeys)
   return signer
 }
 
 /**
  *  Verifies given JWS. If the JWS is valid, returns the public key that was
- *  used to sign the JWS, or throws an `Error` if none of the `pubkeys` match.
+ *  used to sign the JWS, or throws an `Error` if none of the `pubKeys` match.
  *
  *  @example
- *  const pubkey = verifyJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', { publicKeyHex: '0x12341...' })
+ *  const pubKey = verifyJWS('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', { publicKeyHex: '0x12341...' })
  *
  *  @param    {String}                          jws         A JWS string to verify
- *  @param    {Array<VerificationMethod> | VerificationMethod}    pubkeys     The public keys used to verify the JWS
+ *  @param    {Array<VerificationMethod> | VerificationMethod}    pubKeys     The public keys used to verify the JWS
  *  @return   {VerificationMethod}                       The public key used to sign the JWS
  */
-export function verifyJWS(jws: string, pubkeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
+export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
-  return verifyJWSDecoded(jwsDecoded, pubkeys)
+  return verifyJWSDecoded(jwsDecoded, pubKeys)
 }
 
 /**
@@ -292,17 +304,17 @@ export function verifyJWS(jws: string, pubkeys: VerificationMethod | Verificatio
 export async function verifyJWT(
   jwt: string,
   options: JWTVerifyOptions = {
-    resolver: null,
-    auth: null,
-    audience: null,
-    callbackUrl: null,
-    skewTime: null,
-    proofPurpose: null
+    resolver: undefined,
+    auth: undefined,
+    audience: undefined,
+    callbackUrl: undefined,
+    skewTime: undefined,
+    proofPurpose: undefined
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
-  const proofPurpose: string | undefined = options.hasOwnProperty('auth')
+  const proofPurpose: ProofPurposeTypes | undefined = Object.prototype.hasOwnProperty.call(options, 'auth')
     ? options.auth
       ? 'authentication'
       : undefined
@@ -310,12 +322,12 @@ export async function verifyJWT(
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
-    payload.iss,
+    payload.iss || '',
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = Math.floor(Date.now() / 1000)
-  const skewTime = options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+  const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
     const nowSkewed = now + skewTime
     if (payload.nbf) {
@@ -341,6 +353,9 @@ export async function verifyJWT(
     }
     return { payload, didResolutionResult, issuer, signer, jwt }
   }
+  throw new Error(
+    `JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
+  )
 }
 
 /**
@@ -363,7 +378,7 @@ export async function resolveAuthenticator(
   resolver: Resolvable,
   alg: string,
   issuer: string,
-  proofPurpose?: string
+  proofPurpose?: ProofPurposeTypes
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
@@ -383,12 +398,12 @@ export async function resolveAuthenticator(
     didResult = result as DIDResolutionResult
   }
 
-  if (didResult.didResolutionMetadata?.error) {
+  if (didResult.didResolutionMetadata?.error || didResult.didDocument == null) {
     const { error, message } = didResult.didResolutionMetadata
     throw new Error(`Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
   }
 
-  const getPublicKeyById = (verificationMethods: VerificationMethod[], pubid: string): VerificationMethod | null => {
+  const getPublicKeyById = (verificationMethods: VerificationMethod[], pubid?: string): VerificationMethod | null => {
     const filtered = verificationMethods.filter(({ id }) => pubid === id)
     return filtered.length > 0 ? filtered[0] : null
   }
@@ -399,7 +414,11 @@ export async function resolveAuthenticator(
   ]
   if (typeof proofPurpose === 'string') {
     // support legacy DID Documents that do not list assertionMethod
-    if (proofPurpose.startsWith('assertion') && !didResult.didDocument.hasOwnProperty('assertionMethod')) {
+    if (
+      proofPurpose.startsWith('assertion') &&
+      !Object.getOwnPropertyNames(didResult?.didDocument).includes('assertionMethod')
+    ) {
+      didResult.didDocument = { ...(<DIDDocument>didResult.didDocument) }
       didResult.didDocument.assertionMethod = [...publicKeysToCheck.map((pk) => pk.id)]
     }
 
@@ -407,14 +426,14 @@ export async function resolveAuthenticator(
       .map((verificationMethod) => {
         if (typeof verificationMethod === 'string') {
           return getPublicKeyById(publicKeysToCheck, verificationMethod)
-        } else if (typeof (<any>verificationMethod).publicKey === 'string') {
+        } else if (typeof (<LegacyVerificationMethod>verificationMethod).publicKey === 'string') {
           // this is a legacy format
-          return getPublicKeyById(publicKeysToCheck, (<any>verificationMethod).publicKey)
+          return getPublicKeyById(publicKeysToCheck, (<LegacyVerificationMethod>verificationMethod).publicKey)
         } else {
           return <VerificationMethod>verificationMethod
         }
       })
-      .filter((key) => key != null)
+      .filter((key) => key != null) as VerificationMethod[]
   }
 
   const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
