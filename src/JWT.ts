@@ -59,7 +59,6 @@ export interface JWTPayload {
   aud?: string | string[]
   iat?: number
   nbf?: number
-  type?: string
   exp?: number
   rexp?: number
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
