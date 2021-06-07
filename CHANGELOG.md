@@ -1,3 +1,10 @@
+## [5.5.3](https://github.com/decentralized-identity/did-jwt/compare/5.5.2...5.5.3) (2021-06-07)
+
+
+### Bug Fixes
+
+* remove `type` from `JWTPayload` ([#185](https://github.com/decentralized-identity/did-jwt/issues/185)) ([1b63949](https://github.com/decentralized-identity/did-jwt/commit/1b63949c70ff48998dd89e57f2f99d5d6bc381cf))
+
 ## [5.5.2](https://github.com/decentralized-identity/did-jwt/compare/5.5.1...5.5.2) (2021-06-02)
 
 
