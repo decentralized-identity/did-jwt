@@ -22,7 +22,7 @@
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint src/ --ext .ts",
-    "prepublishOnly": "yarn test && yarn lint",
+    "prepublishOnly": "yarn test:ci && yarn format && yarn lint",
     "prepare": "yarn build",
     "release": "semantic-release --debug"
   },
