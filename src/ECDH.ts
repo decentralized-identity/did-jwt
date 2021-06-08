@@ -2,15 +2,21 @@ import { sharedKey } from '@stablelib/x25519'
 
 /**
  * A wrapper around `mySecretKey` that can compute a shared secret using `theirPublicKey`
- * The promise should resolve to a Uint8Array containing the raw shared secret.
+ * The promise should resolve to a `Uint8Array` containing the raw shared secret.
  *
+ * This method is meant to be used when direct access to a secretKey is impossible or not desired.
+ *
+ * @param theirPublicKey `Uint8Array` the other party's publicKey
+ * @returns a `Promise` that resolves to a `Uint8Array` representing the computed shared secret
  */
 export type ECDH = (theirPublicKey: Uint8Array) => Promise<Uint8Array>
 
 /**
  * Wraps an X25519 secretKey into an ECDH method that can be used to compute a shared secret with a publicKey.
- * @param mySecretKey A `Uint8Array` representing the bytes of my secret key
+ * @param mySecretKey A `Uint8Array` of length 32 representing the bytes of my secret key
  * @returns an `ECDH` method with the signature `(theirPublicKey: Uint8Array) => Promise<Uint8Array>`
+ *
+ * @throws 'invalid_argument:...' if the secret key size is wrong
  */
 export function createX25519ECDH(mySecretKey: Uint8Array): ECDH {
   if (mySecretKey.length !== 32) {

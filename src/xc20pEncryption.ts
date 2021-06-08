@@ -7,24 +7,55 @@ import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } fr
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 
+/**
+ * Extra header parameters for JWE using authenticated encryption
+ */
 export type AuthEncryptParams = {
+  /**
+   * recipient key ID
+   */
   kid?: string
+
+  /**
+   * sender key ID
+   */
   skid?: string
-  // base64url encoded
+
+  /**
+   * See {@link https://datatracker.ietf.org/doc/html/rfc7518#section-4.6.1.2}
+   * base64url encoded
+   */
   apu?: string
-  // base64url encoded
+
+  /**
+   * See {@link https://datatracker.ietf.org/doc/html/rfc7518#section-4.6.1.3}
+   * base64url encoded
+   */
   apv?: string
 }
 
+/**
+ * Extra header parameters for JWE using anonymous encryption
+ */
 export type AnonEncryptParams = {
+  /**
+   * recipient key ID
+   */
   kid?: string
 }
 
 /**
  * Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
  * sender private key to encrypt the data).
- * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and
- * XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
+ * Uses {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU v3 } and
+ * {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW v2 }.
+ *
+ * @param recipientPublicKey the byte array representing the recipient public key
+ * @param senderSecret either a Uint8Array representing the sender secret key or
+ *   an ECDH function that wraps the key and can promise a shared secret given a public key
+ * @param options {@link AuthEncryptParams} used to specify extra header parameters
+ *
+ * @returns an {@link Encrypter} instance usable with {@link createJWE}
  *
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
  * are subject to change as new revisions or until the official CFRG specification are released.
@@ -41,7 +72,12 @@ export function createAuthEncrypter(
 
 /**
  * Recommended encrypter for anonymous encryption (i.e. no sender authentication).
- * Uses ECDH-ES+XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
+ * Uses {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | ECDH-ES+XC20PKW v2}.
+ *
+ * @param publicKey the byte array representing the recipient public key
+ * @param options {@link AnonEncryptParams} used to specify the recipient key ID (`kid`)
+ *
+ * @returns an {@link Encrypter} instance usable with {@link createJWE}
  *
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
  * is subject to change as new revisions or until the official CFRG specification is released.
@@ -55,8 +91,14 @@ export function createAnonEncrypter(publicKey: Uint8Array, options: Partial<Anon
 /**
  * Recommended decrypter for authenticated encryption (i.e. sender authentication and requires
  * sender public key to decrypt the data).
- * Uses ECDH-1PU [v3](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03) and
- * XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
+ * Uses {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU v3 } and
+ * {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW v2 }.
+ *
+ * @param recipientSecret either a Uint8Array representing the recipient secret key or
+ *   an ECDH function that wraps the key and can promise a shared secret given a public key
+ * @param senderPublicKey the byte array representing the sender public key
+ *
+ * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
  *
  * NOTE: ECDH-1PU and XC20PKW are proposed drafts in IETF and not a standard yet and
  * are subject to change as new revisions or until the official CFRG specification are released.
@@ -69,7 +111,12 @@ export function createAuthDecrypter(recipientSecret: Uint8Array | ECDH, senderPu
 
 /**
  * Recommended decrypter for anonymous encryption (i.e. no sender authentication).
- * Uses ECDH-ES+XC20PKW [v2](https://tools.ietf.org/html/draft-amringer-jose-chacha-02).
+ * Uses {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | ECDH-ES+XC20PKW v2 }.
+ *
+ * @param recipientSecret either a Uint8Array representing the recipient secret key or
+ *   an ECDH function that wraps the key and can promise a shared secret given a public key
+ *
+ * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
  *
  * NOTE: ECDH-ES+XC20PKW is a proposed draft in IETF and not a standard yet and
  * is subject to change as new revisions or until the official CFRG specification is released.
@@ -162,8 +209,8 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
 
 /**
  * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
- *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
- *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
+ *   - {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW}
+ *   - {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU}
  */
 export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
   recipientPublicKey: Uint8Array,
@@ -307,8 +354,8 @@ export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
 
 /**
  * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
- *   - [XC20PKW](https://tools.ietf.org/html/draft-amringer-jose-chacha-02)
- *   - [ECDH-1PU](https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03)
+ *   - {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW}
+ *   - {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU}
  */
 export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   recipientSecret: Uint8Array | ECDH,
