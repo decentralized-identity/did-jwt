@@ -3,6 +3,7 @@ import { decryptJWE, createJWE } from '../JWE'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPair } from '@stablelib/x25519'
+import { createX25519ECDH } from '../ECDH'
 
 describe('xc20pEncryption', () => {
   describe('resolveX25519Encrypters', () => {
@@ -13,6 +14,7 @@ describe('xc20pEncryption', () => {
 
     let resolver
     let decrypter1, decrypter2
+    let decrypter1remote, decrypter2remote
 
     let didDocumentResult1, didDocumentResult2, didDocumentResult3, didDocumentResult4
 
@@ -21,6 +23,9 @@ describe('xc20pEncryption', () => {
       const kp2 = generateKeyPair()
       decrypter1 = x25519Decrypter(kp1.secretKey)
       decrypter2 = x25519Decrypter(kp2.secretKey)
+
+      decrypter1remote = x25519Decrypter(createX25519ECDH(kp1.secretKey))
+      decrypter2remote = x25519Decrypter(createX25519ECDH(kp2.secretKey))
 
       didDocumentResult1 = {
         didDocument: {
@@ -75,7 +80,7 @@ describe('xc20pEncryption', () => {
     })
 
     it('correctly resolves encrypters for DIDs', async () => {
-      expect.assertions(4)
+      expect.assertions(6)
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
@@ -84,6 +89,8 @@ describe('xc20pEncryption', () => {
       expect(jwe.recipients[1].header.kid).toEqual(did2 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, decrypter2remote)).toEqual(cleartext)
     })
 
     it('throws error if key is not found', async () => {
@@ -97,13 +104,15 @@ describe('xc20pEncryption', () => {
     })
 
     it('resolves encrypters for DIDs with multiple valid keys ', async () => {
-      expect.assertions(6)
+      expect.assertions(8)
 
       const secondKp1 = generateKeyPair()
       const secondKp2 = generateKeyPair()
 
       const newDecrypter1 = x25519Decrypter(secondKp1.secretKey)
       const newDecrypter2 = x25519Decrypter(secondKp2.secretKey)
+      const newDecrypter1remote = x25519Decrypter(createX25519ECDH(secondKp1.secretKey))
+      const newDecrypter2remote = x25519Decrypter(createX25519ECDH(secondKp2.secretKey))
 
       didDocumentResult1.didDocument.verificationMethod.push({
         id: did1 + '#def',
@@ -130,6 +139,8 @@ describe('xc20pEncryption', () => {
       expect(jwe.recipients[3].header.kid).toEqual(did2 + '#def')
       expect(await decryptJWE(jwe, newDecrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter2)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, newDecrypter1remote)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, newDecrypter2remote)).toEqual(cleartext)
     })
   })
 })
