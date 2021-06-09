@@ -17,7 +17,7 @@ export type AuthEncryptParams = {
   kid?: string
 
   /**
-   * sender key ID
+   * See {@link https://datatracker.ietf.org/doc/html/draft-madden-jose-ecdh-1pu-03#section-2.1.1}
    */
   skid?: string
 
