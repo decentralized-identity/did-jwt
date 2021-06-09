@@ -1,3 +1,10 @@
+# [5.6.0](https://github.com/decentralized-identity/did-jwt/compare/5.5.3...5.6.0) (2021-06-09)
+
+
+### Features
+
+* enable remote ECDH for JWE [de]encrypters ([#186](https://github.com/decentralized-identity/did-jwt/issues/186)) ([ff26440](https://github.com/decentralized-identity/did-jwt/commit/ff264405658f54a6f0f1a236284a03cb47027225)), closes [#183](https://github.com/decentralized-identity/did-jwt/issues/183)
+
 ## [5.5.3](https://github.com/decentralized-identity/did-jwt/compare/5.5.2...5.5.3) (2021-06-07)
 
 
