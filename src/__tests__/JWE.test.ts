@@ -1,4 +1,4 @@
-import { decryptJWE, createJWE, Encrypter } from '../JWE'
+import { decryptJWE, createJWE, Encrypter, JWE } from '../JWE'
 import vectors from './jwe-vectors.js'
 import {
   xc20pDirEncrypter,
@@ -6,12 +6,17 @@ import {
   x25519Encrypter,
   x25519Decrypter,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
-  xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2
+  xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
+  createAnonEncrypter,
+  createAnonDecrypter,
+  createAuthEncrypter,
+  createAuthDecrypter
 } from '../xc20pEncryption'
 import { decodeBase64url, encodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
+import { createX25519ECDH, ECDH } from '../ECDH'
 
 describe('JWE', () => {
   describe('decryptJWE', () => {
@@ -325,6 +330,47 @@ describe('JWE', () => {
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
         await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
+      })
+
+      describe('using remote ECDH', () => {
+        const message = 'hello world'
+        const receiverPair = generateKeyPairFromSeed(randomBytes(32))
+        const receiverRemoteECDH = createX25519ECDH(receiverPair.secretKey)
+        const senderPair = generateKeyPairFromSeed(randomBytes(32))
+        const senderRemoteECDH: ECDH = createX25519ECDH(senderPair.secretKey)
+
+        it('creates anon JWE with remote ECDH', async () => {
+          const encrypter = createAnonEncrypter(receiverPair.publicKey)
+          const jwe: JWE = await createJWE(u8a.fromString(message), [encrypter])
+          const decrypter = createAnonDecrypter(receiverRemoteECDH)
+          const decryptedBytes = await decryptJWE(jwe, decrypter)
+          const receivedMessage = u8a.toString(decryptedBytes)
+          expect(receivedMessage).toEqual(message)
+        })
+
+        it('creates and decrypts auth JWE', async () => {
+          const encrypter = createAuthEncrypter(receiverPair.publicKey, senderRemoteECDH)
+          const jwe: JWE = await createJWE(u8a.fromString(message), [encrypter])
+          const decrypter = createAuthDecrypter(receiverRemoteECDH, senderPair.publicKey)
+          const decryptedBytes = await decryptJWE(jwe, decrypter)
+          const receivedMessage = u8a.toString(decryptedBytes)
+          expect(receivedMessage).toEqual(message)
+        })
+
+        it(`throws error when using bad secret key size`, async () => {
+          expect.assertions(1)
+          const badSecretKey = randomBytes(64)
+          expect(() => {
+            createX25519ECDH(badSecretKey)
+          }).toThrow('invalid_argument')
+        })
+
+        it(`throws error when using bad public key size`, async () => {
+          expect.assertions(1)
+          const ecdh: ECDH = createX25519ECDH(randomBytes(32))
+          const badPublicKey = randomBytes(64)
+          expect(ecdh(badPublicKey)).rejects.toThrow('invalid_argument')
+        })
       })
     })
 
