@@ -8,18 +8,13 @@ import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 
 /**
- * Extra header parameters for JWE using authenticated encryption
+ * Extra parameters for JWE using authenticated encryption
  */
 export type AuthEncryptParams = {
   /**
    * recipient key ID
    */
   kid?: string
-
-  /**
-   * See {@link https://datatracker.ietf.org/doc/html/draft-madden-jose-ecdh-1pu-03#section-2.1.1}
-   */
-  skid?: string
 
   /**
    * See {@link https://datatracker.ietf.org/doc/html/rfc7518#section-4.6.1.2}
@@ -35,7 +30,7 @@ export type AuthEncryptParams = {
 }
 
 /**
- * Extra header parameters for JWE using anonymous encryption
+ * Extra parameters for JWE using anonymous encryption
  */
 export type AnonEncryptParams = {
   /**
@@ -268,7 +263,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
-    Object.assign(protectedHeader, { alg: undefined, skid: options.skid })
+    Object.assign(protectedHeader, { alg: undefined })
     // Content Encryption Key
     const cek = randomBytes(32)
     return {
