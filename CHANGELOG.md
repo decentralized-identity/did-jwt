@@ -1,3 +1,10 @@
+## [5.6.1](https://github.com/decentralized-identity/did-jwt/compare/5.6.0...5.6.1) (2021-06-11)
+
+
+### Bug Fixes
+
+* remove skid from the recipient header ([#188](https://github.com/decentralized-identity/did-jwt/issues/188)) ([0682cd1](https://github.com/decentralized-identity/did-jwt/commit/0682cd1336013a2afe95b650fb8ce4ccc2089ffa))
+
 # [5.6.0](https://github.com/decentralized-identity/did-jwt/compare/5.5.3...5.6.0) (2021-06-09)
 
 
