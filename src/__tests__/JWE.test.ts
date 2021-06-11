@@ -12,7 +12,7 @@ import {
   createAuthEncrypter,
   createAuthDecrypter
 } from '../xc20pEncryption'
-import { decodeBase64url, encodeBase64url } from '../util'
+import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
@@ -256,23 +256,22 @@ describe('JWE', () => {
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
-      it('Creates with skid, kid, no apu and no apv', async () => {
+      it('Creates with kid, no apu and no apv', async () => {
         const kid = 'did:example:receiver#key-1'
-        const skid = 'did:example:sender#key-1'
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
           kid
         })
         expect.assertions(6)
-        const jwe = await createJWE(cleartext, [encrypter], {skid})
+        const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
         expect(jwe.recipients[0].header.kid).toEqual(kid)
         expect(jwe.recipients[0].header.apu).toBeUndefined()
         expect(jwe.recipients[0].header.apv).toBeUndefined()
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
-      it('Creates with no skid, no kid, apu and apv', async () => {
+      it('Creates with no kid, apu and apv', async () => {
         const apu = encodeBase64url('Alice')
         const apv = encodeBase64url('Bob')
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
@@ -289,9 +288,8 @@ describe('JWE', () => {
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
-      it('Creates with skid, kid, apu and apv', async () => {
+      it('Creates with kid, apu and apv', async () => {
         const kid = 'did:example:receiver#key-1'
-        const skid = 'did:example:sender#key-1'
         const apu = encodeBase64url('Alice')
         const apv = encodeBase64url('Bob')
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
@@ -300,9 +298,9 @@ describe('JWE', () => {
           apv
         })
         expect.assertions(6)
-        const jwe = await createJWE(cleartext, [encrypter], {skid})
+        const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
         expect(jwe.recipients[0].header.kid).toEqual(kid)
         expect(jwe.recipients[0].header.apu).toEqual(apu)
         expect(jwe.recipients[0].header.apv).toEqual(apv)
@@ -311,10 +309,11 @@ describe('JWE', () => {
 
       it('Creates with data in protected header', async () => {
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey)
+        const skid = 'did:example:sender#key-1'
         expect.assertions(3)
-        const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' })
+        const jwe = await createJWE(cleartext, [encrypter], { skid, more: 'protected' })
         expect(jwe.aad).toBeUndefined()
-        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
+        expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', skid, more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
