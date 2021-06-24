@@ -1,7 +1,7 @@
 import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ProtectedHeader = Record<string, any>
+export type ProtectedHeader = Record<string, any> & Partial<RecipientHeader>
 
 /**
  * The JWK representation of an ephemeral public key.
@@ -18,7 +18,7 @@ interface EphemeralPublicKey {
   e?: string
 }
 
-interface RecipientHeader {
+export interface RecipientHeader {
   alg: string
   iv: string
   tag: string
@@ -125,7 +125,8 @@ export async function createJWE(
 export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8Array> {
   validateJWE(jwe)
   const protHeader = JSON.parse(decodeBase64url(jwe.protected))
-  if (protHeader.enc !== decrypter.enc) throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
+  if (protHeader.enc !== decrypter.enc)
+    throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
   const sealed = toSealed(jwe.ciphertext, jwe.tag)
   const aad = new Uint8Array(Buffer.from(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected))
   let cleartext = null

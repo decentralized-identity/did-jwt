@@ -180,7 +180,9 @@ describe('ES256K', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('invalid_signature: Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 
   it('throws error if invalid signature length', async () => {
@@ -289,7 +291,9 @@ describe('ES256K-R', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('invalid_signature: Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 })
 
@@ -316,6 +320,8 @@ describe('Ed25519', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(new Error('invalid_signature: Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 })
