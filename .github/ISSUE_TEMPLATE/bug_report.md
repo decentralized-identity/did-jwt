@@ -1,42 +1,60 @@
 ---
 name: Bug report
 about: Create a report to help us improve
+title: "[BUG]"
+labels: bug
+assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+### Prerequisites
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Using this piece of code 
-```typescript
-const didJWT = require('did-jwt')
-const signer = didJWT.ES256KSigner(myKey)
+Please answer the following questions for yourself before submitting an issue.
 
-let token = await didJWT.createJWT(/*...*/)
-///...
-```
-2. in this context...
-3. I see this error
+- [ ] I am running the latest version
+- [ ] I checked the documentation and found no answer
+- [ ] I checked to make sure that this issue has not already been filed
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**YOU MAY DELETE THE PREREQUISITES SECTION** if you're sure you checked all the boxes.
 
-**Samples**
-The ideal bug report links to a sample project that reproduces the error,
-or includes a failing test that will pass once the error is fixed. 
+### Current Behavior
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser/Node [e.g. chrome, safari, node 14.17.0]
- - Version [e.g. 22]
+What is the current behavior?
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+### Expected Behavior
 
-**Additional context**
-Add any other context about the problem here.
+Please describe the behavior you are expecting
+
+### Failure Information
+
+Please help provide information about the failure.
+
+#### Steps to Reproduce
+
+Please provide detailed steps for reproducing the issue.
+
+1. step 1
+2. step 2
+3. you get it...
+
+#### Environment Details
+
+Please provide any relevant information about your setup. This is important in case the issue is not reproducible except for under certain conditions.
+
+* node/browser version:
+* OS Version:
+* Device details:
+
+#### Failure Logs/Screenshots
+
+Please include any relevant log snippets or files here.
+Create a [GIST](https://gist.github.com) which is a paste of your _full or sanitized_ logs, and link them here.
+Please do _NOT_ paste your full logs here, as it will make this issue very long and hard to read!
+
+#### Alternatives you considered
+
+Please provide details about an environment where this bug does not occur.
+
+---
+
+> **Don't paste private keys anywhere public!**
