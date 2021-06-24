@@ -58,7 +58,7 @@ describe('ES256K', () => {
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
-      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945'
+      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945',
     })
   })
 
@@ -112,7 +112,7 @@ describe('ES256K-R', () => {
     expect(toSignatureObject(signature, true)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
       s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945',
-      recoveryParam: 1
+      recoveryParam: 1,
     })
   })
 

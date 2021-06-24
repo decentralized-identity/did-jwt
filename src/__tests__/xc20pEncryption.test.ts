@@ -34,16 +34,16 @@ describe('xc20pEncryption', () => {
               id: did1 + '#abc',
               type: 'X25519KeyAgreementKey2019',
               controller: did1,
-              publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc')
-            }
+              publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc'),
+            },
           ],
           keyAgreement: [
             {
-              id: 'irrelevant key'
+              id: 'irrelevant key',
             },
-            did1 + '#abc'
-          ]
-        }
+            did1 + '#abc',
+          ],
+        },
       }
 
       didDocumentResult2 = {
@@ -54,10 +54,10 @@ describe('xc20pEncryption', () => {
               id: did2 + '#abc',
               type: 'X25519KeyAgreementKey2019',
               controller: did2,
-              publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc')
-            }
-          ]
-        }
+              publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc'),
+            },
+          ],
+        },
       }
 
       didDocumentResult3 = { didResolutionMetadata: { error: 'notFound' }, didDocument: null }
@@ -75,7 +75,7 @@ describe('xc20pEncryption', () => {
             case did4:
               return didDocumentResult4
           }
-        })
+        }),
       }
     })
 
@@ -96,10 +96,10 @@ describe('xc20pEncryption', () => {
     it('throws error if key is not found', async () => {
       expect.assertions(2)
       await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrowError(
-        'Could not find x25519 key for did:test:3'
+        'resolver_error: Could not resolve did:test:3'
       )
       await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
-        'Could not find x25519 key for did:test:4'
+        'no_suitable_keys: Could not find x25519 key for did:test:4'
       )
     })
 
@@ -118,7 +118,7 @@ describe('xc20pEncryption', () => {
         id: did1 + '#def',
         type: 'X25519KeyAgreementKey2019',
         controller: did1,
-        publicKeyBase58: u8a.toString(secondKp1.publicKey, 'base58btc')
+        publicKeyBase58: u8a.toString(secondKp1.publicKey, 'base58btc'),
       })
       didDocumentResult1.didDocument.keyAgreement.push(did1 + '#def')
 
@@ -126,7 +126,7 @@ describe('xc20pEncryption', () => {
         id: did2 + '#def',
         type: 'X25519KeyAgreementKey2019',
         controller: did2,
-        publicKeyBase58: u8a.toString(secondKp2.publicKey, 'base58btc')
+        publicKeyBase58: u8a.toString(secondKp2.publicKey, 'base58btc'),
       })
 
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)

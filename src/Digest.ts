@@ -39,7 +39,7 @@ export function concatKDF(
     lengthAndInput(u8a.fromString(alg)),
     lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo), // apu
     lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo), // apv
-    writeUint32BE(keyLen)
+    writeUint32BE(keyLen),
   ])
 
   // since our key lenght is 256 we only have to do one round

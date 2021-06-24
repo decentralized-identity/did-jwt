@@ -100,12 +100,12 @@ export function parseKey(input: string | Uint8Array): Uint8Array {
     } else if (base64Matcher.test(input)) {
       return base64ToBytes(input)
     } else {
-      throw TypeError('Invalid private key format')
+      throw TypeError('bad_key: Invalid private key format')
     }
   } else if (input instanceof Uint8Array) {
     return input
   } else {
-    throw TypeError('Invalid private key format')
+    throw TypeError('bad_key: Invalid private key format')
   }
 }
 

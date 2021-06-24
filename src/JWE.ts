@@ -66,12 +66,12 @@ export interface Decrypter {
 
 function validateJWE(jwe: JWE) {
   if (!(jwe.protected && jwe.iv && jwe.ciphertext && jwe.tag)) {
-    throw new Error('Invalid JWE')
+    throw new Error('bad_jwe: missing properties')
   }
   if (jwe.recipients) {
     jwe.recipients.map((rec) => {
       if (!(rec.header && rec.encrypted_key)) {
-        throw new Error('Invalid JWE')
+        throw new Error('bad_jwe: malformed recipients')
       }
     })
   }
@@ -82,7 +82,7 @@ function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: Encrypti
     protected: <string>protectedHeader,
     iv: bytesToBase64url(iv),
     ciphertext: bytesToBase64url(ciphertext),
-    tag: bytesToBase64url(tag)
+    tag: bytesToBase64url(tag),
   }
   if (aad) jwe.aad = bytesToBase64url(aad)
   if (recipient) jwe.recipients = [recipient]
@@ -96,13 +96,13 @@ export async function createJWE(
   aad?: Uint8Array
 ): Promise<JWE> {
   if (encrypters[0].alg === 'dir') {
-    if (encrypters.length > 1) throw new Error('Can only do "dir" encryption to one key.')
+    if (encrypters.length > 1) throw new Error('not_supported: Can only do "dir" encryption to one key.')
     const encryptionResult = await encrypters[0].encrypt(cleartext, protectedHeader, aad)
     return encodeJWE(encryptionResult, aad)
   } else {
     const tmpEnc = encrypters[0].enc
     if (!encrypters.reduce((acc, encrypter) => acc && encrypter.enc === tmpEnc, true)) {
-      throw new Error('Incompatible encrypters passed')
+      throw new Error('invalid_argument: Incompatible encrypters passed')
     }
     let cek
     let jwe
@@ -125,14 +125,14 @@ export async function createJWE(
 export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8Array> {
   validateJWE(jwe)
   const protHeader = JSON.parse(decodeBase64url(jwe.protected))
-  if (protHeader.enc !== decrypter.enc) throw new Error(`Decrypter does not support: '${protHeader.enc}'`)
+  if (protHeader.enc !== decrypter.enc) throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
   const sealed = toSealed(jwe.ciphertext, jwe.tag)
   const aad = new Uint8Array(Buffer.from(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected))
   let cleartext = null
   if (protHeader.alg === 'dir' && decrypter.alg === 'dir') {
     cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)
   } else if (!jwe.recipients || jwe.recipients.length === 0) {
-    throw new Error('Invalid JWE')
+    throw new Error('bad_jwe: missing recipients')
   } else {
     for (let i = 0; !cleartext && i < jwe.recipients.length; i++) {
       const recipient = jwe.recipients[i]
@@ -142,6 +142,6 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
       }
     }
   }
-  if (cleartext === null) throw new Error('Failed to decrypt')
+  if (cleartext === null) throw new Error('failure: Failed to decrypt')
   return cleartext
 }

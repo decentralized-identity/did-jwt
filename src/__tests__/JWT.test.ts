@@ -29,15 +29,15 @@ const didDocLegacy = {
       id: `${did}#keys-1`,
       type: 'Secp256k1VerificationKey2018',
       owner: did,
-      publicKeyHex: publicKey
-    }
+      publicKeyHex: publicKey,
+    },
   ],
   authentication: [
     {
       type: 'Secp256k1SignatureAuthentication2018',
-      publicKey: `${did}#keys-1`
-    }
-  ]
+      publicKey: `${did}#keys-1`,
+    },
+  ],
 }
 
 const didDoc = {
@@ -49,14 +49,14 @@ const didDoc = {
         id: `${did}#keys-1`,
         type: 'EcdsaSecp256k1VerificationKey2019',
         controller: did,
-        publicKeyHex: publicKey
-      }
+        publicKeyHex: publicKey,
+      },
     ],
     authentication: [`${did}#keys-1`],
     assertionMethod: [`${did}#keys-1`],
     capabilityInvocation: [`${did}#keys-1`],
-    capabilityDelegation: [`${did}#some-key-that-does-not-exist`]
-  }
+    capabilityDelegation: [`${did}#some-key-that-does-not-exist`],
+  },
 }
 
 describe('createJWT()', () => {
@@ -90,7 +90,7 @@ describe('createJWT()', () => {
       const jwt = await createJWT(
         {
           requested: ['name', 'phone'],
-          nbf: Math.floor(new Date().getTime() / 1000)
+          nbf: Math.floor(new Date().getTime() / 1000),
         },
         { issuer: did, signer, expiresIn: 10000 }
       )
@@ -154,12 +154,12 @@ describe('createJWT()', () => {
               id: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU#key1',
               type: 'ED25519SignatureVerification',
               owner: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-              publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
-            }
+              publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU=',
+            },
           ],
-          authentication: []
-        }
-      })
+          authentication: [],
+        },
+      }),
     }
 
     it('creates a valid JWT with did:nacl issuer', async () => {
@@ -169,7 +169,7 @@ describe('createJWT()', () => {
       expect(payload).toEqual({
         iat: 1485321133,
         iss: 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU',
-        requested: ['name', 'phone']
+        requested: ['name', 'phone'],
       })
     })
 
@@ -212,7 +212,7 @@ describe('createJWT()', () => {
       const jwt = await createJWT(
         {
           requested: ['name', 'phone'],
-          nbf: Math.floor(new Date().getTime() / 1000)
+          nbf: Math.floor(new Date().getTime() / 1000),
         },
         { alg, issuer: did, signer, expiresIn: 10000 }
       )
@@ -237,7 +237,7 @@ describe('verifyJWT()', () => {
     it('verifies the JWT and return correct profile', async () => {
       expect.assertions(1)
       const {
-        didResolutionResult: { didDocument }
+        didResolutionResult: { didDocument },
       } = await verifyJWT(incomingJwt, { resolver })
       return expect(didDocument).toEqual(didDoc.didDocument)
     })
@@ -301,7 +301,7 @@ describe('verifyJWT()', () => {
     it('verifies the JWT and return correct profile', async () => {
       expect.assertions(1)
       const {
-        didResolutionResult: { didDocument }
+        didResolutionResult: { didDocument },
       } = await verifyJWT(incomingJwt, { resolver: legacyResolver })
       return expect(didDocument).toEqual(didDocLegacy)
     })
@@ -421,11 +421,11 @@ describe('verifyJWT()', () => {
               id: `${did}#keys-1`,
               type: 'Secp256k1VerificationKey2018',
               owner: did,
-              ethereumAddress: address
-            }
-          ]
-        }
-      })
+              ethereumAddress: address,
+            },
+          ],
+        },
+      }),
     }
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
@@ -443,11 +443,11 @@ describe('verifyJWT()', () => {
               id: `${did}#keys-1`,
               type: 'EcdsaSecp256k1RecoveryMethod2020',
               owner: did,
-              blockchainAccountId: `${address}@eip155:1`
-            }
-          ]
-        }
-      })
+              blockchainAccountId: `${address}@eip155:1`,
+            },
+          ],
+        },
+      }),
     }
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
@@ -500,7 +500,7 @@ describe('verifyJWT()', () => {
     const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
     const { payload } = await verifyJWT(jwt, {
       resolver,
-      callbackUrl: 'http://pututu.uport.me/unique'
+      callbackUrl: 'http://pututu.uport.me/unique',
     })
     return expect(payload).toMatchSnapshot()
   })
@@ -519,7 +519,7 @@ describe('verifyJWT()', () => {
     await expect(
       verifyJWT(jwt, {
         resolver,
-        callbackUrl: 'http://pututu.uport.me/unique/1'
+        callbackUrl: 'http://pututu.uport.me/unique/1',
       })
     ).rejects.toThrowError(/JWT audience does not match your DID or callback url/)
   })
@@ -596,7 +596,7 @@ describe('resolveAuthenticator()', () => {
     type: 'Secp256k1VerificationKey2018',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061'
+      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061',
   }
 
   const ecKey2 = {
@@ -604,7 +604,7 @@ describe('resolveAuthenticator()', () => {
     type: 'Secp256k1SignatureVerificationKey2018',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062',
   }
 
   const ecKey3 = {
@@ -612,72 +612,72 @@ describe('resolveAuthenticator()', () => {
     type: 'Secp256k1SignatureVerificationKey2018',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab063'
+      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab063',
   }
 
   const encKey1 = {
     id: `${did}#keys-4`,
     type: 'Curve25519EncryptionPublicKey',
     owner: did,
-    publicKeyBase64: 'QCFPBLm5pwmuTOu+haxv0+Vpmr6Rrz/DEEvbcjktQnQ='
+    publicKeyBase64: 'QCFPBLm5pwmuTOu+haxv0+Vpmr6Rrz/DEEvbcjktQnQ=',
   }
 
   const edKey = {
     id: `${did}#keys-5`,
     type: 'ED25519SignatureVerification',
     owner: did,
-    publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU='
+    publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU=',
   }
 
   const edKey2 = {
     id: `${did}#keys-6`,
     type: 'ED25519SignatureVerification',
     owner: did,
-    publicKeyBase64: 'SI+tzELqRb8XKuRE3Cj7uWGgkEQ86X87ZjhGAok+Ujc='
+    publicKeyBase64: 'SI+tzELqRb8XKuRE3Cj7uWGgkEQ86X87ZjhGAok+Ujc=',
   }
 
   const authKey1 = {
     type: 'Secp256k1SignatureAuthentication2018',
-    publicKey: ecKey1.id
+    publicKey: ecKey1.id,
   }
 
   const authKey2 = {
     type: 'Secp256k1SignatureAuthentication2018',
-    publicKey: ecKey2.id
+    publicKey: ecKey2.id,
   }
 
   const edAuthKey = {
     type: 'ED25519SigningAuthentication',
-    publicKey: edKey.id
+    publicKey: edKey.id,
   }
 
   const edKey6 = {
     id: `${did}#keys-auth6`,
     type: 'ED25519SignatureVerification',
     owner: did,
-    publicKeyBase58: 'dummyvalue'
+    publicKeyBase58: 'dummyvalue',
   }
 
   const ecKey7 = {
     id: `${did}#keys-auth7`,
     type: 'EcdsaSecp256k1VerificationKey2019',
     owner: did,
-    publicKeyBase58: 'dummyvalue'
+    publicKeyBase58: 'dummyvalue',
   }
 
   const edKey8 = {
     id: `${did}#keys-auth8`,
     type: 'Ed25519VerificationKey2018',
     owner: did,
-    publicKeyBase58: 'dummyvalue'
+    publicKeyBase58: 'dummyvalue',
   }
 
   const singleKey = {
     didDocument: {
       '@context': 'https://w3id.org/did/v1',
       id: did,
-      publicKey: [ecKey1]
-    }
+      publicKey: [ecKey1],
+    },
   }
 
   const multipleKeysLegacy = {
@@ -685,8 +685,8 @@ describe('resolveAuthenticator()', () => {
       '@context': 'https://w3id.org/did/v1',
       id: did,
       publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2],
-      authentication: [authKey1, authKey2, edAuthKey]
-    }
+      authentication: [authKey1, authKey2, edAuthKey],
+    },
   }
 
   const multipleAuthTypes = {
@@ -694,22 +694,22 @@ describe('resolveAuthenticator()', () => {
       '@context': 'https://w3id.org/did/v1',
       id: did,
       publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2, edKey6, ecKey7],
-      authentication: [authKey1, authKey2, edAuthKey, `${did}#keys-auth6`, `${did}#keys-auth7`, edKey8]
-    }
+      authentication: [authKey1, authKey2, edAuthKey, `${did}#keys-auth6`, `${did}#keys-auth7`, edKey8],
+    },
   }
 
   const unsupportedFormat = {
     didDocument: {
       '@context': 'https://w3id.org/did/v1',
       id: did,
-      publicKey: [encKey1]
-    }
+      publicKey: [encKey1],
+    },
   }
   const noPublicKey = {
     didDocument: {
       '@context': 'https://w3id.org/did/v1',
-      id: did
-    }
+      id: did,
+    },
   }
 
   describe('DID', () => {
@@ -720,7 +720,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [ecKey1],
           issuer: did,
-          didResolutionResult: singleKey
+          didResolutionResult: singleKey,
         })
       })
 
@@ -734,7 +734,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey3],
           issuer: did,
-          didResolutionResult: multipleKeysLegacy
+          didResolutionResult: multipleKeysLegacy,
         })
       })
 
@@ -749,7 +749,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2],
           issuer: did,
-          didResolutionResult: multipleKeysLegacy
+          didResolutionResult: multipleKeysLegacy,
         })
       })
 
@@ -764,7 +764,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [ecKey1, ecKey2, ecKey7],
           issuer: did,
-          didResolutionResult: multipleAuthTypes
+          didResolutionResult: multipleAuthTypes,
         })
       })
 
@@ -788,7 +788,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey2],
           issuer: did,
-          didResolutionResult: multipleKeysLegacy
+          didResolutionResult: multipleKeysLegacy,
         })
       })
 
@@ -803,7 +803,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [edKey],
           issuer: did,
-          didResolutionResult: multipleKeysLegacy
+          didResolutionResult: multipleKeysLegacy,
         })
       })
 
@@ -818,7 +818,7 @@ describe('resolveAuthenticator()', () => {
         return expect(authenticators).toEqual({
           authenticators: [edKey, edKey6, edKey8],
           issuer: did,
-          didResolutionResult: multipleAuthTypes
+          didResolutionResult: multipleAuthTypes,
         })
       })
 
@@ -853,8 +853,8 @@ describe('resolveAuthenticator()', () => {
           {
             resolve: jest.fn().mockReturnValue({
               didResolutionMetadata: { error: 'notFound' },
-              didDocument: null
-            })
+              didDocument: null,
+            }),
           },
           alg,
           did
