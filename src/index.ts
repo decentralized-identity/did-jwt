@@ -12,10 +12,10 @@ import {
   Signer,
   JWTHeader,
   JWTPayload,
-  JWTVerified
+  JWTVerified,
 } from './JWT'
 import { toEthereumAddress } from './Digest'
-export { JWE, createJWE, decryptJWE, Encrypter, Decrypter } from './JWE'
+export { JWE, createJWE, decryptJWE, Encrypter, Decrypter, ProtectedHeader, Recipient, RecipientHeader } from './JWE'
 export { ECDH, createX25519ECDH } from './ECDH'
 export {
   xc20pDirEncrypter,
@@ -28,7 +28,7 @@ export {
   createAuthDecrypter,
   createAnonDecrypter,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
-  xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2
+  xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
 } from './xc20pEncryption'
 
 export {
@@ -46,5 +46,5 @@ export {
   Signer,
   JWTHeader,
   JWTPayload,
-  JWTVerified
+  JWTVerified,
 }

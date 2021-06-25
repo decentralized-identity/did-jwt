@@ -13,7 +13,7 @@ export function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
       return toJose(signature, recoverable)
     } else {
       if (recoverable && typeof fromJose(signature).recoveryParam === 'undefined') {
-        throw new Error(`ES256K-R not supported when signer doesn't provide a recovery param`)
+        throw new Error(`not_supported: ES256K-R not supported when signer doesn't provide a recovery param`)
       }
       return signature
     }
@@ -26,7 +26,7 @@ export function Ed25519SignerAlg(): SignerAlgorithm {
     if (!instanceOfEcdsaSignature(signature)) {
       return signature
     } else {
-      throw new Error('expected a signer function that returns a string instead of signature object')
+      throw new Error('invalid_config: expected a signer function that returns a string instead of signature object')
     }
   }
 }
@@ -43,12 +43,12 @@ const algorithms: SignerAlgorithms = {
   // This is actually incorrect but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: Ed25519SignerAlg(),
-  EdDSA: Ed25519SignerAlg()
+  EdDSA: Ed25519SignerAlg(),
 }
 
 function SignerAlg(alg: string): SignerAlgorithm {
   const impl: SignerAlgorithm = algorithms[alg]
-  if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
+  if (!impl) throw new Error(`not_supported: Unsupported algorithm ${alg}`)
   return impl
 }
 

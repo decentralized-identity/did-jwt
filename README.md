@@ -1,17 +1,21 @@
-# did-jwt
-
 [![npm](https://img.shields.io/npm/dt/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
 [![npm](https://img.shields.io/npm/v/did-jwt.svg)](https://www.npmjs.com/package/did-jwt)
 [![Twitter Follow](https://img.shields.io/twitter/follow/uport_me.svg?style=social&label=Follow)](https://twitter.com/uport_me)
+[![codecov](https://codecov.io/gh/decentralized-identity/did-jwt/branch/master/graph/badge.svg)](https://codecov.io/gh/decentralized-identity/did-jwt)
 
-The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519) using `ES256K` and `Ed25519` algorithms.
-The non-standard `ES256K-R` is also supported for backward compatibility reasons.
+# did-jwt
 
-Public keys are resolved using the [Decentralized ID (DID)](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the signing identity of the token, which is passed as the `iss` attribute of the JWT payload.
+The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519)
+using `ES256K` and `EdDSA` algorithms. The non-standard `ES256K-R` is also supported for backward compatibility
+reasons, as well as the `Ed25519` legacy name for `EdDSA`.
+
+Public keys are resolved using the [Decentralized ID (DID)](https://w3c.github.io/did-core/#identifier) of the signing
+identity of the token, which is passed as the `iss` attribute of the JWT payload.
 
 ## DID methods
 
-All DID methods that can be resolved using the [`did-resolver'](https://github.com/uport-project/did-resolver) interface are supported for verification.
+All DID methods that can be resolved using the [`did-resolver'](https://github.com/decentralized-identity/did-resolver)
+interface are supported for verification.
 
 If your DID method requires a different signing algorithm than what is already supported, please create an issue.
 
@@ -31,8 +35,8 @@ yarn add did-jwt
 
 ### 1. Create a did-JWT
 
-In practice, you must secure the key passed to ES256KSigner.
-The key provided in code below is for informational purposes only.
+In practice, you must secure the key passed to ES256KSigner. The key provided in code below is for informational
+purposes only.
 
 ```js
 const didJWT = require('did-jwt')
@@ -75,9 +79,9 @@ Once decoded a did-JWT will resemble:
 
 ### 3. Verify a did-JWT
 
-You need to provide a did-resolver for the verify function.
-For this example we will use `did:ethr`, but there are other methods available.
-For more information on configuring the Resolver object please see [did-resolver](https://github.com/decentralized-identity/did-resolver#configure-resolver-object)
+You need to provide a did-resolver for the verify function. For this example we will use `did:ethr`, but there are other
+methods available. For more information on configuring the Resolver object please
+see [did-resolver](https://github.com/decentralized-identity/did-resolver#configure-resolver-object)
 
 ```bash
 npm install ethr-did-resolver

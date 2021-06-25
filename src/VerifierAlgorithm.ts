@@ -37,7 +37,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
       secp256k1
         .keyFromPublic({
           x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
-          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y))
+          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
         })
         .getPublic('hex')
     )
@@ -72,7 +72,7 @@ export function verifyES256K(
     signer = verifyRecoverableES256K(data, signature, ethAddressKeys)
   }
 
-  if (!signer) throw new Error('Signature invalid for JWT')
+  if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
 }
 
@@ -88,7 +88,7 @@ export function verifyRecoverableES256K(
     const so = toSignatureObject(signature, false)
     signatures = [
       { ...so, recoveryParam: 0 },
-      { ...so, recoveryParam: 1 }
+      { ...so, recoveryParam: 1 },
     ]
   }
 
@@ -117,7 +117,7 @@ export function verifyRecoverableES256K(
     .map(checkSignatureAgainstSigner)
     .filter((key) => typeof key !== 'undefined') as VerificationMethod[]
 
-  if (signer.length === 0) throw new Error('Signature invalid for JWT')
+  if (signer.length === 0) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer[0]
 }
 
@@ -131,7 +131,7 @@ export function verifyEd25519(
   const signer = authenticators.find((pk: VerificationMethod) => {
     return verify(extractPublicKeyBytes(pk), clear, sig)
   })
-  if (!signer) throw new Error('Signature invalid for JWT')
+  if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
 }
 
@@ -147,12 +147,12 @@ const algorithms: Algorithms = {
   // This is actually incorrect but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/130
   Ed25519: verifyEd25519,
-  EdDSA: verifyEd25519
+  EdDSA: verifyEd25519,
 }
 
 function VerifierAlgorithm(alg: string): Verifier {
   const impl: Verifier = algorithms[alg]
-  if (!impl) throw new Error(`Unsupported algorithm ${alg}`)
+  if (!impl) throw new Error(`not_supported: Unsupported algorithm ${alg}`)
   return impl
 }
 

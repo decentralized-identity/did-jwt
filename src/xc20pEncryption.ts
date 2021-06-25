@@ -3,7 +3,7 @@ import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
+import { Recipient, EncryptionResult, Encrypter, Decrypter, RecipientHeader, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 
@@ -130,7 +130,7 @@ function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Arr
     return {
       ciphertext: sealed.subarray(0, sealed.length - cipher.tagLength),
       tag: sealed.subarray(sealed.length - cipher.tagLength),
-      iv
+      iv,
     }
   }
 }
@@ -148,7 +148,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
     const encodedAad = new Uint8Array(Buffer.from(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader))
     return {
       ...xc20pEncrypt(cleartext, encodedAad),
-      protectedHeader: protHeader
+      protectedHeader: protHeader,
     }
   }
   return { alg, enc, encrypt }
@@ -178,8 +178,8 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
         alg,
         iv: bytesToBase64url(res.iv),
         tag: bytesToBase64url(res.tag),
-        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
-      }
+        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) },
+      },
     }
     if (kid) recipient.header.kid = kid
     return recipient
@@ -196,7 +196,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
     return {
       ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
       recipient: await encryptCek(cek),
-      cek
+      cek,
     }
   }
   return { alg, enc: 'XC20P', encrypt, encryptCek }
@@ -248,8 +248,8 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
         alg,
         iv: bytesToBase64url(res.iv),
         tag: bytesToBase64url(res.tag),
-        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) }
-      }
+        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) },
+      },
     }
     if (options.kid) recipient.header.kid = options.kid
     if (options.apu) recipient.header.apu = options.apu
@@ -269,7 +269,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
     return {
       ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
       recipient: await encryptCek(cek),
-      cek
+      cek,
     }
   }
   return { alg, enc: 'XC20P', encrypt, encryptCek }
@@ -280,10 +280,10 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
     const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
     if (didResolutionMetadata?.error || didDocument == null) {
       throw new Error(
-        `Could not find x25519 key for ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
+        `resolver_error: Could not resolve ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
       )
     }
-    if (!didDocument.keyAgreement) throw new Error(`Could not find x25519 key for ${did}`)
+    if (!didDocument.keyAgreement) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
     const agreementKeys: VerificationMethod[] = didDocument.keyAgreement
       ?.map((key) => {
         if (typeof key === 'string') {
@@ -298,7 +298,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       // TODO: should be able to use non base58 keys too
       return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
     })
-    if (!pks.length) throw new Error(`Could not find x25519 key for ${did}`)
+    if (!pks.length) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
     return pks.map((pk) => x25519Encrypter(base58ToBytes(<string>pk.publicKeyBase58), pk.id))
   }
 
@@ -310,7 +310,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
 
 function validateHeader(header?: ProtectedHeader) {
   if (!(header && header.epk && header.iv && header.tag)) {
-    throw new Error('Invalid JWE')
+    throw new Error('bad_jwe: malformed header')
   }
 }
 

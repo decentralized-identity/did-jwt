@@ -24,7 +24,7 @@ const secp256k1: EC = new EC('secp256k1')
 export function ES256KSigner(privateKey: string | Uint8Array, recoverable = false): Signer {
   const privateKeyBytes: Uint8Array = parseKey(privateKey)
   if (privateKeyBytes.length !== 32) {
-    throw new Error(`Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
+    throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
   }
   const keyPair: ec.KeyPair = secp256k1.keyFromPrivate(privateKeyBytes)
 
@@ -34,7 +34,7 @@ export function ES256KSigner(privateKey: string | Uint8Array, recoverable = fals
       {
         r: leftpad(r.toString('hex')),
         s: leftpad(s.toString('hex')),
-        recoveryParam
+        recoveryParam,
       },
       recoverable
     )

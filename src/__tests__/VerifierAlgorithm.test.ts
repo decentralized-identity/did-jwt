@@ -40,7 +40,7 @@ const publicKeyJwk = {
   crv: 'secp256k1',
   kty: 'EC',
   x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
-  y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex')))
+  y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
 }
 const address = toEthereumAddress(publicKey)
 const signer = ES256KSigner(privateKey)
@@ -57,56 +57,56 @@ const ecKey1 = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   publicKeyHex:
-    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062',
 }
 
 const ecKey2 = {
   id: `${did}#keys-2`,
   type: 'Secp256k1VerificationKey2018',
   controller: did,
-  publicKeyHex: publicKey
+  publicKeyHex: publicKey,
 }
 
 const ethAddress = {
   id: `${did}#keys-3`,
   type: 'Secp256k1VerificationKey2018',
   controller: did,
-  ethereumAddress: address
+  ethereumAddress: address,
 }
 
 const blockchainAddress = {
   id: `${did}#keys-blockchain`,
   type: 'EcdsaSecp256k1RecoveryMethod2020',
   controller: did,
-  blockchainAccountId: `${address}@eip155:1`
+  blockchainAccountId: `${address}@eip155:1`,
 }
 
 const compressedKey = {
   id: `${did}#keys-4`,
   type: 'Secp256k1VerificationKey2018',
   controller: did,
-  publicKeyHex: compressedPublicKey
+  publicKeyHex: compressedPublicKey,
 }
 
 const recoveryMethod2020Key = {
   id: `${did}#keys-recovery`,
   type: 'EcdsaSecp256k1RecoveryMethod2020',
   controller: did,
-  ethereumAddress: address
+  ethereumAddress: address,
 }
 
 const edKey = {
   id: `${did}#keys-5`,
   type: 'ED25519SignatureVerification',
   controller: did,
-  publicKeyBase64: edPublicKey
+  publicKeyBase64: edPublicKey,
 }
 
 const edKey2 = {
   id: `${did}#keys-6`,
   type: 'ED25519SignatureVerification',
   controller: did,
-  publicKeyBase64: edPublicKey2
+  publicKeyBase64: edPublicKey2,
 }
 
 const malformedKey1 = {
@@ -114,7 +114,7 @@ const malformedKey1 = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   publicKeyHex:
-    '05613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062'
+    '05613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062',
 }
 
 const malformedKey2 = {
@@ -122,7 +122,7 @@ const malformedKey2 = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   publicKeyHex:
-    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062aabbccdd'
+    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062aabbccdd',
 }
 
 const malformedKey3 = {
@@ -130,7 +130,7 @@ const malformedKey3 = {
   type: 'Secp256k1VerificationKey2018',
   controller: did,
   publicKeyHex:
-    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06'
+    '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06',
 }
 
 describe('ES256K', () => {
@@ -180,7 +180,9 @@ describe('ES256K', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 
   it('throws error if invalid signature length', async () => {
@@ -289,7 +291,9 @@ describe('ES256K-R', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 })
 
@@ -316,6 +320,8 @@ describe('Ed25519', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(new Error('Signature invalid for JWT'))
+    return expect(() => verifier(parts[1], parts[2], [edKey2])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
   })
 })

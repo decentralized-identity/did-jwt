@@ -10,7 +10,7 @@ import {
   createAnonEncrypter,
   createAnonDecrypter,
   createAuthEncrypter,
-  createAuthDecrypter
+  createAuthDecrypter,
 } from '../xc20pEncryption'
 import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
 import * as u8a from 'uint8arrays'
@@ -37,7 +37,7 @@ describe('JWE', () => {
       test.each(vectors.dir.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pDirDecrypter(randomBytes(32))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('bad_jwe: missing properties')
       })
     })
 
@@ -58,7 +58,7 @@ describe('JWE', () => {
       test.each(vectors.x25519.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = x25519Decrypter(randomBytes(32))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('bad_jwe:')
       })
     })
 
@@ -95,7 +95,7 @@ describe('JWE', () => {
       test.each(vectors.ecdh1PuV3Xc20PkwV2.invalid)('throws on invalid jwe', async ({ jwe }) => {
         expect.assertions(1)
         const decrypter = xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(randomBytes(32), randomBytes(32))
-        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('Invalid JWE')
+        await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('bad_jwe:')
       })
     })
   })
@@ -259,7 +259,7 @@ describe('JWE', () => {
       it('Creates with kid, no apu and no apv', async () => {
         const kid = 'did:example:receiver#key-1'
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
-          kid
+          kid,
         })
         expect.assertions(6)
         const jwe = await createJWE(cleartext, [encrypter])
@@ -276,7 +276,7 @@ describe('JWE', () => {
         const apv = encodeBase64url('Bob')
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
           apu,
-          apv
+          apv,
         })
         expect.assertions(6)
         const jwe = await createJWE(cleartext, [encrypter])
@@ -295,7 +295,7 @@ describe('JWE', () => {
         const encrypter = xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(recipientKey.publicKey, senderKey.secretKey, {
           kid,
           apu,
-          apv
+          apv,
         })
         expect.assertions(6)
         const jwe = await createJWE(cleartext, [encrypter])
@@ -391,8 +391,8 @@ describe('JWE', () => {
             decrypter: xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
               recipients[0].recipientkey.secretKey,
               senderkey.publicKey
-            )
-          }
+            ),
+          },
         }
 
         recipients[1] = { kid: 'did:example:receiver2#key-1', recipientkey: generateKeyPairFromSeed(randomBytes(32)) }
@@ -407,8 +407,8 @@ describe('JWE', () => {
             decrypter: xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
               recipients[1].recipientkey.secretKey,
               senderkey.publicKey
-            )
-          }
+            ),
+          },
         }
       })
 
@@ -425,7 +425,8 @@ describe('JWE', () => {
         expect.assertions(4)
         const skid = 'did:example:sender#key-1'
         const jwe = await createJWE(cleartext, [recipients[0].encrypter, recipients[1].encrypter], {
-          more: 'protected', skid
+          more: 'protected',
+          skid,
         })
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected', skid })
