@@ -1,3 +1,10 @@
+## [5.6.2](https://github.com/decentralized-identity/did-jwt/compare/5.6.1...5.6.2) (2021-06-25)
+
+
+### Bug Fixes
+
+* add better error messages ([#189](https://github.com/decentralized-identity/did-jwt/issues/189)) ([db8f93a](https://github.com/decentralized-identity/did-jwt/commit/db8f93a2d3e0457ad00f8c32a3925da1a8265f93))
+
 ## [5.6.1](https://github.com/decentralized-identity/did-jwt/compare/5.6.0...5.6.1) (2021-06-11)
 
 
