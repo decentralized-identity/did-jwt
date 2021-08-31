@@ -48,3 +48,5 @@ export {
   JWTPayload,
   JWTVerified,
 }
+
+export { JWTOptions, JWTVerifyOptions } from './JWT'
