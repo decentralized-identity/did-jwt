@@ -194,7 +194,9 @@ export function decodeJWT(jwt: string): JWTDecoded {
  *  @param    {Object}            payload           payload object
  *  @param    {Signer}            signer            a signer, see `ES256KSigner or `EdDSASigner`
  *  @param    {Object}            header            optional object to specify or customize the JWS header
- *  @return   {Promise<Object, Error>}              a promise which resolves with a JWS string or rejects with an error
+ *  @param    {Object}            options           can be used to trigger automatic canonicalization of header and
+ *                                                    payload properties
+ *  @return   {Promise<string>}                     a Promise which resolves to a JWS string or rejects with an error
  */
 export async function createJWS(
   payload: string | Partial<JWTPayload>,
