@@ -1,3 +1,10 @@
+# [5.7.0](https://github.com/decentralized-identity/did-jwt/compare/5.6.3...5.7.0) (2021-08-31)
+
+
+### Features
+
+* export JWTOptions and JWTVerifyOptions parameter types ([#198](https://github.com/decentralized-identity/did-jwt/issues/198)) ([8ba42e7](https://github.com/decentralized-identity/did-jwt/commit/8ba42e7d05f85c79784ae1c9afc5b557b9352dee)), closes [#197](https://github.com/decentralized-identity/did-jwt/issues/197)
+
 ## [5.6.3](https://github.com/decentralized-identity/did-jwt/compare/5.6.2...5.6.3) (2021-08-18)
 
 
