@@ -3,7 +3,7 @@ import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter, RecipientHeader, ProtectedHeader } from './JWE'
+import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 

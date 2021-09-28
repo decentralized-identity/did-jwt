@@ -2,6 +2,7 @@ import { ec as EC, SignatureInput } from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
+import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 
 const secp256k1 = new EC('secp256k1')
@@ -41,6 +42,10 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
+  } else if (pk.publicKeyMultibase) {
+    const { base16, base58btc, base64, base64url } = bases
+    const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
+    return baseDecoder.decode(pk.publicKeyMultibase)
   }
   return new Uint8Array()
 }
