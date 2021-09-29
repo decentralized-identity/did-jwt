@@ -1,3 +1,10 @@
+# [5.8.0](https://github.com/decentralized-identity/did-jwt/compare/5.7.0...5.8.0) (2021-09-29)
+
+
+### Features
+
+* support publicKeyMultibase ([#200](https://github.com/decentralized-identity/did-jwt/issues/200)) ([0f4a81c](https://github.com/decentralized-identity/did-jwt/commit/0f4a81c36764ef06401282bbbaea6b6e704994ac))
+
 # [5.7.0](https://github.com/decentralized-identity/did-jwt/compare/5.6.3...5.7.0) (2021-08-31)
 
 
