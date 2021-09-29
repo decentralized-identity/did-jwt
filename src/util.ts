@@ -1,4 +1,5 @@
 import * as u8a from 'uint8arrays'
+import { bases } from 'multiformats/basics'
 
 /**
  * @deprecated Signers will be expected to return base64url `string` signatures.
@@ -28,6 +29,10 @@ export function base58ToBytes(s: string): Uint8Array {
 
 export function bytesToBase58(b: Uint8Array): string {
   return u8a.toString(b, 'base58btc')
+}
+
+export function bytesToMultibase(b: Uint8Array, base: keyof typeof bases): string {
+  return bases[base].encode(b)
 }
 
 export function hexToBytes(s: string): Uint8Array {

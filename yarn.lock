@@ -3468,10 +3468,10 @@ dezalgo@^1.0.0:
     asap "^2.0.0"
     wrappy "1"
 
-did-resolver@^3.1.0:
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.1.0.tgz#84f0e3d16abe9711dc04c34a5a0e2f63868c9611"
-  integrity sha512-uf3/4LfHoDn3Ek8bFegO72OemHMytBhAkud6CA1HlB5I0iVwrCpG4oh+DA6DXUuBdhrA0cY4cGz1D0VNDTlgnw==
+did-resolver@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-3.1.1.tgz#1a4fb3b0ea7fe083a6af1be8e60a73d3db0db38b"
+  integrity sha512-6K7Uh/Ewfob3J8Zkprq89InYY0tDu3qu/Nv3TTvL66h9ipRGJB3D5arWIJUwrczFzyuZwu/DXwgKl2PjRnYEUw==
 
 diff-sequences@^27.0.1:
   version "27.0.1"
@@ -6210,6 +6210,11 @@ multiformats@^9.4.2:
   version "9.4.5"
   resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.4.5.tgz#9ac47bbc87aadb09d4bd05e9cd3da6f4436414f6"
   integrity sha512-zQxukxsHM34EJi3yT3MkUlycY9wEouyrAz0PSN+CyCj6cYchJZ4LrTH74YtlsxVyAK6waz/gnVLmJwi3P0knKg==
+
+multiformats@^9.4.8:
+  version "9.4.8"
+  resolved "https://registry.yarnpkg.com/multiformats/-/multiformats-9.4.8.tgz#46f74ec116f7871f2a334cc6d4ad3d810dbac341"
+  integrity sha512-EOJL02/kv+FD5hoItMhKgkYUUruJYMYFq4NQ6YkCh3jVQ5CuHo+OKdHeR50hAxEQmXQ9yvrM9BxLIk42xtfwnQ==
 
 mute-stream@~0.0.4:
   version "0.0.8"
