@@ -133,6 +133,8 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
 }
 
+export const SELF_ISSUED = 'https://self-issued.me'
+
 type LegacyVerificationMethod = { publicKey?: string }
 
 const defaultAlg = 'ES256K'
@@ -320,10 +322,21 @@ export async function verifyJWT(
       ? 'authentication'
       : undefined
     : options.proofPurpose
+  let did = ''
+  if (payload.iss) {
+    if (payload.iss.includes(SELF_ISSUED)) {
+      did = payload.did || (header.kid || '').split('#')[0]
+    } else {
+      did = payload.iss
+    }
+  }
+  if (!did) {
+    throw new Error(`invalid_jwt: JWT has no DID`)
+  }
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
-    payload.iss || '',
+    did,
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
