@@ -283,7 +283,12 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
         `resolver_error: Could not resolve ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
       )
     }
-    if (!didDocument.keyAgreement) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
+    let controllerEncrypters: Encrypter[] = []
+    if (!didDocument.keyAgreement) {
+      const controllers = didDocument.verificationMethod?.map((vm) => vm.controller)
+      if (!controllers) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
+      controllerEncrypters = await resolveX25519Encrypters(controllers, resolver)
+    }
     const agreementKeys: VerificationMethod[] = didDocument.keyAgreement
       ?.map((key) => {
         if (typeof key === 'string') {
@@ -293,13 +298,17 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
         }
         return key
       })
-      .filter((key) => typeof key !== 'undefined') as VerificationMethod[]
-    const pks = agreementKeys.filter((key) => {
-      // TODO: should be able to use non base58 keys too
-      return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
-    })
-    if (!pks.length) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
-    return pks.map((pk) => x25519Encrypter(base58ToBytes(<string>pk.publicKeyBase58), pk.id))
+      ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
+    const pks =
+      agreementKeys?.filter((key) => {
+        // TODO: should be able to use non base58 keys too
+        return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
+      }) ?? []
+    if (!pks.length && !controllerEncrypters.length)
+      throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
+    return pks
+      .map((pk) => x25519Encrypter(base58ToBytes(<string>pk.publicKeyBase58), pk.id))
+      .concat(...controllerEncrypters)
   }
 
   const encrypterPromises = dids.map((did) => encryptersForDID(did))

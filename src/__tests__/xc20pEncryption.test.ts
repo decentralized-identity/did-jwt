@@ -11,12 +11,19 @@ describe('xc20pEncryption', () => {
     const did2 = 'did:test:2'
     const did3 = 'did:test:3'
     const did4 = 'did:test:4'
+    const did5 = 'did:test:5'
+    const did6 = 'did:test:6'
 
     let resolver
     let decrypter1, decrypter2
     let decrypter1remote, decrypter2remote
 
-    let didDocumentResult1, didDocumentResult2, didDocumentResult3, didDocumentResult4
+    let didDocumentResult1,
+      didDocumentResult2,
+      didDocumentResult3,
+      didDocumentResult4,
+      didDocumentResult5,
+      didDocumentResult6
 
     beforeEach(() => {
       const kp1 = generateKeyPair()
@@ -63,6 +70,32 @@ describe('xc20pEncryption', () => {
       didDocumentResult3 = { didResolutionMetadata: { error: 'notFound' }, didDocument: null }
       didDocumentResult4 = { didDocument: { publicKey: [], keyAgreement: [{ type: 'wrong type' }] } }
 
+      didDocumentResult5 = {
+        didDocument: {
+          verificationMethod: [
+            {
+              id: did5 + '#owner',
+              type: 'BlockchainVerificationMethod2021',
+              controller: did1,
+              blockchainAccountId: '0xabc123',
+            },
+          ],
+        },
+      }
+
+      didDocumentResult6 = {
+        didDocument: {
+          verificationMethod: [
+            {
+              id: did5 + '#owner',
+              type: 'BlockchainVerificationMethod2021',
+              controller: did5,
+              blockchainAccountId: '0xabc123',
+            },
+          ],
+        },
+      }
+
       resolver = {
         resolve: jest.fn((did) => {
           switch (did) {
@@ -74,6 +107,10 @@ describe('xc20pEncryption', () => {
               return didDocumentResult3
             case did4:
               return didDocumentResult4
+            case did5:
+              return didDocumentResult5
+            case did6:
+              return didDocumentResult6
           }
         }),
       }
@@ -84,7 +121,6 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
-
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
       expect(jwe.recipients[1].header.kid).toEqual(did2 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
@@ -141,6 +177,26 @@ describe('xc20pEncryption', () => {
       expect(await decryptJWE(jwe, newDecrypter2)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter1remote)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter2remote)).toEqual(cleartext)
+    })
+
+    it('resolves encrypters for DIDs where only controllers have valid key exchange keys', async () => {
+      expect.assertions(3)
+      const encrypters = await resolveX25519Encrypters([did5], resolver)
+      const cleartext = randomBytes(8)
+      const jwe = await createJWE(cleartext, encrypters)
+      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
+    })
+
+    it("resolved encrypters for DIDs where controller's controller has valid key exchange keys", async () => {
+      expect.assertions(3)
+      const encrypters = await resolveX25519Encrypters([did6], resolver)
+      const cleartext = randomBytes(8)
+      const jwe = await createJWE(cleartext, encrypters)
+      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
     })
   })
 })
