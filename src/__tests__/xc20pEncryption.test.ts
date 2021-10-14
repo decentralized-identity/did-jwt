@@ -13,6 +13,7 @@ describe('xc20pEncryption', () => {
     const did4 = 'did:test:4'
     const did5 = 'did:test:5'
     const did6 = 'did:test:6'
+    const did7 = 'did:test:7'
 
     let resolver
     let decrypter1, decrypter2
@@ -23,7 +24,8 @@ describe('xc20pEncryption', () => {
       didDocumentResult3,
       didDocumentResult4,
       didDocumentResult5,
-      didDocumentResult6
+      didDocumentResult6,
+      didDocumentResult7
 
     beforeEach(() => {
       const kp1 = generateKeyPair()
@@ -72,11 +74,12 @@ describe('xc20pEncryption', () => {
 
       didDocumentResult5 = {
         didDocument: {
+          controller: did1,
           verificationMethod: [
             {
               id: did5 + '#owner',
               type: 'BlockchainVerificationMethod2021',
-              controller: did1,
+              controller: did5,
               blockchainAccountId: '0xabc123',
             },
           ],
@@ -85,11 +88,26 @@ describe('xc20pEncryption', () => {
 
       didDocumentResult6 = {
         didDocument: {
+          controller: did5,
           verificationMethod: [
             {
-              id: did5 + '#owner',
+              id: did6 + '#owner',
               type: 'BlockchainVerificationMethod2021',
-              controller: did5,
+              controller: did6,
+              blockchainAccountId: '0xabc123',
+            },
+          ],
+        },
+      }
+
+      didDocumentResult7 = {
+        didDocument: {
+          controller: [did4],
+          verificationMethod: [
+            {
+              id: did7 + '#owner',
+              type: 'BlockchainVerificationMethod2021',
+              controller: did7,
               blockchainAccountId: '0xabc123',
             },
           ],
@@ -111,6 +129,8 @@ describe('xc20pEncryption', () => {
               return didDocumentResult5
             case did6:
               return didDocumentResult6
+            case did7:
+              return didDocumentResult7
           }
         }),
       }
@@ -130,12 +150,15 @@ describe('xc20pEncryption', () => {
     })
 
     it('throws error if key is not found', async () => {
-      expect.assertions(2)
+      expect.assertions(3)
       await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrowError(
         'resolver_error: Could not resolve did:test:3'
       )
       await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
         'no_suitable_keys: Could not find x25519 key for did:test:4'
+      )
+      await expect(resolveX25519Encrypters([did7], resolver)).rejects.toThrowError(
+        'no_suitable_keys: Could not find x25519 key for did:test:7'
       )
     })
 

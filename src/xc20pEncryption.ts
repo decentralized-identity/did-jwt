@@ -284,10 +284,18 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       )
     }
     let controllerEncrypters: Encrypter[] = []
-    if (!didDocument.keyAgreement) {
-      const controllers = didDocument.verificationMethod?.map((vm) => vm.controller)
-      if (!controllers) throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
-      controllerEncrypters = await resolveX25519Encrypters(controllers, resolver)
+    if (!didDocument.controller && !didDocument.keyAgreement) {
+      throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
+    }
+    if (didDocument.controller) {
+      const controllers = Array.isArray(didDocument.controller) ? didDocument.controller : [didDocument.controller]
+      const encrypterPromises = controllers.map((did) =>
+        encryptersForDID(did).catch(() => {
+          return []
+        })
+      )
+      const encrypterArrays = await Promise.all(encrypterPromises)
+      controllerEncrypters = ([] as Encrypter[]).concat(...encrypterArrays)
     }
     const agreementKeys: VerificationMethod[] = didDocument.keyAgreement
       ?.map((key) => {
