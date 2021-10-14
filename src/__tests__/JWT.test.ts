@@ -7,7 +7,8 @@ import {
   decodeJWT,
   NBF_SKEW,
   resolveAuthenticator,
-  SELF_ISSUED,
+  SELF_ISSUED_V2,
+  SELF_ISSUED_V0_1,
   verifyJWS,
   verifyJWT,
 } from '../JWT'
@@ -585,30 +586,62 @@ describe('verifyJWT()', () => {
     )
   })
 
-  it('rejects a self-issued JWT without DID', async () => {
+  it('rejects a pregenerated JWT without iss', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({}, { issuer: SELF_ISSUED, signer })
-    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has no DID/)
+    const jwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzN9.aa3_8ZH99MjFoHTrNjOm7Pgq5VL5A13DHR5MTd_dBw2B_pWgNuz4N1tbrocTP0MgDlRbovKmTTDrGNjNMPqH3g'
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT iss is required/)
   })
 
-  it('rejects a self-issued JWT with an invalid DID', async () => {
+  it('rejects a self-issued v2 JWT without sub', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({}, { issuer: SELF_ISSUED, signer }, { kid: 'any' })
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V2, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT sub is required/)
+  })
+
+  it('rejects a self-issued v2 JWT (sub type: did) with an invalid payload.sub DID', async () => {
+    expect.assertions(2)
+    const jwt = await createJWT({ sub: 'sub' }, { issuer: SELF_ISSUED_V2, signer })
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
+    expect(resolver.resolve).toHaveBeenCalledWith('sub', { accept: 'application/did+json' })
   })
 
-  it('accepts a self-issued JWT with kid header', async () => {
+  it('accepts a self-issued v2 JWT (sub type: did) with a valid payload.sub DID', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({}, { issuer: SELF_ISSUED, signer }, { kid: did })
+    const jwt = await createJWT({ sub: did }, { issuer: SELF_ISSUED_V2, signer })
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
 
-  // Support SIOP DID Profile v0.1
-  // https://identity.foundation/did-siop/#generate-siop-response
-  it('accepts a self-issued JWT with did property', async () => {
+  it('rejects a self-issued v2 JWT (sub type: jkt) without a header.kid DID', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ did }, { issuer: SELF_ISSUED, signer })
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/No DID has been found in the JWT/)
+  })
+
+  it('rejects a self-issued v2 JWT (sub type: jkt) with an invalid header.kid DID', async () => {
+    expect.assertions(2)
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: 'kid' })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
+    expect(resolver.resolve).toHaveBeenCalledWith('kid', { accept: 'application/did+json' })
+  })
+
+  it('accepts a self-issued v2 JWT (sub type: jkt) with a valid header.kid DID', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: did })
+    const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toBeDefined()
+  })
+
+  it('rejects a self-issued v0.1 JWT without did property', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V0_1, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT did is required/)
+  })
+
+  it('accepts a self-issued v0.1 JWT with did property', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ did }, { issuer: SELF_ISSUED_V0_1, signer })
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
