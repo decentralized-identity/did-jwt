@@ -1,3 +1,10 @@
+# [5.9.0](https://github.com/decentralized-identity/did-jwt/compare/5.8.0...5.9.0) (2021-10-21)
+
+
+### Features
+
+* support verification of OIDC SIOPv0.1 & SIOPv2 JWT ([#201](https://github.com/decentralized-identity/did-jwt/issues/201)) ([cebf2e6](https://github.com/decentralized-identity/did-jwt/commit/cebf2e6f255e559a1275bb97b35146ce72ce27f5))
+
 # [5.8.0](https://github.com/decentralized-identity/did-jwt/compare/5.7.0...5.8.0) (2021-09-29)
 
 
