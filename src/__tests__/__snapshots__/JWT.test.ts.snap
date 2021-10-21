@@ -125,7 +125,7 @@ Object {
 exports[`verifyJWT() pregenerated JWT verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,
-  "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
   "requested": Array [
     "name",
     "phone",

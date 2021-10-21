@@ -1,7 +1,17 @@
 import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
-import { createJWS, createJWT, decodeJWT, NBF_SKEW, resolveAuthenticator, verifyJWS, verifyJWT } from '../JWT'
+import {
+  createJWS,
+  createJWT,
+  decodeJWT,
+  NBF_SKEW,
+  resolveAuthenticator,
+  SELF_ISSUED_V2,
+  SELF_ISSUED_V0_1,
+  verifyJWS,
+  verifyJWT,
+} from '../JWT'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../util'
@@ -56,6 +66,25 @@ const didDoc = {
     assertionMethod: [`${did}#keys-1`],
     capabilityInvocation: [`${did}#keys-1`],
     capabilityDelegation: [`${did}#some-key-that-does-not-exist`],
+  },
+}
+
+const audDidDoc = {
+  didDocument: {
+    '@context': 'https://w3id.org/did/v1',
+    id: aud,
+    verificationMethod: [
+      {
+        id: `${aud}#keys-1`,
+        type: 'EcdsaSecp256k1VerificationKey2019',
+        controller: did,
+        publicKeyHex: publicKey,
+      },
+    ],
+    authentication: [`${aud}#keys-1`],
+    assertionMethod: [`${aud}#keys-1`],
+    capabilityInvocation: [`${aud}#keys-1`],
+    capabilityDelegation: [`${aud}#some-key-that-does-not-exist`],
   },
 }
 
@@ -223,12 +252,38 @@ describe('createJWT()', () => {
 })
 
 describe('verifyJWT()', () => {
-  const resolver = { resolve: jest.fn().mockReturnValue(didDoc) }
+  const resolver = {
+    resolve: jest.fn().mockImplementation((didUrl: string) => {
+      if (didUrl.includes(did)) {
+        return {
+          didDocument: didDoc.didDocument,
+          didDocumentMetadata: {},
+          didResolutionMetadata: { contentType: 'application/did+ld+json' },
+        }
+      }
+
+      if (didUrl.includes(aud)) {
+        return {
+          didDocument: audDidDoc.didDocument,
+          didDocumentMetadata: {},
+          didResolutionMetadata: { contentType: 'application/did+ld+json' },
+        }
+      }
+
+      return {
+        didDocument: null,
+        didDocumentMetadata: {},
+        didResolutionMetadata: {
+          error: 'notFound',
+          message: 'resolver_error: DID document not found',
+        },
+      }
+    }),
+  }
 
   describe('pregenerated JWT', () => {
-    // tslint:disable-next-line: max-line-length
     const incomingJwt =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvHJrDFQhNbSDzCP2Pe7WdXySosTCuI1T-IQ6SddcWuj_A'
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
       const { payload } = await verifyJWT(incomingJwt, { resolver })
@@ -244,7 +299,7 @@ describe('verifyJWT()', () => {
     it('verifies the JWT and return correct did for the iss', async () => {
       expect.assertions(1)
       const { issuer } = await verifyJWT(incomingJwt, { resolver })
-      return expect(issuer).toEqual('did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9')
+      return expect(issuer).toEqual(did)
     })
     it('verifies the JWT and return correct signer', async () => {
       expect.assertions(1)
@@ -276,19 +331,18 @@ describe('verifyJWT()', () => {
       await expect(() =>
         verifyJWT(incomingJwt, { resolver, proofPurpose: 'capabilityDelegation' })
       ).rejects.toThrowError(
-        'DID document for did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9 does not have public keys suitable for ES256K with capabilityDelegation purpose'
+        `DID document for ${did} does not have public keys suitable for ES256K with capabilityDelegation purpose`
       )
     })
     it('rejects the JWT requiring unknown proofPurpose', async () => {
       expect.assertions(1)
       await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
-        'DID document for did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9 does not have public keys suitable for ES256K with impossible purpose'
+        `DID document for ${did} does not have public keys suitable for ES256K with impossible purpose`
       )
     })
   })
 
   describe('pregenerated JWT with legacy resolver', () => {
-    // tslint:disable-next-line: max-line-length
     const incomingJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
     const legacyResolver = { resolve: jest.fn().mockReturnValue(didDocLegacy) }
@@ -328,7 +382,6 @@ describe('verifyJWT()', () => {
   })
 
   describe('badJwt', () => {
-    // tslint:disable-next-line: max-line-length
     const badJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
     it('rejects a JWT with bad signature', async () => {
@@ -340,7 +393,6 @@ describe('verifyJWT()', () => {
   describe('validFrom timestamp', () => {
     it('passes when nbf is in the past', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.FUasGkOYqGVxQ7S-QQvh4abGO6Dwr961UjjOxtRTyUDnl6q6ElqHqAK-WMDTmOir21pFPKLYZMtLZ4LTLpm3cQ'
       // const jwt = await createJWT({nbf: PAST}, {issuer:did, signer})
@@ -348,7 +400,6 @@ describe('verifyJWT()', () => {
     })
     it('passes when nbf is in the past and iat is in the future', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsIm5iZiI6MTQ4NTI2MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.8BPiSG2e6UBn1osnJ6PJYbPjtPMPaCeutTA9OCp-ZzI-QvvwPCVrrWqTu2YELbzUPwDIJCQ8v8N77xCEjIYSmQ'
       // const jwt = await createJWT({nbf:PAST,iat:FUTURE},{issuer:did,signer})
@@ -356,7 +407,6 @@ describe('verifyJWT()', () => {
     })
     it('fails when nbf is in the future', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOnVwb3J0OjJuUXRpUUc2Q2dtMUdZVEJhYUtBZ3I3NnVZN2lTZXhVa3FYIn0.rcFuhVHtie3Y09pWxBSf1dnjaVh6FFQLHh-83N-uLty3M5ADJ-jVFFkyt_Eupl8Kr735-oPGn_D1Nj9rl4s_Kw'
       // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
@@ -364,7 +414,6 @@ describe('verifyJWT()', () => {
     })
     it('fails when nbf is in the future and iat is in the past', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.JjEn_huxI9SsBY_3PlD0ShpXvrRgUGFDKAgxJBc1Q5GToVpUTw007-o9BTt7JNi_G2XWmcu2aXXnDn0QFsRIrg'
       // const jwt = await createJWT({nbf:FUTURE,iat:PAST},{issuer:did,signer})
@@ -372,7 +421,6 @@ describe('verifyJWT()', () => {
     })
     it('passes when nbf is missing and iat is in the past', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.jkzN5kIVtuRU-Fjte8w5r-ttf9OfhdN38oFJd61CWdI5WnvU1dPCvnx1_kdk2D6Xg-uPqp1VXAb7KA2ZECivmg'
       // const jwt = await createJWT({iat:PAST},{issuer:did,signer})
@@ -380,7 +428,6 @@ describe('verifyJWT()', () => {
     })
     it('fails when nbf is missing and iat is in the future', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
       // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
@@ -388,7 +435,6 @@ describe('verifyJWT()', () => {
     })
     it('passes when nbf and iat are both missing', async () => {
       expect.assertions(1)
-      // tslint:disable-next-line: max-line-length
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpc3MiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQifQ.KgnwgMMz-QSOtpba2QMGHMWJoLvhp-H4odjjX1QKnqj4-8dkcK12y7rj7Zq24-1d-1ne86aJCdWtx5VJv3rM7w'
       // const jwt = await createJWT({iat:undefined},{issuer:did,signer})
@@ -538,6 +584,66 @@ describe('verifyJWT()', () => {
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(
       /JWT audience is required but your app address has not been configured/
     )
+  })
+
+  it('rejects a pregenerated JWT without iss', async () => {
+    expect.assertions(1)
+    const jwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzN9.aa3_8ZH99MjFoHTrNjOm7Pgq5VL5A13DHR5MTd_dBw2B_pWgNuz4N1tbrocTP0MgDlRbovKmTTDrGNjNMPqH3g'
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT iss is required/)
+  })
+
+  it('rejects a self-issued v2 JWT without sub', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V2, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT sub is required/)
+  })
+
+  it('rejects a self-issued v2 JWT (sub type: did) with an invalid payload.sub DID', async () => {
+    expect.assertions(2)
+    const jwt = await createJWT({ sub: 'sub' }, { issuer: SELF_ISSUED_V2, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
+    expect(resolver.resolve).toHaveBeenCalledWith('sub', { accept: 'application/did+json' })
+  })
+
+  it('accepts a self-issued v2 JWT (sub type: did) with a valid payload.sub DID', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ sub: did }, { issuer: SELF_ISSUED_V2, signer })
+    const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toBeDefined()
+  })
+
+  it('rejects a self-issued v2 JWT (sub type: jkt) without a header.kid DID', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/No DID has been found in the JWT/)
+  })
+
+  it('rejects a self-issued v2 JWT (sub type: jkt) with an invalid header.kid DID', async () => {
+    expect.assertions(2)
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: 'kid' })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
+    expect(resolver.resolve).toHaveBeenCalledWith('kid', { accept: 'application/did+json' })
+  })
+
+  it('accepts a self-issued v2 JWT (sub type: jkt) with a valid header.kid DID', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: did })
+    const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toBeDefined()
+  })
+
+  it('rejects a self-issued v0.1 JWT without did property', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V0_1, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT did is required/)
+  })
+
+  it('accepts a self-issued v0.1 JWT with did property', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ did }, { issuer: SELF_ISSUED_V0_1, signer })
+    const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toBeDefined()
   })
 })
 

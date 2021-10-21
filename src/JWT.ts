@@ -133,6 +133,9 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018'],
 }
 
+export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
+export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
+
 type LegacyVerificationMethod = { publicKey?: string }
 
 const defaultAlg = 'ES256K'
@@ -320,10 +323,34 @@ export async function verifyJWT(
       ? 'authentication'
       : undefined
     : options.proofPurpose
+  if (!payload.iss) {
+    throw new Error('invalid_jwt: JWT iss is required')
+  }
+  let did = ''
+  if (payload.iss === SELF_ISSUED_V2) {
+    if (!payload.sub) {
+      throw new Error('invalid_jwt: JWT sub is required')
+    }
+    if (typeof payload.sub_jwk === 'undefined') {
+      did = payload.sub
+    } else {
+      did = (header.kid || '').split('#')[0]
+    }
+  } else if (payload.iss === SELF_ISSUED_V0_1) {
+    if (!payload.did) {
+      throw new Error('invalid_jwt: JWT did is required')
+    }
+    did = payload.did
+  } else {
+    did = payload.iss
+  }
+  if (!did) {
+    throw new Error(`invalid_jwt: No DID has been found in the JWT`)
+  }
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
-    payload.iss || '',
+    did,
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
