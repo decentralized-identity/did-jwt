@@ -1,12 +1,14 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { createJWT } from '../JWT'
-import { toEthereumAddress } from '../Digest'
 import nacl from 'tweetnacl'
 import { ec as EC } from 'elliptic'
 import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64url, bytesToMultibase } from '../util'
 import * as u8a from 'uint8arrays'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
+import { toEthereumAddress } from '../Digest'
+import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
+import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -43,7 +45,10 @@ const publicKeyJwk = {
   y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
 }
 const publicKeyMultibase = bytesToMultibase(hexToBytes(publicKey), 'base58btc')
-const address = toEthereumAddress(publicKey)
+const eip155 = toEthereumAddress(publicKey)
+const bip122 = toBip122Address(publicKey)
+const cosmosPrefix = 'example'
+const cosmos = toCosmosAddressWithoutPrefix(publicKey, cosmosPrefix)
 const signer = ES256KSigner(privateKey)
 const recoverySigner = ES256KSigner(privateKey, true)
 
@@ -72,21 +77,35 @@ const ethAddress = {
   id: `${did}#keys-3`,
   type: 'Secp256k1VerificationKey2018',
   controller: did,
-  ethereumAddress: address,
+  ethereumAddress: eip155,
 }
 
 const blockchainAddress = {
   id: `${did}#keys-blockchain`,
   type: 'EcdsaSecp256k1RecoveryMethod2020',
   controller: did,
-  blockchainAccountId: `${address}@eip155:1`,
+  blockchainAccountId: `${eip155}@eip155:1`,
 }
 
 const blockchainAddressCaip10 = {
   id: `${did}#keys-blockchain`,
   type: 'EcdsaSecp256k1RecoveryMethod2020',
   controller: did,
-  blockchainAccountId: `eip155:1:${address}`,
+  blockchainAccountId: `eip155:1:${eip155}`,
+}
+
+const blockchainAddressBip122 = {
+  id: `${did}#keys-blockchain`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  blockchainAccountId: `bip122:000000000019d6689c085ae165831e93:${bip122}`,
+}
+
+const blockchainAddressCosmos = {
+  id: `${did}#keys-blockchain`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  blockchainAccountId: `cosmos:${cosmosPrefix}:${cosmos}`,
 }
 
 const compressedKey = {
@@ -100,7 +119,7 @@ const recoveryMethod2020Key = {
   id: `${did}#keys-recovery`,
   type: 'EcdsaSecp256k1RecoveryMethod2020',
   controller: did,
-  ethereumAddress: address,
+  ethereumAddress: eip155,
 }
 
 const edKey = {
@@ -231,11 +250,25 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [blockchainAddress])).toEqual(blockchainAddress)
   })
 
-  it('validates signature produced by blockchainAccountId - CAIP 10', async () => {
+  it('validates signature produced by blockchainAccountId - CAIP 10 (EIP 155)', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [blockchainAddressCaip10])).toEqual(blockchainAddressCaip10)
+  })
+
+  it('validates signature produced by blockchainAccountId - CAIP 10 (BIP 122)', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [blockchainAddressBip122])).toEqual(blockchainAddressBip122)
+  })
+
+  it('validates signature produced by blockchainAccountId - CAIP 10 (Cosmos)', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [blockchainAddressCosmos])).toEqual(blockchainAddressCosmos)
   })
 
   it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
@@ -277,11 +310,25 @@ describe('ES256K-R', () => {
     return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddress])).toEqual(blockchainAddress)
   })
 
-  it('validates signature with blockchainAccountId - CAIP 10', async () => {
+  it('validates signature with blockchainAccountId - CAIP 10 (EIP 155)', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddressCaip10])).toEqual(blockchainAddressCaip10)
+  })
+
+  it('validates signature with blockchainAccountId - CAIP 10 (BIP 122)', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddressBip122])).toEqual(blockchainAddressBip122)
+  })
+
+  it('validates signature with blockchainAccountId - CAIP 10 (COSMOS)', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddressCosmos])).toEqual(blockchainAddressCosmos)
   })
 
   it('validates signature with EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
