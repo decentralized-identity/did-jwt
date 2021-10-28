@@ -4,6 +4,7 @@ import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
+import { verifyBlockchainAccountId } from './blockchains'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -60,7 +61,7 @@ export function verifyES256K(
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
     return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
   })
-  const ethAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
+  const blockchainAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
     return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== undefined
   })
 
@@ -73,8 +74,8 @@ export function verifyES256K(
     }
   })
 
-  if (!signer && ethAddressKeys.length > 0) {
-    signer = verifyRecoverableES256K(data, signature, ethAddressKeys)
+  if (!signer && blockchainAddressKeys.length > 0) {
+    signer = verifyRecoverableES256K(data, signature, blockchainAddressKeys)
   }
 
   if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
@@ -111,7 +112,8 @@ export function verifyRecoverableES256K(
         keyHex === recoveredPublicKeyHex ||
         keyHex === recoveredCompressedPublicKeyHex ||
         pk.ethereumAddress?.toLowerCase() === recoveredAddress ||
-        pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress
+        pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress || // CAIP-2
+        verifyBlockchainAccountId(recoveredPublicKeyHex, pk.blockchainAccountId) // CAIP-10
       )
     })
 

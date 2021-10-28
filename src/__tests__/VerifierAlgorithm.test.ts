@@ -82,6 +82,13 @@ const blockchainAddress = {
   blockchainAccountId: `${address}@eip155:1`,
 }
 
+const blockchainAddressCaip10 = {
+  id: `${did}#keys-blockchain`,
+  type: 'EcdsaSecp256k1RecoveryMethod2020',
+  controller: did,
+  blockchainAccountId: `eip155:1:${address}`,
+}
+
 const compressedKey = {
   id: `${did}#keys-4`,
   type: 'Secp256k1VerificationKey2018',
@@ -224,6 +231,13 @@ describe('ES256K', () => {
     return expect(verifier(parts[1], parts[2], [blockchainAddress])).toEqual(blockchainAddress)
   })
 
+  it('validates signature produced by blockchainAccountId - CAIP 10', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [blockchainAddressCaip10])).toEqual(blockchainAddressCaip10)
+  })
+
   it('validates signature produced by EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
@@ -261,6 +275,13 @@ describe('ES256K-R', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddress])).toEqual(blockchainAddress)
+  })
+
+  it('validates signature with blockchainAccountId - CAIP 10', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer: recoverySigner, alg: 'ES256K-R' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [ecKey1, blockchainAddressCaip10])).toEqual(blockchainAddressCaip10)
   })
 
   it('validates signature with EcdsaSecp256k1RecoveryMethod2020 - github #152', async () => {
