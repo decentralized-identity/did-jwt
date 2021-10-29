@@ -56,9 +56,9 @@
     "@babel/preset-typescript": "7.14.5",
     "@semantic-release/changelog": "5.0.1",
     "@semantic-release/git": "9.0.0",
-    "@types/crypto-js": "^4.0.2",
     "@types/elliptic": "6.4.12",
     "@types/jest": "27.0.1",
+    "@types/ripemd160": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "4.28.0",
     "@typescript-eslint/parser": "4.28.0",
     "codecov": "3.8.2",
@@ -86,11 +86,11 @@
     "@stablelib/xchacha20poly1305": "^1.0.1",
     "bech32": "^2.0.0",
     "canonicalize": "^1.0.5",
-    "crypto-js": "^4.1.1",
     "did-resolver": "^3.1.1",
     "elliptic": "^6.5.4",
     "js-sha3": "^0.8.0",
     "multiformats": "^9.4.8",
+    "ripemd160": "^2.0.2",
     "uint8arrays": "^3.0.0"
   },
   "eslintIgnore": [
