@@ -1,3 +1,10 @@
+# [5.10.0](https://github.com/decentralized-identity/did-jwt/compare/5.9.0...5.10.0) (2021-11-08)
+
+
+### Features
+
+* add recursive lookup for key exchange keys when encrypting data ([#203](https://github.com/decentralized-identity/did-jwt/issues/203)) ([63999a5](https://github.com/decentralized-identity/did-jwt/commit/63999a52741e65a83de0ea8621570cc12e4b0c91)), closes [#202](https://github.com/decentralized-identity/did-jwt/issues/202)
+
 # [5.9.0](https://github.com/decentralized-identity/did-jwt/compare/5.8.0...5.9.0) (2021-10-21)
 
 
