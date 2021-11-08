@@ -14,6 +14,8 @@ describe('xc20pEncryption', () => {
     const did5 = 'did:test:5'
     const did6 = 'did:test:6'
     const did7 = 'did:test:7'
+    const did8 = 'did:test:8'
+    const did9 = 'did:test:9'
 
     let resolver
     let decrypter1, decrypter2
@@ -25,7 +27,9 @@ describe('xc20pEncryption', () => {
       didDocumentResult4,
       didDocumentResult5,
       didDocumentResult6,
-      didDocumentResult7
+      didDocumentResult7,
+      didDocumentResult8,
+      didDocumentResult9
 
     beforeEach(() => {
       const kp1 = generateKeyPair()
@@ -114,6 +118,34 @@ describe('xc20pEncryption', () => {
         },
       }
 
+      didDocumentResult8 = {
+        didDocument: {
+          controller: [did2, did9],
+          verificationMethod: [
+            {
+              id: did8 + '#owner',
+              type: 'BlockchainVerificationMethod2021',
+              controller: did8,
+              blockchainAccountId: '0xabc123',
+            },
+          ],
+        },
+      }
+
+      didDocumentResult9 = {
+        didDocument: {
+          controller: [did8],
+          verificationMethod: [
+            {
+              id: did9 + '#owner',
+              type: 'BlockchainVerificationMethod2021',
+              controller: did9,
+              blockchainAccountId: '0xabc123',
+            },
+          ],
+        },
+      }
+
       resolver = {
         resolve: jest.fn((did) => {
           switch (did) {
@@ -131,6 +163,10 @@ describe('xc20pEncryption', () => {
               return didDocumentResult6
             case did7:
               return didDocumentResult7
+            case did8:
+              return didDocumentResult8
+            case did9:
+              return didDocumentResult9
           }
         }),
       }
@@ -220,6 +256,17 @@ describe('xc20pEncryption', () => {
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
+    })
+
+    it('does not enter an infinite loop when DIDs controllers refer each other', async () => {
+      expect.assertions(4)
+      const encrypters = await resolveX25519Encrypters([did9], resolver)
+      const cleartext = randomBytes(8)
+      const jwe = await createJWE(cleartext, encrypters)
+      expect(jwe.recipients[0].header.kid).toEqual(did2 + '#abc')
+      expect(jwe.recipients.length).toEqual(1)
+      expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
+      expect(await decryptJWE(jwe, decrypter2remote)).toEqual(cleartext)
     })
   })
 })

@@ -276,8 +276,9 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
 }
 
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
-  const encryptersForDID = async (did: string): Promise<Encrypter[]> => {
+  const encryptersForDID = async (did: string, resolved: string[] = []): Promise<Encrypter[]> => {
     const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
+    resolved.push(did)
     if (didResolutionMetadata?.error || didDocument == null) {
       throw new Error(
         `resolver_error: Could not resolve ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
@@ -288,9 +289,10 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
     }
     if (didDocument.controller) {
-      const controllers = Array.isArray(didDocument.controller) ? didDocument.controller : [didDocument.controller]
+      let controllers = Array.isArray(didDocument.controller) ? didDocument.controller : [didDocument.controller]
+      controllers = controllers.filter((c) => !resolved.includes(c))
       const encrypterPromises = controllers.map((did) =>
-        encryptersForDID(did).catch(() => {
+        encryptersForDID(did, resolved).catch(() => {
           return []
         })
       )
