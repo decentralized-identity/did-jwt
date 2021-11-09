@@ -59,20 +59,20 @@ export class Ripemd160 {
   private _d = 0x10325476
   private _e = 0xc3d2e1f0
   private _blockOffset = 0
-  private _block: Buffer
+  private _block: Uint8Array
   private _blockSize: number
   private _length = [0, 0, 0, 0]
   private _finalized: boolean
 
   constructor(blockSize = 64) {
-    this._block = Buffer.allocUnsafe(blockSize)
+    this._block = new Uint8Array(blockSize)
     this._blockSize = blockSize
     this._blockOffset = 0
     this._length = [0, 0, 0, 0]
     this._finalized = false
   }
 
-  update = (data: Buffer): Ripemd160 => {
+  update = (data: Uint8Array): Ripemd160 => {
     if (this._finalized) throw new Error('Digest already called')
 
     // consume data
@@ -95,7 +95,7 @@ export class Ripemd160 {
     return this
   }
 
-  digest = (): Buffer => {
+  digest = (): Uint8Array => {
     if (this._finalized) throw new Error('Digest already called')
     this._finalized = true
 
@@ -111,7 +111,8 @@ export class Ripemd160 {
 
   private _update = () => {
     const words = new Array(16)
-    for (let j = 0; j < 16; ++j) words[j] = this._block.readInt32LE(j * 4)
+    const temp = new DataView(this._block.buffer)
+    for (let j = 0; j < 16; ++j) words[j] = words[j] = temp.getInt32(j * 4, true)
 
     let al = this._a | 0
     let bl = this._b | 0
@@ -179,17 +180,20 @@ export class Ripemd160 {
     }
 
     this._block.fill(0, this._blockOffset, 56)
-    this._block.writeUInt32LE(this._length[0], 56)
-    this._block.writeUInt32LE(this._length[1], 60)
+    const temp = new DataView(this._block.buffer)
+    temp.setUint32(56, this._length[0], true)
+    temp.setUint32(60, this._length[1], true)
+    this._block = new Uint8Array(temp.buffer)
     this._update()
 
     // produce result
-    const buffer = Buffer.alloc(20)
-    buffer.writeInt32LE(this._a, 0)
-    buffer.writeInt32LE(this._b, 4)
-    buffer.writeInt32LE(this._c, 8)
-    buffer.writeInt32LE(this._d, 12)
-    buffer.writeInt32LE(this._e, 16)
-    return buffer
+    const buffer = new DataView(new Uint8Array(20).buffer)
+    buffer.setInt32(0, this._a, true)
+    buffer.setInt32(4, this._b, true)
+    buffer.setInt32(8, this._c, true)
+    buffer.setInt32(12, this._d, true)
+    buffer.setInt32(16, this._e, true)
+
+    return new Uint8Array(buffer.buffer)
   }
 }
