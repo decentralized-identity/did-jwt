@@ -1,3 +1,10 @@
+## [5.11.1](https://github.com/decentralized-identity/did-jwt/compare/5.11.0...5.11.1) (2021-11-10)
+
+
+### Bug Fixes
+
+* **deps:** bump did-resolver to 3.1.3 ([e15ba89](https://github.com/decentralized-identity/did-jwt/commit/e15ba8982b28ef85be66aca1c60dbe27fe0c36dc))
+
 # [5.11.0](https://github.com/decentralized-identity/did-jwt/compare/5.10.0...5.11.0) (2021-11-10)
 
 
