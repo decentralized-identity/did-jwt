@@ -1,3 +1,10 @@
+# [5.11.0](https://github.com/decentralized-identity/did-jwt/compare/5.10.0...5.11.0) (2021-11-10)
+
+
+### Features
+
+* CAIP 10 support for bip122 & cosmos ([#205](https://github.com/decentralized-identity/did-jwt/issues/205)) ([73cba89](https://github.com/decentralized-identity/did-jwt/commit/73cba89d6a0cbbff277ad0d5f4c5dd258de1d773))
+
 # [5.10.0](https://github.com/decentralized-identity/did-jwt/compare/5.9.0...5.10.0) (2021-11-08)
 
 
