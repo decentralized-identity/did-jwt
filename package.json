@@ -83,6 +83,7 @@
     "@stablelib/sha256": "^1.0.1",
     "@stablelib/x25519": "^1.0.1",
     "@stablelib/xchacha20poly1305": "^1.0.1",
+    "bech32": "^2.0.0",
     "canonicalize": "^1.0.5",
     "did-resolver": "^3.1.1",
     "elliptic": "^6.5.4",
