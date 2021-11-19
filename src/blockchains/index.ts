@@ -7,7 +7,7 @@ export const verifyBlockchainAccountId = (publicKey: string, blockchainAccountId
     const chain = blockchainAccountId.split(':')
     switch (chain[0]) {
       case 'bip122':
-        chain[chain.length - 1] = bip122(publicKey)
+        chain[chain.length - 1] = bip122(publicKey, chain[chain.length - 1])
         break
       case 'cosmos':
         chain[chain.length - 1] = cosmos(publicKey, chain[1])
