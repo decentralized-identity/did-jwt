@@ -1,3 +1,10 @@
+# [5.12.0](https://github.com/decentralized-identity/did-jwt/compare/5.11.1...5.12.0) (2021-11-19)
+
+
+### Features
+
+* allow alternative Bitcoin address prefixes ([#206](https://github.com/decentralized-identity/did-jwt/issues/206)) ([2087995](https://github.com/decentralized-identity/did-jwt/commit/208799509b1b6f180ce6408b1108df312f158769))
+
 ## [5.11.1](https://github.com/decentralized-identity/did-jwt/compare/5.11.0...5.11.1) (2021-11-10)
 
 
