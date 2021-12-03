@@ -1,3 +1,10 @@
+## [5.12.1](https://github.com/decentralized-identity/did-jwt/compare/5.12.0...5.12.1) (2021-12-03)
+
+
+### Bug Fixes
+
+* add missing quotes around undefined ([#207](https://github.com/decentralized-identity/did-jwt/issues/207)) ([4abd521](https://github.com/decentralized-identity/did-jwt/commit/4abd52125542f4f89998c2d70ee3221b3f41a432))
+
 # [5.12.0](https://github.com/decentralized-identity/did-jwt/compare/5.11.1...5.12.0) (2021-11-19)
 
 
