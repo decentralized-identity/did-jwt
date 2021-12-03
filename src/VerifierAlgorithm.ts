@@ -62,7 +62,7 @@ export function verifyES256K(
     return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
   })
   const blockchainAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== undefined
+    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== 'undefined'
   })
 
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
