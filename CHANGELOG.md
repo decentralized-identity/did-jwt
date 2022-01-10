@@ -1,3 +1,10 @@
+## [5.12.2](https://github.com/decentralized-identity/did-jwt/compare/5.12.1...5.12.2) (2022-01-10)
+
+
+### Bug Fixes
+
+* finalize transition to ES modules ([#211](https://github.com/decentralized-identity/did-jwt/issues/211)) ([2de6ac9](https://github.com/decentralized-identity/did-jwt/commit/2de6ac932fb7dd3b8bfda7666f0a1dc5d6db4da5))
+
 ## [5.12.1](https://github.com/decentralized-identity/did-jwt/compare/5.12.0...5.12.1) (2021-12-03)
 
 
