@@ -7,7 +7,7 @@ describe('Secp256r1 Signer', () => {
     const signer = ES256Signer(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
 
@@ -17,17 +17,17 @@ describe('Secp256r1 Signer', () => {
     const signer = ES256Signer(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
 
   it('signs data: privateKey base58', async () => {
     expect.assertions(1)
-    const privateKey = 'zGqzym8nfnxR5ZYZ3wZo8rvTwKTqGn5cJsbHnEhUZDPo'
+    const privateKey = 'Gqzym8nfnxR5ZYZ3wZo8rvTwKTqGn5cJsbHnEhUZDPo'
     const signer = ES256Signer(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+       'ct2U01GqM4IQvnAwFrAyDanWJdGFLRgBASBRulVBkN-KUnz7ilCT0h5Hog32doSeUzoegnQdUDbvy0Mnqfc1Zw'
     )
   })
 
@@ -37,7 +37,7 @@ describe('Secp256r1 Signer', () => {
     const signer = ES256Signer(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
 
@@ -47,7 +47,7 @@ describe('Secp256r1 Signer', () => {
     const signer = ES256Signer(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
 
