@@ -27,7 +27,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-       'ct2U01GqM4IQvnAwFrAyDanWJdGFLRgBASBRulVBkN-KUnz7ilCT0h5Hog32doSeUzoegnQdUDbvy0Mnqfc1Zw'
+       'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
 
