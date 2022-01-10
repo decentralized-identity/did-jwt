@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  entry: './lib/index.js',
+  entry: './lib/index.cjs',
   mode: 'production',
   resolve: {
     fallback: {
