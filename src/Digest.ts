@@ -1,6 +1,6 @@
 import { hash } from '@stablelib/sha256'
 import * as u8a from 'uint8arrays'
-import { keccak_256 } from 'js-sha3' // eslint-disable-line
+import sha3 from 'js-sha3'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
@@ -8,7 +8,7 @@ export function sha256(payload: string | Uint8Array): Uint8Array {
 }
 
 export function keccak(data: Uint8Array): Uint8Array {
-  return new Uint8Array(keccak_256.arrayBuffer(data))
+  return new Uint8Array(sha3.keccak_256.arrayBuffer(data))
 }
 
 export function toEthereumAddress(hexPublicKey: string): string {

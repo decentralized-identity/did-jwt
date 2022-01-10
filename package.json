@@ -2,8 +2,9 @@
   "name": "did-jwt",
   "version": "5.12.1",
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
+  "type": "module",
   "source": "src/index.ts",
-  "main": "./lib/index.js",
+  "main": "./lib/index.cjs",
   "module": "./lib/index.module.js",
   "unpkg": "./lib/index.umd.js",
   "types": "./lib/index.d.ts",
@@ -13,11 +14,17 @@
     "dist",
     "src"
   ],
+  "exports": {
+    ".": {
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.module.js"
+    }
+  },
   "scripts": {
     "test": "jest",
     "test:ci": "jest --coverage && codecov",
     "build:js": "microbundle --compress=false",
-    "build:browser": "webpack --config webpack.config.js",
+    "build:browser": "webpack --config webpack.config.cjs",
     "build": "yarn build:js && yarn test && yarn build:browser",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
