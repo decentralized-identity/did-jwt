@@ -71,7 +71,7 @@ verifyJWT(jwt, options)
 | Name                  | Description                                                                                                                     | Required |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | `jwt`                 | String containing a [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519)                                                | yes      |
-| `options.resolver`    | A `Resolver` object that can resolve the issuer DID. See [did-resolver](https://github.com/decentralized-identity/did-resolver) | yes      |
+| `options.resolver`    | A `Resolvable` implementation that can resolve the issuer DID. See [did-resolver](https://github.com/decentralized-identity/did-resolver) | yes      |
 | `options.auth`        | Require signer to be listed in the authentication section of the DID document (for Authentication of a user with DID-AUTH)      | no       |
 | `options.audience`    | The [DID](https://w3c-ccg.github.io/did-spec/#decentralized-identifiers-dids) of the audience of the JWT                        | no       |
 | `options.callbackUrl` | The the URL receiving the JWT                                                                                                   | no       |
@@ -97,7 +97,7 @@ If there are any errors found during the verification process the promise is rej
 We provide simple signing abstractions that make it easy to add support for your own Key Management infrastructure.
 
 ```typescript
-typedef Signer = (data: string | Uint8Array) => Promise<string>
+type Signer = (data: string | Uint8Array) => Promise<string>
 ```
 
 ### ES256KSigner
@@ -117,7 +117,7 @@ const signer: Signer = ES256KSigner('0x278a5de700e29faae8e40e366ec5012b5ec63d36e
 #### Parameters
 
 ```typescript
-function ES256KSigner(privateKey: Uint8Array | string, recoverable: Boolean = null): Signer
+function ES256KSigner(privateKey: Uint8Array | string, recoverable: Boolean = null): Signer {}
 ```
 
 | Name          | Description                                                                                                                                          | Required |
@@ -145,7 +145,7 @@ const signer: Signer = EdDSASigner(
 #### Parameters
 
 ```typescript
-function EdDSASigner(secretKey: Uint8Array | string): Signer
+function EdDSASigner(secretKey: Uint8Array | string): Signer {}
 ```
 
 | Name        | Description                                                                                                    | Required |
