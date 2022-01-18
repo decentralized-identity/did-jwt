@@ -1,5 +1,4 @@
-import { Signer, SignerAlgorithm } from './JWT'
-import { EcdsaSignature, fromJose, toJose } from './util'
+import { SignerAlgorithm } from './JWT'
 
 import * as ES256KSignerAlg from './SignerAlg/ES256KSignerAlg'
 import * as Ed25519SignerAlg from './SignerAlg/Ed25519SignerAlg'
