@@ -1,5 +1,5 @@
 import { Signer, SignerAlgorithm } from '../JWT'
-import { EcdsaSignature, fromJose, toJose } from '../util'
+import { EcdsaSignature } from '../util'
 import * as common from './common'
 
 export function Ed25519SignerAlg(): SignerAlgorithm {
