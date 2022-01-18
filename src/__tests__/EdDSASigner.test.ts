@@ -1,4 +1,4 @@
-import { EdDSASigner } from '../../signers/EdDSASigner'
+import { EdDSASigner } from '../signers/EdDSASigner'
 
 describe('EdDSASigner', () => {
   it('signs data with base64 key', async () => {
