@@ -1,4 +1,4 @@
-import { ES256KSigner } from '../signers/ES256KSigner'
+import { ES256KSigner } from '../../signers/ES256KSigner'
 
 describe('Secp256k1 Signer', () => {
   it('signs data, given a hex private key', async () => {
