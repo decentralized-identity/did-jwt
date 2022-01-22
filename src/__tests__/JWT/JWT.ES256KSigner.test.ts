@@ -15,14 +15,15 @@ import {
 import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256KSigner } from '../../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../../util'
+import { aud, address, did } from './constants/constants'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
-const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
-const aud = `did:ethr:${audAddress}`
-const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
-const did = `did:ethr:${address}`
+//const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
+//const aud = `did:ethr:${audAddress}`
+//const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+//const did = `did:ethr:${address}`
 const alg = 'ES256K'
 
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
