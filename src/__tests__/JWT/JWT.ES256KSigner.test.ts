@@ -16,14 +16,13 @@ import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256KSigner } from '../../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../../util'
 import { aud, address, did } from './constants/constants'
+import { CreatedidDocLegacy } from './constants/constants'
+import { CreatedidDoc } from './constants/constants'
+import { CreateauddidDoc } from './constants/constants'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
-//const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
-//const aud = `did:ethr:${audAddress}`
-//const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
-//const did = `did:ethr:${address}`
 const alg = 'ES256K'
 
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
@@ -32,62 +31,15 @@ const verifier = new TokenVerifier(alg, publicKey)
 const signer = ES256KSigner(privateKey)
 const recoverySigner = ES256KSigner(privateKey, true)
 
-const didDocLegacy = {
-  '@context': 'https://w3id.org/did/v1',
-  id: did,
-  publicKey: [
-    {
-      id: `${did}#keys-1`,
-      type: 'Secp256k1VerificationKey2018',
-      owner: did,
-      publicKeyHex: publicKey,
-    },
-  ],
-  authentication: [
-    {
-      type: 'Secp256k1SignatureAuthentication2018',
-      publicKey: `${did}#keys-1`,
-    },
-  ],
-}
+const keyTypeVerLegacy = 'Secp256k1VerificationKey2018'
+const keyTypeAuthLegacy = 'Secp256k1SignatureAuthentication2018'
+const keyTypeVer = 'EcdsaSecp256k1VerificationKey2019'
 
-const didDoc = {
-  didDocument: {
-    '@context': 'https://w3id.org/did/v1',
-    id: did,
-    verificationMethod: [
-      {
-        id: `${did}#keys-1`,
-        type: 'EcdsaSecp256k1VerificationKey2019',
-        controller: did,
-        publicKeyHex: publicKey,
-      },
-    ],
-    authentication: [`${did}#keys-1`],
-    assertionMethod: [`${did}#keys-1`],
-    capabilityInvocation: [`${did}#keys-1`],
-    capabilityDelegation: [`${did}#some-key-that-does-not-exist`],
-  },
-}
+const didDocLegacy = CreatedidDocLegacy(did, publicKey, keyTypeVerLegacy, keyTypeAuthLegacy)
 
-const audDidDoc = {
-  didDocument: {
-    '@context': 'https://w3id.org/did/v1',
-    id: aud,
-    verificationMethod: [
-      {
-        id: `${aud}#keys-1`,
-        type: 'EcdsaSecp256k1VerificationKey2019',
-        controller: did,
-        publicKeyHex: publicKey,
-      },
-    ],
-    authentication: [`${aud}#keys-1`],
-    assertionMethod: [`${aud}#keys-1`],
-    capabilityInvocation: [`${aud}#keys-1`],
-    capabilityDelegation: [`${aud}#some-key-that-does-not-exist`],
-  },
-}
+const didDoc = CreatedidDoc(did,publicKey,keyTypeVer)
+
+const audDidDoc = CreateauddidDoc(did,aud,publicKey,keyTypeVer)
 
 describe('createJWT()', () => {
   describe('ES256K', () => {
