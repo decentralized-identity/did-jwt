@@ -15,10 +15,10 @@ import {
 import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256KSigner } from '../../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../../util'
-import { aud, address, did } from './constants/constants'
-import { CreatedidDocLegacy } from './constants/constants'
-import { CreatedidDoc } from './constants/constants'
-import { CreateauddidDoc } from './constants/constants'
+import { aud, address, did } from './common/common'
+import { CreatedidDocLegacy } from './common/common'
+import { CreatedidDoc } from './common/common'
+import { CreateauddidDoc } from './common/common'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
