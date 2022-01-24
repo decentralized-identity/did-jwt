@@ -2,7 +2,6 @@ import SimpleSigner from './signers/SimpleSigner'
 import EllipticSigner from './signers/EllipticSigner'
 import NaclSigner from './signers/NaclSigner'
 import { ES256KSigner } from './signers/ES256KSigner'
-import { ES256Signer } from './signers/ES256Signer'
 import { EdDSASigner } from './signers/EdDSASigner'
 import {
   verifyJWT,
@@ -37,7 +36,6 @@ export {
   EllipticSigner,
   NaclSigner,
   ES256KSigner,
-  ES256Signer,
   EdDSASigner,
   verifyJWT,
   createJWT,
