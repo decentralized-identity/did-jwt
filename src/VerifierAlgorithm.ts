@@ -4,6 +4,8 @@ import { base64ToBytes, bytesToHex, EcdsaSignature } from './util'
 import * as Ed25519VerifierAlg from './VerifierAlg/Ed25519VerifierAlg'
 import * as ES256KVerifierAlg from './VerifierAlg/ES256KVerifierAlg'
 
+import * as ES256VerifierAlg from './VerifierAlg/ES256VerifierAlg'
+
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
   const rawSig: Uint8Array = base64ToBytes(signature)
@@ -24,6 +26,8 @@ interface Algorithms {
   [name: string]: Verifier
 }
 const algorithms: Algorithms = {
+  ES256: ES256VerifierAlg.verifyES256,
+  'ES256-R': ES256VerifierAlg.verifyRecoverableES256,
   ES256K: ES256KVerifierAlg.verifyES256K,
   // This is a non-standard algorithm but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/146

@@ -3,11 +3,15 @@ import { SignerAlgorithm } from './JWT'
 import * as ES256KSignerAlg from './SignerAlg/ES256KSignerAlg'
 import * as Ed25519SignerAlg from './SignerAlg/Ed25519SignerAlg'
 
+import * as ES256SignerAlg from './SignerAlg/ES256SignerAlg'
+
 interface SignerAlgorithms {
   [alg: string]: SignerAlgorithm
 }
 
 const algorithms: SignerAlgorithms = {
+  ES256:  ES256SignerAlg.ES256SignerAlg(),
+  ES256-R: ES256SignerAlg.ES256SignerAlg(true),
   ES256K: ES256KSignerAlg.ES256KSignerAlg(),
   // This is a non-standard algorithm but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/146
