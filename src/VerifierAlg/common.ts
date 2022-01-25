@@ -4,6 +4,7 @@ import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature } from '../util'
 
 const secp256k1 = new EC('secp256k1')
+const secp256r1 = new EC('p256')
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
@@ -42,7 +43,15 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
-   // add  a line for secp256r1 here.....
+    } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256r1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    return hexToBytes(
+      secp256r1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
+        })
+        .getPublic('hex')
+    )
    } else if (pk.publicKeyMultibase) {
     const { base16, base58btc, base64, base64url } = bases
     const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
