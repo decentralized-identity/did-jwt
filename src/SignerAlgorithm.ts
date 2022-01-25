@@ -11,7 +11,7 @@ interface SignerAlgorithms {
 
 const algorithms: SignerAlgorithms = {
   ES256:  ES256SignerAlg.ES256SignerAlg(),
-  ES256-R: ES256SignerAlg.ES256SignerAlg(true),
+  'ES256-R': ES256SignerAlg.ES256SignerAlg(true),
   ES256K: ES256KSignerAlg.ES256KSignerAlg(),
   // This is a non-standard algorithm but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/146

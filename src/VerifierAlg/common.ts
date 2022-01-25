@@ -42,7 +42,8 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
-  } else if (pk.publicKeyMultibase) {
+   // add  a line for secp256r1 here.....
+   } else if (pk.publicKeyMultibase) {
     const { base16, base58btc, base64, base64url } = bases
     const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
     return baseDecoder.decode(pk.publicKeyMultibase)
