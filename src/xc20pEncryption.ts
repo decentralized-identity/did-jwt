@@ -6,6 +6,7 @@ import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToByt
 import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
+import { fromString } from 'uint8arrays/from-string'
 
 /**
  * Extra parameters for JWE using authenticated encryption
@@ -145,7 +146,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
-    const encodedAad = new Uint8Array(Buffer.from(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader))
+    const encodedAad = fromString(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader)
     return {
       ...xc20pEncrypt(cleartext, encodedAad),
       protectedHeader: protHeader,
