@@ -1,3 +1,10 @@
+## [5.12.4](https://github.com/decentralized-identity/did-jwt/compare/5.12.3...5.12.4) (2022-01-27)
+
+
+### Bug Fixes
+
+* use uint8arrays instead of Buffer ([#217](https://github.com/decentralized-identity/did-jwt/issues/217)) ([d9de4fc](https://github.com/decentralized-identity/did-jwt/commit/d9de4fc30d65569545c1f5d62ee6d1850714232f)), closes [#216](https://github.com/decentralized-identity/did-jwt/issues/216)
+
 ## [5.12.3](https://github.com/decentralized-identity/did-jwt/compare/5.12.2...5.12.3) (2022-01-13)
 
 
