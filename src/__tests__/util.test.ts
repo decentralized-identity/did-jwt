@@ -1,4 +1,5 @@
 import { parseKey } from '../util'
+import { fromString } from 'uint8arrays/from-string'
 
 describe('parseKey', () => {
   const privateKeyBase58 = '2sxRbZxrkTR1tmUH88aWcosMRf8zianLjV3vZcVewCDzgimGt5gLeHx1cm4bqfeEuVmDaCREgUNZbKHJAB8HHf9e'
@@ -9,8 +10,8 @@ describe('parseKey', () => {
   const privateKeyBase64 = 'XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ'
   const privateKeyBase64Url = 'XfWLsGwi_rrGOClsD2KXA-K55KHZ1oKY3ewT0XV9c-BW0pm4zy_FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ'
 
-  const privateKeyBytes = Uint8Array.from(
-    Buffer.from('XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ', 'base64')
+  const privateKeyBytes = fromString(
+    'XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ', 'base64'
   )
 
   it('parses hex', () => {
