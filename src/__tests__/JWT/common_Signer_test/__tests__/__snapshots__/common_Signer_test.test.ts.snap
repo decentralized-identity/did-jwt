@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`test verifyToken and public and private JWK test a private key to JWT to PEM by using a SNAPSHOT 1`] = `
+"-----BEGIN PRIVATE KEY-----
+MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQglTLBqiGq2IWz/ReS
+2eQtrOQpjzrvbP1gGYrJxWMmXASgCgYIKoZIzj0DAQehRANCAAQibf53iZCihMqg
+3MpRI+cGtjE7fuZkyV2/SIpDT4ATUuohqtoArWBWlsdDEr+UP0+iGBrP9l0ma70E
+lSlI86bZ
+-----END PRIVATE KEY-----
+"
+`;
+
+exports[`test verifyToken and public and private JWK test a public key to JWT to PEM by using a SNAPSHOT 1`] = `
+"-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4rxufEIj9eLy/WlzYhbnE0jRIq5k
+TKigzKHSWYk4sEg9oEz9kG6iegtU5AlM9UqNzHz86aO6suPqngDq4tJ3gg==
+-----END PUBLIC KEY-----
+"
+`;
