@@ -46,7 +46,6 @@ describe('test verifyToken and public and private JWK', () => {
 
      var privatePoint = key.getPrivate();
      const privatePointHex = privatePoint.toString('hex')
-     console.log('privatePointHex: '+privatePointHex);
      const pemPrivate = jwkToPem.default(privateToJWK(privatePointHex,'EC','P-256'),{private: true})
      var token = jwt.sign({foo:'bar'},pemPrivate,{algorithm:'ES256'})
 
@@ -55,7 +54,6 @@ describe('test verifyToken and public and private JWK', () => {
      var y = pubPoint.getY();
      const publicPointHex_x = x.toString('hex')
      const publicPointHex_y = y.toString('hex')  
-     console.log('publicPointHex_x: '+publicPointHex_x+'   '+'publicPointHex_y: '+publicPointHex_y);
      const pemPublic = jwkToPem.default(publicToJWK(publicPointHex_x,publicPointHex_y,'EC','P-256'));
    
      const isvalid  = verifyTokenFormAndValidity(token,pemPublic)

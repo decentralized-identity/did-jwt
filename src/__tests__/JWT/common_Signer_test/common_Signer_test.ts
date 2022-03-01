@@ -82,8 +82,8 @@ export function verifyTokenFormAndValidity(token,pemPublic) {
 
 // input public key in hex, and export pem
 export function publicToJWK(publicPointHex_x,publicPointHex_y,kty_value,crv_value) {
-   if(publicPointHex_x.length % 2 != 0) { '0'+publicPointHex_x  }
-   if(publicPointHex_y.length % 2 != 0) { '0'+publicPointHex_y  }
+   if(publicPointHex_x.length % 2 != 0) { publicPointHex_x = '0'+publicPointHex_x }
+   if(publicPointHex_y.length % 2 != 0) { publicPointHex_y = '0'+publicPointHex_y }
    const publicPointUint8_x = u8a.fromString(publicPointHex_x,'hex')
    const publicPointBase64URL_x = u8a.toString(publicPointUint8_x,'base64url')
    const publicPointUint8_y = u8a.fromString(publicPointHex_y,'hex')
@@ -98,7 +98,7 @@ export function publicToJWK(publicPointHex_x,publicPointHex_y,kty_value,crv_valu
 
 // input private key in hex, and export pem
 export function privateToJWK(privatePointHex,kty_value,crv_value) {
-  if(privatePointHex.length % 2 != 0) { '0'+privatePointHex  } 
+  if(privatePointHex.length % 2 != 0) { privatePointHex = '0'+privatePointHex  } 
   const privatePointUint8 = u8a.fromString(privatePointHex,'hex')
   const privatePointBase64URL = u8a.toString(privatePointUint8,'base64url')
   return  {
