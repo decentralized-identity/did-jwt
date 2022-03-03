@@ -54,14 +54,14 @@ describe('ES256', () => {
 
 describe('ES256-R', () => {
   const jwtSigner = SignerAlgorithm('ES256-R')
-  /*
+ 
   expect.assertions(1)
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
       'Zks0QO1ma5pHHtNbpb0qDap0VJSvQvA775N0GZsAp3PQjmDGbsfyKlUVcU9PFueIXksioSTsPXiOCgAHIOe4WA'
     )
   })
-  
+  /* 
   it('returns signature of 64 bytes', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)

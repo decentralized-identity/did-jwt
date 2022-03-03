@@ -14,10 +14,19 @@ import {
 import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256Signer } from '../../signers/ES256Signer'
 import { bytesToBase64url, decodeBase64url } from '../../util'
-import { aud, address, did, CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './common_Signer_test/common_Signer_test'
+import { aud, CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './common_Signer_test/common_Signer_test'
+//import { CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './common_Signer_test/common_Signer_test'
 import { publicToJWK } from './common_Signer_test/common_Signer_test'
 import { verifyTokenFormAndValidity } from './common_Signer_test/common_Signer_test'
 import * as jwkToPem from 'jwk-to-pem'
+
+// address comes from eip155 as  'const eip155 = toEthereumAddress(publicKey)' in ../VerifierAlg/ES256VerifierAlg.test.ts
+export const address = '0x41a6f92cca7b7e727ab39a8faf512b530316c395'
+export const did = `did:ethr:${address}`
+
+// const audAddress = '0x1018bd06f6fbb6e772c8539e03df01429b775ce4'
+// const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
+// const aud = `did:ethr:${audAddress}`
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -28,9 +37,6 @@ const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc
 const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
 const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
 const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
-
-// this needs to be refactored with your custom code
-// const verifier = new TokenVerifier(alg, publicKey)
 
 const signer = ES256Signer(privateKey)
 const recoverySigner = ES256Signer(privateKey, true)
@@ -241,19 +247,10 @@ describe('verifyJWT()', () => {
       }
     }),
   }
-  
-  // const jwt = await createJWT({nbf: PAST}, {issuer:did, signer})
-  // remove this
-  /*
-  it('print a jwt', async() => {
-  const jwt = await createJWT({ requested : ['name','phone'] },{ issuer : "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74", signer },{ alg : 'ES256' });
-     console.log(jwt);
-   })
-  */
 
   describe('pregenerated JWT', () => {
   const incomingJwt =
-      'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.dCwWSvH6LuqNGL3pl3nuboaYGouAsHj6iC7n4HX_hgOu98vsiBTDGp9lZzj-p7B2JMrrBlA9ykiuXqblPAKY8w'
+        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.ZGS7kklimLNTy2xLRLeVM17aIj52Yy3dpTvt9KSYwK2eS7KV5u_9V7iGWpua1d53DmSodF3JRFiZvMf8erfkOw'
      it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
       const { payload } = await verifyJWT(incomingJwt, { resolver })
@@ -353,7 +350,7 @@ describe('verifyJWT()', () => {
 
     describe('badJwt', () => {
      const badJwt =
-      'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
+        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
      it('rejects a JWT with bad signature', async () => {
        expect.assertions(1)
        await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(/Signature invalid for JWT/)
@@ -364,14 +361,14 @@ describe('verifyJWT()', () => {
     it('passes when nbf is in the past', async () => {
       expect.assertions(1)
       const jwt =
-        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwibmJmIjoxNDg1MzIxMDMzLCJpc3MiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQifQ.NeKghWtLpFdOlVXnHwVyyAkGY-FbLa-YQ_3ZH6mN_SDFB82WBtzAe2UMh_fTG793wMJ-0_SAt19bSFfxXSm5mg'
+        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwibmJmIjoxNDg1MzIxMDMzLCJpc3MiOiJkaWQ6ZXRocjoweDQxYTZmOTJjY2E3YjdlNzI3YWIzOWE4ZmFmNTEyYjUzMDMxNmMzOTUifQ.pSp3S2Swu8dqi_G1Q9Fz42R1vP-WnHsuFXT0W9Am8q0HLdEoYqeBY0pCWGfXo3xwq0oC5bUqT0Qv2vM0bgLflw'
       // const jwt = await createJWT({nbf: PAST}, {issuer:did, signer})
       await expect(verifyJWT(jwt, { resolver })).resolves.not.toThrow()
     })
     it('passes when nbf is in the past and iat is in the future', async () => {
       expect.assertions(1)
       const jwt =
-        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjEyMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwibmJmIjoxNDg1MzIxMDMzLCJpc3MiOiJkaWQ6ZXRocjoweGYzYmVhYzMwYzQ5OGQ5ZTI2ODY1ZjM0ZmNhYTU3ZGJiOTM1YjBkNzQifQ.65FD32BW9Kq3k-hniRWYpiXT4ys0A8Hn8gK7EjcsIqSM8dRw4xT5qtggSZmQT4NxT5Q16I89z0FzzEVM8RZsTw'
+        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjEyMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwibmJmIjoxNDg1MzIxMDMzLCJpc3MiOiJkaWQ6ZXRocjoweDQxYTZmOTJjY2E3YjdlNzI3YWIzOWE4ZmFmNTEyYjUzMDMxNmMzOTUifQ.YL0lrUKgfCJ9KO8ptGyqqp3XV3vQPc13SufbT4gJ0LBaY2fD4P3vg_qRmZtnMXs_DaBKinN9QC2eHZFx9_lTqQ'
       // const jwt = await createJWT({nbf:PAST,iat:FUTURE},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).resolves.not.toThrow()
     })
@@ -392,7 +389,7 @@ describe('verifyJWT()', () => {
     it('passes when nbf is missing and iat is in the past', async () => {
       expect.assertions(1)
       const jwt =
-        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjA5MzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.n2OXA7gAbRZeQG68MWlEE9c52Lfk8LgjAHp3NvfEOLvnJcVI1HAYTYJX_smAmafnQaJs_c5Wsesq5XKgcUJjxg'
+        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjA5MzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.b9NYAO-s6LLEJJIVpGe_a93i66LzJ38GVZ_j-lfxTGMz4--OBqulxTleSiBCklSacxJwWCGkTnJeAT8lGR-UmQ'
       // const jwt = await createJWT({iat:PAST},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).resolves.not.toThrowError()
     })
@@ -406,7 +403,7 @@ describe('verifyJWT()', () => {
     it('passes when nbf and iat are both missing', async () => {
       expect.assertions(1)
       const jwt =
-        'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.dCwWSvH6LuqNGL3pl3nuboaYGouAsHj6iC7n4HX_hgOu98vsiBTDGp9lZzj-p7B2JMrrBlA9ykiuXqblPAKY8w'
+       'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.ZGS7kklimLNTy2xLRLeVM17aIj52Yy3dpTvt9KSYwK2eS7KV5u_9V7iGWpua1d53DmSodF3JRFiZvMf8erfkOw'
       // const jwt = await createJWT({iat:undefined},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).resolves.not.toThrowError()
     })
@@ -427,7 +424,7 @@ describe('verifyJWT()', () => {
   })
  
   // This test fails. I am not sure why it fails. I might need to make the VerifierAlgorithm tests work to get some idea.
-  /*   
+    
   it('handles ES256 algorithm with ethereum address - github #14', async () => {
     expect.assertions(1)
     const ethResolver = {
@@ -449,8 +446,7 @@ describe('verifyJWT()', () => {
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
   })
-  */
-  /*
+  
   it('handles ES256 algorithm with blockchainAccountId - github #14, #155', async () => {
     expect.assertions(1)
     const ethResolver = {
@@ -472,78 +468,69 @@ describe('verifyJWT()', () => {
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
   })
-  */
-  /*
+  
   it('accepts a valid exp', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ exp: NOW }, { issuer: did, signer })
+    const jwt = await createJWT({ exp: NOW }, { issuer: did, signer },{ alg: 'ES256' })
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
-  */
-  /*
+ 
   it('rejects an expired JWT', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer })
+    const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer },{ alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has expired/)
   })
-  */
-  /*
+ 
   it('rejects an expired JWT without skew time', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
+    const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer },{ alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver, skewTime: 0 })).rejects.toThrowError(/JWT has expired/)
   })
-  */
-  /*
+ 
    it('accepts a valid audience', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud }, { issuer: did, signer })
+    const jwt = await createJWT({ aud }, { issuer: did, signer },{ alg : 'ES256' })
     const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
     return expect(payload).toMatchSnapshot()
   })
-  */
-  /*
+  
   it('accepts multiple audiences', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud: [did, aud] }, { issuer: did, signer })
+    const jwt = await createJWT({ aud: [did, aud] }, { issuer: did, signer },{ alg: 'ES256'})
     const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
     return expect(payload).toMatchSnapshot()
   })
-  */
-  /*
+
   it('rejects invalid multiple audiences', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud: [did, did] }, { issuer: did, signer })
+    const jwt = await createJWT({ aud: [did, did] }, { issuer: did, signer },{ alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver, audience: aud })).rejects.toThrowError(
       /JWT audience does not match your DID/
     )
   })
-  */
-  /*
+ 
   it('accepts a valid audience using callback_url', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
+    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer },{ alg: 'ES256' })
     const { payload } = await verifyJWT(jwt, {
       resolver,
       callbackUrl: 'http://pututu.uport.me/unique',
     })
     return expect(payload).toMatchSnapshot()
   })
-  */
-  /*
+ 
   it('rejects invalid audience', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud }, { issuer: did, signer })
+    const jwt = await createJWT({ aud }, { issuer: did, signer },{ alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver, audience: did })).rejects.toThrowError(
       /JWT audience does not match your DID or callback url/
     )
   })
-  */
-  /*
+  
   it('rejects an invalid audience using callback_url where callback is wrong', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
+    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer },{ alg: 'ES256'})
     await expect(
       verifyJWT(jwt, {
         resolver,
@@ -551,86 +538,83 @@ describe('verifyJWT()', () => {
       })
     ).rejects.toThrowError(/JWT audience does not match your DID or callback url/)
   })
-  */
-  /*  
+ 
   it('rejects an invalid audience using callback_url where callback is missing', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
+    const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer },{ alg: 'ES256'})
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(
       'JWT audience is required but your app address has not been configured'
     )
   })
-  */
-  /*  
+ 
   it('rejects invalid audience as no address is present', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ aud }, { issuer: did, signer })
+    const jwt = await createJWT({ aud }, { issuer: did, signer },{ alg: 'ES256'})
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(
       /JWT audience is required but your app address has not been configured/
     )
   })
-  */
-  /*
+
    it('rejects a pregenerated JWT without iss', async () => {
     expect.assertions(1)
     const jwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzN9.aa3_8ZH99MjFoHTrNjOm7Pgq5VL5A13DHR5MTd_dBw2B_pWgNuz4N1tbrocTP0MgDlRbovKmTTDrGNjNMPqH3g'
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT iss is required/)
   })
-
+  
   it('rejects a self-issued v2 JWT without sub', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V2, signer })
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V2, signer },{ alg: 'ES256'})
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT sub is required/)
   })
-
+ 
   it('rejects a self-issued v2 JWT (sub type: did) with an invalid payload.sub DID', async () => {
     expect.assertions(2)
-    const jwt = await createJWT({ sub: 'sub' }, { issuer: SELF_ISSUED_V2, signer })
+    const jwt = await createJWT({ sub: 'sub' }, { issuer: SELF_ISSUED_V2, signer },{ alg: 'ES256'})
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
     expect(resolver.resolve).toHaveBeenCalledWith('sub', { accept: 'application/did+json' })
   })
 
   it('accepts a self-issued v2 JWT (sub type: did) with a valid payload.sub DID', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ sub: did }, { issuer: SELF_ISSUED_V2, signer })
+    const jwt = await createJWT({ sub: did }, { issuer: SELF_ISSUED_V2, signer },{ alg: 'ES256'})
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
 
   it('rejects a self-issued v2 JWT (sub type: jkt) without a header.kid DID', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer })
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer },{ alg: 'ES256'})
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/No DID has been found in the JWT/)
   })
 
   it('rejects a self-issued v2 JWT (sub type: jkt) with an invalid header.kid DID', async () => {
     expect.assertions(2)
-    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: 'kid' })
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: 'kid' , alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/DID document not found/)
     expect(resolver.resolve).toHaveBeenCalledWith('kid', { accept: 'application/did+json' })
   })
 
   it('accepts a self-issued v2 JWT (sub type: jkt) with a valid header.kid DID', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: did })
+    const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer }, { kid: did , alg: 'ES256' })
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
 
   it('rejects a self-issued v0.1 JWT without did property', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V0_1, signer })
+    const jwt = await createJWT({}, { issuer: SELF_ISSUED_V0_1, signer },{ alg: 'ES256' })
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT did is required/)
   })
 
   it('accepts a self-issued v0.1 JWT with did property', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ did }, { issuer: SELF_ISSUED_V0_1, signer })
+    const jwt = await createJWT({ did }, { issuer: SELF_ISSUED_V0_1, signer },{ alg: 'ES256' })
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
-  */
+ 
 })
 
 describe('JWS', () => {
@@ -660,23 +644,21 @@ describe('JWS', () => {
     expect(jws).toMatchSnapshot()
     expect(jws.split('.')[1]).toEqual(encodedPayload)
   })
-  /*  
+  
   it('verifyJWS works with JSON payload', async () => {
     expect.assertions(1)
     const payload = { some: 'data' }
-    const jws = await createJWS(payload, signer)
+    const jws = await createJWS(payload, signer,{alg: 'ES256'})
     expect(() => verifyJWS(jws, { publicKeyHex: publicKey } as VerificationMethod)).not.toThrow()
   })
-  */
-  /* 
+  
   it('verifyJWS works with base64url payload', async () => {
     expect.assertions(1)
     const encodedPayload = bytesToBase64url(Buffer.from(publicKey, 'hex'))
-    const jws = await createJWS(encodedPayload, signer)
+    const jws = await createJWS(encodedPayload, signer,{alg: 'ES256'})
     expect(() => verifyJWS(jws, { publicKeyHex: publicKey } as VerificationMethod)).not.toThrow()
   })
-  */
-  
+ 
   it('verifyJWS fails with bad input', async () => {
     expect.assertions(1)
     const badJws = 'abrewguer.fjreoiwfoiew.foirheogu.reoguhwehrg'
@@ -684,30 +666,29 @@ describe('JWS', () => {
   })    
 })
 
-/*
 describe('resolveAuthenticator()', () => {
   const ecKey1 = {
     id: `${did}#keys-1`,
-    type: 'Secp256k1VerificationKey2018',
+    type: 'JsonWebKey2020',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061',
+      '047f66dfa651fa0d1957117ad814fb8be57577c713dcfdb6a739a009f2f9acd72894c38368d5610c8d6ca1ef76b7b4c4d0daab485116b98f0097884354c14d2f12',
   }
 
   const ecKey2 = {
     id: `${did}#keys-2`,
-    type: 'Secp256k1SignatureVerificationKey2018',
+    type: 'JsonWebKey2020',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab062',
+        '045aa95615a343ff953fcfad939f6187cf6d9c2d176ada9eac2d8977376d2f7cf72a57d753724ffa40076160ab2f9f9dd1f0117e32412809c1543ebe293bc36e8f',
   }
 
   const ecKey3 = {
     id: `${did}#keys-3`,
-    type: 'Secp256k1SignatureVerificationKey2018',
+    type: 'JsonWebKey2020',
     owner: did,
     publicKeyHex:
-      '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab063',
+      '04be3598192b12b9cc5b0679786b43e9d5dbb608794f5b3c4b587da43bab7b0bc806c6a3a779aa7f1a45d6b9cebbdfcdf43da6f9f84381f6ba51daf7d877315bef',
   }
 
   const encKey1 = {
@@ -732,12 +713,12 @@ describe('resolveAuthenticator()', () => {
   }
 
   const authKey1 = {
-    type: 'Secp256k1SignatureAuthentication2018',
+    type: 'JsonWebKey2020',
     publicKey: ecKey1.id,
   }
 
   const authKey2 = {
-    type: 'Secp256k1SignatureAuthentication2018',
+    type: 'JsonWebKey2020',
     publicKey: ecKey2.id,
   }
 
@@ -755,7 +736,7 @@ describe('resolveAuthenticator()', () => {
 
   const ecKey7 = {
     id: `${did}#keys-auth7`,
-    type: 'EcdsaSecp256k1VerificationKey2019',
+    type: 'JsonWebKey2020',
     owner: did,
     publicKeyBase58: 'dummyvalue',
   }
@@ -806,9 +787,9 @@ describe('resolveAuthenticator()', () => {
       id: did,
     },
   }
-
+  
   describe('DID', () => {
-    describe('ES256K', () => {
+    describe('ES256', () => {
       it('finds public key', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did)
@@ -930,7 +911,7 @@ describe('resolveAuthenticator()', () => {
       return await expect(
         resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did, 'authentication')
       ).rejects.toThrowError(
-        `DID document for ${did} does not have public keys suitable for ES256K with authentication purpose`
+        `DID document for ${did} does not have public keys suitable for ES256 with authentication purpose`
       )
     })
 
@@ -972,4 +953,4 @@ describe('resolveAuthenticator()', () => {
     })
   })
 })
-*/
+

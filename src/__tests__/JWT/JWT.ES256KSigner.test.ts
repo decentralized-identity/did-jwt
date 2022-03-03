@@ -15,10 +15,13 @@ import {
 import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256KSigner } from '../../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../../util'
-import { aud, address, did } from './common_Signer_test/common_Signer_test'
+import { aud } from './common_Signer_test/common_Signer_test'
 import { CreatedidDocLegacy } from './common_Signer_test/common_Signer_test'
 import { CreatedidDoc } from './common_Signer_test/common_Signer_test'
 import { CreateauddidDoc } from './common_Signer_test/common_Signer_test'
+
+export const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+export const did = `did:ethr:${address}`
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
