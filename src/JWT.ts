@@ -91,8 +91,8 @@ export interface PublicKeyTypes {
   [name: string]: string[]
 }
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
-   ES256: [ 'JsonWebKey2020' ],
-   'ES256-R': [ 'JsonWebKey2020' ],   
+   ES256: [ 'JsonWebKey2020','EcdsaSecp256r1VerificationKey2022' ],
+   'ES256-R': [ 'JsonWebKey2020','EcdsaSecp256r1VerificationKey2022' ],   
    ES256K: [
     'EcdsaSecp256k1VerificationKey2019',
     /**

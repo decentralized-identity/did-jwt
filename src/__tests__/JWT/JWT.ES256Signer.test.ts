@@ -736,7 +736,7 @@ describe('resolveAuthenticator()', () => {
 
   const ecKey7 = {
     id: `${did}#keys-auth7`,
-    type: 'JsonWebKey2020',
+    type: 'EcdsaSecp256r1VerificationKey2022',
     owner: did,
     publicKeyBase58: 'dummyvalue',
   }
