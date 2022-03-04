@@ -37,7 +37,7 @@ const compressedPublicKey = String(kp.getPublic().encode('hex', true))
 const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
 const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
 const publicKeyJwk = {
-  crv: 'secp256r1',
+  crv: 'P-256',
   kty: 'EC',
   x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
   y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
@@ -142,14 +142,14 @@ describe('ES256', () => {
   const verifier = VerifierAlgorithm('ES256')
   it('validates signature and picks correct public key', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, ecKey2])).toEqual(ecKey2)
   })
   
   it('validates with publicKeyBase58', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase58 }, ecKey2)
     delete pubkey.publicKeyHex
@@ -158,7 +158,7 @@ describe('ES256', () => {
   
   it('validates with publicKeyBase64', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyBase64 }, ecKey2)
     delete pubkey.publicKeyHex
@@ -167,7 +167,7 @@ describe('ES256', () => {
   
   it('validates with publicKeyJwk', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' },{ issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyJwk }, ecKey2)
     delete pubkey.publicKeyHex
@@ -176,7 +176,7 @@ describe('ES256', () => {
   
   it('validates with publicKeyMultibase', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyMultibase }, ecKey2)
     delete pubkey.publicKeyHex
@@ -185,14 +185,14 @@ describe('ES256', () => {
   
   it('validates signature with compressed public key and picks correct public key', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ecKey1, compressedKey])).toEqual(compressedKey)
   })
   
   it('throws error if invalid signature', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(
       new Error('invalid_signature: Signature invalid for JWT')
@@ -201,13 +201,13 @@ describe('ES256', () => {
   
   it('throws error if invalid signature length', async () => {
     expect.assertions(1)
-    const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer })) + 'aa'
+    const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})) + 'aa'
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrowError(new Error('wrong signature length'))
   })
   
   it('validates signature with compressed public key and picks correct public key when malformed keys are encountered first', async () => {
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [malformedKey1, malformedKey2, malformedKey3, compressedKey])).toEqual(
       compressedKey
@@ -216,42 +216,42 @@ describe('ES256', () => {
   
   it('validates signature produced by ethAddress - github #14', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [ethAddress])).toEqual(ethAddress)
   })
   
   it('validates signature produced by blockchainAccountId - github #14, #155', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [blockchainAddress])).toEqual(blockchainAddress)
   })
   
   it('validates signature produced by blockchainAccountId - CAIP 10 (EIP 155)', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [blockchainAddressCaip10])).toEqual(blockchainAddressCaip10)
   })
   
   it('validates signature produced by blockchainAccountId - CAIP 10 (BIP 122)', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [blockchainAddressBip122])).toEqual(blockchainAddressBip122)
   })
   
   it('validates signature produced by blockchainAccountId - CAIP 10 (Cosmos)', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [blockchainAddressCosmos])).toEqual(blockchainAddressCosmos)
   })
   
   it('validates signature produced by JsonWebKey2020 (Recovery Method) - github #152', async () => {
     expect.assertions(1)
-    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [recoveryMethod2020Key])).toEqual(recoveryMethod2020Key)
   })

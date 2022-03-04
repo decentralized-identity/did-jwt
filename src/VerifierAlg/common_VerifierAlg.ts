@@ -43,7 +43,7 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
-    } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256r1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256r1
         .keyFromPublic({
