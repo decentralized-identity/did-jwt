@@ -43,7 +43,7 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
-    } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256r1
         .keyFromPublic({
@@ -52,7 +52,7 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
-   } else if (pk.publicKeyMultibase) {
+  } else if (pk.publicKeyMultibase) {
     const { base16, base58btc, base64, base64url } = bases
     const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
     return baseDecoder.decode(pk.publicKeyMultibase)

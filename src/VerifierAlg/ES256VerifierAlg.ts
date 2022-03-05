@@ -14,11 +14,7 @@ interface LegacyVerificationMethod extends VerificationMethod {
 }
 */
 
-export function verifyES256(
-  data: string,
-  signature: string,
-  authenticators: VerificationMethod[]
-): VerificationMethod {
+export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = common_VerifierAlg.toSignatureObject(signature)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
