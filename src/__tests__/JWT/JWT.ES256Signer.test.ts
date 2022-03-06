@@ -1,4 +1,6 @@
 import { VerificationMethod } from 'did-resolver'
+import { fromString } from 'uint8arrays/from-string'
+import { toString } from 'uint8arrays/to-string'
 import MockDate from 'mockdate'
 import {
   createJWS,
@@ -639,7 +641,7 @@ describe('JWS', () => {
   it('createJWS works with base64url payload', async () => {
     expect.assertions(2)
     // use the hex public key as an arbitrary payload
-    const encodedPayload = bytesToBase64url(Buffer.from(publicKey, 'hex'))
+    const encodedPayload = bytesToBase64url(fromString(publicKey, 'base16'))
     const jws = await createJWS(encodedPayload, signer)
     expect(jws).toMatchSnapshot()
     expect(jws.split('.')[1]).toEqual(encodedPayload)
@@ -654,7 +656,7 @@ describe('JWS', () => {
   
   it('verifyJWS works with base64url payload', async () => {
     expect.assertions(1)
-    const encodedPayload = bytesToBase64url(Buffer.from(publicKey, 'hex'))
+    const encodedPayload = bytesToBase64url(fromString(publicKey, 'base16'))
     const jws = await createJWS(encodedPayload, signer,{alg: 'ES256'})
     expect(() => verifyJWS(jws, { publicKeyHex: publicKey } as VerificationMethod)).not.toThrow()
   })

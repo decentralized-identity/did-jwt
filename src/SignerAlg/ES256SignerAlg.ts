@@ -1,11 +1,11 @@
 import { Signer, SignerAlgorithm } from '../JWT'
 import { EcdsaSignature, fromJose, toJose } from '../util'
-import * as common_SignerAlg from './common_SignerAlg'
+import * as CommonSignerAlg from './CommonSignerAlg'
 
 export function ES256SignerAlg(recoverable?: boolean): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
     const signature: EcdsaSignature | string = await signer(payload)
-    if (common_SignerAlg.instanceOfEcdsaSignature(signature)) {
+    if (CommonSignerAlg.instanceOfEcdsaSignature(signature)) {
       return toJose(signature, recoverable)
     } else {
       if (recoverable && typeof fromJose(signature).recoveryParam === 'undefined') {
