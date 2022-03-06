@@ -3,8 +3,7 @@ import { sha256, toEthereumAddress } from '../Digest'
 import type { VerificationMethod } from 'did-resolver'
 import { bytesToHex, EcdsaSignature } from '../util'
 import { verifyBlockchainAccountId } from '../blockchains'
-
-import * as common_VerifierAlg from './common_VerifierAlg'
+import * as CommonVerifierAlg from './CommonVerifierAlg'
 
 const secp256k1 = new EC('secp256k1')
 
@@ -20,7 +19,7 @@ export function verifyES256K(
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   const hash: Uint8Array = sha256(data)
-  const sigObj: EcdsaSignature = common_VerifierAlg.toSignatureObject(signature)
+  const sigObj: EcdsaSignature = CommonVerifierAlg.toSignatureObject(signature)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
     return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
   })
@@ -30,7 +29,7 @@ export function verifyES256K(
 
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
-      const pubBytes = common_VerifierAlg.extractPublicKeyBytes(pk)
+      const pubBytes = CommonVerifierAlg.extractPublicKeyBytes(pk)
       return secp256k1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
     } catch (err) {
       return false
@@ -52,9 +51,9 @@ export function verifyRecoverableES256K(
 ): VerificationMethod {
   let signatures: EcdsaSignature[]
   if (signature.length > 86) {
-    signatures = [common_VerifierAlg.toSignatureObject(signature, true)]
+    signatures = [CommonVerifierAlg.toSignatureObject(signature, true)]
   } else {
-    const so = common_VerifierAlg.toSignatureObject(signature, false)
+    const so = CommonVerifierAlg.toSignatureObject(signature, false)
     signatures = [
       { ...so, recoveryParam: 0 },
       { ...so, recoveryParam: 1 },
@@ -70,7 +69,7 @@ export function verifyRecoverableES256K(
     const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
 
     const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
-      const keyHex = bytesToHex(common_VerifierAlg.extractPublicKeyBytes(pk))
+      const keyHex = bytesToHex(CommonVerifierAlg.extractPublicKeyBytes(pk))
       return (
         keyHex === recoveredPublicKeyHex ||
         keyHex === recoveredCompressedPublicKeyHex ||
