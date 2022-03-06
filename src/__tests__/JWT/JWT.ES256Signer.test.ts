@@ -14,10 +14,10 @@ import {
 import { EdDSASigner } from '../../signers/EdDSASigner'
 import { ES256Signer } from '../../signers/ES256Signer'
 import { bytesToBase64url, decodeBase64url } from '../../util'
-import { aud, CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './common_Signer_test/common_Signer_test'
-//import { CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './common_Signer_test/common_Signer_test'
-import { publicToJWK } from './common_Signer_test/common_Signer_test'
-import { verifyTokenFormAndValidity } from './common_Signer_test/common_Signer_test'
+import { aud, CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './CommonSignerTest/CommonSignerTest'
+//import { CreatedidDocLegacy, CreatedidDoc, CreateauddidDoc } from './CommonSignerTest/CommonSignerTest'
+import { publicToJWK } from './CommonSignerTest/CommonSignerTest'
+import { verifyTokenFormAndValidity } from './CommonSignerTest/CommonSignerTest'
 import * as jwkToPem from 'jwk-to-pem'
 
 // address comes from eip155 as  'const eip155 = toEthereumAddress(publicKey)' in ../VerifierAlg/ES256VerifierAlg.test.ts
