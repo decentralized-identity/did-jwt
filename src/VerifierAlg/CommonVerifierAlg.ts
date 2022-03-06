@@ -21,11 +21,9 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
-/*
 interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
-*/
 
 export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
