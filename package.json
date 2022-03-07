@@ -92,7 +92,6 @@
     "js-sha3": "^0.8.0",
     "multiformats": "^9.4.10",
     "uint8arrays": "^3.0.0",
-    "yarn": "^1.22.17"
   },
   "eslintIgnore": [
     "*.test.ts"
