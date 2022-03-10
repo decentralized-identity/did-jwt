@@ -46,7 +46,7 @@ const publicKeyMultibase = bytesToMultibase(hexToBytes(publicKey), 'base58btc')
 const eip155 = toEthereumAddress(publicKey)
 const bip122 = toBip122Address(publicKey)
 const cosmosPrefix = 'example'
-const cosmos = toCosmosAddressWithoutPrefix(publicKey, cosmosPrefix)
+const cosmos = toCosmosAddressWithoutPrefix(publicKey, cosmosPrefix,'p256-pub')
 const signer = ES256Signer(privateKey)
 const recoverySigner = ES256Signer(privateKey, true)
 
