@@ -7,12 +7,6 @@ import * as CommonVerifierAlg from './CommonVerifierAlg'
 
 const secp256k1 = new EC('secp256k1')
 
-/*
-interface LegacyVerificationMethod extends VerificationMethod {
-  publicKeyBase64: string
-}
-*/
-
 export function verifyES256K(
   data: string,
   signature: string,

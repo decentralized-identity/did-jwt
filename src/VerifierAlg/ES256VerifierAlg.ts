@@ -7,12 +7,6 @@ import * as CommonVerifierAlg from './CommonVerifierAlg'
 
 const secp256r1 = new EC('p256')
 
-/*
-interface LegacyVerificationMethod extends VerificationMethod {
-  publicKeyBase64: string
-}
-*/
-
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = CommonVerifierAlg.toSignatureObject(signature)
