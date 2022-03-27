@@ -1,7 +1,7 @@
 import { parseKey } from '../util'
 import { fromString } from 'uint8arrays/from-string'
 
-describe('parseKey', () => {
+describe('parseKey test #1', () => {
   const privateKeyBase58 = '2sxRbZxrkTR1tmUH88aWcosMRf8zianLjV3vZcVewCDzgimGt5gLeHx1cm4bqfeEuVmDaCREgUNZbKHJAB8HHf9e'
   const privateKeyHex =
     '5DF58BB06C22FEBAC638296C0F629703E2B9E4A1D9D68298DDEC13D1757D73E056D299B8CF2FC5AB12EDEF6C0B28A7D57ED0649A188B6C5B88E74F208792E62D'
@@ -12,6 +12,38 @@ describe('parseKey', () => {
 
   const privateKeyBytes = fromString(
     'XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ', 'base64'
+  )
+
+  it('parses hex', () => {
+    expect(parseKey(privateKeyHex)).toMatchObject(privateKeyBytes)
+  })
+
+  it('parses prefixed hex', () => {
+    expect(parseKey(privateKeyHexPrefix)).toMatchObject(privateKeyBytes)
+  })
+
+  it('parses base64', () => {
+    expect(parseKey(privateKeyBase64)).toMatchObject(privateKeyBytes)
+  })
+
+  it('parses base64url', () => {
+    expect(parseKey(privateKeyBase64Url)).toMatchObject(privateKeyBytes)
+  })
+
+  it('parses base58btc', () => {
+    expect(parseKey(privateKeyBase58)).toMatchObject(privateKeyBytes)
+  })
+})
+
+describe('parseKey test #2', () => {
+  const privateKeyBase58 = 'Gqzym8nfnxR5ZYZ3wZo8rvTwKTqGn5cJsbHnEhUZDPo'
+  const privateKeyHex = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a'
+  const privateKeyHexPrefix = '0x040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a'
+  const privateKeyBase64 = 'BA8dvwosqGh1RHp8AQsPxtOddoWcRY++jyv3daQK10o'
+  const privateKeyBase64Url = 'BA8dvwosqGh1RHp8AQsPxtOddoWcRY--jyv3daQK10o'
+
+  const privateKeyBytes = fromString(
+    'BA8dvwosqGh1RHp8AQsPxtOddoWcRY++jyv3daQK10o', 'base64'
   )
 
   it('parses hex', () => {
