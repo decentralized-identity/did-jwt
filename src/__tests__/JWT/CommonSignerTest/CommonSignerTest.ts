@@ -1,6 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import * as u8a from 'uint8arrays'
-import { Extensible, ServiceEndpoint } from 'did-resolver'
+import { Extensible, ServiceEndpoint, VerificationMethod } from 'did-resolver'
 
 // redeclare non-exported interface from did-resolver
 interface JsonWebKey extends Extensible {
@@ -35,19 +35,6 @@ interface VerificationMethodLegacyCommonSigner {
   ethereumAddress?: string
 }
 
-interface VerificationMethodCommonSigner {
-  id: string
-  type: string
-  controller: string
-  publicKeyBase58?: string
-  publicKeyBase64?: string
-  publicKeyJwk?: JsonWebKey
-  publicKeyHex?: string
-  publicKeyMultibase?: string
-  blockchainAccountId?: string
-  ethereumAddress?: string
-}
-
 type DIDDocumentLegacyCommonSigner = {
   '@context'?: 'https://www.w3.org/ns/did/v1' | string | string[]
   id: string
@@ -65,12 +52,12 @@ type DIDDocumentCommonSigner = {
     id: string
     alsoKnownAs?: string[]
     controller?: string | string[]
-    verificationMethod?: VerificationMethodCommonSigner[]
+    verificationMethod?: VerificationMethod[]
     service?: ServiceEndpoint[]
-    authentication?: VerificationMethodCommonSigner[] | string[]
-    assertionMethod?: VerificationMethodCommonSigner[] | string[]
-    capabilityInvocation?: VerificationMethodCommonSigner[] | string[]
-    capabilityDelegation?: VerificationMethodCommonSigner[] | string[]
+    authentication?: VerificationMethod[] | string[]
+    assertionMethod?: VerificationMethod[] | string[]
+    capabilityInvocation?: VerificationMethod[] | string[]
+    capabilityDelegation?: VerificationMethod[] | string[]
   }
 }
 
