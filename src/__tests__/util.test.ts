@@ -11,7 +11,8 @@ describe('parseKey', () => {
   const privateKeyBase64Url = 'XfWLsGwi_rrGOClsD2KXA-K55KHZ1oKY3ewT0XV9c-BW0pm4zy_FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ'
 
   const privateKeyBytes = fromString(
-    'XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ', 'base64'
+    'XfWLsGwi/rrGOClsD2KXA+K55KHZ1oKY3ewT0XV9c+BW0pm4zy/FqxLt72wLKKfVftBkmhiLbFuI508gh5LmLQ',
+    'base64'
   )
 
   it('parses hex', () => {

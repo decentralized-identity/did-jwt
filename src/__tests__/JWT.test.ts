@@ -2,15 +2,14 @@ import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
 import { fromString } from 'uint8arrays/from-string'
-import { toString } from 'uint8arrays/to-string'
 import {
   createJWS,
   createJWT,
   decodeJWT,
   NBF_SKEW,
   resolveAuthenticator,
-  SELF_ISSUED_V2,
   SELF_ISSUED_V0_1,
+  SELF_ISSUED_V2,
   verifyJWS,
   verifyJWT,
 } from '../JWT'
@@ -33,6 +32,13 @@ const verifier = new TokenVerifier(alg, publicKey)
 const signer = ES256KSigner(privateKey)
 const recoverySigner = ES256KSigner(privateKey, true)
 
+const publicKeyJwk = {
+  crv: 'secp256k1',
+  kty: 'EC',
+  x: '_dV63sPUOOojf-RrM-4eAW7aa1hcPifqZmhsLqU1hHk',
+  y: 'Rjk_gUUlLupor-Z-KHs-2bMWhbpsOwAGCnO5sSQtaPc',
+}
+
 const didDocLegacy = {
   '@context': 'https://w3id.org/did/v1',
   id: did,
@@ -50,6 +56,20 @@ const didDocLegacy = {
       publicKey: `${did}#keys-1`,
     },
   ],
+}
+
+const didDocJwk = {
+  '@context': 'https://w3id.org/did/v1',
+  id: did,
+  verificationMethod: [
+    {
+      id: `#keys-1`,
+      type: 'EcdsaSecp256k1VerificationKey2019',
+      controller: did,
+      publicKeyJwk,
+    },
+  ],
+  authentication: [`#keys-1`],
 }
 
 const didDoc = {
@@ -341,6 +361,32 @@ describe('verifyJWT()', () => {
       await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256K with impossible purpose`
       )
+    })
+  })
+
+  describe('pregenerated JWT with publicKeyJwk in DID doc', () => {
+    const incomingJwt =
+      'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
+    const jwkResolver = { resolve: jest.fn().mockReturnValue(didDocJwk) }
+
+    it('verifies the JWT and return correct payload', async () => {
+      expect.assertions(1)
+      const { payload } = await verifyJWT(incomingJwt, { resolver: jwkResolver })
+      return expect(payload).toMatchObject({
+        iat: 1485321133,
+        iss: 'did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9',
+        requested: ['name', 'phone'],
+      })
+    })
+
+    it('verifies the JWT and return correct payload when using assertionMethod', async () => {
+      expect.assertions(1)
+      const { payload } = await verifyJWT(incomingJwt, { resolver: jwkResolver, proofPurpose: 'assertionMethod' })
+      return expect(payload).toMatchObject({
+        iat: 1485321133,
+        iss: 'did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9',
+        requested: ['name', 'phone'],
+      })
     })
   })
 

@@ -67,4 +67,4 @@ describe('Ripemd160', () => {
     const actualHash = u8a.toString(new Ripemd160().update(u8a.fromString(rawString, 'ascii')).digest(), 'hex')
     return expect(actualHash).toBe(expectedHash)
   })
-});
+})
