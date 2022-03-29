@@ -1,21 +1,6 @@
 import * as jwt from 'jsonwebtoken'
 import * as u8a from 'uint8arrays'
-import { Extensible, ServiceEndpoint, DIDDocument } from 'did-resolver'
-
-// redeclare non-exported interface from did-resolver
-interface JsonWebKey extends Extensible {
-  alg?: string
-  crv?: string
-  e?: string
-  ext?: boolean
-  key_ops?: string[]
-  kid?: string
-  kty: string
-  n?: string
-  use?: string
-  x?: string
-  y?: string
-}
+import { ServiceEndpoint, DIDDocument, JsonWebKey } from 'did-resolver'
 
 interface privateJsonWebKey extends JsonWebKey {
   d?: string
