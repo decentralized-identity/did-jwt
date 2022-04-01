@@ -53,4 +53,3 @@ function SignerAlg(alg: string): SignerAlgorithm {
 }
 
 export default SignerAlg
-
