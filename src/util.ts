@@ -118,4 +118,3 @@ export function leftpad(data: string, size = 64): string {
   if (data.length === size) return data
   return '0'.repeat(size - data.length) + data
 }
-
