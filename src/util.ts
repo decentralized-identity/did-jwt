@@ -85,7 +85,7 @@ export function toSealed(ciphertext: string, tag: string): Uint8Array {
 }
 
 const hexMatcher = /^(0x)?([a-fA-F0-9]{64}|[a-fA-F0-9]{128})$/
-const base58Matcher = /^([1-9A-HJ-NP-Za-km-z]{43,44}|[1-9A-HJ-NP-Za-km-z]{86,88})$/
+const base58Matcher = /^([1-9A-HJ-NP-Za-km-z]{44}|[1-9A-HJ-NP-Za-km-z]{88})$/
 const base64Matcher = /^([0-9a-zA-Z=\-_+/]{43}|[0-9a-zA-Z=\-_+/]{86})(={0,2})$/
 
 /**
@@ -118,3 +118,4 @@ export function leftpad(data: string, size = 64): string {
   if (data.length === size) return data
   return '0'.repeat(size - data.length) + data
 }
+
