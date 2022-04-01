@@ -7,7 +7,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
     )
   })
 
@@ -17,7 +17,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
     )
   })
 
@@ -27,7 +27,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-       'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
     )
   })
 
@@ -37,7 +37,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
     )
   })
 
@@ -47,7 +47,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(privateKey)
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
     )
   })
 
