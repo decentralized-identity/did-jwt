@@ -167,4 +167,3 @@ function VerifierAlgorithm(alg: string): Verifier {
 VerifierAlgorithm.toSignatureObject = toSignatureObject
 
 export default VerifierAlgorithm
-
