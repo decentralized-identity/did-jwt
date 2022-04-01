@@ -84,36 +84,6 @@ export function toSealed(ciphertext: string, tag: string): Uint8Array {
   return u8a.concat([base64ToBytes(ciphertext), base64ToBytes(tag)])
 }
 
-const hexMatcher = /^(0x)?([a-fA-F0-9]{64}|[a-fA-F0-9]{128})$/
-const base58Matcher = /^([1-9A-HJ-NP-Za-km-z]{44}|[1-9A-HJ-NP-Za-km-z]{88})$/
-const base64Matcher = /^([0-9a-zA-Z=\-_+/]{43}|[0-9a-zA-Z=\-_+/]{86})(={0,2})$/
-
-/**
- * Parses a private key and returns the Uint8Array representation.
- * This method uses an heuristic to determine the key encoding to then be able to parse it into 32 or 64 bytes.
- *
- * @param input a 32 or 64 byte key presented either as a Uint8Array or as a hex, base64, or base58btc encoded string
- *
- * @throws TypeError('Invalid private key format') if the key doesn't match any of the accepted formats or length
- */
-export function parseKey(input: string | Uint8Array): Uint8Array {
-  if (typeof input === 'string') {
-    if (hexMatcher.test(input)) {
-      return hexToBytes(input)
-    } else if (base58Matcher.test(input)) {
-      return base58ToBytes(input)
-    } else if (base64Matcher.test(input)) {
-      return base64ToBytes(input)
-    } else {
-      throw TypeError('bad_key: Invalid private key format')
-    }
-  } else if (input instanceof Uint8Array) {
-    return input
-  } else {
-    throw TypeError('bad_key: Invalid private key format')
-  }
-}
-
 export function leftpad(data: string, size = 64): string {
   if (data.length === size) return data
   return '0'.repeat(size - data.length) + data
