@@ -138,4 +138,3 @@ describe('Ed25519', () => {
     expect(nacl.sign.detached.verify(stringToBytes('hello'), base64ToBytes(signature), edKp.publicKey)).toBeTruthy()
   })
 })
-
