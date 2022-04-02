@@ -17,7 +17,7 @@ const secp256k1 = new elliptic.ec('secp256k1')
  *  const signature: string = await sign(data)
  *  ```
  *
- *  @param    {String}    privateKey   a private key as `Uint8Array` or encoded as `base64`, `base58`, or `hex` string
+ *  @param    {String}    privateKey   a private key as `Uint8Array`
  *  @param    {Boolean}   recoverable  an optional flag to add the recovery param to the generated signatures
  *  @return   {Function}               a configured signer function `(data: string | Uint8Array): Promise<string>`
  */
