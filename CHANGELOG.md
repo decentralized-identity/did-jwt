@@ -1,3 +1,15 @@
+# [6.0.0](https://github.com/decentralized-identity/did-jwt/compare/5.12.4...6.0.0) (2022-04-04)
+
+
+### Bug Fixes
+
+* remove parseKey, change ES256K and Ed25519 signers to Uint8Array only ([#224](https://github.com/decentralized-identity/did-jwt/issues/224)) ([9132caf](https://github.com/decentralized-identity/did-jwt/commit/9132caf50d58a79ccf42e43664cca048db885c78)), closes [#222](https://github.com/decentralized-identity/did-jwt/issues/222)
+
+
+### BREAKING CHANGES
+
+* The Signer classes exported by this library no longer accept private keys with string encodings, only `Uint8Array`. This reduces the potential ambiguity between different formats. Some utility methods are exported that allow users to convert some popular encodings to raw `Uint8Array`.
+
 ## [5.12.4](https://github.com/decentralized-identity/did-jwt/compare/5.12.3...5.12.4) (2022-01-27)
 
 
