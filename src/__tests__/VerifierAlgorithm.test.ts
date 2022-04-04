@@ -49,11 +49,11 @@ const eip155 = toEthereumAddress(publicKey)
 const bip122 = toBip122Address(publicKey)
 const cosmosPrefix = 'example'
 const cosmos = toCosmosAddressWithoutPrefix(publicKey, cosmosPrefix)
-const signer = ES256KSigner(privateKey)
-const recoverySigner = ES256KSigner(privateKey, true)
+const signer = ES256KSigner(hexToBytes(privateKey))
+const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
-const edSigner = EdDSASigner(ed25519PrivateKey)
+const edSigner = EdDSASigner(base64ToBytes(ed25519PrivateKey))
 const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 const edPublicKey = bytesToBase64(edKp.publicKey)
 const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)

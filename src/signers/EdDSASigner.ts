@@ -1,6 +1,6 @@
 import { sign } from '@stablelib/ed25519'
 import { Signer } from '../JWT'
-import { bytesToBase64url, parseKey, stringToBytes } from '../util'
+import { bytesToBase64url, stringToBytes } from '../util'
 
 /**
  *  Creates a configured signer function for signing data using the EdDSA (Ed25519) algorithm.
@@ -13,11 +13,11 @@ import { bytesToBase64url, parseKey, stringToBytes } from '../util'
  *  const signature: string = await sign(data)
  *  ```
  *
- *  @param    {String}    secretKey   a 64 byte secret key as `Uint8Array` or encoded as `base64`, `base58`, or `hex` string
+ *  @param    {String}    secretKey   a 64 byte secret key as `Uint8Array`
  *  @return   {Function}              a configured signer function `(data: string | Uint8Array): Promise<string>`
  */
-export function EdDSASigner(secretKey: string | Uint8Array): Signer {
-  const privateKeyBytes: Uint8Array = parseKey(secretKey)
+export function EdDSASigner(secretKey: Uint8Array): Signer {
+  const privateKeyBytes: Uint8Array = secretKey
   if (privateKeyBytes.length !== 64) {
     throw new Error(`bad_key: Invalid private key format. Expecting 64 bytes, but got ${privateKeyBytes.length}`)
   }

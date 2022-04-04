@@ -1,5 +1,6 @@
 import { EdDSASigner as EdDSASigner } from './EdDSASigner'
 import { Signer } from '../JWT'
+import { base64ToBytes } from '../util'
 
 /**
  * @deprecated Please use EdDSASigner
@@ -20,7 +21,7 @@ import { Signer } from '../JWT'
  */
 
 function NaclSigner(base64PrivateKey: string): Signer {
-  return EdDSASigner(base64PrivateKey)
+  return EdDSASigner(base64ToBytes(base64PrivateKey))
 }
 
 export default NaclSigner

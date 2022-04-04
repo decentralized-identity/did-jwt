@@ -1,3 +1,4 @@
+import { hexToBytes } from '../util'
 import { Signer } from '../JWT'
 import { ES256KSigner } from './ES256KSigner'
 
@@ -17,7 +18,7 @@ import { ES256KSigner } from './ES256KSigner'
  *  @return   {Function}                        a configured signer function
  */
 function EllipticSigner(hexPrivateKey: string): Signer {
-  return ES256KSigner(hexPrivateKey)
+  return ES256KSigner(hexToBytes(hexPrivateKey))
 }
 
 export default EllipticSigner

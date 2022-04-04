@@ -50,3 +50,5 @@ export {
 }
 
 export { JWTOptions, JWTVerifyOptions } from './JWT'
+
+export { base64ToBytes, base58ToBytes, hexToBytes } from './util'

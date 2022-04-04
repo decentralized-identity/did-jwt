@@ -1,3 +1,4 @@
+import { hexToBytes, base64ToBytes } from '../util'
 import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
@@ -29,8 +30,8 @@ const alg = 'ES256K'
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const publicKey = '03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
 const verifier = new TokenVerifier(alg, publicKey)
-const signer = ES256KSigner(privateKey)
-const recoverySigner = ES256KSigner(privateKey, true)
+const signer = ES256KSigner(hexToBytes(privateKey))
+const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
 const publicKeyJwk = {
   crv: 'secp256k1',
@@ -192,7 +193,7 @@ describe('createJWT()', () => {
   describe('Ed25519', () => {
     const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
     const did = 'did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU'
-    const signer = EdDSASigner(ed25519PrivateKey)
+    const signer = EdDSASigner(base64ToBytes(ed25519PrivateKey))
     const alg = 'Ed25519'
     const resolver = {
       resolve: jest.fn().mockReturnValue({
