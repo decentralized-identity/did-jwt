@@ -20,3 +20,4 @@ docs/styles
 .rts2_cache_umd
 
 .idea/
+.vscode-upload.json
