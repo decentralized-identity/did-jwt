@@ -21,3 +21,6 @@ docs/styles
 
 .idea/
 .vscode-upload.json
+
+jwk_gen.*
+jwk-did.json
