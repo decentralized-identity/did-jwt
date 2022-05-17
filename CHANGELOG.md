@@ -1,3 +1,10 @@
+# [6.1.0](https://github.com/decentralized-identity/did-jwt/compare/6.0.0...6.1.0) (2022-05-17)
+
+
+### Features
+
+* support Ed25519 publicKeyJwk ([#227](https://github.com/decentralized-identity/did-jwt/issues/227)) ([fd81edb](https://github.com/decentralized-identity/did-jwt/commit/fd81edb0aa3f9aafcd8ea9eff7f7b6f8c50ffac5))
+
 # [6.0.0](https://github.com/decentralized-identity/did-jwt/compare/5.12.4...6.0.0) (2022-04-04)
 
 
