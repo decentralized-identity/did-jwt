@@ -1,3 +1,10 @@
+## [6.1.2](https://github.com/decentralized-identity/did-jwt/compare/6.1.1...6.1.2) (2022-06-06)
+
+
+### Bug Fixes
+
+* ES256K-R verification with checksumAddress in eip155 blockchainAccountId ([#232](https://github.com/decentralized-identity/did-jwt/issues/232)) ([dcbd0b9](https://github.com/decentralized-identity/did-jwt/commit/dcbd0b95c338182452b4df26fde8a4ba6563116a)), closes [#231](https://github.com/decentralized-identity/did-jwt/issues/231)
+
 ## [6.1.1](https://github.com/decentralized-identity/did-jwt/compare/6.1.0...6.1.1) (2022-06-06)
 
 
