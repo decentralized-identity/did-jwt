@@ -1,3 +1,10 @@
+## [6.1.1](https://github.com/decentralized-identity/did-jwt/compare/6.1.0...6.1.1) (2022-06-06)
+
+
+### Bug Fixes
+
+* **ci:** groom the build scripts and dependencies ([#230](https://github.com/decentralized-identity/did-jwt/issues/230)) ([34e943d](https://github.com/decentralized-identity/did-jwt/commit/34e943dc9e244564f3f40a0f086f29dddb67a64a))
+
 # [6.1.0](https://github.com/decentralized-identity/did-jwt/compare/6.0.0...6.1.0) (2022-05-17)
 
 
