@@ -112,7 +112,7 @@ export function verifyRecoverableES256K(
     const recoveredKey: any = secp256k1.recoverPubKey(hash, <SignatureInput>sigObj, <number>sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
-    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
+    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex).toLowerCase()
 
     const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
       const keyHex = bytesToHex(extractPublicKeyBytes(pk))
