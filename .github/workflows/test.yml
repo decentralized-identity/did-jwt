@@ -1,5 +1,5 @@
 name: Build and Test NODE
-on: [pull_request, workflow_dispatch]
+on: [pull_request, workflow_dispatch, push]
 jobs:
   build-test:
     runs-on: ubuntu-18.04
