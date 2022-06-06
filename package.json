@@ -12,7 +12,8 @@
   "files": [
     "lib",
     "dist",
-    "src"
+    "src",
+    "LICENSE"
   ],
   "exports": {
     ".": {
@@ -22,15 +23,14 @@
   },
   "scripts": {
     "test": "jest",
-    "test:ci": "jest --coverage && codecov",
+    "test:ci": "jest --coverage",
     "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.cjs",
-    "build": "yarn build:js && yarn test && yarn build:browser",
+    "build": "yarn build:js && yarn build:browser",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepublishOnly": "yarn test:ci && yarn format && yarn lint",
-    "prepare": "yarn build",
     "release": "semantic-release --debug"
   },
   "author": "Pelle Braendgaard",
