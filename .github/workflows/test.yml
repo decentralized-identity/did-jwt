@@ -7,7 +7,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Use Node.js
+      - name: "Setup node with cache"
         uses: actions/setup-node@v3
         with:
           node-version: 14
@@ -17,4 +17,8 @@ jobs:
       - run: yarn run build
       - run: yarn run lint
       - run: yarn run test:ci
-      - run: npx codecov
+
+      - name: "Upload coverage reports"
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
