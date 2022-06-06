@@ -18,7 +18,7 @@ export const verifyBlockchainAccountId = (publicKey: string, blockchainAccountId
       default:
         return false
     }
-    return chain.join(':') === blockchainAccountId
+    return chain.join(':').toLowerCase() === blockchainAccountId.toLowerCase()
   }
   return false
 }
