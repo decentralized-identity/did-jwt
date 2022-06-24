@@ -129,7 +129,12 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaPublicKeySecp256k1',
   ],
-  Ed25519: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018', 'Ed25519VerificationKey2020', 'JsonWebKey2020'],
+  Ed25519: [
+    'ED25519SignatureVerification',
+    'Ed25519VerificationKey2018',
+    'Ed25519VerificationKey2020',
+    'JsonWebKey2020',
+  ],
   EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018', 'Ed25519VerificationKey2020', 'JsonWebKey2020'],
 }
 
