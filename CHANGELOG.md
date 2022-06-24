@@ -1,3 +1,10 @@
+# [6.2.0](https://github.com/decentralized-identity/did-jwt/compare/6.1.2...6.2.0) (2022-06-24)
+
+
+### Features
+
+* add Ed25519VerificationKey2020 & JsonWebKey2020 as accepted methods ([#235](https://github.com/decentralized-identity/did-jwt/issues/235)) ([60987e0](https://github.com/decentralized-identity/did-jwt/commit/60987e0025b1fd45e4a8e583a8c1e28df403fa0b))
+
 ## [6.1.2](https://github.com/decentralized-identity/did-jwt/compare/6.1.1...6.1.2) (2022-06-06)
 
 
