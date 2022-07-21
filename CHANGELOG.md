@@ -1,3 +1,10 @@
+## [6.2.1](https://github.com/decentralized-identity/did-jwt/compare/6.2.0...6.2.1) (2022-07-21)
+
+
+### Bug Fixes
+
+* remove nullish coalescing operator ([#237](https://github.com/decentralized-identity/did-jwt/issues/237)) ([8cf01de](https://github.com/decentralized-identity/did-jwt/commit/8cf01de0a7c47cba4a9bdf2b1a13396febdee7e3)), closes [#236](https://github.com/decentralized-identity/did-jwt/issues/236)
+
 # [6.2.0](https://github.com/decentralized-identity/did-jwt/compare/6.1.2...6.2.0) (2022-06-24)
 
 
