@@ -1,3 +1,10 @@
+## [6.2.2](https://github.com/decentralized-identity/did-jwt/compare/6.2.1...6.2.2) (2022-08-02)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency did-resolver to v4 ([f4276b5](https://github.com/decentralized-identity/did-jwt/commit/f4276b5e7539668e513bfc8d60879b36ea8ac860))
+
 ## [6.2.1](https://github.com/decentralized-identity/did-jwt/compare/6.2.0...6.2.1) (2022-07-21)
 
 
