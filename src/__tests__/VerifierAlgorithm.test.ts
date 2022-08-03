@@ -403,6 +403,20 @@ describe('Ed25519', () => {
     return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
   })
 
+  it('validates with publicKeyJwk', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const publicKeyJwk = {
+      crv: 'Ed25519',
+      kty: 'OKP',
+      x: u8a.toString(u8a.fromString(edKey.publicKeyBase64, 'base64pad'), 'base64url'),
+    }
+    const pubkey = Object.assign({ publicKeyJwk }, edKey)
+    delete pubkey.publicKeyBase64
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
   it('throws error if invalid signature', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { alg: 'Ed25519', issuer: did, signer: edSigner })

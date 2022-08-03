@@ -3,6 +3,7 @@ import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
 import { fromString } from 'uint8arrays/from-string'
+import { getAddress } from "@ethersproject/address"
 import {
   createJWS,
   createJWT,
@@ -547,6 +548,29 @@ describe('verifyJWT()', () => {
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
+  })
+
+  it('handles ES256K-R algorithm with checksum address in blockchainAccountId - github #231', async () => {
+    expect.assertions(1)
+    const verificationMethod = {
+      id: `${did}#keys-1`,
+      type: 'EcdsaSecp256k1RecoveryMethod2020',
+      owner: did,
+      blockchainAccountId: `eip155:1:${getAddress(address)}`,
+    }
+    const ethResolver = {
+      resolve: jest.fn().mockReturnValue({
+        didDocument: {
+          id: did,
+          verificationMethod: [
+            verificationMethod
+          ],
+        },
+      }),
+    }
+    const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer: recoverySigner, alg: 'ES256K-R' })
+    const result = await verifyJWT(jwt, { resolver: ethResolver })
+    return expect(result.signer).toEqual(verificationMethod)
   })
 
   it('accepts a valid exp', async () => {

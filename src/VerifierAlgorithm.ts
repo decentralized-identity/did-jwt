@@ -44,6 +44,13 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
+  } else if (
+    pk.publicKeyJwk &&
+    pk.publicKeyJwk.kty === 'OKP' &&
+    pk.publicKeyJwk.crv === 'Ed25519' &&
+    pk.publicKeyJwk.x
+  ) {
+    return base64ToBytes(pk.publicKeyJwk.x)
   } else if (pk.publicKeyMultibase) {
     const { base16, base58btc, base64, base64url } = bases
     const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
@@ -105,7 +112,7 @@ export function verifyRecoverableES256K(
     const recoveredKey: any = secp256k1.recoverPubKey(hash, <SignatureInput>sigObj, <number>sigObj.recoveryParam)
     const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
     const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
-    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex)
+    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex).toLowerCase()
 
     const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
       const keyHex = bytesToHex(extractPublicKeyBytes(pk))

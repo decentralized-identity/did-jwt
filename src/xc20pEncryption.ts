@@ -314,7 +314,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       agreementKeys?.filter((key) => {
         // TODO: should be able to use non base58 keys too
         return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
-      }) ?? []
+      }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
     return pks

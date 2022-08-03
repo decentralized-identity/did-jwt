@@ -27,8 +27,8 @@
         "devDependencies"
       ],
       "groupName": "devDeps",
-      "schedule": [
-        "before 5am on Monday"
+      "extends": [
+        "schedule:earlyMondays"
       ]
     }
   ]

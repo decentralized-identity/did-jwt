@@ -1,3 +1,57 @@
+## [6.2.2](https://github.com/decentralized-identity/did-jwt/compare/6.2.1...6.2.2) (2022-08-02)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency did-resolver to v4 ([f4276b5](https://github.com/decentralized-identity/did-jwt/commit/f4276b5e7539668e513bfc8d60879b36ea8ac860))
+
+## [6.2.1](https://github.com/decentralized-identity/did-jwt/compare/6.2.0...6.2.1) (2022-07-21)
+
+
+### Bug Fixes
+
+* remove nullish coalescing operator ([#237](https://github.com/decentralized-identity/did-jwt/issues/237)) ([8cf01de](https://github.com/decentralized-identity/did-jwt/commit/8cf01de0a7c47cba4a9bdf2b1a13396febdee7e3)), closes [#236](https://github.com/decentralized-identity/did-jwt/issues/236)
+
+# [6.2.0](https://github.com/decentralized-identity/did-jwt/compare/6.1.2...6.2.0) (2022-06-24)
+
+
+### Features
+
+* add Ed25519VerificationKey2020 & JsonWebKey2020 as accepted methods ([#235](https://github.com/decentralized-identity/did-jwt/issues/235)) ([60987e0](https://github.com/decentralized-identity/did-jwt/commit/60987e0025b1fd45e4a8e583a8c1e28df403fa0b))
+
+## [6.1.2](https://github.com/decentralized-identity/did-jwt/compare/6.1.1...6.1.2) (2022-06-06)
+
+
+### Bug Fixes
+
+* ES256K-R verification with checksumAddress in eip155 blockchainAccountId ([#232](https://github.com/decentralized-identity/did-jwt/issues/232)) ([dcbd0b9](https://github.com/decentralized-identity/did-jwt/commit/dcbd0b95c338182452b4df26fde8a4ba6563116a)), closes [#231](https://github.com/decentralized-identity/did-jwt/issues/231)
+
+## [6.1.1](https://github.com/decentralized-identity/did-jwt/compare/6.1.0...6.1.1) (2022-06-06)
+
+
+### Bug Fixes
+
+* **ci:** groom the build scripts and dependencies ([#230](https://github.com/decentralized-identity/did-jwt/issues/230)) ([34e943d](https://github.com/decentralized-identity/did-jwt/commit/34e943dc9e244564f3f40a0f086f29dddb67a64a))
+
+# [6.1.0](https://github.com/decentralized-identity/did-jwt/compare/6.0.0...6.1.0) (2022-05-17)
+
+
+### Features
+
+* support Ed25519 publicKeyJwk ([#227](https://github.com/decentralized-identity/did-jwt/issues/227)) ([fd81edb](https://github.com/decentralized-identity/did-jwt/commit/fd81edb0aa3f9aafcd8ea9eff7f7b6f8c50ffac5))
+
+# [6.0.0](https://github.com/decentralized-identity/did-jwt/compare/5.12.4...6.0.0) (2022-04-04)
+
+
+### Bug Fixes
+
+* remove parseKey, change ES256K and Ed25519 signers to Uint8Array only ([#224](https://github.com/decentralized-identity/did-jwt/issues/224)) ([9132caf](https://github.com/decentralized-identity/did-jwt/commit/9132caf50d58a79ccf42e43664cca048db885c78)), closes [#222](https://github.com/decentralized-identity/did-jwt/issues/222)
+
+
+### BREAKING CHANGES
+
+* The Signer classes exported by this library no longer accept private keys with string encodings, only `Uint8Array`. This reduces the potential ambiguity between different formats. Some utility methods are exported that allow users to convert some popular encodings to raw `Uint8Array`.
+
 ## [5.12.4](https://github.com/decentralized-identity/did-jwt/compare/5.12.3...5.12.4) (2022-01-27)
 
 
