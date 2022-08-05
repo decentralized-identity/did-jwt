@@ -4,7 +4,7 @@ import { Signer } from '../JWT'
 import { sha256 } from '../Digest'
 import elliptic from 'elliptic'
 
-const secp256r1 = new elliptic.ec('secp256r1')
+const secp256r1 = new elliptic.ec('p256')
 
 /**
  *  Creates a configured signer function for signing data using the ES256K (secp256r1 + sha256) algorithm.
