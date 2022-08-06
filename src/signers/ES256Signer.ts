@@ -21,7 +21,7 @@ const secp256r1 = new elliptic.ec('p256')
  *  @param    {Boolean}   recoverable  an optional flag to add the recovery param to the generated signatures
  *  @return   {Function}               a configured signer function `(data: string | Uint8Array): Promise<string>`
  */
- export function ES256Signer(privateKey: Uint8Array, recoverable = false): Signer {
+export function ES256Signer(privateKey: Uint8Array, recoverable = false): Signer {
   const privateKeyBytes: Uint8Array = privateKey
   if (privateKeyBytes.length !== 32) {
     throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
@@ -40,5 +40,3 @@ const secp256r1 = new elliptic.ec('p256')
     )
   }
 }
-
-
