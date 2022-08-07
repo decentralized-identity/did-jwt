@@ -1,3 +1,10 @@
+# [6.3.0](https://github.com/decentralized-identity/did-jwt/compare/6.2.2...6.3.0) (2022-08-07)
+
+
+### Features
+
+* add ES256Signer ([#240](https://github.com/decentralized-identity/did-jwt/issues/240)) ([08b2761](https://github.com/decentralized-identity/did-jwt/commit/08b2761e97d7de47a9ed7456e29fda82121cee72))
+
 ## [6.2.2](https://github.com/decentralized-identity/did-jwt/compare/6.2.1...6.2.2) (2022-08-02)
 
 
