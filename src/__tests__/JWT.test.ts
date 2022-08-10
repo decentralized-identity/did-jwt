@@ -462,12 +462,31 @@ describe('verifyJWT()', () => {
       // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError()
     })
+    it('passes when nbf is in the future and policy for nbf is false', async () => {
+      expect.assertions(2)
+      // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
+
+      const jwt = await createJWT({ requested: ['name', 'phone'], nbf: new Date().getTime() + 1000000 }, { issuer: did, signer })
+      expect(verifier.verify(jwt)).toBe(true)
+
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false } })
+      return expect(payload).toBeDefined()
+    })
     it('fails when nbf is in the future and iat is in the past', async () => {
       expect.assertions(1)
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.JjEn_huxI9SsBY_3PlD0ShpXvrRgUGFDKAgxJBc1Q5GToVpUTw007-o9BTt7JNi_G2XWmcu2aXXnDn0QFsRIrg'
       // const jwt = await createJWT({nbf:FUTURE,iat:PAST},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError()
+    })
+    it('passes when nbf is in the future and iat is in the past with nbf policy false', async () => {
+      expect.assertions(1)
+      const jwt =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUyNjExMzMsIm5iZiI6MTQ4NTM4MTEzMywiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0.JjEn_huxI9SsBY_3PlD0ShpXvrRgUGFDKAgxJBc1Q5GToVpUTw007-o9BTt7JNi_G2XWmcu2aXXnDn0QFsRIrg'
+      // const jwt = await createJWT({nbf:FUTURE,iat:PAST},{issuer:did,signer})
+
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false } })
+      expect(payload).toBeDefined();
     })
     it('passes when nbf is missing and iat is in the past', async () => {
       expect.assertions(1)
@@ -482,6 +501,14 @@ describe('verifyJWT()', () => {
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
       // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError()
+    })
+    it('fails when nbf is missing and iat is in the future', async () => {
+      expect.assertions(1)
+      const jwt =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
+      // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { iat: false }})
+      return expect(payload).toBeDefined()
     })
     it('passes when nbf and iat are both missing', async () => {
       expect.assertions(1)
@@ -586,10 +613,24 @@ describe('verifyJWT()', () => {
     await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has expired/)
   })
 
+  it('accepts an expired JWT with exp policy false', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer })
+    const { payload } = await verifyJWT(jwt, { resolver, policies: { exp: false } })
+    return expect(payload).toBeDefined()
+  })
+
   it('rejects an expired JWT without skew time', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
     await expect(verifyJWT(jwt, { resolver, skewTime: 0 })).rejects.toThrowError(/JWT has expired/)
+  })
+
+  it('accepts an expired JWT without skew time but exp policy false', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
+    const { payload } = await verifyJWT(jwt, { resolver, skewTime: 0, policies: { exp: false } })
+    return expect(payload).toBeDefined();
   })
 
   it('accepts a valid audience', async () => {
@@ -685,7 +726,6 @@ describe('verifyJWT()', () => {
     const { payload } = await verifyJWT(jwt, { resolver })
     return expect(payload).toBeDefined()
   })
-
   it('rejects a self-issued v2 JWT (sub type: jkt) without a header.kid DID', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ sub: 'sub', sub_jwk: {} }, { issuer: SELF_ISSUED_V2, signer })
