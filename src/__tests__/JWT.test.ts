@@ -502,7 +502,7 @@ describe('verifyJWT()', () => {
       // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
       await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError()
     })
-    it('fails when nbf is missing and iat is in the future', async () => {
+    it('passes when nbf is missing and iat is in the future with iat policy to be false', async () => {
       expect.assertions(1)
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
