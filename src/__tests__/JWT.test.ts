@@ -472,6 +472,19 @@ describe('verifyJWT()', () => {
       const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false } })
       return expect(payload).toBeDefined()
     })
+
+    it.only('passes when nbf is in the future and policy for nbf is false and policy for now is true', async () => {
+      expect.assertions(2)
+      // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
+
+      const jwt = await createJWT({ requested: ['name', 'phone'], nbf: new Date().getTime() + 1000000 }, { issuer: did, signer })
+      expect(verifier.verify(jwt)).toBe(true)
+
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false, now: true } })
+      return expect(payload).toBeDefined()
+    })
+
+
     it('fails when nbf is in the future and iat is in the past', async () => {
       expect.assertions(1)
       const jwt =
@@ -617,6 +630,13 @@ describe('verifyJWT()', () => {
     expect.assertions(1)
     const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer })
     const { payload } = await verifyJWT(jwt, { resolver, policies: { exp: false } })
+    return expect(payload).toBeDefined()
+  })
+
+  it('accepts an expired JWT with nbf in the future and with now policy false', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1, nbf: new Date().getTime() + 1000000 }, { issuer: did, signer })
+    const { payload } = await verifyJWT(jwt, { resolver, policies: { now: false } })
     return expect(payload).toBeDefined()
   })
 

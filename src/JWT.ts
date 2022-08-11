@@ -38,6 +38,7 @@ export interface JWTVerifyOptions {
 }
 
 export interface JWTVerifyPolicies {
+  now?: boolean,
   nbf?: boolean,
   iat?: boolean,
   exp?: boolean
@@ -147,6 +148,13 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
+
+export const INVALID_JWT = 'invalid_jwt'
+export const INAVLID_CONFIG = 'invalid_config'
+export const INVALID_SIGNATURE = 'invalid_signature'
+export const NOT_SUPPORTED = 'not_supported'
+export const NO_SUITABLE_KEYS = 'no_suitable_keys'
+export const RESOLVE_ERROR = 'resolve_error'
 
 type LegacyVerificationMethod = { publicKey?: string }
 
@@ -329,7 +337,8 @@ export async function verifyJWT(
     policies: {
       nbf: undefined,
       iat: undefined,
-      exp: undefined
+      exp: undefined,
+      now: undefined
     }
   }
 ): Promise<JWTVerified> {
@@ -380,15 +389,17 @@ export async function verifyJWT(
   const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
     const nowSkewed = now + skewTime
-    if (options.policies?.nbf !== false && payload.nbf) {
-      if (payload.nbf > nowSkewed) {
-        throw new Error(`invalid_jwt: JWT not valid before nbf: ${payload.nbf}`)
+    if (options.policies?.now !== false) {
+      if (options.policies?.nbf !== false && payload.nbf) {
+        if (payload.nbf > nowSkewed) {
+          throw new Error(`invalid_jwt: JWT not valid before nbf: ${payload.nbf}`)
+        }
+      } else if (options.policies?.iat !== false && payload.iat && payload.iat > nowSkewed) {
+        throw new Error(`invalid_jwt: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
       }
-    } else if (options.policies?.iat !== false && payload.iat && payload.iat > nowSkewed) {
-      throw new Error(`invalid_jwt: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
-    }
-    if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
-      throw new Error(`invalid_jwt: JWT has expired: exp: ${payload.exp} < now: ${now}`)
+      if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
+        throw new Error(`invalid_jwt: JWT has expired: exp: ${payload.exp} < now: ${now}`)
+      }
     }
     if (payload.aud) {
       if (!options.audience && !options.callbackUrl) {
