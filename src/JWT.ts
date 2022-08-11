@@ -38,9 +38,9 @@ export interface JWTVerifyOptions {
 }
 
 export interface JWTVerifyPolicies {
-  now?: boolean,
-  nbf?: boolean,
-  iat?: boolean,
+  now?: boolean
+  nbf?: boolean
+  iat?: boolean
   exp?: boolean
 }
 
@@ -338,8 +338,8 @@ export async function verifyJWT(
       nbf: undefined,
       iat: undefined,
       exp: undefined,
-      now: undefined
-    }
+      now: undefined,
+    },
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
@@ -349,7 +349,7 @@ export async function verifyJWT(
       ? 'authentication'
       : undefined
     : options.proofPurpose
-  
+
   let did = ''
 
   if (!payload.iss) {
