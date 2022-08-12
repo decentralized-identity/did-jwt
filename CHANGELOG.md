@@ -1,3 +1,10 @@
+# [6.4.0](https://github.com/decentralized-identity/did-jwt/compare/6.3.0...6.4.0) (2022-08-12)
+
+
+### Features
+
+* add JWT verification policies to override timestamp checking ([#241](https://github.com/decentralized-identity/did-jwt/issues/241)) ([2934f4c](https://github.com/decentralized-identity/did-jwt/commit/2934f4ce6cf9209757839ac1130601fd5872f39b))
+
 # [6.3.0](https://github.com/decentralized-identity/did-jwt/compare/6.2.2...6.3.0) (2022-08-07)
 
 
