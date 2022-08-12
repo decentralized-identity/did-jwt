@@ -34,6 +34,14 @@ export interface JWTVerifyOptions {
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: ProofPurposeTypes
+  policies?: JWTVerifyPolicies
+}
+
+export interface JWTVerifyPolicies {
+  now?: number
+  nbf?: boolean
+  iat?: boolean
+  exp?: boolean
 }
 
 export interface JWSCreationOptions {
@@ -140,6 +148,14 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
+
+// Exporting errorCodes in a machine readable format rather than human readable format to be used in higher level module
+export const INVALID_JWT = 'invalid_jwt'
+export const INAVLID_CONFIG = 'invalid_config'
+export const INVALID_SIGNATURE = 'invalid_signature'
+export const NOT_SUPPORTED = 'not_supported'
+export const NO_SUITABLE_KEYS = 'no_suitable_keys'
+export const RESOLVE_ERROR = 'resolve_error'
 
 type LegacyVerificationMethod = { publicKey?: string }
 
@@ -319,6 +335,12 @@ export async function verifyJWT(
     callbackUrl: undefined,
     skewTime: undefined,
     proofPurpose: undefined,
+    policies: {
+      nbf: undefined,
+      iat: undefined,
+      exp: undefined,
+      now: undefined,
+    },
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
@@ -328,10 +350,13 @@ export async function verifyJWT(
       ? 'authentication'
       : undefined
     : options.proofPurpose
+
+  let did = ''
+
   if (!payload.iss) {
     throw new Error('invalid_jwt: JWT iss is required')
   }
-  let did = ''
+
   if (payload.iss === SELF_ISSUED_V2) {
     if (!payload.sub) {
       throw new Error('invalid_jwt: JWT sub is required')
@@ -349,9 +374,11 @@ export async function verifyJWT(
   } else {
     did = payload.iss
   }
+
   if (!did) {
     throw new Error(`invalid_jwt: No DID has been found in the JWT`)
   }
+
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
@@ -359,18 +386,18 @@ export async function verifyJWT(
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
-  const now: number = Math.floor(Date.now() / 1000)
+  const now: number = options.policies?.now ? options.policies.now : Math.floor(Date.now() / 1000)
   const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
     const nowSkewed = now + skewTime
-    if (payload.nbf) {
+    if (options.policies?.nbf !== false && payload.nbf) {
       if (payload.nbf > nowSkewed) {
         throw new Error(`invalid_jwt: JWT not valid before nbf: ${payload.nbf}`)
       }
-    } else if (payload.iat && payload.iat > nowSkewed) {
+    } else if (options.policies?.iat !== false && payload.iat && payload.iat > nowSkewed) {
       throw new Error(`invalid_jwt: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
     }
-    if (payload.exp && payload.exp <= now - skewTime) {
+    if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
       throw new Error(`invalid_jwt: JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
     if (payload.aud) {
