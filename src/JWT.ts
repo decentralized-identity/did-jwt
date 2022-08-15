@@ -42,6 +42,7 @@ export interface JWTVerifyPolicies {
   nbf?: boolean
   iat?: boolean
   exp?: boolean
+  aud?: boolean
 }
 
 export interface JWSCreationOptions {
@@ -149,9 +150,9 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
 
-// Exporting errorCodes in a machine readable format rather than human readable format to be used in higher level module
+// Exporting errorCodes in a machine-readable format rather than human-readable format to be used in higher level module
 export const INVALID_JWT = 'invalid_jwt'
-export const INAVLID_CONFIG = 'invalid_config'
+export const INVALID_CONFIG = 'invalid_config'
 export const INVALID_SIGNATURE = 'invalid_signature'
 export const NOT_SUPPORTED = 'not_supported'
 export const NO_SUITABLE_KEYS = 'no_suitable_keys'
@@ -400,7 +401,7 @@ export async function verifyJWT(
     if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
       throw new Error(`invalid_jwt: JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
-    if (payload.aud) {
+    if (options.policies?.aud !== false && payload.aud) {
       if (!options.audience && !options.callbackUrl) {
         throw new Error('invalid_config: JWT audience is required but your app address has not been configured')
       }

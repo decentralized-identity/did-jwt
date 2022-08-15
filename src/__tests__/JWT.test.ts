@@ -3,7 +3,7 @@ import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
 import { fromString } from 'uint8arrays/from-string'
-import { getAddress } from "@ethersproject/address"
+import { getAddress } from '@ethersproject/address'
 import {
   createJWS,
   createJWT,
@@ -466,7 +466,13 @@ describe('verifyJWT()', () => {
       expect.assertions(2)
       // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
 
-      const jwt = await createJWT({ requested: ['name', 'phone'], nbf: new Date().getTime() + 1000000 }, { issuer: did, signer })
+      const jwt = await createJWT(
+        { requested: ['name', 'phone'], nbf: new Date().getTime() + 1000000 },
+        {
+          issuer: did,
+          signer,
+        }
+      )
       expect(verifier.verify(jwt)).toBe(true)
 
       const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false } })
@@ -477,13 +483,18 @@ describe('verifyJWT()', () => {
       expect.assertions(2)
       // const jwt = await createJWT({nbf:FUTURE},{issuer:did,signer})
 
-      const jwt = await createJWT({ requested: ['name', 'phone'], nbf: new Date().getTime() + 10000 }, { issuer: did, signer })
+      const jwt = await createJWT(
+        { requested: ['name', 'phone'], nbf: new Date().getTime() + 10000 },
+        {
+          issuer: did,
+          signer,
+        }
+      )
       expect(verifier.verify(jwt)).toBe(true)
 
       const { payload } = await verifyJWT(jwt, { resolver, policies: { now: new Date().getTime() + 100000 } })
       return expect(payload).toBeDefined()
     })
-
 
     it('fails when nbf is in the future and iat is in the past', async () => {
       expect.assertions(1)
@@ -499,7 +510,7 @@ describe('verifyJWT()', () => {
       // const jwt = await createJWT({nbf:FUTURE,iat:PAST},{issuer:did,signer})
 
       const { payload } = await verifyJWT(jwt, { resolver, policies: { nbf: false } })
-      expect(payload).toBeDefined();
+      expect(payload).toBeDefined()
     })
     it('passes when nbf is missing and iat is in the past', async () => {
       expect.assertions(1)
@@ -520,7 +531,7 @@ describe('verifyJWT()', () => {
       const jwt =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzODExMzMsImlzcyI6ImRpZDpldGhyOjB4ZjNiZWFjMzBjNDk4ZDllMjY4NjVmMzRmY2FhNTdkYmI5MzViMGQ3NCJ9.FJuHvf9Tby7b4I54Cm1nh8CvLg4QH2wt2K0WfyQaLqlr3NKKI5hAdLalgZksI25gLhNrZwQFnC-nzEOs9PI1SQ'
       // const jwt = await createJWT({iat:FUTURE},{issuer:did,signer})
-      const { payload } = await verifyJWT(jwt, { resolver, policies: { iat: false }})
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { iat: false } })
       return expect(payload).toBeDefined()
     })
     it('passes when nbf and iat are both missing', async () => {
@@ -602,9 +613,7 @@ describe('verifyJWT()', () => {
       resolve: jest.fn().mockReturnValue({
         didDocument: {
           id: did,
-          verificationMethod: [
-            verificationMethod
-          ],
+          verificationMethod: [verificationMethod],
         },
       }),
     }
@@ -643,7 +652,7 @@ describe('verifyJWT()', () => {
     expect.assertions(1)
     const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
     const { payload } = await verifyJWT(jwt, { resolver, skewTime: 0, policies: { exp: false } })
-    return expect(payload).toBeDefined();
+    return expect(payload).toBeDefined()
   })
 
   it('accepts a valid audience', async () => {
@@ -684,6 +693,17 @@ describe('verifyJWT()', () => {
     await expect(verifyJWT(jwt, { resolver, audience: did })).rejects.toThrowError(
       /JWT audience does not match your DID or callback url/
     )
+  })
+
+  it('accepts invalid audience when override policy is used', async () => {
+    expect.assertions(2)
+    const jwt = await createJWT({ aud }, { issuer: did, signer })
+    const { payload, issuer } = await verifyJWT(jwt, {
+      resolver,
+      policies: { aud: false }
+    })
+    expect(payload).toBeDefined()
+    expect(issuer).toEqual(did)
   })
 
   it('rejects an invalid audience using callback_url where callback is wrong', async () => {
