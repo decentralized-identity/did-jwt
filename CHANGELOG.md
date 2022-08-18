@@ -1,3 +1,10 @@
+# [6.5.0](https://github.com/decentralized-identity/did-jwt/compare/6.4.0...6.5.0) (2022-08-18)
+
+
+### Features
+
+* add `aud` override policy for verification ([#242](https://github.com/decentralized-identity/did-jwt/issues/242)) ([87cbfd0](https://github.com/decentralized-identity/did-jwt/commit/87cbfd0f719fc2fdb0ac83ed9ca964b3c1b1b1a9)), closes [#239](https://github.com/decentralized-identity/did-jwt/issues/239)
+
 # [6.4.0](https://github.com/decentralized-identity/did-jwt/compare/6.3.0...6.4.0) (2022-08-12)
 
 
