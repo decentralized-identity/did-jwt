@@ -700,7 +700,7 @@ describe('verifyJWT()', () => {
     const jwt = await createJWT({ aud }, { issuer: did, signer })
     const { payload, issuer } = await verifyJWT(jwt, {
       resolver,
-      policies: { aud: false }
+      policies: { aud: false },
     })
     expect(payload).toBeDefined()
     expect(issuer).toEqual(did)
