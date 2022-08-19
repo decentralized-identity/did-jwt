@@ -1,3 +1,10 @@
+# [6.6.0](https://github.com/decentralized-identity/did-jwt/compare/6.5.0...6.6.0) (2022-08-19)
+
+
+### Features
+
+* export error prefixes as object instead of enum ([#244](https://github.com/decentralized-identity/did-jwt/issues/244)) ([e5b070d](https://github.com/decentralized-identity/did-jwt/commit/e5b070d369acdaabeb7ea4e540e7cc0d6f945cb9)), closes [#243](https://github.com/decentralized-identity/did-jwt/issues/243)
+
 # [6.5.0](https://github.com/decentralized-identity/did-jwt/compare/6.4.0...6.5.0) (2022-08-18)
 
 
