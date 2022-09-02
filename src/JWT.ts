@@ -3,6 +3,7 @@ import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod }
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
+import { JWT_ERROR } from './Errors'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -34,6 +35,23 @@ export interface JWTVerifyOptions {
   skewTime?: number
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: ProofPurposeTypes
+  policies?: JWTVerifyPolicies
+}
+
+/**
+ * Overrides the different types of checks performed on the JWT besides the signature check
+ */
+export interface JWTVerifyPolicies {
+  // overrides the timestamp against which the validity interval is checked
+  now?: number
+  // when set to false, the timestamp checks ignore the Not Before(`nbf`) property
+  nbf?: boolean
+  // when set to false, the timestamp checks ignore the Issued At(`iat`) property
+  iat?: boolean
+  // when set to false, the timestamp checks ignore the Expires At(`exp`) property
+  exp?: boolean
+  // when set to false, the JWT audience check is skipped
+  aud?: boolean
 }
 
 export interface JWSCreationOptions {
@@ -49,6 +67,7 @@ export interface DIDAuthenticator {
 export interface JWTHeader {
   typ: 'JWT'
   alg: string
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any
 }
@@ -61,6 +80,7 @@ export interface JWTPayload {
   nbf?: number
   exp?: number
   rexp?: number
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any
 }
@@ -79,17 +99,50 @@ export interface JWSDecoded {
   data: string
 }
 
+/**
+ * Result object returned by {@link verifyJWT}
+ */
 export interface JWTVerified {
+  /**
+   * Set to true for a JWT that passes all the required checks minus any verification overrides.
+   */
+  verified: true
+
+  /**
+   * The decoded JWT payload
+   */
   payload: Partial<JWTPayload>
+
+  /**
+   * The result of resolving the issuer DID
+   */
   didResolutionResult: DIDResolutionResult
+
+  /**
+   * the issuer DID
+   */
   issuer: string
+
+  /**
+   * The public key of the issuer that matches the JWT signature
+   */
   signer: VerificationMethod
+
+  /**
+   * The original JWT that was verified
+   */
   jwt: string
+
+  /**
+   * Any overrides that were used during verification
+   */
+  policies?: JWTVerifyPolicies
 }
 
 export interface PublicKeyTypes {
   [name: string]: string[]
 }
+
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256K: [
     'EcdsaSecp256k1VerificationKey2019',
@@ -98,15 +151,18 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaSecp256k1RecoveryMethod2020',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'Secp256k1VerificationKey2018',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'Secp256k1SignatureVerificationKey2018',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
   ],
@@ -117,15 +173,18 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaSecp256k1RecoveryMethod2020',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'Secp256k1VerificationKey2018',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'Secp256k1SignatureVerificationKey2018',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is not an ethereumAddress
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
   ],
@@ -222,7 +281,8 @@ export async function createJWS(
 }
 
 /**
- *  Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is over.
+ *  Creates a signed JWT given an address which becomes the issuer, a signer, and a payload for which the signature is
+ * over.
  *
  *  @example
  *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
@@ -233,12 +293,13 @@ export async function createJWS(
  *  @param    {Object}            payload               payload object
  *  @param    {Object}            [options]             an unsigned credential object
  *  @param    {String}            options.issuer        The DID of the issuer (signer) of JWT
- *  @param    {String}            options.alg           [DEPRECATED] The JWT signing algorithm to use. Supports: [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K.
- *                                                      Please use `header.alg` to specify the algorithm
+ *  @param    {String}            options.alg           [DEPRECATED] The JWT signing algorithm to use. Supports:
+ *   [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K. Please use `header.alg` to specify the algorithm
  *  @param    {Signer}            options.signer        a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
  *  @param    {boolean}           options.canonicalize  optional flag to canonicalize header and payload before signing
  *  @param    {Object}            header                optional object to specify or customize the JWT header
- *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or rejects with an error
+ *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or
+ *   rejects with an error
  */
 export async function createJWT(
   payload: Partial<JWTPayload>,
@@ -291,24 +352,31 @@ export function verifyJWS(jws: string, pubKeys: VerificationMethod | Verificatio
 
 /**
  *  Verifies given JWT. If the JWT is valid, the promise returns an object including the JWT, the payload of the JWT,
- *  and the did doc of the issuer of the JWT.
+ *  and the DID document of the issuer of the JWT.
  *
  *  @example
- *  verifyJWT('did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....', {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}).then(obj => {
- *      const did = obj.did // DID of signer
- *      const payload = obj.payload
- *      const doc = obj.doc // DID Document of signer
- *      const jwt = obj.jwt
- *      const signerKeyId = obj.signerKeyId // ID of key in DID document that signed JWT
- *      ...
- *  })
+ *  ```ts
+ *  verifyJWT(
+ *      'did:uport:eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJyZXF1Z....',
+ *      {audience: '5A8bRWU3F7j3REx3vkJ...', callbackUrl: 'https://...'}
+ *    ).then(obj => {
+ *        const did = obj.did // DID of signer
+ *        const payload = obj.payload
+ *        const doc = obj.didResolutionResult.didDocument // DID Document of issuer
+ *        const jwt = obj.jwt
+ *        const signerKeyId = obj.signer.id // ID of key in DID document that signed JWT
+ *        ...
+ *    })
+ *  ```
  *
  *  @param    {String}            jwt                a JSON Web Token to verify
  *  @param    {Object}            [options]           an unsigned credential object
- *  @param    {Boolean}           options.auth        Require signer to be listed in the authentication section of the DID document (for Authentication purposes)
+ *  @param    {Boolean}           options.auth        Require signer to be listed in the authentication section of the
+ *   DID document (for Authentication purposes)
  *  @param    {String}            options.audience    DID of the recipient of the JWT
  *  @param    {String}            options.callbackUrl callback url in JWT
- *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an error
+ *  @return   {Promise<Object, Error>}               a promise which resolves with a response object or rejects with an
+ *   error
  */
 export async function verifyJWT(
   jwt: string,
@@ -319,6 +387,7 @@ export async function verifyJWT(
     callbackUrl: undefined,
     skewTime: undefined,
     proofPurpose: undefined,
+    policies: {},
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
@@ -328,13 +397,16 @@ export async function verifyJWT(
       ? 'authentication'
       : undefined
     : options.proofPurpose
-  if (!payload.iss) {
-    throw new Error('invalid_jwt: JWT iss is required')
-  }
+
   let did = ''
+
+  if (!payload.iss) {
+    throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
+  }
+
   if (payload.iss === SELF_ISSUED_V2) {
     if (!payload.sub) {
-      throw new Error('invalid_jwt: JWT sub is required')
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
     if (typeof payload.sub_jwk === 'undefined') {
       did = payload.sub
@@ -343,15 +415,17 @@ export async function verifyJWT(
     }
   } else if (payload.iss === SELF_ISSUED_V0_1) {
     if (!payload.did) {
-      throw new Error('invalid_jwt: JWT did is required')
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT did is required`)
     }
     did = payload.did
   } else {
     did = payload.iss
   }
+
   if (!did) {
-    throw new Error(`invalid_jwt: No DID has been found in the JWT`)
+    throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
+
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
@@ -359,53 +433,61 @@ export async function verifyJWT(
     proofPurpose
   )
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
-  const now: number = Math.floor(Date.now() / 1000)
+  const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
   const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
     const nowSkewed = now + skewTime
-    if (payload.nbf) {
+    if (options.policies?.nbf !== false && payload.nbf) {
       if (payload.nbf > nowSkewed) {
-        throw new Error(`invalid_jwt: JWT not valid before nbf: ${payload.nbf}`)
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT not valid before nbf: ${payload.nbf}`)
       }
-    } else if (payload.iat && payload.iat > nowSkewed) {
-      throw new Error(`invalid_jwt: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
+    } else if (options.policies?.iat !== false && payload.iat && payload.iat > nowSkewed) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
     }
-    if (payload.exp && payload.exp <= now - skewTime) {
-      throw new Error(`invalid_jwt: JWT has expired: exp: ${payload.exp} < now: ${now}`)
+    if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT has expired: exp: ${payload.exp} < now: ${now}`)
     }
-    if (payload.aud) {
+    if (options.policies?.aud !== false && payload.aud) {
       if (!options.audience && !options.callbackUrl) {
-        throw new Error('invalid_config: JWT audience is required but your app address has not been configured')
+        throw new Error(
+          `${JWT_ERROR.INVALID_AUDIENCE}: JWT audience is required but your app address has not been configured`
+        )
       }
       const audArray = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
       const matchedAudience = audArray.find((item) => options.audience === item || options.callbackUrl === item)
 
       if (typeof matchedAudience === 'undefined') {
-        throw new Error(`invalid_config: JWT audience does not match your DID or callback url`)
+        throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
-    return { payload, didResolutionResult, issuer, signer, jwt }
+    return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(
-    `invalid_signature: JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
+    `${JWT_ERROR.INVALID_SIGNATURE}: JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
   )
 }
 
 /**
- * Resolves relevant public keys or other authenticating material used to verify signature from the DID document of provided DID
+ * Resolves relevant public keys or other authenticating material used to verify signature from the DID document of
+ * provided DID
  *
  *  @example
+ *  ```ts
  *  resolveAuthenticator(resolver, 'ES256K', 'did:uport:2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX').then(obj => {
  *      const payload = obj.payload
  *      const profile = obj.profile
  *      const jwt = obj.jwt
- *      ...
+ *      // ...
  *  })
+ *  ```
  *
- *  @param    {String}            alg                a JWT algorithm
- *  @param    {String}            did                a Decentralized IDentifier (DID) to lookup
- *  @param    {Boolean}           auth               Restrict public keys to ones specifically listed in the 'authentication' section of DID document
- *  @return   {Promise<DIDAuthenticator>}               a promise which resolves with a response object containing an array of authenticators or if non exist rejects with an error
+ *  @param resolver - {Resolvable} a DID resolver function that can obtain the `DIDDocument` for the `issuer`
+ *  @param alg - {String} a JWT algorithm
+ *  @param issuer - {String} a Decentralized Identifier (DID) to lookup
+ *  @param proofPurpose - {ProofPurposeTypes} *Optional* Use the verificationMethod linked in that section of the
+ *   issuer DID document
+ *  @return {Promise<DIDAuthenticator>} a promise which resolves with an object containing an array of authenticators
+ *   or rejects with an error if none exist
  */
 export async function resolveAuthenticator(
   resolver: Resolvable,
@@ -415,7 +497,7 @@ export async function resolveAuthenticator(
 ): Promise<DIDAuthenticator> {
   const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
-    throw new Error(`not_supported: No supported signature types for algorithm ${alg}`)
+    throw new Error(`${JWT_ERROR.NOT_SUPPORTED}: No supported signature types for algorithm ${alg}`)
   }
   let didResult: DIDResolutionResult
 
@@ -433,7 +515,9 @@ export async function resolveAuthenticator(
 
   if (didResult.didResolutionMetadata?.error || didResult.didDocument == null) {
     const { error, message } = didResult.didResolutionMetadata
-    throw new Error(`resolver_error: Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`)
+    throw new Error(
+      `${JWT_ERROR.RESOLVER_ERROR}: Unable to resolve DID document for ${issuer}: ${error}, ${message || ''}`
+    )
   }
 
   const getPublicKeyById = (verificationMethods: VerificationMethod[], pubid?: string): VerificationMethod | null => {
@@ -475,11 +559,11 @@ export async function resolveAuthenticator(
 
   if (typeof proofPurpose === 'string' && (!authenticators || authenticators.length === 0)) {
     throw new Error(
-      `no_suitable_keys: DID document for ${issuer} does not have public keys suitable for ${alg} with ${proofPurpose} purpose`
+      `${JWT_ERROR.NO_SUITABLE_KEYS}: DID document for ${issuer} does not have public keys suitable for ${alg} with ${proofPurpose} purpose`
     )
   }
   if (!authenticators || authenticators.length === 0) {
-    throw new Error(`no_suitable_keys: DID document for ${issuer} does not have public keys for ${alg}`)
+    throw new Error(`${JWT_ERROR.NO_SUITABLE_KEYS}: DID document for ${issuer} does not have public keys for ${alg}`)
   }
   return { authenticators, issuer, didResolutionResult: didResult }
 }
