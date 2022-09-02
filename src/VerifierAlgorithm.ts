@@ -69,7 +69,6 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
-
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
@@ -77,7 +76,7 @@ export function verifyES256(data: string, signature: string, authenticators: Ver
     return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
   })
 
-  let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
+  const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const pubBytes = extractPublicKeyBytes(pk)
       return secp256r1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
