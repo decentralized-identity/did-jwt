@@ -5,17 +5,18 @@ import { ES256KSigner } from './signers/ES256KSigner'
 import { ES256Signer } from './signers/ES256Signer'
 import { EdDSASigner } from './signers/EdDSASigner'
 import {
-  verifyJWT,
+  createJWS,
   createJWT,
   decodeJWT,
-  verifyJWS,
-  createJWS,
-  Signer,
   JWTHeader,
   JWTPayload,
   JWTVerified,
+  Signer,
+  verifyJWS,
+  verifyJWT,
 } from './JWT'
 import { toEthereumAddress } from './Digest'
+
 export { JWE, createJWE, decryptJWE, Encrypter, Decrypter, ProtectedHeader, Recipient, RecipientHeader } from './JWE'
 export { ECDH, createX25519ECDH } from './ECDH'
 export {
@@ -54,3 +55,5 @@ export {
 export { JWTOptions, JWTVerifyOptions } from './JWT'
 
 export { base64ToBytes, base58ToBytes, hexToBytes } from './util'
+
+export * from './Errors'
