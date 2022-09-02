@@ -1,3 +1,10 @@
+## [6.6.1](https://github.com/decentralized-identity/did-jwt/compare/6.6.0...6.6.1) (2022-09-02)
+
+
+### Bug Fixes
+
+* remove `recoverable` parameter from ES256Signer ([#247](https://github.com/decentralized-identity/did-jwt/issues/247)) ([a68ac47](https://github.com/decentralized-identity/did-jwt/commit/a68ac47d97f73615e32f39dbd263a2acdd1ee1ec))
+
 # [6.6.0](https://github.com/decentralized-identity/did-jwt/compare/6.5.0...6.6.0) (2022-08-19)
 
 
