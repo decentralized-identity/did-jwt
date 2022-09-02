@@ -6,13 +6,20 @@ import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64u
 import * as u8a from 'uint8arrays'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
+import { ES256Signer } from '../signers/ES256Signer'
 import { toEthereumAddress } from '../Digest'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
 
 const secp256k1 = new EC('secp256k1')
+const secp256r1 = new EC('p256')
 
 describe('VerifierAlgorithm', () => {
+
+  it('supports ES256', () => {
+    expect(typeof VerifierAlgorithm('ES256')).toEqual('function')
+  })
+
   it('supports ES256K', () => {
     expect(typeof VerifierAlgorithm('ES256K')).toEqual('function')
   })
@@ -32,6 +39,147 @@ describe('VerifierAlgorithm', () => {
 
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
+
+// Added tests to support ES256 Signer
+const p256privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
+const p256kp = secp256r1.keyFromPrivate(p256privateKey)
+const p256publicKey = String(p256kp.getPublic('hex'))
+const p256compressedPublicKey = String(p256kp.getPublic().encode('hex', true))
+const p256publicKeyBase64 = bytesToBase64(hexToBytes(p256publicKey))
+const p256publicKeyBase58 = bytesToBase58(hexToBytes(p256publicKey))
+const p256publicKeyJwk = {
+  crv: 'P-256',
+  kty: 'EC',
+  x: bytesToBase64url(hexToBytes(p256kp.getPublic().getX().toString('hex'))),
+  y: bytesToBase64url(hexToBytes(p256kp.getPublic().getY().toString('hex'))),
+}
+const p256publicKeyMultibase = bytesToMultibase(hexToBytes(p256publicKey), 'base58btc')
+const p256signer = ES256Signer(hexToBytes(p256privateKey))
+
+const p256ecKey1 = {
+  id: `${did}#keys-1`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex:
+    '04f9c36f8964623378bdc068d4bce07ed17c8fa486f9ac0c2613ca3c8c306d7bb61cd36717b8ac5e4fea8ad23dc8d0783c2318ee4ad7a80db6e0026ad0b072a24f',
+}
+
+const p256ecKey2 = {
+  id: `${did}#keys-2`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex: p256publicKey,
+}
+
+const p256compressedKey = {
+  id: `${did}#keys-4`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex: p256compressedPublicKey,
+}
+
+const p256malformedKey1 = {
+  id: `${did}#keys-7`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex:
+    '05f9c36f8964623378bdc068d4bce07ed17c8fa486f9ac0c2613ca3c8c306d7bb6',
+}
+
+const p256malformedKey2 = {
+  id: `${did}#keys-8`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex:
+     '04f9c36f8964623378bdc068d4bce07ed17c8fa486f9ac0c2613ca3c8c306d7bb61cd36717b8ac5e4fea8ad23dc8d0783c2318ee4ad7a80db6e0026ad0b072a24f07',
+}
+
+const p256malformedKey3 = {
+  id: `${did}#keys-8`,
+  type: 'JsonWebKey2020',
+  controller: did,
+  publicKeyHex:
+    '0404f9c36f8964623378bdc068d4bce07ed17c8fa486f9ac0c2613ca3c8c306d7bb61cd36717b8ac5e4fea8ad23dc8d0783c2318ee4ad7a80db6e0026ad0b072a24f',
+}
+
+describe('ES256', () => {
+  const verifier = VerifierAlgorithm('ES256')
+  it('validates signature and picks correct public key', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [p256ecKey1, p256ecKey2])).toEqual(p256ecKey2)
+  })
+  
+  it('validates with publicKeyBase58', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const p256pubkey = Object.assign({ p256publicKeyBase58 }, p256ecKey2)
+    delete p256pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [p256pubkey])).toEqual(p256pubkey)
+  })
+  
+  it('validates with publicKeyBase64', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const p256pubkey = Object.assign({ p256publicKeyBase64 }, p256ecKey2)
+    delete p256pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [p256pubkey])).toEqual(p256pubkey)
+  })
+  
+  it('validates with publicKeyJwk', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' },{ issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const p256pubkey = Object.assign({ p256publicKeyJwk }, p256ecKey2)
+    delete p256pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [p256pubkey])).toEqual(p256pubkey)
+  })
+  
+  it('validates with publicKeyMultibase', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const p256pubkey = Object.assign({ p256publicKeyMultibase }, p256ecKey2)
+    delete p256pubkey.publicKeyHex
+    return expect(verifier(parts[1], parts[2], [p256pubkey])).toEqual(p256pubkey)
+  })
+  
+  it('validates signature with compressed public key and picks correct public key', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [p256ecKey1, p256compressedKey])).toEqual(p256compressedKey)
+  })
+  
+  it('throws error if invalid signature', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(() => verifier(parts[1], parts[2], [p256ecKey1])).toThrowError(
+      new Error('invalid_signature: Signature invalid for JWT')
+    )
+  })
+  
+  it('throws error if invalid signature length', async () => {
+    expect.assertions(1)
+    const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})) + 'aa'
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(() => verifier(parts[1], parts[2], [p256ecKey1])).toThrowError(new Error('wrong signature length'))
+  })
+  
+  it('validates signature with compressed public key and picks correct public key when malformed keys are encountered first', async () => {
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{alg: 'ES256'})
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    return expect(verifier(parts[1], parts[2], [p256malformedKey1, p256malformedKey2, p256malformedKey3, p256compressedKey])).toEqual(
+      p256compressedKey
+    )
+  })
+    
+})
+
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const kp = secp256k1.keyFromPrivate(privateKey)
 const publicKey = String(kp.getPublic('hex'))
