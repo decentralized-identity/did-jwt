@@ -1,3 +1,31 @@
+# [6.6.0](https://github.com/decentralized-identity/did-jwt/compare/6.5.0...6.6.0) (2022-08-19)
+
+
+### Features
+
+* export error prefixes as object instead of enum ([#244](https://github.com/decentralized-identity/did-jwt/issues/244)) ([e5b070d](https://github.com/decentralized-identity/did-jwt/commit/e5b070d369acdaabeb7ea4e540e7cc0d6f945cb9)), closes [#243](https://github.com/decentralized-identity/did-jwt/issues/243)
+
+# [6.5.0](https://github.com/decentralized-identity/did-jwt/compare/6.4.0...6.5.0) (2022-08-18)
+
+
+### Features
+
+* add `aud` override policy for verification ([#242](https://github.com/decentralized-identity/did-jwt/issues/242)) ([87cbfd0](https://github.com/decentralized-identity/did-jwt/commit/87cbfd0f719fc2fdb0ac83ed9ca964b3c1b1b1a9)), closes [#239](https://github.com/decentralized-identity/did-jwt/issues/239)
+
+# [6.4.0](https://github.com/decentralized-identity/did-jwt/compare/6.3.0...6.4.0) (2022-08-12)
+
+
+### Features
+
+* add JWT verification policies to override timestamp checking ([#241](https://github.com/decentralized-identity/did-jwt/issues/241)) ([2934f4c](https://github.com/decentralized-identity/did-jwt/commit/2934f4ce6cf9209757839ac1130601fd5872f39b))
+
+# [6.3.0](https://github.com/decentralized-identity/did-jwt/compare/6.2.2...6.3.0) (2022-08-07)
+
+
+### Features
+
+* add ES256Signer ([#240](https://github.com/decentralized-identity/did-jwt/issues/240)) ([08b2761](https://github.com/decentralized-identity/did-jwt/commit/08b2761e97d7de47a9ed7456e29fda82121cee72))
+
 ## [6.2.2](https://github.com/decentralized-identity/did-jwt/compare/6.2.1...6.2.2) (2022-08-02)
 
 
