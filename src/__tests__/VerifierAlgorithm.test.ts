@@ -104,8 +104,11 @@ const p256malformedKey3 = {
 
 describe('ES256', () => {
   const verifier = VerifierAlgorithm('ES256')
+  const signer = ES256Signer(hexToBytes(p256privateKey))
+  
   it('validates signature and picks correct public key', async () => {
     expect.assertions(1)
+    
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer },{ alg: 'ES256'})
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(verifier(parts[1], parts[2], [p256ecKey1, p256ecKey2])).toEqual(p256ecKey2)
