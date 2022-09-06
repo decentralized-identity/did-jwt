@@ -1,3 +1,10 @@
+# [6.8.0](https://github.com/decentralized-identity/did-jwt/compare/6.7.0...6.8.0) (2022-09-06)
+
+
+### Features
+
+* add VerifierAlgorithm for ES256 ([#249](https://github.com/decentralized-identity/did-jwt/issues/249)) ([05283ac](https://github.com/decentralized-identity/did-jwt/commit/05283aca631f06a4c5db971bd71c46b9e185595f))
+
 # [6.7.0](https://github.com/decentralized-identity/did-jwt/compare/6.6.1...6.7.0) (2022-09-02)
 
 
