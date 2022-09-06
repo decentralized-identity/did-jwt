@@ -8,6 +8,7 @@ import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, s
 import { verifyBlockchainAccountId } from './blockchains'
 
 const secp256k1 = new elliptic.ec('secp256k1')
+const secp256r1 = new elliptic.ec('p256')
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
@@ -44,6 +45,15 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
         })
         .getPublic('hex')
     )
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    return hexToBytes(
+      secp256r1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
+        })
+        .getPublic('hex')
+    )
   } else if (
     pk.publicKeyJwk &&
     pk.publicKeyJwk.kty === 'OKP' &&
@@ -57,6 +67,26 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return baseDecoder.decode(pk.publicKeyMultibase)
   }
   return new Uint8Array()
+}
+
+export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+  const hash: Uint8Array = sha256(data)
+  const sigObj: EcdsaSignature = toSignatureObject(signature)
+  const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
+    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
+  })
+
+  const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
+    try {
+      const pubBytes = extractPublicKeyBytes(pk)
+      return secp256r1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
+    } catch (err) {
+      return false
+    }
+  })
+
+  if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
+  return signer
 }
 
 export function verifyES256K(
@@ -155,6 +185,7 @@ interface Algorithms {
   [name: string]: Verifier
 }
 const algorithms: Algorithms = {
+  ES256: verifyES256,
   ES256K: verifyES256K,
   // This is a non-standard algorithm but retained for backwards compatibility
   // see https://github.com/decentralized-identity/did-jwt/issues/146
