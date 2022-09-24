@@ -6,6 +6,44 @@ exports[`JWS createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.ey
 
 exports[`JWS createJWS works with base64url payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.A_3Vet7D1DjqI3_kazPuHgFu2mtYXD4n6mZobC6lNYR5.n5ZZQZe1J7e76TGTLBpQO2R22JFoHDBi5ScfoxHz__Qy7Q6r3R11GdXmY_0ntFx6nC9QbDD19y8tTDMLUM4DAw"`;
 
+exports[`createJWT() ES256 creates a JWT with correct format 1`] = `
+Object {
+  "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0",
+  "header": Object {
+    "alg": "ES256",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q",
+}
+`;
+
+exports[`createJWT() ES256 creates a JWT with correct legacy format 1`] = `
+Object {
+  "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
+  "header": Object {
+    "alg": "ES256",
+    "typ": "JWT",
+  },
+  "payload": Object {
+    "iat": 1485321133,
+    "iss": "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+    "requested": Array [
+      "name",
+      "phone",
+    ],
+  },
+  "signature": "VJIEnr08dLz6g9ig-8lRUckgoSoFp-FabH7azyYqJxg8mFnJSKyDu9tapErbXLwC-0g2xCdMtD_ZpWJOqEWm8w",
+}
+`;
+
 exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
 Object {
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",

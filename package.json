@@ -93,6 +93,7 @@
     "@stablelib/xchacha20poly1305": "^1.0.1",
     "bech32": "^2.0.0",
     "canonicalize": "^1.0.8",
+    "did-key-creator": "^0.3.2",
     "did-resolver": "^4.0.0",
     "elliptic": "^6.5.4",
     "js-sha3": "^0.8.0",
