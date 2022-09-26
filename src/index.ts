@@ -7,6 +7,7 @@ import { EdDSASigner } from './signers/EdDSASigner'
 import {
   createJWS,
   createJWT,
+  createMultisignatureJWT,
   decodeJWT,
   JWTHeader,
   JWTPayload,
@@ -42,6 +43,7 @@ export {
   EdDSASigner,
   verifyJWT,
   createJWT,
+  createMultisignatureJWT,
   decodeJWT,
   verifyJWS,
   createJWS,

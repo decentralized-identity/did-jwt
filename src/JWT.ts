@@ -255,6 +255,7 @@ export function decodeJWT(jwt: string): JWTDecoded {
 }
 
 // See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
+// TODO export this type
 type GeneralJWSSignature = {
   protected?: string,
   header?: object,
@@ -343,9 +344,10 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>;
 }
 
+// TODO create TSDoc
 export async function createMultisignatureJWT(
   payload: Partial<JWTPayload>,
-  { expiresIn, canonicalize }: JWTOptions,
+  { expiresIn, canonicalize }: Partial<JWTOptions>,
   issuers: { issuer: string, signer: Signer, alg: string }[],
 ): Promise<string> {
   if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
