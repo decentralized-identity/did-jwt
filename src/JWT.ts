@@ -379,7 +379,7 @@ export async function createMultisignatureJWT(
       alg: issuer.alg
     }
 
-    const jws = await createJWS(fullPayload, issuer.signer, header, { canonicalize })
+    const jws = await createJWS(fullPayload, issuer.signer, header, { canonicalize, generalJsonJws: true })
     signatures.push(jws as GeneralJWSSignature);
   }
   const jwt = {
