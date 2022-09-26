@@ -55,7 +55,8 @@ export interface JWTVerifyPolicies {
 }
 
 export interface JWSCreationOptions {
-  canonicalize?: boolean
+  canonicalize?: boolean,
+  generalJsonJws?: boolean
 }
 
 export interface DIDAuthenticator {
@@ -245,10 +246,19 @@ export function decodeJWT(jwt: string): JWTDecoded {
   try {
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
+    // TODO need to check if it is flattened General JSON JWS, instead of Compact JSON JWS
+    // See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.2
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
   }
+}
+
+// See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
+type GeneralJWSSignature = {
+  protected?: string,
+  header?: object,
+  signature: string
 }
 
 /**
@@ -270,13 +280,21 @@ export async function createJWS(
   signer: Signer,
   header: Partial<JWTHeader> = {},
   options: JWSCreationOptions = {}
-): Promise<string> {
+): Promise<string | GeneralJWSSignature> {
   if (!header.alg) header.alg = defaultAlg
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload, options.canonicalize)
   const signingInput: string = [encodeSection(header, options.canonicalize), encodedPayload].join('.')
 
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
+  if (options.generalJsonJws && options.generalJsonJws === true) {
+    // General JSON JWS https://www.rfc-editor.org/rfc/rfc7515#section-7.2
+    return {
+      protected: encodeSection(header, options.canonicalize),
+      signature,
+    }
+  }
+  // Compact serialization format https://www.rfc-editor.org/rfc/rfc7515#section-7.1
   return [signingInput, signature].join('.')
 }
 
@@ -322,7 +340,53 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header, { canonicalize })
+  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>;
+}
+
+export async function createMultisignatureJWT(
+  payload: Partial<JWTPayload>,
+  { expiresIn, canonicalize }: JWTOptions,
+  issuers: { issuer: string, signer: Signer, alg: string }[],
+): Promise<string> {
+  if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
+
+  const timestamps: Partial<JWTPayload> = {
+    iat: Math.floor(Date.now() / 1000),
+    exp: undefined,
+  }
+  if (expiresIn) {
+    if (typeof expiresIn === 'number') {
+      timestamps.exp = <number>(payload.nbf || timestamps.iat) + Math.floor(expiresIn)
+    } else {
+      throw new Error('invalid_argument: JWT expiresIn is not a number')
+    }
+  }
+
+  const signatures: GeneralJWSSignature[] = [];
+  const did = issuers[0].issuer;
+  const fullPayload: Partial<JWTPayload> = { ...timestamps, ...payload, iss: did }
+
+  for (const issuer of issuers) {
+    if (!issuer.signer) throw new Error('missing_signer: No Signer functionality has been configured')
+    if (!issuer.issuer) throw new Error('missing_issuer: No issuing DID has been configured')
+    if (issuer.issuer !== did) throw new Error('invalid_argument: all issuers must be the same DID')
+    if (!issuer.alg) throw new Error('missing_alg: No signing algorithm has been configured')
+
+    const header: Partial<JWTHeader> = {
+      typ: "JWT",
+      alg: issuer.alg
+    }
+
+    const jws = await createJWS(fullPayload, issuer.signer, header, { canonicalize })
+    signatures.push(jws as GeneralJWSSignature);
+  }
+  const jwt = {
+    payload: fullPayload,
+    signatures
+  }
+  // TODO need to check how to serialize
+  // JWS spec does not provide enough guideance on this
+  return JSON.stringify(jwt);
 }
 
 function verifyJWSDecoded(
