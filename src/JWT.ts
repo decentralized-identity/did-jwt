@@ -55,8 +55,7 @@ export interface JWTVerifyPolicies {
 }
 
 export interface JWSCreationOptions {
-  canonicalize?: boolean,
-  generalJsonJws?: boolean
+  canonicalize?: boolean
 }
 
 export interface DIDAuthenticator {
@@ -281,20 +280,14 @@ export async function createJWS(
   signer: Signer,
   header: Partial<JWTHeader> = {},
   options: JWSCreationOptions = {}
-): Promise<string | GeneralJWSSignature> {
+): Promise<string> {
   if (!header.alg) header.alg = defaultAlg
   const encodedPayload = typeof payload === 'string' ? payload : encodeSection(payload, options.canonicalize)
   const signingInput: string = [encodeSection(header, options.canonicalize), encodedPayload].join('.')
 
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
-  if (options.generalJsonJws && options.generalJsonJws === true) {
-    // General JSON JWS https://www.rfc-editor.org/rfc/rfc7515#section-7.2
-    return {
-      protected: encodeSection(header, options.canonicalize),
-      signature,
-    }
-  }
+
   // Compact serialization format https://www.rfc-editor.org/rfc/rfc7515#section-7.1
   return [signingInput, signature].join('.')
 }
@@ -364,11 +357,13 @@ export async function createMultisignatureJWT(
     }
   }
 
-  const signatures: GeneralJWSSignature[] = [];
   const did = issuers[0].issuer;
   const fullPayload: Partial<JWTPayload> = { ...timestamps, ...payload, iss: did }
 
-  for (const issuer of issuers) {
+  let payloadResult = encodeSection(fullPayload, canonicalize);
+  let jws = "";
+  for (let i = 0; i < issuers.length; i++) {
+    const issuer = issuers[i];
     if (!issuer.signer) throw new Error('missing_signer: No Signer functionality has been configured')
     if (!issuer.issuer) throw new Error('missing_issuer: No issuing DID has been configured')
     if (issuer.issuer !== did) throw new Error('invalid_argument: all issuers must be the same DID')
@@ -379,16 +374,16 @@ export async function createMultisignatureJWT(
       alg: issuer.alg
     }
 
-    const jws = await createJWS(fullPayload, issuer.signer, header, { canonicalize, generalJsonJws: true })
-    signatures.push(jws as GeneralJWSSignature);
+    // See Point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
+    // Basically, after the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the payload
+    if (i !== 0) {
+      header.cty = "JWT";
+    }
+    jws = await createJWS(payloadResult, issuer.signer, header, { canonicalize })
+
+    payloadResult = encodeSection(jws, canonicalize);
   }
-  const jwt = {
-    payload: fullPayload,
-    signatures
-  }
-  // TODO need to check how to serialize
-  // JWS spec does not provide enough guideance on this
-  return JSON.stringify(jwt);
+  return jws;
 }
 
 function verifyJWSDecoded(
