@@ -474,14 +474,20 @@ describe('verifyJWT() for ES256 secp256r1', () => {
     }),
   }
 
+
   describe('pregenerated JWT', () => {
+    //
+    /*
     const incomingJwt =
           'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
+    */
+    //
     /*
     const incomingJwt =
           'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.ZGS7kklimLNTy2xLRLeVM17aIj52Yy3dpTvt9KSYwK2eS7KV5u_9V7iGWpua1d53DmSodF3JRFiZvMf8erfkOw'
     */
-          it('verifies the JWT and return correct payload', async () => {
+    /*
+      it('verifies the JWT and return correct payload', async () => {
         expect.assertions(1)
         const { payload } = await verifyJWT(incomingJwt, { resolver })
         console.log(payload);  /// maybe there is another way to grab the payload in plaintext to see the keys
@@ -538,6 +544,7 @@ describe('verifyJWT() for ES256 secp256r1', () => {
           `DID document for ${did} does not have public keys suitable for ES256 with impossible purpose`
         )
       })
+      */
     })
   
 
