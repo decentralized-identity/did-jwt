@@ -19,7 +19,6 @@ import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../util'
 
-
 // add declarations for ES256 Tests
 import { ES256Signer } from '../signers/ES256Signer'
 import * as jwt from 'jsonwebtoken'
@@ -31,23 +30,18 @@ import { toEthereumAddress } from '../Digest'
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
-// the aud and did are the same for ES256 and ES256K
 const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
 const aud = `did:ethr:${audAddress}`
-// this code block is different for ES256 and ES256K, alg is also different...
-const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'  // this is derived from the public key regardless of did:ethr or did:key
-const did = `did:ethr:${address}`  // this can only be did:ethr for ES256K, for ES256 it must be did:key
+const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
+const did = `did:ethr:${address}`
 const alg = 'ES256K'
 
-// this key is replaced based on the curve for ES256, ES256K ...
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const publicKey = '03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
 const verifier = new TokenVerifier(alg, publicKey)
 const signer = ES256KSigner(hexToBytes(privateKey))
-// recovery signer is only valid for ES256K not ES256
 const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
-// this may be derived from the publicKey above
 const publicKeyJwk = {
   crv: 'secp256k1',
   kty: 'EC',
@@ -74,7 +68,6 @@ const didDocLegacy = {
   ],
 }
 
-// where did didDocJWk come from??
 const didDocJwk = {
   '@context': 'https://w3id.org/did/v1',
   id: did,
@@ -128,158 +121,158 @@ const audDidDoc = {
 }
 
 describe('createJWT()', () => {
-
   describe('ES256', () => {
-    const alg = 'ES256'
-    const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
-    const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
-    const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
-    const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
+        const alg = 'ES256'
+        const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
+        const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
+        const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
+        const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
+        // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
+        const multicodecName = 'p256-pub';
+        const did = encodeDIDfromHexString(multicodecName,publicKey)
 
-    // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
-    const multicodecName = 'p256-pub';
-    const did = encodeDIDfromHexString(multicodecName,publicKey)
+        const signer = ES256Signer(hexToBytes(privateKey))
 
-    interface privateJsonWebKey extends JsonWebKey {
-      d?: string
-    }
-
-    // verifyTokenFormAndValidity
-    function verifyTokenFormAndValidity(token: string, pemPublic: string): boolean {
-      let result = null
-      try {
-        jwt.verify(token, pemPublic)
-        result = true
-      } catch (e) {
-        console.error(e.name + ': ' + e.message)
-        result = false
+        interface privateJsonWebKey extends JsonWebKey {
+          d?: string
+        }
+    
+        // verifyTokenFormAndValidity
+        function verifyTokenFormAndValidity(token: string, pemPublic: string): boolean {
+          let result = null
+          try {
+            jwt.verify(token, pemPublic)
+            result = true
+          } catch (e) {
+            console.error(e.name + ': ' + e.message)
+            result = false
+          }
+          return result
+        }
+    
+        // input public key in hex, and export pem
+       function publicToJWK(
+        publicPointHex_x: string,
+        publicPointHex_y: string,
+        kty_value: string,
+        crv_value: string
+       ): JsonWebKey {
+        if (publicPointHex_x.length % 2 != 0) {
+          publicPointHex_x = '0' + publicPointHex_x
+        }
+        if (publicPointHex_y.length % 2 != 0) {
+          publicPointHex_y = '0' + publicPointHex_y
+        }
+        const publicPointUint8_x = u8a.fromString(publicPointHex_x, 'hex')
+        const publicPointBase64URL_x = u8a.toString(publicPointUint8_x, 'base64url')
+        const publicPointUint8_y = u8a.fromString(publicPointHex_y, 'hex')
+        const publicPointBase64URL_y = u8a.toString(publicPointUint8_y, 'base64url')
+        return {
+          kty: kty_value,
+          crv: crv_value,
+          x: publicPointBase64URL_x,
+          y: publicPointBase64URL_y,
+        }
       }
-      return result
-    }
+    
+      // input private key in hex, and export pem
+      function privateToJWK(privatePointHex: string, kty_value: string, crv_value: string): privateJsonWebKey {
+        if (privatePointHex.length % 2 != 0) {
+          privatePointHex = '0' + privatePointHex
+        }
+        const privatePointUint8 = u8a.fromString(privatePointHex, 'hex')
+        const privatePointBase64URL = u8a.toString(privatePointUint8, 'base64url')
+        return {
+          kty: kty_value,
+          crv: crv_value,
+          d: privatePointBase64URL,
+        }
+      }
 
-    // input public key in hex, and export pem
-   function publicToJWK(
-    publicPointHex_x: string,
-    publicPointHex_y: string,
-    kty_value: string,
-    crv_value: string
-   ): JsonWebKey {
-    if (publicPointHex_x.length % 2 != 0) {
-      publicPointHex_x = '0' + publicPointHex_x
-    }
-    if (publicPointHex_y.length % 2 != 0) {
-      publicPointHex_y = '0' + publicPointHex_y
-    }
-    const publicPointUint8_x = u8a.fromString(publicPointHex_x, 'hex')
-    const publicPointBase64URL_x = u8a.toString(publicPointUint8_x, 'base64url')
-    const publicPointUint8_y = u8a.fromString(publicPointHex_y, 'hex')
-    const publicPointBase64URL_y = u8a.toString(publicPointUint8_y, 'base64url')
-    return {
-      kty: kty_value,
-      crv: crv_value,
-      x: publicPointBase64URL_x,
-      y: publicPointBase64URL_y,
-    }
-  }
+        it('creates a valid JWT', async () => {
+          expect.assertions(1)
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+          console.log(jwt)
+          const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
+          expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
+        })
 
-  // input private key in hex, and export pem
-  function privateToJWK(privatePointHex: string, kty_value: string, crv_value: string): privateJsonWebKey {
-    if (privatePointHex.length % 2 != 0) {
-      privatePointHex = '0' + privatePointHex
-    }
-    const privatePointUint8 = u8a.fromString(privatePointHex, 'hex')
-    const privatePointBase64URL = u8a.toString(privatePointUint8, 'base64url')
-    return {
-      kty: kty_value,
-      crv: crv_value,
-      d: privatePointBase64URL,
-    }
-  }
-
-  const signer = ES256Signer(hexToBytes(privateKey))
-
-  it('creates a valid JWT', async () => {
-    expect.assertions(1)
-    const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-    console.log(jwt)
-    const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
-    expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
-  })
-
-  it('creates a valid JWT using a MNID', async () => {
-    expect.assertions(1)
-    const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
-    const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
-    expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
-  })
-
-  it('creates a JWT with correct format', async () => {
-    expect.assertions(1)
-    const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-    return expect(decodeJWT(jwt)).toMatchSnapshot()
-  })
-
-  it('creates a JWT with correct legacy format', async () => {
-    expect.assertions(1)
-    const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
-    return expect(decodeJWT(jwt)).toMatchSnapshot()
-  })
-
-  it('creates a JWT with expiry in 10000 seconds', async () => {
-    expect.assertions(1)
-    const jwt = await createJWT(
-      {
-        requested: ['name', 'phone'],
-        nbf: Math.floor(new Date().getTime() / 1000),
-      },
-      { issuer: did, signer, expiresIn: 10000 },
-      {alg: 'ES256'}       
-)
-    const { payload } = decodeJWT(jwt)
-    return expect(payload.exp).toEqual(payload.nbf + 10000)
-  })
-
-  it('Uses iat if nbf is not defined but expiresIn is included', async () => {
-    expect.assertions(1)
-    const { payload } = decodeJWT(
-    await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 },{alg: 'ES256'})
-    )
-    return expect(payload.exp).toEqual(payload.iat + 10000)
-  })
-
-  it('sets iat to the current time by default', async () => {
-    expect.assertions(1)
-    const timestamp = Math.floor(Date.now() / 1000)
-    const { payload } = decodeJWT(await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'}))
-    return expect(payload.iat).toEqual(timestamp)
-  })
-
-  it('sets iat to the value passed in payload', async () => {
-    expect.assertions(1)
-    const timestamp = 2000000
-    const { payload } = decodeJWT(
-       await createJWT({ requested: ['name', 'phone'], iat: timestamp }, { issuer: did, signer },{alg: 'ES256'})
-    )
-    return expect(payload.iat).toEqual(timestamp)
-  })
-
-   it('does not set iat if value in payload is undefined', async () => {
-    expect.assertions(1)
-    const { payload } = decodeJWT(
-        await createJWT({ requested: ['name', 'phone'], iat: undefined }, { issuer: did, signer },{alg: 'ES256'})
-    )
-    return expect(payload.iat).toBeUndefined()
-  })
-
-  it('throws an error if unsupported algorithm is passed in', async () => {
-    expect.assertions(1)
-    await expect(
-      createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' })
-    ).rejects.toThrowError('Unsupported algorithm BADALGO')
-  })
+        it('creates a valid JWT using a MNID', async () => {
+          expect.assertions(1)
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
+          const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
+          expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
+        })
+      
+        it('creates a JWT with correct format', async () => {
+          expect.assertions(1)
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+          return expect(decodeJWT(jwt)).toMatchSnapshot()
+        })
+      
+        it('creates a JWT with correct legacy format', async () => {
+          expect.assertions(1)
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
+          return expect(decodeJWT(jwt)).toMatchSnapshot()
+        })
+      
+        it('creates a JWT with expiry in 10000 seconds', async () => {
+          expect.assertions(1)
+          const jwt = await createJWT(
+            {
+              requested: ['name', 'phone'],
+              nbf: Math.floor(new Date().getTime() / 1000),
+            },
+            { issuer: did, signer, expiresIn: 10000 },
+            {alg: 'ES256'}       
+      )
+          const { payload } = decodeJWT(jwt)
+          return expect(payload.exp).toEqual(payload.nbf + 10000)
+        })
+      
+        it('Uses iat if nbf is not defined but expiresIn is included', async () => {
+          expect.assertions(1)
+          const { payload } = decodeJWT(
+          await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 },{alg: 'ES256'})
+          )
+          return expect(payload.exp).toEqual(payload.iat + 10000)
+        })
+      
+        it('sets iat to the current time by default', async () => {
+          expect.assertions(1)
+          const timestamp = Math.floor(Date.now() / 1000)
+          const { payload } = decodeJWT(await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'}))
+          return expect(payload.iat).toEqual(timestamp)
+        })
+      
+        it('sets iat to the value passed in payload', async () => {
+          expect.assertions(1)
+          const timestamp = 2000000
+          const { payload } = decodeJWT(
+             await createJWT({ requested: ['name', 'phone'], iat: timestamp }, { issuer: did, signer },{alg: 'ES256'})
+          )
+          return expect(payload.iat).toEqual(timestamp)
+        })
+      
+         it('does not set iat if value in payload is undefined', async () => {
+          expect.assertions(1)
+          const { payload } = decodeJWT(
+              await createJWT({ requested: ['name', 'phone'], iat: undefined }, { issuer: did, signer },{alg: 'ES256'})
+          )
+          return expect(payload.iat).toBeUndefined()
+        })
+      
+        it('throws an error if unsupported algorithm is passed in', async () => {
+          expect.assertions(1)
+          await expect(
+            createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' })
+          ).rejects.toThrowError('Unsupported algorithm BADALGO')
+        })
 
   })
+})
 
+describe('createJWT()', () => {
   describe('ES256K', () => {
     it('creates a valid JWT', async () => {
       expect.assertions(1)
@@ -442,13 +435,35 @@ describe('createJWT()', () => {
   })
 })
 
-describe('verifyJWT() for ES256 secp256r1', () => {
-  const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
-  const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'  // the incoming jwt is going to contain this did:key as iss
-  const signer = ES256Signer(hexToBytes(privateKey))
+describe('verifyJWT()', () => {
 
-  const address = toEthereumAddress(publicKey)
-  const did = `did:ethr:${address}`
+  const alg = 'ES256'
+  const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
+  const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
+  const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
+  const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
+  // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
+  const multicodecName = 'p256-pub';
+  const did = encodeDIDfromHexString(multicodecName,publicKey)
+
+  const didDoc = {
+    didDocument: {
+      '@context': 'https://w3id.org/did/v1',
+      id: did,
+      verificationMethod: [
+        {
+          id: `${did}#keys-1`,
+          type: 'EcdsaSecp256r1VerificationKey2022',
+          controller: did,
+          publicKeyHex: publicKey,
+        },
+      ],
+      authentication: [`${did}#keys-1`],
+      assertionMethod: [`${did}#keys-1`],
+      capabilityInvocation: [`${did}#keys-1`],
+      capabilityDelegation: [`${did}#some-key-that-does-not-exist`],
+    },
+  }
 
   const resolver = {
     resolve: jest.fn().mockImplementation((didUrl: string) => {
@@ -473,22 +488,25 @@ describe('verifyJWT() for ES256 secp256r1', () => {
 
   describe('pregenerated JWT', () => {
     const incomingJwt =
-      'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
-  
-
-  it('verifies the JWT and return correct payload', async () => {
-    expect.assertions(1)
-    const { payload } = await verifyJWT(incomingJwt, { resolver })
-    console.log(payload);  /// maybe there is another way to grab the payload in plaintext to see the keys
-    return expect(payload).toMatchSnapshot()
+    'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
+    it('verifies the JWT and return correct payload', async () => {
+      expect.assertions(1)
+      const { payload } = await verifyJWT(incomingJwt, { resolver })
+      return expect(payload).toMatchSnapshot()
     })
-
+    it('verifies the JWT and return correct profile', async () => {
+      expect.assertions(1)
+      const {
+        didResolutionResult: { didDocument },
+      } = await verifyJWT(incomingJwt, { resolver })
+      return expect(didDocument).toEqual(didDoc.didDocument)
+    })
+ 
   })
-
 })
 
 
-describe('verifyJWT()', () => {
+describe('verifyJWT() #2', () => {
   const resolver = {
     resolve: jest.fn().mockImplementation((didUrl: string) => {
       if (didUrl.includes(did)) {
