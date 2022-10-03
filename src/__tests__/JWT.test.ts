@@ -31,18 +31,23 @@ import { toEthereumAddress } from '../Digest'
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
 
+// the aud and did are the same for ES256 and ES256K
 const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
 const aud = `did:ethr:${audAddress}`
-const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'
-const did = `did:ethr:${address}`
+// this code block is different for ES256 and ES256K, alg is also different...
+const address = '0xf3beac30c498d9e26865f34fcaa57dbb935b0d74'  // this is derived from the public key regardless of did:ethr or did:key
+const did = `did:ethr:${address}`  // this can only be did:ethr for ES256K, for ES256 it must be did:key
 const alg = 'ES256K'
 
+// this key is replaced based on the curve for ES256, ES256K ...
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
 const publicKey = '03fdd57adec3d438ea237fe46b33ee1e016eda6b585c3e27ea66686c2ea5358479'
 const verifier = new TokenVerifier(alg, publicKey)
 const signer = ES256KSigner(hexToBytes(privateKey))
+// recovery signer is only valid for ES256K not ES256
 const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
+// this may be derived from the publicKey above
 const publicKeyJwk = {
   crv: 'secp256k1',
   kty: 'EC',
@@ -69,6 +74,7 @@ const didDocLegacy = {
   ],
 }
 
+// where did didDocJWk come from??
 const didDocJwk = {
   '@context': 'https://w3id.org/did/v1',
   id: did,
