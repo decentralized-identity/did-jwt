@@ -19,12 +19,14 @@ import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../util'
 
+
 // add declarations for ES256 Tests
 import { ES256Signer } from '../signers/ES256Signer'
 import * as jwt from 'jsonwebtoken'
 import * as u8a from 'uint8arrays'
 import * as jwkToPem from 'jwk-to-pem'
 import { encodeDIDfromHexString } from  'did-key-creator'
+import { toEthereumAddress } from '../Digest'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -120,6 +122,7 @@ const audDidDoc = {
 }
 
 describe('createJWT()', () => {
+
   describe('ES256', () => {
     const alg = 'ES256'
     const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
@@ -192,13 +195,12 @@ describe('createJWT()', () => {
   it('creates a valid JWT', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-    console.log('the jwt is');
-    console.log(jwt);
+    console.log(jwt)
     const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
     expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
   })
 
-   it('creates a valid JWT using a MNID', async () => {
+  it('creates a valid JWT using a MNID', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
     const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
@@ -435,29 +437,18 @@ describe('createJWT()', () => {
 })
 
 describe('verifyJWT() for ES256 secp256r1', () => {
-
-  const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
   const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
-  // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
-  const multicodecName = 'p256-pub';
-  const did = encodeDIDfromHexString(multicodecName,publicKey)
-  const alg = 'ES256'
-  const aud = did
+  const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'  // the incoming jwt is going to contain this did:key as iss
   const signer = ES256Signer(hexToBytes(privateKey))
+
+  const address = toEthereumAddress(publicKey)
+  const did = `did:ethr:${address}`
 
   const resolver = {
     resolve: jest.fn().mockImplementation((didUrl: string) => {
       if (didUrl.includes(did)) {
         return {
           didDocument: didDoc.didDocument,
-          didDocumentMetadata: {},
-          didResolutionMetadata: { contentType: 'application/did+ld+json' },
-        }
-      }
-
-      if (didUrl.includes(aud)) {
-        return {
-          didDocument: audDidDoc.didDocument,
           didDocumentMetadata: {},
           didResolutionMetadata: { contentType: 'application/did+ld+json' },
         }
@@ -474,81 +465,22 @@ describe('verifyJWT() for ES256 secp256r1', () => {
     }),
   }
 
-
   describe('pregenerated JWT', () => {
-    //
-    /*
     const incomingJwt =
-          'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
-    */
-    //
-    /*
-    const incomingJwt =
-          'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHg0MWE2ZjkyY2NhN2I3ZTcyN2FiMzlhOGZhZjUxMmI1MzAzMTZjMzk1In0.ZGS7kklimLNTy2xLRLeVM17aIj52Yy3dpTvt9KSYwK2eS7KV5u_9V7iGWpua1d53DmSodF3JRFiZvMf8erfkOw'
-    */
-    /*
-      it('verifies the JWT and return correct payload', async () => {
-        expect.assertions(1)
-        const { payload } = await verifyJWT(incomingJwt, { resolver })
-        console.log(payload);  /// maybe there is another way to grab the payload in plaintext to see the keys
-        return expect(payload).toMatchSnapshot()
-        })
-       it('verifies the JWT and return correct profile', async () => {
-        expect.assertions(1)
-        const {
-          didResolutionResult: { didDocument },
-        } = await verifyJWT(incomingJwt, { resolver })
-        return expect(didDocument).toEqual(didDoc.didDocument)
-       })
-        it('verifies the JWT and return correct did for the iss', async () => {
-        expect.assertions(1)
-        const { issuer } = await verifyJWT(incomingJwt, { resolver })
-        return expect(issuer).toEqual(did)
-      })
-      it('verifies the JWT and return correct signer', async () => {
-        expect.assertions(1)
-        const { signer } = await verifyJWT(incomingJwt, { resolver })
-        return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
-      })
-      it('verifies the JWT requiring authentication and return correct signer', async () => {
-        expect.assertions(1)
-        const { signer } = await verifyJWT(incomingJwt, { resolver, auth: true })
-        return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
-      })
-      it('verifies the JWT requiring authentication proofPurpose and return correct signer', async () => {
-        expect.assertions(1)
-        const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'authentication' })
-        return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
-      })
-      it('verifies the JWT requiring assertionMethod and return correct signer', async () => {
-        expect.assertions(1)
-        const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'assertionMethod' })
-        return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
-      })
-      it('verifies the JWT requiring capabilityInvocation and return correct signer', async () => {
-        expect.assertions(1)
-        const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'capabilityInvocation' })
-        return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
-      })
-      it('rejects the JWT requiring capabilityDelegation when not present in document', async () => {
-        expect.assertions(1)
-        await expect(() =>
-          verifyJWT(incomingJwt, { resolver, proofPurpose: 'capabilityDelegation' })
-        ).rejects.toThrowError(
-          `DID document for ${did} does not have public keys suitable for ES256 with capabilityDelegation purpose`
-        )
-      })
-      it('rejects the JWT requiring unknown proofPurpose', async () => {
-        expect.assertions(1)
-        await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
-          `DID document for ${did} does not have public keys suitable for ES256 with impossible purpose`
-        )
-      })
-      */
-    })
+      'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
   
 
+  it('verifies the JWT and return correct payload', async () => {
+    expect.assertions(1)
+    const { payload } = await verifyJWT(incomingJwt, { resolver })
+    console.log(payload);  /// maybe there is another way to grab the payload in plaintext to see the keys
+    return expect(payload).toMatchSnapshot()
+    })
+
+  })
+
 })
+
 
 describe('verifyJWT()', () => {
   const resolver = {
@@ -1403,206 +1335,4 @@ describe('resolveAuthenticator()', () => {
       expect(() => decodeJWT('not a jwt')).toThrow()
     })
   })
-})
-
-describe('resolveAuthenticator() for ES256 secp256r1', () => {
-
-  const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
-  // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
-  const multicodecName = 'p256-pub';
-  const did = encodeDIDfromHexString(multicodecName,publicKey)
-  const alg = 'ES256'
-
-  const ecKey1 = {
-    id: `${did}#keys-1`,
-    type: 'JsonWebKey2020',
-    owner: did,
-    publicKeyHex:
-      '047f66dfa651fa0d1957117ad814fb8be57577c713dcfdb6a739a009f2f9acd72894c38368d5610c8d6ca1ef76b7b4c4d0daab485116b98f0097884354c14d2f12',
-  }
-
-  const ecKey2 = {
-    id: `${did}#keys-2`,
-    type: 'JsonWebKey2020',
-    owner: did,
-    publicKeyHex:
-        '045aa95615a343ff953fcfad939f6187cf6d9c2d176ada9eac2d8977376d2f7cf72a57d753724ffa40076160ab2f9f9dd1f0117e32412809c1543ebe293bc36e8f',
-  }
-
-  const ecKey3 = {
-    id: `${did}#keys-3`,
-    type: 'JsonWebKey2020',
-    owner: did,
-    publicKeyHex:
-      '04be3598192b12b9cc5b0679786b43e9d5dbb608794f5b3c4b587da43bab7b0bc806c6a3a779aa7f1a45d6b9cebbdfcdf43da6f9f84381f6ba51daf7d877315bef',
-  }
-
-  const authKey1 = {
-    type: 'JsonWebKey2020',
-    publicKey: ecKey1.id,
-  }
-
-  const authKey2 = {
-    type: 'JsonWebKey2020',
-    publicKey: ecKey2.id,
-  }
-
-  const singleKey = {
-    didDocument: {
-      '@context': 'https://w3id.org/did/v1',
-      id: did,
-      publicKey: [ecKey1],
-    },
-  }
-
-  const noPublicKey = {
-    didDocument: {
-      '@context': 'https://w3id.org/did/v1',
-      id: did,
-    },
-  }
-
-  const encKey1 = {
-    id: `${did}#keys-4`,
-    type: 'Curve25519EncryptionPublicKey',
-    owner: did,
-    publicKeyBase64: 'QCFPBLm5pwmuTOu+haxv0+Vpmr6Rrz/DEEvbcjktQnQ=',
-  }
-
-  const edKey = {
-    id: `${did}#keys-5`,
-    type: 'ED25519SignatureVerification',
-    owner: did,
-    publicKeyBase64: 'BvrB8iJAz/1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU=',
-  }
-
-  const edKey2 = {
-    id: `${did}#keys-6`,
-    type: 'ED25519SignatureVerification',
-    owner: did,
-    publicKeyBase64: 'SI+tzELqRb8XKuRE3Cj7uWGgkEQ86X87ZjhGAok+Ujc=',
-  }
-
-  const edAuthKey = {
-    type: 'ED25519SigningAuthentication',
-    publicKey: edKey.id,
-  }
-
-  const multipleKeysLegacy = {
-    didDocument: {
-      '@context': 'https://w3id.org/did/v1',
-      id: did,
-      publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2],
-      authentication: [authKey1, authKey2, edAuthKey],
-    },
-  }
-
-  const edKey6 = {
-    id: `${did}#keys-auth6`,
-    type: 'ED25519SignatureVerification',
-    owner: did,
-    publicKeyBase58: 'dummyvalue',
-  }
-
-
-  const ecKey7 = {
-    id: `${did}#keys-auth7`,
-    type: 'EcdsaSecp256r1VerificationKey2022',
-    owner: did,
-    publicKeyBase58: 'dummyvalue',
-  }
-
-  const edKey8 = {
-    id: `${did}#keys-auth8`,
-    type: 'Ed25519VerificationKey2018',
-    owner: did,
-    publicKeyBase58: 'dummyvalue',
-  }
-
-
-  const multipleAuthTypes = {
-    didDocument: {
-      '@context': 'https://w3id.org/did/v1',
-      id: did,
-      publicKey: [ecKey1, ecKey2, ecKey3, encKey1, edKey, edKey2, edKey6, ecKey7],
-      authentication: [authKey1, authKey2, edAuthKey, `${did}#keys-auth6`, `${did}#keys-auth7`, edKey8],
-    },
-  }
-
-  const unsupportedFormat = {
-    didDocument: {
-      '@context': 'https://w3id.org/did/v1',
-      id: did,
-      publicKey: [encKey1],
-    },
-  }
-
-  describe('DID', () => {
-    describe('ES256', () => {
-
-      it('finds public key', async () => {
-        expect.assertions(1)
-        const authenticators = await resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did)
-        return expect(authenticators).toEqual({
-          authenticators: [ecKey1],
-          issuer: did,
-          didResolutionResult: singleKey,
-        })
-      })
-
-      it('filters out irrelevant public keys', async () => {
-        expect.assertions(1)
-        const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
-          alg,
-          did
-        )
-        return expect(authenticators).toEqual({
-          authenticators: [ecKey1, ecKey2, ecKey3],
-          issuer: did,
-          didResolutionResult: multipleKeysLegacy,
-        })
-      })
-
-      it('only list authenticators able to authenticate a user', async () => {
-        expect.assertions(1)
-        const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
-          alg,
-          did,
-          'authentication'
-        )
-        return expect(authenticators).toEqual({
-          authenticators: [ecKey1, ecKey2],
-          issuer: did,
-          didResolutionResult: multipleKeysLegacy,
-        })
-      })
-
-
-      it('lists authenticators with multiple key types in doc', async () => {
-        expect.assertions(1)
-        const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) },
-          alg,
-          did,
-          'authentication'
-        )
-        return expect(authenticators).toEqual({
-          authenticators: [ecKey1, ecKey2, ecKey7],
-          issuer: did,
-          didResolutionResult: multipleAuthTypes,
-        })
-      })
-
-      it('errors if no suitable public keys exist', async () => {
-        expect.assertions(1)
-        return await expect(
-          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) }, alg, did)
-        ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
-      })
-
-    })
-  })
-
 })
