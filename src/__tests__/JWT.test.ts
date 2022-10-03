@@ -25,7 +25,6 @@ import * as jwt from 'jsonwebtoken'
 import * as u8a from 'uint8arrays'
 import * as jwkToPem from 'jwk-to-pem'
 import { encodeDIDfromHexString } from  'did-key-creator'
-import { toEthereumAddress } from '../Digest'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
