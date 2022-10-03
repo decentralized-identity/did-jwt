@@ -435,7 +435,7 @@ describe('createJWT()', () => {
   })
 })
 
-describe('verifyJWT()', () => {
+describe('verifyJWT() for ES256', () => {
 
   const alg = 'ES256'
   const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
@@ -501,12 +501,55 @@ describe('verifyJWT()', () => {
       } = await verifyJWT(incomingJwt, { resolver })
       return expect(didDocument).toEqual(didDoc.didDocument)
     })
- 
+    it('verifies the JWT and return correct did for the iss', async () => {
+      expect.assertions(1)
+      const { issuer } = await verifyJWT(incomingJwt, { resolver })
+      return expect(issuer).toEqual(did)
+    })
+    it('verifies the JWT and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver })
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
+    })
+    it('verifies the JWT requiring authentication and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver, auth: true })
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
+    })
+    it('verifies the JWT requiring authentication proofPurpose and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'authentication' })
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
+    })
+    it('verifies the JWT requiring assertionMethod and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'assertionMethod' })
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
+    })
+    it('verifies the JWT requiring capabilityInvocation and return correct signer', async () => {
+      expect.assertions(1)
+      const { signer } = await verifyJWT(incomingJwt, { resolver, proofPurpose: 'capabilityInvocation' })
+      return expect(signer).toEqual(didDoc.didDocument.verificationMethod[0])
+    })
+    it('rejects the JWT requiring capabilityDelegation when not present in document', async () => {
+      expect.assertions(1)
+      await expect(() =>
+        verifyJWT(incomingJwt, { resolver, proofPurpose: 'capabilityDelegation' })
+      ).rejects.toThrowError(
+        `DID document for ${did} does not have public keys suitable for ES256 with capabilityDelegation purpose`
+      )
+    })
+    it('rejects the JWT requiring unknown proofPurpose', async () => {
+      expect.assertions(1)
+      await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
+        `DID document for ${did} does not have public keys suitable for ES256 with impossible purpose`
+      )
+    })
   })
 })
 
 
-describe('verifyJWT() #2', () => {
+describe('verifyJWT() for ES256K', () => {
   const resolver = {
     resolve: jest.fn().mockImplementation((didUrl: string) => {
       if (didUrl.includes(did)) {

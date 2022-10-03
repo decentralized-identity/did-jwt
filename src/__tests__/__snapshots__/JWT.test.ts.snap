@@ -209,10 +209,102 @@ Object {
 }
 `;
 
+exports[`verifyJWT() for ES256 pregenerated JWT verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;
+
 exports[`verifyJWT() for ES256 secp256r1 pregenerated JWT verifies the JWT and return correct payload 1`] = `
 Object {
   "iat": 1485321133,
   "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;
+
+exports[`verifyJWT() for ES256K accepts a valid audience 1`] = `
+Object {
+  "aud": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
+exports[`verifyJWT() for ES256K accepts a valid audience using callback_url 1`] = `
+Object {
+  "aud": "http://pututu.uport.me/unique",
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
+exports[`verifyJWT() for ES256K accepts multiple audiences 1`] = `
+Object {
+  "aud": Array [
+    "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+    "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+  ],
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
+exports[`verifyJWT() for ES256K handles ES256K algorithm with blockchainAccountId - github #14, #155 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+}
+`;
+
+exports[`verifyJWT() for ES256K handles ES256K algorithm with ethereum address - github #14 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+}
+`;
+
+exports[`verifyJWT() for ES256K handles ES256K-R algorithm 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+}
+`;
+
+exports[`verifyJWT() for ES256K handles ES256K-R algorithm with publicKeyHex address 1`] = `
+Object {
+  "hello": "world",
+  "iat": 1485321133,
+  "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
+}
+`;
+
+exports[`verifyJWT() for ES256K pregenerated JWT verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
+  "requested": Array [
+    "name",
+    "phone",
+  ],
+}
+`;
+
+exports[`verifyJWT() for ES256K pregenerated JWT with legacy resolver verifies the JWT and return correct payload 1`] = `
+Object {
+  "iat": 1485321133,
+  "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",
   "requested": Array [
     "name",
     "phone",
