@@ -88,7 +88,7 @@ export interface JWTPayload {
 export interface JWTDecoded {
   header: JWTHeader
   payload: JWTPayload
-  signature: string
+  signature: string | GeneralJWSSignature[]
   data: string
 }
 
@@ -231,6 +231,13 @@ function decodeJWS(jws: string): JWSDecoded {
 
 /**  @module did-jwt/JWT */
 
+// See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
+export type GeneralJWSSignature = {
+  protected?: Partial<JWTHeader>,
+  header?: Partial<JWTHeader>,
+  signature: string
+}
+
 /**
  *  Decodes a JWT and returns an object representing the payload
  *
@@ -244,8 +251,40 @@ export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
     const jws = decodeJWS(jwt)
-    const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
-    return decodedJwt
+    if (jws.header.cty === "JWT") {
+      // This is a multi-signature JWT using the nested JWT structure
+      // See point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
+      const signature: GeneralJWSSignature[] = [];
+      const data = jws.data;
+      let i = 0;
+
+      let loopJws: JWSDecoded = {} as any;
+      Object.assign(loopJws, jws)
+
+      while (i < 200 && loopJws.header.cty === "JWT") {
+        signature.push({
+          protected: loopJws.header,
+          signature: loopJws.signature,
+        })
+        let payload = decodeBase64url(loopJws.payload);
+        loopJws = decodeJWS(payload)
+      }
+      signature.push({
+        protected: loopJws.header,
+        signature: loopJws.signature,
+      })
+      const header: JWTHeader = loopJws.header;
+      const vc: JWTPayload = JSON.parse(decodeBase64url(loopJws.payload));
+
+      // General JWS JSON Serialization
+      // https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
+      return { header, payload: vc, signature, data };
+    } else {
+      const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
+      // JWS Compact Serialization
+      // https://www.rfc-editor.org/rfc/rfc7515#section-7.1
+      return decodedJwt
+    }
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
   }
@@ -277,6 +316,9 @@ export async function createJWS(
 
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
+
+  // JWS Compact Serialization
+  // https://www.rfc-editor.org/rfc/rfc7515#section-7.1
   return [signingInput, signature].join('.')
 }
 
@@ -322,7 +364,58 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header, { canonicalize })
+  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>;
+}
+
+// TODO create TSDoc
+export async function createMultisignatureJWT(
+  payload: Partial<JWTPayload>,
+  { expiresIn, canonicalize }: Partial<JWTOptions>,
+  issuers: { issuer: string, signer: Signer, alg: string }[],
+): Promise<string> {
+  if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
+
+  const timestamps: Partial<JWTPayload> = {
+    iat: Math.floor(Date.now() / 1000),
+    exp: undefined,
+  }
+  if (expiresIn) {
+    if (typeof expiresIn === 'number') {
+      timestamps.exp = <number>(payload.nbf || timestamps.iat) + Math.floor(expiresIn)
+    } else {
+      throw new Error('invalid_argument: JWT expiresIn is not a number')
+    }
+  }
+
+  const did = issuers[0].issuer;
+  const fullPayload: Partial<JWTPayload> = { ...timestamps, ...payload, iss: did }
+
+  let payloadResult = encodeSection(fullPayload, canonicalize);
+  let jws = "";
+  for (let i = 0; i < issuers.length; i++) {
+    const issuer = issuers[i];
+    if (!issuer.signer) throw new Error('missing_signer: No Signer functionality has been configured')
+    if (!issuer.issuer) throw new Error('missing_issuer: No issuing DID has been configured')
+    if (issuer.issuer !== did) throw new Error('invalid_argument: all issuers must be the same DID')
+    if (!issuer.alg) throw new Error('missing_alg: No signing algorithm has been configured')
+
+    const header: Partial<JWTHeader> = {
+      typ: "JWT",
+      alg: issuer.alg
+    }
+
+    // Create nested JWT
+    // See Point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
+    // After the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the payload
+    if (i !== 0) {
+      header.cty = "JWT";
+    }
+
+    jws = await createJWS(payloadResult, issuer.signer, header, { canonicalize })
+
+    payloadResult = encodeBase64url(jws);
+  }
+  return jws;
 }
 
 function verifyJWSDecoded(
