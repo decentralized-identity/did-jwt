@@ -191,7 +191,6 @@ describe('createJWT()', () => {
         it('creates a valid JWT', async () => {
           expect.assertions(1)
           const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-          console.log(jwt)
           const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
           expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
         })
