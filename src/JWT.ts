@@ -250,41 +250,12 @@ export type GeneralJWSSignature = {
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
-    const jws = decodeJWS(jwt)
-    if (jws.header.cty === "JWT") {
-      // This is a multi-signature JWT using the nested JWT structure
-      // See point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
-      const signature: GeneralJWSSignature[] = [];
-      const data = jws.data;
-      let i = 0;
-
-      let loopJws: JWSDecoded = {} as any;
-      Object.assign(loopJws, jws)
-
-      while (i < 200 && loopJws.header.cty === "JWT") {
-        signature.push({
-          protected: loopJws.header,
-          signature: loopJws.signature,
-        })
-        let payload = decodeBase64url(loopJws.payload);
-        loopJws = decodeJWS(payload)
-      }
-      signature.push({
-        protected: loopJws.header,
-        signature: loopJws.signature,
-      })
-      const header: JWTHeader = loopJws.header;
-      const vc: JWTPayload = JSON.parse(decodeBase64url(loopJws.payload));
-
-      // General JWS JSON Serialization
-      // https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
-      return { header, payload: vc, signature, data };
-    } else {
-      const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
-      // JWS Compact Serialization
-      // https://www.rfc-editor.org/rfc/rfc7515#section-7.1
-      return decodedJwt
+    const jws = decodeJWS(jwt);
+    const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
+    if (decodedJwt.header.cty === "JWT") {
+      return decodeJWT(decodedJwt.payload.jwt)
     }
+    return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
   }
@@ -375,29 +346,12 @@ export async function createMultisignatureJWT(
 ): Promise<string> {
   if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
 
-  const timestamps: Partial<JWTPayload> = {
-    iat: Math.floor(Date.now() / 1000),
-    exp: undefined,
-  }
-  if (expiresIn) {
-    if (typeof expiresIn === 'number') {
-      timestamps.exp = <number>(payload.nbf || timestamps.iat) + Math.floor(expiresIn)
-    } else {
-      throw new Error('invalid_argument: JWT expiresIn is not a number')
-    }
-  }
+  let payloadResult: Partial<JWTPayload> = payload;
 
-  const did = issuers[0].issuer;
-  const fullPayload: Partial<JWTPayload> = { ...timestamps, ...payload, iss: did }
-
-  let payloadResult = encodeSection(fullPayload, canonicalize);
-  let jws = "";
+  let jwt = "";
   for (let i = 0; i < issuers.length; i++) {
     const issuer = issuers[i];
-    if (!issuer.signer) throw new Error('missing_signer: No Signer functionality has been configured')
-    if (!issuer.issuer) throw new Error('missing_issuer: No issuing DID has been configured')
-    if (issuer.issuer !== did) throw new Error('invalid_argument: all issuers must be the same DID')
-    if (!issuer.alg) throw new Error('missing_alg: No signing algorithm has been configured')
+
 
     const header: Partial<JWTHeader> = {
       typ: "JWT",
@@ -411,11 +365,11 @@ export async function createMultisignatureJWT(
       header.cty = "JWT";
     }
 
-    jws = await createJWS(payloadResult, issuer.signer, header, { canonicalize })
+    jwt = await createJWT(payloadResult, { ...issuer, canonicalize, expiresIn }, header)
 
-    payloadResult = encodeBase64url(jws);
+    payloadResult = { jwt };
   }
-  return jws;
+  return jwt;
 }
 
 function verifyJWSDecoded(
