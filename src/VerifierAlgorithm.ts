@@ -6,7 +6,7 @@ import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
-
+ 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
 
@@ -36,6 +36,15 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
+  } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
+    return hexToBytes(
+      secp256k1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.conditionWeightedThreshold[0].condition.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.conditionWeightedThreshold[0].condition.publicKeyJwk.y)),
+        })
+        .getPublic('hex')
+    )
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256k1

@@ -165,6 +165,11 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'VerifiableCondition',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -187,6 +192,8 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+
+    'VerifiableCondition',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
@@ -601,7 +608,7 @@ export async function resolveAuthenticator(
   }
 
   const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
-    types.find((supported) => supported === type)
+     types.find((supported) => supported === type)
   )
 
   if (typeof proofPurpose === 'string' && (!authenticators || authenticators.length === 0)) {
