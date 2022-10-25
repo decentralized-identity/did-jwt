@@ -166,10 +166,9 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaPublicKeySecp256k1',
     /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
+     *  TODO - support R1 key aswell
      */
-    'VerifiableCondition',
+    'ConditionalProof2022',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -192,8 +191,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
-
-    'VerifiableCondition',
+    'ConditionalProof2022',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
@@ -240,8 +238,8 @@ function decodeJWS(jws: string): JWSDecoded {
 
 // See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
 export type GeneralJWSSignature = {
-  protected?: Partial<JWTHeader>,
-  header?: Partial<JWTHeader>,
+  protected?: Partial<JWTHeader>
+  header?: Partial<JWTHeader>
   signature: string
 }
 
@@ -257,9 +255,9 @@ export type GeneralJWSSignature = {
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
-    const jws = decodeJWS(jwt);
+    const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
-    if (decodedJwt.header.cty === "JWT") {
+    if (decodedJwt.header.cty === 'JWT') {
       return decodeJWT(decodedJwt.payload.jwt)
     }
     return decodedJwt
@@ -342,41 +340,40 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>;
+  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>
 }
 
 // TODO create TSDoc
 export async function createMultisignatureJWT(
   payload: Partial<JWTPayload>,
   { expiresIn, canonicalize }: Partial<JWTOptions>,
-  issuers: { issuer: string, signer: Signer, alg: string }[],
+  issuers: { issuer: string; signer: Signer; alg: string }[]
 ): Promise<string> {
   if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
 
-  let payloadResult: Partial<JWTPayload> = payload;
+  let payloadResult: Partial<JWTPayload> = payload
 
-  let jwt = "";
+  let jwt = ''
   for (let i = 0; i < issuers.length; i++) {
-    const issuer = issuers[i];
-
+    const issuer = issuers[i]
 
     const header: Partial<JWTHeader> = {
-      typ: "JWT",
-      alg: issuer.alg
+      typ: 'JWT',
+      alg: issuer.alg,
     }
 
     // Create nested JWT
     // See Point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
     // After the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the payload
     if (i !== 0) {
-      header.cty = "JWT";
+      header.cty = 'JWT'
     }
 
     jwt = await createJWT(payloadResult, { ...issuer, canonicalize, expiresIn }, header)
 
-    payloadResult = { jwt };
+    payloadResult = { jwt }
   }
-  return jwt;
+  return jwt
 }
 
 function verifyJWSDecoded(
@@ -608,7 +605,7 @@ export async function resolveAuthenticator(
   }
 
   const authenticators: VerificationMethod[] = publicKeysToCheck.filter(({ type }) =>
-     types.find((supported) => supported === type)
+    types.find((supported) => supported === type)
   )
 
   if (typeof proofPurpose === 'string' && (!authenticators || authenticators.length === 0)) {

@@ -6,7 +6,7 @@ import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
- 
+
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
 
@@ -37,6 +37,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
   } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
+    // TODO: support multiple ThresholdCondition types and multiple public keys
     return hexToBytes(
       secp256k1
         .keyFromPublic({
