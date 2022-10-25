@@ -36,6 +36,16 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
+  } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
+    // TODO: support multiple ThresholdCondition types and multiple public keys
+    return hexToBytes(
+      secp256k1
+        .keyFromPublic({
+          x: bytesToHex(base64ToBytes(pk.conditionWeightedThreshold[0].condition.publicKeyJwk.x)),
+          y: bytesToHex(base64ToBytes(pk.conditionWeightedThreshold[0].condition.publicKeyJwk.y)),
+        })
+        .getPublic('hex')
+    )
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256k1
