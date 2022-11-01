@@ -255,11 +255,17 @@ export type GeneralJWSSignature = {
 export function decodeJWT(jwt: string): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
+    const signatures: GeneralJWSSignature[] = []
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
     if (decodedJwt.header.cty === 'JWT') {
+      signatures.push({
+        protected: decodedJwt.header,
+        signature: decodedJwt.signature as string,
+      })
       return decodeJWT(decodedJwt.payload.jwt)
     }
+    if (signatures.length != 0) decodedJwt.signature = signatures
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
