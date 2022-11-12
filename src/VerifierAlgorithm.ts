@@ -153,7 +153,7 @@ export function verifyRecoverableES256K(
   }
 
   if (Array.isArray(signature)) {
-    signatures = signature.flatMap((sig) => toSignature(sig.signature))
+    signatures = signature.flatMap((sig) => toSignature(sig.signature), 1)
   } else {
     signatures = toSignature(signature)
   }
@@ -171,7 +171,12 @@ export function verifyRecoverableES256K(
       if (Array.isArray(publickeys)) {
         return publickeys.some((publickey) => {
           const publicKeyHex: string = bytesToHex(publickey)
-          return publicKeyHex === recoveredPublicKeyHex || publicKeyHex === recoveredCompressedPublicKeyHex
+          return (
+            publicKeyHex === recoveredPublicKeyHex ||
+            publicKeyHex === recoveredCompressedPublicKeyHex ||
+            pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress || // CAIP-2
+            verifyBlockchainAccountId(recoveredPublicKeyHex, pk.blockchainAccountId) // CAIP-10
+          )
         })
       } else {
         const keyHex = bytesToHex(publickeys)
@@ -193,13 +198,6 @@ export function verifyRecoverableES256K(
     .filter((key) => typeof key !== 'undefined') as VerificationMethod[]
 
   if (signer.length === 0) throw new Error('invalid_signature: Signature invalid for JWT')
-  if (authenticators.some((auth) => auth.conditionWeightedThreshold)) {
-    const passedThreshold = authenticators.some((authenticator) => {
-      return (authenticator.threshold as number) >= signer.length
-    })
-
-    if (!passedThreshold) throw new Error("invalid_signatures: Signatures doesn't pass threshold")
-  }
 
   return signer[0]
 }
