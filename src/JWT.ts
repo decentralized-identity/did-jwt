@@ -167,8 +167,8 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
     'EcdsaPublicKeySecp256k1',
     /**
      *  TODO - support R1 key aswell
+     *   'ConditionalProof2022',
      */
-    'ConditionalProof2022',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -250,16 +250,23 @@ export type GeneralJWSSignature = {
  *  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1...')
  *
  *  @param    {String}            jwt                a JSON Web Token to verify
+ * @param    {Object}            [recurse]          whether to recurse into the payload to decode any nested JWTs
  *  @return   {Object}                               a JS object representing the decoded JWT
  */
-export function decodeJWT(jwt: string): JWTDecoded {
+export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
+    const signatures: GeneralJWSSignature[] = []
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
-    if (decodedJwt.header.cty === 'JWT') {
+    if (decodedJwt.header.cty === 'JWT' && recurse) {
+      signatures.push({
+        protected: decodedJwt.header,
+        signature: decodedJwt.signature as string,
+      })
       return decodeJWT(decodedJwt.payload.jwt)
     }
+    if (signatures.length !== 0) decodedJwt.signature = signatures
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
@@ -439,10 +446,11 @@ export async function verifyJWT(
     skewTime: undefined,
     proofPurpose: undefined,
     policies: {},
-  }
+  },
+  count = 1
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
-  const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
+  const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt, false)
   const proofPurpose: ProofPurposeTypes | undefined = Object.prototype.hasOwnProperty.call(options, 'auth')
     ? options.auth
       ? 'authentication'
@@ -483,6 +491,9 @@ export async function verifyJWT(
     did,
     proofPurpose
   )
+  if (didResolutionResult.didDocument?.verificationMethod?.[0].type === 'conditionalProof2022') {
+    return verifyConditionalProof(jwt, didResolutionResult.didDocument.verificationMethod[0])
+  }
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
   const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
@@ -511,6 +522,12 @@ export async function verifyJWT(
         throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
+ 
+
+    if (signer.threshold && signer.threshold > count)
+      throw new Error(
+        `${JWT_ERROR.INVALID_JWT}: JWT has not been signed by the required threshold of keys. threshold: ${signer.threshold}, count: ${count}`
+      )
     return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(
@@ -617,4 +634,19 @@ export async function resolveAuthenticator(
     throw new Error(`${JWT_ERROR.NO_SUITABLE_KEYS}: DID document for ${issuer} does not have public keys for ${alg}`)
   }
   return { authenticators, issuer, didResolutionResult: didResult }
+}
+
+
+function verifyConditionalProof(jwt, verificationM){
+  let verified = false
+
+
+  function check(){
+    const {verfied} = verifyJWT(jwt.payload.jwt, options, count)
+    if(jwt.header.cty === 'JWT'){
+      const jwt = decodeJWT(jwt.payload.jwt,false)
+      
+  }
+ 
+  
 }
