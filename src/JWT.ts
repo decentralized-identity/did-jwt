@@ -266,7 +266,7 @@ export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
       })
       return decodeJWT(decodedJwt.payload.jwt)
     }
-    if (signatures.length != 0) decodedJwt.signature = signatures
+    if (signatures.length !== 0) decodedJwt.signature = signatures
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
@@ -504,6 +504,7 @@ export async function verifyJWT(
     did,
     proofPurpose
   )
+
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
   const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
