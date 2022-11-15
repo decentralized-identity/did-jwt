@@ -2,7 +2,7 @@ import canonicalizeData from 'canonicalize'
 import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
-import VerifierAlgorithm from './VerifierAlgorithm'
+import VerifierAlgorithm, { verifyConditionalProof } from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
@@ -446,8 +446,9 @@ export async function verifyJWT(
     skewTime: undefined,
     proofPurpose: undefined,
     policies: {},
-  },
-  count = 1
+  }
+  // TODO remove
+  // count = 1
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt, false)
@@ -485,6 +486,18 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
+  if (header.cty === 'JWT') {
+    verifyConditionalProof(jwt)
+    // count++
+    // return verifyJWT(payload.jwt, options, count)
+  }
+
+  // if (signer.threshold && signer.threshold > count)
+  //   throw new Error(
+  //     `${JWT_ERROR.INVALID_JWT}: JWT has not been signed by the required threshold of keys. threshold: ${signer.threshold}, count: ${count}`
+  //   )
+  // HERE
+
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
@@ -519,15 +532,7 @@ export async function verifyJWT(
         throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
-    if (header.cty === 'JWT') {
-      count++
-      return verifyJWT(payload.jwt, options, count)
-    }
-
-    if (signer.threshold && signer.threshold > count)
-      throw new Error(
-        `${JWT_ERROR.INVALID_JWT}: JWT has not been signed by the required threshold of keys. threshold: ${signer.threshold}, count: ${count}`
-      )
+    
     return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(

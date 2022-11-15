@@ -216,6 +216,19 @@ export function verifyEd25519(
   return signer
 }
 
+export function verifyConditionalProof(jwt: string, verificationMethod: VerificationMethod): boolean {
+  return true;
+
+  let verified = false
+
+  function check(){
+    const {verfied} = verifyJWT(jwt.payload.jwt, options, count)
+    if(jwt.header.cty === 'JWT'){
+      const jwt = decodeJWT(jwt.payload.jwt,false)
+      
+  }
+}
+
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
 interface Algorithms {
   [name: string]: Verifier
