@@ -547,6 +547,7 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
   let signaturesThresholdCount = 0
   const signers: string[] = [] // string of DID URLs to the verification method or submethod
 
+  let recurse = true
   do {
     console.log(`verifyConitionalProof(): checking JWT at level ${jwtNestedLevelCount}`)
     const { header, data, payload, signature } = decoded
@@ -588,13 +589,16 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
 
     jwtNestedLevelCount++
     if (decoded.header.cty === 'JWT') {
+      console.log(`verifyConitionalProof(): must go another level deeper to level ${jwtNestedLevelCount}`)
       // iterate through the signer conditions
       // for each condition check if the key signed the object and if so then return the issuer string
       decoded = decodeJWT(payload.jwt, false)
     } else {
+      console.log(`verifyConitionalProof(): bottom jwt = ${JSON.stringify(decoded.payload, null, 2)}`)
+      recurse = false
       // TODO verify the VC normally including signatures
     }
-  } while (decoded.header.cty === 'JWT')
+  } while (recurse)
 
   return true
 }
