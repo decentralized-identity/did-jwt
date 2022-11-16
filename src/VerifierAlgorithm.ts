@@ -6,7 +6,7 @@ import type { ConditionWeightedThreshold, VerificationMethod } from 'did-resolve
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
-import { GeneralJWSSignature } from './JWT'
+import { decodeJWT, GeneralJWSSignature, verifyJWSDecoded } from './JWT'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
@@ -37,18 +37,18 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array | Uint8Array[
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
-  } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
-    // TODO: support multiple ThresholdCondition types and multiple public keys
-    return pk.conditionWeightedThreshold.map((conditionWeight: ConditionWeightedThreshold) => {
-      return hexToBytes(
-        secp256k1
-          .keyFromPublic({
-            x: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.x as string)),
-            y: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.y as string)),
-          })
-          .getPublic('hex')
-      )
-    })
+  // } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
+  //   // TODO: support multiple ThresholdCondition types and multiple public keys
+  //   return pk.conditionWeightedThreshold.map((conditionWeight: ConditionWeightedThreshold) => {
+  //     return hexToBytes(
+  //       secp256k1
+  //         .keyFromPublic({
+  //           x: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.x as string)),
+  //           y: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.y as string)),
+  //         })
+  //         .getPublic('hex')
+  //     )
+  //   })
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256k1
@@ -135,7 +135,7 @@ export function verifyES256K(
 
 export function verifyRecoverableES256K(
   data: string,
-  signature: string | GeneralJWSSignature[],
+  signature: string,
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   let signatures: EcdsaSignature[]
@@ -152,11 +152,7 @@ export function verifyRecoverableES256K(
     }
   }
 
-  if (Array.isArray(signature)) {
-    signatures = signature.flatMap((sig) => toSignature(sig.signature), 1)
-  } else {
-    signatures = toSignature(signature)
-  }
+  signatures = toSignature(signature)
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
     const hash: Uint8Array = sha256(data)
@@ -214,19 +210,6 @@ export function verifyEd25519(
   })
   if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
-}
-
-export function verifyConditionalProof(jwt: string, verificationMethod: VerificationMethod): boolean {
-  return true;
-
-  let verified = false
-
-  function check(){
-    const {verfied} = verifyJWT(jwt.payload.jwt, options, count)
-    if(jwt.header.cty === 'JWT'){
-      const jwt = decodeJWT(jwt.payload.jwt,false)
-      
-  }
 }
 
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod

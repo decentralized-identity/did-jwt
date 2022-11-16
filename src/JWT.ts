@@ -2,7 +2,7 @@ import canonicalizeData from 'canonicalize'
 import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
-import VerifierAlgorithm, { verifyConditionalProof } from './VerifierAlgorithm'
+import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
@@ -383,7 +383,7 @@ export async function createMultisignatureJWT(
   return jwt
 }
 
-function verifyJWSDecoded(
+export function verifyJWSDecoded(
   { header, data, signature }: JWSDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
@@ -447,8 +447,6 @@ export async function verifyJWT(
     proofPurpose: undefined,
     policies: {},
   }
-  // TODO remove
-  // count = 1
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt, false)
@@ -486,24 +484,22 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
-  if (header.cty === 'JWT') {
-    verifyConditionalProof(jwt)
-    // count++
-    // return verifyJWT(payload.jwt, options, count)
-  }
-
-  // if (signer.threshold && signer.threshold > count)
-  //   throw new Error(
-  //     `${JWT_ERROR.INVALID_JWT}: JWT has not been signed by the required threshold of keys. threshold: ${signer.threshold}, count: ${count}`
-  //   )
-  // HERE
-
   const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
     options.resolver,
     header.alg,
     did,
     proofPurpose
   )
+
+  if (header.cty === 'JWT') {
+    const signer = authenticators.find((auth) => auth.id === issuer)
+    if (!signer) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
+    }
+
+    await verifyConditionalProof(jwt, signer)
+    return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
+  }
 
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
@@ -539,6 +535,49 @@ export async function verifyJWT(
   throw new Error(
     `${JWT_ERROR.INVALID_SIGNATURE}: JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
   )
+}
+
+// TODO return VerificationMethod???
+export async function verifyConditionalProof(jwt: string, signer: VerificationMethod): Promise<boolean> {
+  // validate that nested signatures are valid so that we know that each level is indirectly signing the VC
+  let decoded = decodeJWT(jwt, false)
+
+  const threshold = signer.threshold as number
+  let count = 0
+  const signers: string[] = [] // string of DID URLs to the verification method or submethod
+
+  while (decoded.header.cty === 'JWT') {
+    const { header, data, payload, signature } = decoded
+
+    if (signer.conditionWeightedThreshold) {
+      signer.conditionWeightedThreshold.forEach(async (condition) => {
+
+        // TODO this should call verifyJWT() instead recursively
+        const foundSigner: VerificationMethod = await verifyJWSDecoded(
+          { header, data, signature } as JWSDecoded,
+          condition.condition
+        )
+
+        if (foundSigner && !signers.includes(foundSigner.id)) {
+          signers.push(foundSigner.id)
+          count += condition.weight
+
+          if (count >= threshold) {
+            // TODO might need to not exit loop when we have recursive logic, so we can check subloops
+            return true
+          }
+        }
+      })
+    }
+
+    // iterate through the signer conditions
+    // for each condition check if the key signed the object and if so then return the issuer string
+    decoded = decodeJWT(payload.jwt, false)
+  }
+
+  // TODO verify the VC normally including signatures
+  
+  return true
 }
 
 /**
