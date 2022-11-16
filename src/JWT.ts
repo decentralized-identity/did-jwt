@@ -543,40 +543,56 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
   let decoded = decodeJWT(jwt, false)
 
   const threshold = signer.threshold as number
-  let count = 0
+  let jwtNestedLevelCount = 1
+  let signaturesThresholdCount = 0
   const signers: string[] = [] // string of DID URLs to the verification method or submethod
 
-  while (decoded.header.cty === 'JWT') {
+  do {
+    console.log(`verifyConitionalProof(): checking JWT at level ${jwtNestedLevelCount}`)
     const { header, data, payload, signature } = decoded
-
+    let validSignatureFound = false
     if (signer.conditionWeightedThreshold) {
       signer.conditionWeightedThreshold.forEach(async (condition) => {
 
         // TODO this should call verifyJWT() instead recursively
-        const foundSigner: VerificationMethod = await verifyJWSDecoded(
-          { header, data, signature } as JWSDecoded,
-          condition.condition
-        )
+        let foundSigner: VerificationMethod | undefined
+        try {
+          console.log(`testing to see if ${condition.condition.id} matches`)
+          foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, condition.condition)
+        } catch (e) {
+          if (!((e as Error).message.startsWith('invalid_signature:'))) throw e
+        }
 
         if (foundSigner && !signers.includes(foundSigner.id)) {
+          console.log(`verifyConditionalProof(): signature valid and is unique for ${foundSigner.id}`)
           signers.push(foundSigner.id)
-          count += condition.weight
+          signaturesThresholdCount += condition.weight
+          validSignatureFound = true
 
-          if (count >= threshold) {
-            // TODO might need to not exit loop when we have recursive logic, so we can check subloops
+          if (signaturesThresholdCount >= threshold) {
+            // TODO might need to NOT exit loop when we have recursive logic, so we can check subloops
             return true
           }
         }
       })
     }
 
-    // iterate through the signer conditions
-    // for each condition check if the key signed the object and if so then return the issuer string
-    decoded = decodeJWT(payload.jwt, false)
-  }
+    if (!validSignatureFound) {
+      throw new Error(
+        `${JWT_ERROR.RESOLVER_ERROR}: Invalid signature at nested level ${jwtNestedLevelCount} with signer ${signature}`
+      )
+    }
 
-  // TODO verify the VC normally including signatures
-  
+    jwtNestedLevelCount++
+    if (decoded.header.cty === 'JWT') {
+      // iterate through the signer conditions
+      // for each condition check if the key signed the object and if so then return the issuer string
+      decoded = decodeJWT(payload.jwt, false)
+    } else {
+      // TODO verify the VC normally including signatures
+    }
+  } while (decoded.header.cty === 'JWT')
+
   return true
 }
 
