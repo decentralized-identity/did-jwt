@@ -561,31 +561,31 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
     const { header, data, payload, signature } = decoded
     let validSignatureFound = false
     if (signer.conditionWeightedThreshold) {
-      for await (const condition of signer.conditionWeightedThreshold) {
-        await (async () => {
-          {
-            // TODO this should call verifyJWT() instead recursively
-            let foundSigner: VerificationMethod | undefined
-            try {
-              console.log(`testing to see if ${condition.condition.id} matches`)
-              foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, condition.condition)
-            } catch (e) {
-              if (!((e as Error).message.startsWith('invalid_signature:'))) throw e
-            }
-    
-            if (foundSigner && !signers.includes(foundSigner.id)) {
-              console.log(`verifyConditionalProof(): signature valid and is unique for ${foundSigner.id}`)
-              signers.push(foundSigner.id)
-              signaturesThresholdCount += condition.weight
-              validSignatureFound = true
-    
-              if (signaturesThresholdCount >= threshold) {
-                // TODO might need to NOT exit loop when we have recursive logic, so we can check subloops
-                return true
-              }
-            }
+      for (const condition of signer.conditionWeightedThreshold) {
+        // TODO this should call verifyJWT() instead recursively
+        let foundSigner: VerificationMethod | undefined
+        try {
+          console.log(`testing to see if ${condition.condition.id} matches`)
+          foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, condition.condition)
+        } catch (e) {
+          if (!((e as Error).message.startsWith('invalid_signature:'))) throw e
+        }
+
+        if (foundSigner && !signers.includes(foundSigner.id)) {
+          console.log(`verifyConditionalProof(): signature valid and is unique for ${foundSigner.id}`)
+          signers.push(foundSigner.id)
+          signaturesThresholdCount += condition.weight
+          validSignatureFound = true
+
+          console.log(
+            `verifyConditionalProof(): signaturesThresholdCount ${signaturesThresholdCount} >= threshold ${threshold}`
+            )
+          if (signaturesThresholdCount >= threshold) {
+            console.log(`verifyConditionalProof(): condition valid: ${signer.id}`)
+            // TODO might need to NOT exit loop when we have recursive logic, so we can check subloops
+            return true
           }
-        })()
+        }
       }
     }
 
@@ -598,13 +598,10 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
     jwtNestedLevelCount++
     if (decoded.header.cty === 'JWT') {
       console.log(`verifyConitionalProof(): must go another level deeper to level ${jwtNestedLevelCount}`)
-      // iterate through the signer conditions
-      // for each condition check if the key signed the object and if so then return the issuer string
       decoded = decodeJWT(payload.jwt, false)
     } else {
       console.log(`verifyConitionalProof(): bottom jwt = ${JSON.stringify(decoded.payload, null, 2)}`)
       recurse = false
-      // TODO verify the VC normally including signatures
     }
   } while (recurse)
 
