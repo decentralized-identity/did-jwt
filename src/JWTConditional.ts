@@ -7,11 +7,12 @@ export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | str
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
 // TODO return VerificationMethod???
-export async function verifyConditionalProof(jwt: string, signer: VerificationMethod): Promise<boolean> {
+export async function verifyConditionalProof(jwt: string, authenticator: VerificationMethod): Promise<VerificationMethod> {
   // validate that nested signatures are valid so that we know that each level is indirectly signing the VC
+  // TODO JWT has already been deceded, so better use the already decoded version
   let decoded = decodeJWT(jwt, false)
 
-  const threshold = signer.threshold as number
+  const threshold = authenticator.threshold as number
   let signaturesThresholdCount = 0
 
   let jwtNestedLevelCount = 1
@@ -20,16 +21,16 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
 
   let conditionSatisfied = false
 
-  let recurse = true
   // Iterate through each nested JWT
+  let recurse = true
   do {
     console.log(`verifyConitionalProof(): checking JWT at level ${jwtNestedLevelCount}`)
     const { header, data, payload, signature } = decoded
     let validSignatureFound = false
 
     // Iterate through the condition
-    if (signer.conditionWeightedThreshold) {
-      for (const condition of signer.conditionWeightedThreshold) {
+    if (authenticator.conditionWeightedThreshold) {
+      for (const condition of authenticator.conditionWeightedThreshold) {
         // TODO this should call verifyJWT() instead recursively
         let foundSigner: VerificationMethod | undefined
         try {
@@ -49,7 +50,7 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
             `verifyConditionalProof(): signaturesThresholdCount ${signaturesThresholdCount} >= threshold ${threshold}`
           )
           if (signaturesThresholdCount >= threshold) {
-            console.log(`verifyConditionalProof(): condition valid: ${signer.id}`)
+            console.log(`verifyConditionalProof(): condition valid: ${authenticator.id}`)
             // NOTE: we still need to go through each (nested) JWT level and check there is a valid signature
             // so we don't `return true` here
             conditionSatisfied = true
@@ -76,5 +77,11 @@ export async function verifyConditionalProof(jwt: string, signer: VerificationMe
     }
   } while (recurse)
 
-  return conditionSatisfied
+  if (!conditionSatisfied) {
+    throw new Error(
+      `${JWT_ERROR.INVALID_SIGNATURE}: JWT not valid. issuer DID document does not contain a verificationMethod that matches the signature.`
+    )
+  }
+
+  return authenticator
 }

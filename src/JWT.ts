@@ -492,23 +492,29 @@ export async function verifyJWT(
     proofPurpose
   )
 
-  const issuerAuthenticator = authenticators.find((auth) => auth.id === issuer)
-  if (!issuerAuthenticator) {
-    throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
-  }
+  // DIDurl, see if the matching authenticator exists
+  // TODO, need to handle case when issuer is a DID and not a URL! see below
+  if (issuer.includes('#')) {
+    const issuerAuthenticator = authenticators.find((auth) => auth.id === issuer)
+    if (!issuerAuthenticator) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
+    }
 
-  if (issuerAuthenticator.type === 'ConditionalProof2022') {
-    await verifyConditionalProof(jwt, issuerAuthenticator)
-    return {
-      verified: true,
-      payload,
-      didResolutionResult,
-      issuer,
-      signer: issuerAuthenticator,
-      jwt,
-      policies: options.policies,
+    if (issuerAuthenticator.type === 'ConditionalProof2022') {
+      await verifyConditionalProof(jwt, issuerAuthenticator)
+      return {
+        verified: true,
+        payload,
+        didResolutionResult,
+        issuer,
+        signer: issuerAuthenticator,
+        jwt,
+        policies: options.policies,
+      }
     }
   }
+
+  // TODO verify if any of the authenticators are conditional
 
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
   const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
