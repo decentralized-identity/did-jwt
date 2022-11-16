@@ -491,14 +491,22 @@ export async function verifyJWT(
     proofPurpose
   )
 
-  if (header.cty === 'JWT') {
-    const signer = authenticators.find((auth) => auth.id === issuer)
-    if (!signer) {
-      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
-    }
+  const issuerAuthenticator = authenticators.find((auth) => auth.id === issuer)
+  if (!issuerAuthenticator) {
+    throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
+  }
 
-    await verifyConditionalProof(jwt, signer)
-    return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
+  if (issuerAuthenticator.type === 'ConditionalProof2022') {
+    await verifyConditionalProof(jwt, issuerAuthenticator)
+    return {
+      verified: true,
+      payload,
+      didResolutionResult,
+      issuer,
+      signer: issuerAuthenticator,
+      jwt,
+      policies: options.policies,
+    }
   }
 
   const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
