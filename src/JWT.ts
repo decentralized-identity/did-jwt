@@ -4,7 +4,7 @@ import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
-import { verifyConditionalProof } from './JWTConditional'
+import { verifyConditionalProof } from './ConditionalAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
