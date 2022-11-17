@@ -36,8 +36,12 @@ export async function verifyConditionalProof(
         signers
       ))
     } else if (authenticator.conditionDelegated) {
-      // TODO
-    }
+      ({ conditionSatisfied, newSigners, signers } = await verifyConditionDelegated(
+        { header, data, signature } as JWSDecoded,
+        authenticator,
+        signers
+      ))
+    }// TODO other conditions
 
     // Each (nested) JWT must be signed by at least one valid signature from the issuer all the way to the bottom
     if (newSigners.length === 0) {
@@ -91,7 +95,7 @@ async function verifyConditionWeightedThreshold(
     let foundSigner: VerificationMethod | undefined
 
     try {
-      console.log(`testing to see if ${condition.condition.id} matches`)
+      console.log(`verifyConditionWeightedThreshold(): testing to see if ${condition.condition.id} matches`)
       // TODO this should probably call verifyJWT() instead recursively
       foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, condition.condition)
     } catch (e) {
@@ -99,19 +103,56 @@ async function verifyConditionWeightedThreshold(
     }
 
     if (foundSigner && !signers.includes(foundSigner.id)) {
-      console.log(`verifyConditionalProof(): signature valid and is unique for ${foundSigner.id}`)
+      console.log(`verifyConditionWeightedThreshold(): signature valid and is unique for ${foundSigner.id}`)
       signers.push(foundSigner.id)
       signaturesThresholdCount += condition.weight
       newSigners.push(foundSigner.id)
 
       console.log(
-        `verifyConditionalProof(): signaturesThresholdCount ${signaturesThresholdCount} >= threshold ${threshold}`
+        `verifyConditionWeightedThreshold(): signaturesThresholdCount ${signaturesThresholdCount} >= threshold ${threshold}`
       )
       if (signaturesThresholdCount >= threshold) {
-        console.log(`verifyConditionalProof(): condition valid: ${authenticator.id}`)
+        console.log(`verifyConditionWeightedThreshold(): condition valid: ${authenticator.id}`)
         conditionSatisfied = true
       }
     }
   }
+  return { signers, newSigners, conditionSatisfied }
+}
+
+async function verifyConditionDelegated(
+  { header, data, signature }: JWSDecoded,
+  authenticator: VerificationMethod,
+  signers: string[]
+): Promise<VerifyConditionResponse> {
+  if (!authenticator.conditionDelegated) {
+    throw new Error('Expected conditionDelegated')
+  }
+
+  const newSigners: string[] = []
+  let conditionSatisfied = false
+
+  let foundSigner: VerificationMethod | undefined
+
+  const delegatedDidDoc = // TODO resolve the delegated DID Doc
+  const delegatedAuthenticator = // TODO get the verification method
+
+  try {
+    console.log(`verifyConditionDelegated(): testing to see if ${authenticator.id} matches`)
+    // TODO this should probably call verifyJWT() instead recursively
+    foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, delegatedAuthenticator)
+  } catch (e) {
+    if (!((e as Error).message.startsWith('invalid_signature:'))) throw e
+  }
+
+  if (foundSigner && !signers.includes(foundSigner.id)) {
+    console.log(`verifyConditionDelegated(): signature valid and is unique for ${foundSigner.id}`)
+    signers.push(foundSigner.id)
+    newSigners.push(foundSigner.id)
+
+    console.log(`verifyConditionDelegated(): condition valid: ${authenticator.id}`)
+    conditionSatisfied = true
+  }
+
   return { signers, newSigners, conditionSatisfied }
 }
