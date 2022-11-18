@@ -501,7 +501,11 @@ export async function verifyJWT(
     }
 
     if (issuerAuthenticator.type === 'ConditionalProof2022') {
-      await verifyConditionalProof(jwt, issuerAuthenticator)
+      await verifyConditionalProof(
+        { payload, header, signature, data } as JWTDecoded,
+        issuerAuthenticator,
+        options
+      )
       return {
         verified: true,
         payload,
