@@ -19,6 +19,8 @@ export async function verifyConditionalProof(
   authenticator: VerificationMethod,
   options: JWTVerifyOptions
 ): Promise<VerificationMethod> {
+  // This object (reference) is used to track the state of the condition during execution of
+  // recursive calls and nested function calls to sub-conditions
   const condition: ConditionData = {
     jwtNestedLevel: 1,
     conditionSatisfied: false,
@@ -37,6 +39,7 @@ export async function verifyConditionalProof(
     // Iterate through the condition
     if (authenticator.conditionWeightedThreshold) {
       // TODO, changing these reference objects may change them in the calling function. Check this does not cause bugs
+      // perhaps use Object.assign() to create a new object copy
       ;({ newSigners } = await verifyConditionWeightedThreshold(
         { header, data, signature } as JWSDecoded,
         authenticator,
