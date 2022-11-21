@@ -505,8 +505,7 @@ export async function verifyJWT(
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
   console.log(`verifyJWT(): verifying ${did} with ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators`)
-  // console.log(authenticators.map((auth) => auth.id).join(', '))
-  console.log(authenticators)
+  console.log(authenticators.map((auth) => auth.id).join(', '))
 
   const { didUrl } = parse(did) as ParsedDID
 

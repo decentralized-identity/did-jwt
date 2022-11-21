@@ -1,16 +1,12 @@
 import type { VerificationMethod } from 'did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
-import { decodeJWT, DIDAuthenticator, JWSDecoded, JWTDecoded, JWTOptions, JWTVerified, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'
+import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
 
 export const CONDITIONAL_PROOF_2022 = 'ConditionalProof2022'
-
-// TODO delete me or re-implement better
-let recursionCycles = 0
-const maxRecursionCycles = 10
 
 type ConditionData = {
   jwtNestedLevel: number
@@ -65,12 +61,13 @@ export async function verifyConditionalProof(
     }
     // TODO other conditions
 
-    // Each (nested) JWT must be signed by at least one valid signature from the issuer all the way to the bottom
-    if (!foundSigner) {
-      throw new Error(
-        `${JWT_ERROR.RESOLVER_ERROR}: Invalid signature at nested level ${condition.jwtNestedLevel} with signer ${authenticator.id}`
-      )
-    }
+    // TODO may not be necessary
+    // Check each (nested) JWT must be signed by at least one valid signature from the issuer all the way to the bottom
+    // if (!foundSigner) {
+    //   throw new Error(
+    //     `${JWT_ERROR.RESOLVER_ERROR}: Invalid signature at nested level ${condition.jwtNestedLevel} with signer ${authenticator.id}`
+    //   )
+    // }
 
     // Check if we are at the root JWT with the VC inside, if not then decode and iterate the JWT next nested level
     condition.jwtNestedLevel++
@@ -111,28 +108,24 @@ async function verifyConditionWeightedThreshold(
 
     if (currentCondition.type === CONDITIONAL_PROOF_2022) {
       console.log(`verifyConditionWeightedThreshold(): nested condition found in ${currentCondition.id}`)
-      if (recursionCycles < maxRecursionCycles) {
-        recursionCycles++
-        const newOptions = {
-          ...options,
-          ...{
-            didAuthenticator: {
-              // @ts-ignore
-              didResolutionResult: options.didAuthenticator.didResolutionResult,
-              authenticators: [currentCondition],
-              issuer: currentCondition.id,
-            },
+      const newOptions = {
+        ...options,
+        ...{
+          didAuthenticator: {
+            // @ts-ignore
+            didResolutionResult: options.didAuthenticator.didResolutionResult,
+            authenticators: [currentCondition],
+            issuer: currentCondition.id,
           },
-        }
-        const { verified } = await verifyJWT(jwt, newOptions)
-        if (verified) {
-          foundSigner = currentCondition
-        }
+        },
+      }
+      const { verified } = await verifyJWT(jwt, newOptions)
+      if (verified) {
+        foundSigner = currentCondition
       }
     } else {
       try {
-        console.log(`verifyConditionWeightedThreshold(): testing to see if ${currentCondition.id}
-        matches\n${JSON.stringify(currentCondition, null, 2)}`)
+        console.log(`verifyConditionWeightedThreshold(): testing to see if ${currentCondition.id} matches`)
         foundSigner = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, currentCondition)
       } catch (e) {
         if (!(e as Error).message.startsWith('invalid_signature:')) throw e
@@ -164,7 +157,6 @@ async function verifyConditionDelegated(
   condition: ConditionData,
   options: JWTVerifyOptions
 ): Promise<boolean> {
-  console.log('verifyConditionDelegated(): authenticator', authenticator)
   if (!authenticator.conditionDelegated) {
     throw new Error('Expected conditionDelegated')
   }
@@ -177,7 +169,6 @@ async function verifyConditionDelegated(
 
   const issuer = authenticator.conditionDelegated
   const didAuthenticator = await resolveAuthenticator(options.resolver, header.alg, issuer, options.proofPurpose)
-  console.log('verifyConditionDelegated(): resolution result ', didAuthenticator.authenticators.length)
   const didResolutionResult = didAuthenticator.didResolutionResult
 
   if (!didResolutionResult?.didDocument) {
@@ -185,7 +176,6 @@ async function verifyConditionDelegated(
   }
 
   const delegatedAuthenticator = didAuthenticator.authenticators.find((authenticator) => authenticator.id === issuer)
-  console.log('verifyConditionDelegated(): resolved delegated authenticator found', delegatedAuthenticator)
   if (!delegatedAuthenticator) {
     throw new Error(
       `${JWT_ERROR.NO_SUITABLE_KEYS}: Could not find delegated authenticator ${issuer} in it's DID Document`
@@ -194,21 +184,18 @@ async function verifyConditionDelegated(
 
   if (delegatedAuthenticator.type === CONDITIONAL_PROOF_2022) {
     console.log(`verifyConditionDelegated(): nested condition found in ${delegatedAuthenticator.id}`)
-    if (recursionCycles < maxRecursionCycles) {
-      recursionCycles++
-      const { verified } = await verifyJWT(jwt, {
-        ...options,
-        ...{
-          didAuthenticator: {
-            didResolutionResult,
-            authenticators: [delegatedAuthenticator],
-            issuer: delegatedAuthenticator.id,
-          },
+    const { verified } = await verifyJWT(jwt, {
+      ...options,
+      ...{
+        didAuthenticator: {
+          didResolutionResult,
+          authenticators: [delegatedAuthenticator],
+          issuer: delegatedAuthenticator.id,
         },
-      })
-      if (verified) {
-        foundSigner = delegatedAuthenticator
-      }
+      },
+    })
+    if (verified) {
+      foundSigner = delegatedAuthenticator
     }
   } else {
     try {
