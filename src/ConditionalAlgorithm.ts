@@ -1,7 +1,7 @@
 import type { VerificationMethod } from 'did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
-import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerifyOptions, verifyJWSDecoded } from './JWT'
+import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerified, JWTVerifyOptions, verifyJWSDecoded, verifyJWT } from './JWT'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -13,8 +13,9 @@ type ConditionData = {
   threshold: number
   weightCount: number
 }
-// TODO return VerificationMethod???
+
 export async function verifyConditionalProof(
+  jwt: string,
   { payload, header, signature, data }: JWTDecoded,
   authenticator: VerificationMethod,
   options: JWTVerifyOptions
@@ -34,29 +35,32 @@ export async function verifyConditionalProof(
   let recurse = true
   do {
     console.log(`verifyConditionalProof(): checking JWT at level ${condition.jwtNestedLevel}`)
-    let newSigners: string[] = []
+    let foundSigner = false
 
     // Iterate through the condition
     if (authenticator.conditionWeightedThreshold) {
       // TODO, changing these reference objects may change them in the calling function. Check this does not cause bugs
       // perhaps use Object.assign() to create a new object copy
-      ;({ newSigners } = await verifyConditionWeightedThreshold(
-        { header, data, signature } as JWSDecoded,
-        authenticator,
-        condition
-      ))
-    } else if (authenticator.conditionDelegated) {
-      ;({ newSigners } = await verifyConditionDelegated(
+      foundSigner = await verifyConditionWeightedThreshold(
+        jwt,
         { header, data, signature } as JWSDecoded,
         authenticator,
         condition,
         options
-      ))
+      )
+    } else if (authenticator.conditionDelegated) {
+      foundSigner = await verifyConditionDelegated(
+        jwt,
+        { header, data, signature } as JWSDecoded,
+        authenticator,
+        condition,
+        options
+      )
     }
     // TODO other conditions
 
     // Each (nested) JWT must be signed by at least one valid signature from the issuer all the way to the bottom
-    if (newSigners.length === 0) {
+    if (!foundSigner) {
       throw new Error(
         `${JWT_ERROR.RESOLVER_ERROR}: Invalid signature at nested level ${condition.jwtNestedLevel} with signer ${authenticator.id}`
       )
@@ -87,10 +91,12 @@ type VerifyConditionResponse = {
 }
 
 async function verifyConditionWeightedThreshold(
+  jwt: string,
   { header, data, signature }: JWSDecoded,
   authenticator: VerificationMethod,
-  condition: ConditionData
-): Promise<VerifyConditionResponse> {
+  condition: ConditionData,
+  options: JWTVerifyOptions
+): Promise<boolean> {
   if (!authenticator.conditionWeightedThreshold || !authenticator.threshold) {
     throw new Error('Expected conditionWeightedThreshold and threshold')
   }
@@ -100,6 +106,10 @@ async function verifyConditionWeightedThreshold(
   for (const weightedCondition of authenticator.conditionWeightedThreshold) {
     let foundSigner: VerificationMethod | undefined
 
+    if (weightedCondition.condition.type === 'ConditionProof2022') {
+      const res = await verifyJWT(jwt, options)
+      // TODO
+    }
     try {
       console.log(`verifyConditionWeightedThreshold(): testing to see if ${weightedCondition.condition.id} matches`)
       // TODO this should probably call verifyJWT() instead recursively
@@ -123,15 +133,16 @@ async function verifyConditionWeightedThreshold(
       }
     }
   }
-  return { newSigners }
+  return newSigners.length > 0
 }
 
 async function verifyConditionDelegated(
+  jwt: string,
   { header, data, signature }: JWSDecoded,
   authenticator: VerificationMethod,
   condition: ConditionData,
   options: JWTVerifyOptions
-): Promise<VerifyConditionResponse> {
+): Promise<boolean> {
   if (!authenticator.conditionDelegated) {
     throw new Error('Expected conditionDelegated')
   }
@@ -156,6 +167,10 @@ async function verifyConditionDelegated(
     )
   }
 
+  if (delegatedAuthenticator.type === 'ConditionProof2022') {
+    const res = await verifyJWT(jwt, options)
+    // TODO
+  }
   try {
     console.log(`verifyConditionDelegated(): testing to see if ${authenticator.id} matches`)
     // TODO this should probably call verifyJWT() instead recursively
@@ -174,5 +189,5 @@ async function verifyConditionDelegated(
     condition.conditionSatisfied = true
   }
 
-  return { newSigners }
+  return newSigners.length > 0
 }

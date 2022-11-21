@@ -1,5 +1,5 @@
 import canonicalizeData from 'canonicalize'
-import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
+import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
@@ -492,38 +492,48 @@ export async function verifyJWT(
     proofPurpose
   )
 
-  // DIDurl, see if the matching authenticator exists
-  // TODO, need to handle case when issuer is a DID and not a URL! see below
-  if (issuer.includes('#')) {
-    const issuerAuthenticator = authenticators.find((auth) => auth.id === issuer)
-    if (!issuerAuthenticator) {
-      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for issuer ${did}`)
+  const { didUrl } = parse(did) as ParsedDID
+
+  let signer: VerificationMethod | null = null
+
+  if (did !== didUrl) {
+    const authenticator = authenticators.find((auth) => auth.id === did)
+    if (!authenticator) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
     }
 
-    if (issuerAuthenticator.type === 'ConditionalProof2022') {
-      await verifyConditionalProof(
+    if (authenticator.type === 'ConditionalProof2022') {
+      signer = await verifyConditionalProof(
+        jwt,
         { payload, header, signature, data } as JWTDecoded,
-        issuerAuthenticator,
+        authenticator,
         options
       )
-      return {
-        verified: true,
-        payload,
-        didResolutionResult,
-        issuer,
-        signer: issuerAuthenticator,
-        jwt,
-        policies: options.policies,
+    } else {
+      signer = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, [authenticator])
+    }
+  } else {
+    let i = 0
+    while (!signer && i < authenticators.length) {
+      const authenticator = authenticators[i]
+      if (authenticator.type === 'ConditionalProof2022') {
+        signer = await verifyConditionalProof(
+          jwt,
+          { payload, header, signature, data } as JWTDecoded,
+          authenticator,
+          options
+        )
+      } else {
+        signer = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, [authenticator])
       }
+      i++
     }
   }
 
-  // TODO verify if any of the authenticators are conditional
-
-  const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
-  const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
-  const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
   if (signer) {
+    const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
+    const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+
     const nowSkewed = now + skewTime
     if (options.policies?.nbf !== false && payload.nbf) {
       if (payload.nbf > nowSkewed) {
@@ -548,7 +558,7 @@ export async function verifyJWT(
         throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
-    
+
     return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(
