@@ -164,6 +164,7 @@ async function verifyConditionDelegated(
   condition: ConditionData,
   options: JWTVerifyOptions
 ): Promise<boolean> {
+  console.log('verifyConditionDelegated(): authenticator', authenticator)
   if (!authenticator.conditionDelegated) {
     throw new Error('Expected conditionDelegated')
   }
@@ -174,24 +175,20 @@ async function verifyConditionDelegated(
   const newSigners: string[] = []
   let foundSigner: VerificationMethod | undefined
 
-  const didAuthenticator = await resolveAuthenticator(
-    options.resolver,
-    header.alg,
-    authenticator.conditionDelegated,
-    options.proofPurpose
-  )
+  const issuer = authenticator.conditionDelegated
+  const didAuthenticator = await resolveAuthenticator(options.resolver, header.alg, issuer, options.proofPurpose)
+  console.log('verifyConditionDelegated(): resolution result ', didAuthenticator.authenticators.length)
   const didResolutionResult = didAuthenticator.didResolutionResult
 
-  if (!didResolutionResult?.didDocument?.verificationMethod) {
-    throw new Error(`${JWT_ERROR.RESOLVER_ERROR}: Could not resolve delegated DID ${authenticator.conditionDelegated}.`)
+  if (!didResolutionResult?.didDocument) {
+    throw new Error(`${JWT_ERROR.RESOLVER_ERROR}: Could not resolve delegated DID ${issuer}.`)
   }
 
-  const delegatedAuthenticator = didResolutionResult.didDocument.verificationMethod.find(
-    (authenticator) => authenticator.id === authenticator.conditionDelegated
-  )
+  const delegatedAuthenticator = didAuthenticator.authenticators.find((authenticator) => authenticator.id === issuer)
+  console.log('verifyConditionDelegated(): resolved delegated authenticator found', delegatedAuthenticator)
   if (!delegatedAuthenticator) {
     throw new Error(
-      `${JWT_ERROR.NO_SUITABLE_KEYS}: Could not find delegated authenticator for ${authenticator.conditionDelegated}`
+      `${JWT_ERROR.NO_SUITABLE_KEYS}: Could not find delegated authenticator ${issuer} in it's DID Document`
     )
   }
 
