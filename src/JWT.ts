@@ -465,7 +465,9 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
   }
 
-  if (payload.iss === SELF_ISSUED_V2) {
+  if (options.didAuthenticator) {
+    did = options.didAuthenticator.issuer
+  } else if (payload.iss === SELF_ISSUED_V2) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
@@ -499,7 +501,12 @@ export async function verifyJWT(
       did,
       proofPurpose
     ))
+    // Add to options object for recursive reference
+    options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
+  console.log(`verifyJWT(): verifying ${did} with ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators`)
+  // console.log(authenticators.map((auth) => auth.id).join(', '))
+  console.log(authenticators)
 
   const { didUrl } = parse(did) as ParsedDID
 
