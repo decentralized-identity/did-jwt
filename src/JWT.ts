@@ -4,7 +4,7 @@ import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
-import { verifyConditionalProof } from './ConditionalAlgorithm'
+import { CONDITIONAL_PROOF_2022, verifyConditionalProof } from './ConditionalAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -37,6 +37,7 @@ export interface JWTVerifyOptions {
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: ProofPurposeTypes
   policies?: JWTVerifyPolicies
+  didAuthenticator?: DIDAuthenticator
 }
 
 /**
@@ -447,6 +448,7 @@ export async function verifyJWT(
     skewTime: undefined,
     proofPurpose: undefined,
     policies: {},
+    didAuthenticator: undefined,
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
@@ -485,12 +487,19 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
-  const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
-    options.resolver,
-    header.alg,
-    did,
-    proofPurpose
-  )
+  let authenticators: VerificationMethod[]
+  let issuer: string
+  let didResolutionResult: DIDResolutionResult
+  if (options.didAuthenticator) {
+    ;({ didResolutionResult, authenticators, issuer } = options.didAuthenticator)
+  } else {
+    ;({ didResolutionResult, authenticators, issuer } = await resolveAuthenticator(
+      options.resolver,
+      header.alg,
+      did,
+      proofPurpose
+    ))
+  }
 
   const { didUrl } = parse(did) as ParsedDID
 
@@ -502,7 +511,7 @@ export async function verifyJWT(
       throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
     }
 
-    if (authenticator.type === 'ConditionalProof2022') {
+    if (authenticator.type === CONDITIONAL_PROOF_2022) {
       signer = await verifyConditionalProof(
         jwt,
         { payload, header, signature, data } as JWTDecoded,
@@ -516,7 +525,7 @@ export async function verifyJWT(
     let i = 0
     while (!signer && i < authenticators.length) {
       const authenticator = authenticators[i]
-      if (authenticator.type === 'ConditionalProof2022') {
+      if (authenticator.type === CONDITIONAL_PROOF_2022) {
         signer = await verifyConditionalProof(
           jwt,
           { payload, header, signature, data } as JWTDecoded,
