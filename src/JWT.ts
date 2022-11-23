@@ -90,7 +90,7 @@ export interface JWTPayload {
 export interface JWTDecoded {
   header: JWTHeader
   payload: JWTPayload
-  signature: string | GeneralJWSSignature[]
+  signature: string
   data: string
 }
 
@@ -236,15 +236,6 @@ function decodeJWS(jws: string): JWSDecoded {
   throw new Error('invalid_argument: Incorrect format JWS')
 }
 
-/**  @module did-jwt/JWT */
-
-// See https://www.rfc-editor.org/rfc/rfc7515#section-7.2.1
-export type GeneralJWSSignature = {
-  protected?: Partial<JWTHeader>
-  header?: Partial<JWTHeader>
-  signature: string
-}
-
 /**
  *  Decodes a JWT and returns an object representing the payload
  *
@@ -258,17 +249,11 @@ export type GeneralJWSSignature = {
 export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
-    const signatures: GeneralJWSSignature[] = []
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
     if (decodedJwt.header.cty === 'JWT' && recurse) {
-      signatures.push({
-        protected: decodedJwt.header,
-        signature: decodedJwt.signature as string,
-      })
       return decodeJWT(decodedJwt.payload.jwt)
     }
-    if (signatures.length !== 0) decodedJwt.signature = signatures
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
@@ -386,12 +371,35 @@ export async function createMultisignatureJWT(
 }
 
 export function verifyJWSDecoded(
-  { header, data, signature }: JWSDecoded,
+  { header, payload, data, signature }: JWTDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
+  console.log(`verifyJWSDecoded(): checking JWT at level 0`)
   if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
-  const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubKeys)
-  return signer
+  let signer: VerificationMethod | undefined
+  try {
+    return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+  } catch (e) {
+    if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
+  }
+
+  console.log(`verifyJWSDecoded(): signer found ${signer?.id}`)
+
+  let level = 1
+  while (header.cty === 'JWT') {
+    console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
+    level++
+
+    // TODO probably best to create copy objects than replace reference objects
+    ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
+    try {
+      return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+    } catch (e) {
+      if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
+    }
+  }
+
+  throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
 }
 
 /**
@@ -407,6 +415,7 @@ export function verifyJWSDecoded(
  */
 export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
+  // @ts-ignore
   return verifyJWSDecoded(jwsDecoded, pubKeys)
 }
 
@@ -518,12 +527,12 @@ export async function verifyJWT(
       throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
     }
 
-    signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
+    signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
   } else {
     let i = 0
     while (!signer && i < authenticators.length) {
       const authenticator = authenticators[i]
-      signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
+      signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
       i++
     }
   }
