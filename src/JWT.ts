@@ -504,6 +504,7 @@ export async function verifyJWT(
     // Add to options object for recursive reference
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
+  console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
   console.log(`verifyJWT(): verifying ${did} with ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators`)
   console.log(authenticators.map((auth) => auth.id).join(', '))
 

@@ -46,41 +46,37 @@ export async function verifyConditionalProof(
   }
 
   // Iterate through each nested JWT
-  // validate that nested signatures are valid so that we know that each level is indirectly signing the VC
   let recurse = true
   do {
     console.log(`verifyConditionalProof(): checking JWT at level ${condition.jwtNestedLevel}`)
-    let foundSigner = false
 
-    // Iterate through the condition
-    if (authenticator.conditionWeightedThreshold) {
-      // TODO, changing these reference objects may change them in the calling function. Check this does not cause bugs
-      // perhaps use Object.assign() to create a new object copy
-      foundSigner = await verifyConditionWeightedThreshold(
-        jwt,
-        { header, data, signature } as JWSDecoded,
-        authenticator,
-        condition,
-        options
-      )
-    } else if (authenticator.conditionDelegated) {
-      foundSigner = await verifyConditionDelegated(
-        jwt,
-        { header, data, signature } as JWSDecoded,
-        authenticator,
-        condition,
-        options
-      )
+    if (!condition.conditionSatisfied) {
+      try {
+        // Validate the condition according to it's condition property
+        if (authenticator.conditionWeightedThreshold) {
+          // TODO, changing these reference objects may change them in the calling function. Check this does not cause bugs
+          // perhaps use Object.assign() to create a new object copy
+          await verifyConditionWeightedThreshold(
+            jwt,
+            { header, data, signature } as JWSDecoded,
+            authenticator,
+            condition,
+            options
+          )
+        } else if (authenticator.conditionDelegated) {
+          await verifyConditionDelegated(
+            jwt,
+            { header, data, signature } as JWSDecoded,
+            authenticator,
+            condition,
+            options
+          )
+        }
+        // TODO other conditions
+      } catch (e) {
+        // Do nothing
+      }
     }
-    // TODO other conditions
-
-    // TODO may not be necessary
-    // Check each (nested) JWT must be signed by at least one valid signature from the issuer all the way to the bottom
-    // if (!foundSigner) {
-    //   throw new Error(
-    //     `${JWT_ERROR.RESOLVER_ERROR}: Invalid signature at nested level ${condition.jwtNestedLevel} with signer ${authenticator.id}`
-    //   )
-    // }
 
     // Check if we are at the root JWT with the VC inside, if not then decode and iterate the JWT next nested level
     condition.jwtNestedLevel++
@@ -89,6 +85,10 @@ export async function verifyConditionalProof(
       ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
     } else {
       console.log(`verifyConditionalProof(): bottom jwt = ${JSON.stringify(payload, null, 2)}`)
+      recurse = false
+    }
+
+    if (condition.conditionSatisfied) {
       recurse = false
     }
   } while (recurse)
@@ -157,6 +157,7 @@ async function verifyConditionWeightedThreshold(
       if (condition.weightCount >= condition.threshold) {
         console.log(`verifyConditionWeightedThreshold(): condition valid: ${authenticator.id}`)
         condition.conditionSatisfied = true
+        return true
       }
     }
   }
@@ -227,7 +228,7 @@ async function verifyConditionDelegated(
 
     console.log(`verifyConditionDelegated(): condition valid: ${authenticator.id}`)
     condition.conditionSatisfied = true
+    return true
   }
-
-  return newSigners.length > 0
+  return false
 }
