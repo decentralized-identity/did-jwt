@@ -2,11 +2,11 @@ import type { SignatureInput } from 'elliptic'
 import elliptic from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
-import type { ConditionWeightedThreshold, VerificationMethod } from 'did-resolver'
+import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
-import { GeneralJWSSignature } from './JWT'
+import { decodeJWT, GeneralJWSSignature, verifyJWSDecoded } from './JWT'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
@@ -30,25 +30,13 @@ interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
 
-function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array | Uint8Array[] {
+function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
     return base58ToBytes(pk.publicKeyBase58)
   } else if ((<LegacyVerificationMethod>pk).publicKeyBase64) {
     return base64ToBytes((<LegacyVerificationMethod>pk).publicKeyBase64)
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
-  } else if (pk.conditionWeightedThreshold && Array.isArray(pk.conditionWeightedThreshold)) {
-    // TODO: support multiple ThresholdCondition types and multiple public keys
-    return pk.conditionWeightedThreshold.map((conditionWeight: ConditionWeightedThreshold) => {
-      return hexToBytes(
-        secp256k1
-          .keyFromPublic({
-            x: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.x as string)),
-            y: bytesToHex(base64ToBytes(conditionWeight.condition.publicKeyJwk.y as string)),
-          })
-          .getPublic('hex')
-      )
-    })
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return hexToBytes(
       secp256k1
@@ -135,27 +123,19 @@ export function verifyES256K(
 
 export function verifyRecoverableES256K(
   data: string,
-  signature: string | GeneralJWSSignature[],
+  signature: string,
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   let signatures: EcdsaSignature[]
 
-  const toSignature = (sig: string) => {
-    if (signature.length > 86) {
-      return [toSignatureObject(sig, true)]
-    } else {
-      const so = toSignatureObject(sig, false)
-      return [
-        { ...so, recoveryParam: 0 },
-        { ...so, recoveryParam: 1 },
-      ]
-    }
-  }
-
-  if (Array.isArray(signature)) {
-    signatures = signature.flatMap((sig) => toSignature(sig.signature), 1)
+  if (signature.length > 86) {
+    signatures = [toSignatureObject(signature, true)]
   } else {
-    signatures = toSignature(signature)
+    const so = toSignatureObject(signature, false)
+    signatures = [
+      { ...so, recoveryParam: 0 },
+      { ...so, recoveryParam: 1 },
+    ]
   }
 
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
@@ -167,27 +147,14 @@ export function verifyRecoverableES256K(
     const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex).toLowerCase()
 
     const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
-      const publickeys = extractPublicKeyBytes(pk)
-      if (Array.isArray(publickeys)) {
-        return publickeys.some((publickey) => {
-          const publicKeyHex: string = bytesToHex(publickey)
-          return (
-            publicKeyHex === recoveredPublicKeyHex ||
-            publicKeyHex === recoveredCompressedPublicKeyHex ||
-            pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress || // CAIP-2
-            verifyBlockchainAccountId(recoveredPublicKeyHex, pk.blockchainAccountId) // CAIP-10
-          )
-        })
-      } else {
-        const keyHex = bytesToHex(publickeys)
-        return (
-          keyHex === recoveredPublicKeyHex ||
-          keyHex === recoveredCompressedPublicKeyHex ||
-          pk.ethereumAddress?.toLowerCase() === recoveredAddress ||
-          pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress || // CAIP-2
-          verifyBlockchainAccountId(recoveredPublicKeyHex, pk.blockchainAccountId) // CAIP-10
-        )
-      }
+      const keyHex = bytesToHex(extractPublicKeyBytes(pk))
+      return (
+        keyHex === recoveredPublicKeyHex ||
+        keyHex === recoveredCompressedPublicKeyHex ||
+        pk.ethereumAddress?.toLowerCase() === recoveredAddress ||
+        pk.blockchainAccountId?.split('@eip155')?.[0].toLowerCase() === recoveredAddress || // CAIP-2
+        verifyBlockchainAccountId(recoveredPublicKeyHex, pk.blockchainAccountId) // CAIP-10
+      )
     })
 
     return signer
@@ -198,7 +165,6 @@ export function verifyRecoverableES256K(
     .filter((key) => typeof key !== 'undefined') as VerificationMethod[]
 
   if (signer.length === 0) throw new Error('invalid_signature: Signature invalid for JWT')
-
   return signer[0]
 }
 

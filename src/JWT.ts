@@ -1,9 +1,10 @@
 import canonicalizeData from 'canonicalize'
-import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
+import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
+import { verifyProof } from './ConditionalAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -36,6 +37,7 @@ export interface JWTVerifyOptions {
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: ProofPurposeTypes
   policies?: JWTVerifyPolicies
+  didAuthenticator?: DIDAuthenticator
 }
 
 /**
@@ -383,7 +385,7 @@ export async function createMultisignatureJWT(
   return jwt
 }
 
-function verifyJWSDecoded(
+export function verifyJWSDecoded(
   { header, data, signature }: JWSDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
@@ -446,8 +448,8 @@ export async function verifyJWT(
     skewTime: undefined,
     proofPurpose: undefined,
     policies: {},
-  },
-  count = 1
+    didAuthenticator: undefined,
+  }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
   const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt, false)
@@ -463,7 +465,9 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
   }
 
-  if (payload.iss === SELF_ISSUED_V2) {
+  if (options.didAuthenticator) {
+    did = options.didAuthenticator.issuer
+  } else if (payload.iss === SELF_ISSUED_V2) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
@@ -485,19 +489,48 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
-  const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
-    options.resolver,
-    header.alg,
-    did,
-    proofPurpose
-  )
-  if (didResolutionResult.didDocument?.verificationMethod?.[0].type === 'conditionalProof2022') {
-    return verifyConditionalProof(jwt, didResolutionResult.didDocument.verificationMethod[0])
+  let authenticators: VerificationMethod[]
+  let issuer: string
+  let didResolutionResult: DIDResolutionResult
+  if (options.didAuthenticator) {
+    ;({ didResolutionResult, authenticators, issuer } = options.didAuthenticator)
+  } else {
+    ;({ didResolutionResult, authenticators, issuer } = await resolveAuthenticator(
+      options.resolver,
+      header.alg,
+      did,
+      proofPurpose
+    ))
+    // Add to options object for recursive reference
+    options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
-  const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
-  const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
-  const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+  console.log(`verifyJWT(): verifying ${did} with ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators`)
+  console.log(authenticators.map((auth) => auth.id).join(', '))
+
+  const { didUrl } = parse(did) as ParsedDID
+
+  let signer: VerificationMethod | null = null
+
+  if (did !== didUrl) {
+    const authenticator = authenticators.find((auth) => auth.id === did)
+    if (!authenticator) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
+    }
+
+    signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
+  } else {
+    let i = 0
+    while (!signer && i < authenticators.length) {
+      const authenticator = authenticators[i]
+      signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
+      i++
+    }
+  }
+
   if (signer) {
+    const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
+    const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+
     const nowSkewed = now + skewTime
     if (options.policies?.nbf !== false && payload.nbf) {
       if (payload.nbf > nowSkewed) {
@@ -522,12 +555,7 @@ export async function verifyJWT(
         throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
- 
 
-    if (signer.threshold && signer.threshold > count)
-      throw new Error(
-        `${JWT_ERROR.INVALID_JWT}: JWT has not been signed by the required threshold of keys. threshold: ${signer.threshold}, count: ${count}`
-      )
     return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(
@@ -634,19 +662,4 @@ export async function resolveAuthenticator(
     throw new Error(`${JWT_ERROR.NO_SUITABLE_KEYS}: DID document for ${issuer} does not have public keys for ${alg}`)
   }
   return { authenticators, issuer, didResolutionResult: didResult }
-}
-
-
-function verifyConditionalProof(jwt, verificationM){
-  let verified = false
-
-
-  function check(){
-    const {verfied} = verifyJWT(jwt.payload.jwt, options, count)
-    if(jwt.header.cty === 'JWT'){
-      const jwt = decodeJWT(jwt.payload.jwt,false)
-      
-  }
- 
-  
 }
