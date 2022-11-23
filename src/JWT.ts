@@ -4,7 +4,7 @@ import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
-import { CONDITIONAL_PROOF_2022, verifyConditionalProof } from './ConditionalAlgorithm'
+import { verifyProof } from './ConditionalAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -517,30 +517,12 @@ export async function verifyJWT(
       throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
     }
 
-    if (authenticator.type === CONDITIONAL_PROOF_2022) {
-      signer = await verifyConditionalProof(
-        jwt,
-        { payload, header, signature, data } as JWTDecoded,
-        authenticator,
-        options
-      )
-    } else {
-      signer = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, [authenticator])
-    }
+    signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
   } else {
     let i = 0
     while (!signer && i < authenticators.length) {
       const authenticator = authenticators[i]
-      if (authenticator.type === CONDITIONAL_PROOF_2022) {
-        signer = await verifyConditionalProof(
-          jwt,
-          { payload, header, signature, data } as JWTDecoded,
-          authenticator,
-          options
-        )
-      } else {
-        signer = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, [authenticator])
-      }
+      signer = await verifyProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
       i++
     }
   }

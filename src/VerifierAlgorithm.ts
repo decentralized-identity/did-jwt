@@ -127,6 +127,7 @@ export function verifyRecoverableES256K(
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   let signatures: EcdsaSignature[]
+
   if (signature.length > 86) {
     signatures = [toSignatureObject(signature, true)]
   } else {

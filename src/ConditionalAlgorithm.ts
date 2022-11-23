@@ -16,6 +16,19 @@ type ConditionData = {
   weightCount: number
 }
 
+export async function verifyProof(
+  jwt: string,
+  { payload, header, signature, data }: JWTDecoded,
+  authenticator: VerificationMethod,
+  options: JWTVerifyOptions
+): Promise<VerificationMethod> {
+  if (authenticator.type === CONDITIONAL_PROOF_2022) {
+    return await verifyConditionalProof(jwt, { payload, header, signature, data } as JWTDecoded, authenticator, options)
+  } else {
+    return await verifyJWSDecoded({ header, data, signature } as JWSDecoded, [authenticator])
+  }
+}
+
 export async function verifyConditionalProof(
   jwt: string,
   { payload, header, signature, data }: JWTDecoded,
@@ -28,7 +41,7 @@ export async function verifyConditionalProof(
     jwtNestedLevel: 1,
     conditionSatisfied: false,
     signers: [], // string of DID URLs to the verification method or submethod
-    threshold: authenticator.threshold ? authenticator.threshold : 0,
+    threshold: authenticator.threshold ?? 0,
     weightCount: 0,
   }
 
