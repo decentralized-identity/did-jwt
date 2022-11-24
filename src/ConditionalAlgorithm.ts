@@ -15,19 +15,11 @@ export async function verifyProof(
   authenticator: VerificationMethod,
   options: JWTVerifyOptions
 ): Promise<VerificationMethod> {
-  let signer: VerificationMethod
   if (authenticator.type === CONDITIONAL_PROOF_2022) {
-    signer = await verifyConditionalProof(jwt, { payload, header, signature, data }, authenticator, options)
+    return await verifyConditionalProof(jwt, { payload, header, signature, data }, authenticator, options)
   } else {
-    signer = await verifyJWSDecoded({ header, payload, data, signature }, [authenticator])
+    return await verifyJWSDecoded({ header, payload, data, signature }, [authenticator])
   }
-  if (signer.id === authenticator.id) return signer
-
-  // TODO uncomment
-  // throw new Error(
-  //   `${JWT_ERROR.INVALID_SIGNATURE}: authenticator ${authenticator.id} does not match issuer ${signer.id}.`
-  // )
-  return signer
 }
 
 export async function verifyConditionalProof(

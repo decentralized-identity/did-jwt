@@ -251,8 +251,13 @@ export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
   try {
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
+    const iss = decodedJwt.payload.iss
+
     if (decodedJwt.header.cty === 'JWT' && recurse) {
-      return decodeJWT(decodedJwt.payload.jwt)
+      const innerDecodedJwt = decodeJWT(decodedJwt.payload.jwt)
+
+      if (innerDecodedJwt.payload.iss !== iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
+      return innerDecodedJwt
     }
     return decodedJwt
   } catch (e) {
@@ -376,9 +381,12 @@ export function verifyJWSDecoded(
 ): VerificationMethod {
   if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
 
+  const iss = payload.iss
   let level = 0
   let recurse = true
   do {
+    if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
+
     if (header.cty === 'JWT') recurse = false
     console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
 
@@ -508,8 +516,11 @@ export async function verifyJWT(
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
   console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
-  console.log(`verifyJWT(): verifying ${did} with ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators`)
-  console.log(authenticators.map((auth) => auth.id).join(', '))
+  console.log(
+    `verifyJWT(): verifying ${did} with 
+    ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators:
+    ${authenticators.map((auth) => auth.id).join(', ')}`
+  )
 
   const { didUrl } = parse(did) as ParsedDID
 
