@@ -374,30 +374,24 @@ export function verifyJWSDecoded(
   { header, payload, data, signature }: JWTDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
-  console.log(`verifyJWSDecoded(): checking JWT at level 0`)
   if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
-  let signer: VerificationMethod | undefined
-  try {
-    return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
-  } catch (e) {
-    if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
-  }
 
-  console.log(`verifyJWSDecoded(): signer found ${signer?.id}`)
-
-  let level = 1
-  while (header.cty === 'JWT') {
+  let level = 0
+  let recurse = true
+  do {
+    if (header.cty === 'JWT') recurse = false
     console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
-    level++
 
-    // TODO probably best to create copy objects than replace reference objects
-    ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
     try {
       return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
     } catch (e) {
       if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
     }
-  }
+
+    // TODO probably best to create copy objects than replace reference objects
+    ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
+    level++
+  } while (recurse)
 
   throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
 }
