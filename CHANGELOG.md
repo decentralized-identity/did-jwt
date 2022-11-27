@@ -1,3 +1,10 @@
+# [6.9.0](https://github.com/decentralized-identity/did-jwt/compare/6.8.0...6.9.0) (2022-10-15)
+
+
+### Features
+
+* add ES256 to JWT verifier ([#254](https://github.com/decentralized-identity/did-jwt/issues/254)) ([86a4d23](https://github.com/decentralized-identity/did-jwt/commit/86a4d2328a33c1b38ffa7cc31374c5a3f1461a44))
+
 # [6.8.0](https://github.com/decentralized-identity/did-jwt/compare/6.7.0...6.8.0) (2022-09-06)
 
 
