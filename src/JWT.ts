@@ -165,6 +165,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    'JsonWebKey2020',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -187,6 +188,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    'JsonWebKey2020',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
