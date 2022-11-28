@@ -101,7 +101,7 @@
     "did-resolver": "^4.0.0",
     "elliptic": "^6.5.4",
     "js-sha3": "^0.8.0",
-    "multiformats": "^9.6.5",
+    "multiformats": "^10.0.0",
     "uint8arrays": "^3.0.0"
   },
   "eslintIgnore": [
