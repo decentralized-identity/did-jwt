@@ -1,3 +1,10 @@
+# [6.10.0](https://github.com/decentralized-identity/did-jwt/compare/6.9.0...6.10.0) (2022-11-28)
+
+
+### Features
+
+* support JsonWebKey for ES256K(-R)([#259](https://github.com/decentralized-identity/did-jwt/issues/259)) ([f9f1aeb](https://github.com/decentralized-identity/did-jwt/commit/f9f1aebb33ef8adfe2200a5d0e365a0c12042098))
+
 # [6.9.0](https://github.com/decentralized-identity/did-jwt/compare/6.8.0...6.9.0) (2022-10-15)
 
 
