@@ -385,10 +385,8 @@ export function verifyJWSDecoded(
   let level = 0
   let recurse = true
   do {
-    if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
-
-    if (header.cty === 'JWT') recurse = false
     console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
+    if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
 
     try {
       return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
@@ -397,7 +395,11 @@ export function verifyJWSDecoded(
     }
 
     // TODO probably best to create copy objects than replace reference objects
-    ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
+    if (header.cty !== 'JWT') {
+      recurse = false
+    } else {
+      ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
+    }
     level++
   } while (recurse)
 
