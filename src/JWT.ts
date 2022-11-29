@@ -201,6 +201,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 }
 
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
+export const SELF_ISSUED_V2_VC_INTEROP = 'https://self-issued.me/v2/openid-vc' // https://identity.foundation/jwt-vc-presentation-profile/#id-token-validation
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
 
 type LegacyVerificationMethod = { publicKey?: string }
@@ -407,7 +408,7 @@ export async function verifyJWT(
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
   }
 
-  if (payload.iss === SELF_ISSUED_V2) {
+  if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
