@@ -1,3 +1,10 @@
+## [6.10.1](https://github.com/decentralized-identity/did-jwt/compare/6.10.0...6.10.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* support jwts generated for JWT VC Presentation Profile ([#260](https://github.com/decentralized-identity/did-jwt/issues/260)) ([8b36550](https://github.com/decentralized-identity/did-jwt/commit/8b3655097a1382934cabdf774d580e6731a636b1))
+
 # [6.10.0](https://github.com/decentralized-identity/did-jwt/compare/6.9.0...6.10.0) (2022-11-28)
 
 
