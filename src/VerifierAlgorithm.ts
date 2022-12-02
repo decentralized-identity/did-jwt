@@ -6,7 +6,6 @@ import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
-import { decodeJWT, GeneralJWSSignature, verifyJWSDecoded } from './JWT'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
