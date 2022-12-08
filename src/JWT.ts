@@ -422,8 +422,15 @@ export async function verifyJWT(
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT did is required`)
     }
     did = payload.did
+  } else if (payload.scope === 'openid' && payload.redirect_uri) {
+    // SIOP Request payload
+    // https://identity.foundation/jwt-vc-presentation-profile/#self-issued-op-request-object
+    if (!payload.client_id) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT client_id is required`)
+    }
+    did = payload.client_id
   } else {
-    did = payload.iss || payload.client_id
+    did = payload.iss
   }
 
   if (!did) {
