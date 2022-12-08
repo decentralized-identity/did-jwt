@@ -537,7 +537,7 @@ export async function resolveAuthenticator(
     // support legacy DID Documents that do not list assertionMethod
     if (
       proofPurpose.startsWith('assertion') &&
-      !Object.getOwnPropertyNames(didResult?.didDocument).includes('assertionMethod')
+      Object.getOwnPropertyNames(didResult?.didDocument).indexOf('assertionMethod') < 0
     ) {
       didResult.didDocument = { ...(<DIDDocument>didResult.didDocument) }
       didResult.didDocument.assertionMethod = [...publicKeysToCheck.map((pk) => pk.id)]
