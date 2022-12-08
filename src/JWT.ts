@@ -404,8 +404,8 @@ export async function verifyJWT(
 
   let did = ''
 
-  if (!payload.iss) {
-    throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
+  if (!payload.iss && !payload.client_id) {
+    throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss or client_id are required`)
   }
 
   if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
@@ -423,7 +423,7 @@ export async function verifyJWT(
     }
     did = payload.did
   } else {
-    did = payload.iss
+    did = payload.iss || payload.client_id
   }
 
   if (!did) {
