@@ -31,7 +31,8 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
     "prepublishOnly": "yarn test:ci && yarn format && yarn lint",
-    "release": "semantic-release --debug"
+    "release": "semantic-release --debug",
+    "postinstall": "yarn build"
   },
   "author": "Pelle Braendgaard",
   "contributors": [
