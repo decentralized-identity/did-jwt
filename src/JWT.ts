@@ -402,7 +402,7 @@ export async function verifyJWT(
       : undefined
     : options.proofPurpose
 
-  let did = ''
+  let did
 
   if (!payload.iss && !payload.client_id) {
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss or client_id are required`)
