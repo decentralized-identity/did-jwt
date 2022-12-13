@@ -1005,11 +1005,11 @@ describe('verifyJWT() for ES256K', () => {
     )
   })
 
-  it('rejects a pregenerated JWT without iss', async () => {
+  it('rejects a pregenerated JWT without iss or client_id', async () => {
     expect.assertions(1)
     const jwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzN9.aa3_8ZH99MjFoHTrNjOm7Pgq5VL5A13DHR5MTd_dBw2B_pWgNuz4N1tbrocTP0MgDlRbovKmTTDrGNjNMPqH3g'
-    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT iss is required/)
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT iss or client_id are required/)
   })
 
   it('rejects a self-issued v2 JWT without sub', async () => {
