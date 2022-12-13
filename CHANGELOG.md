@@ -1,3 +1,10 @@
+# [6.11.0](https://github.com/decentralized-identity/did-jwt/compare/6.10.1...6.11.0) (2022-12-13)
+
+
+### Features
+
+* add support for SIOP request JWT ([#262](https://github.com/decentralized-identity/did-jwt/issues/262)) ([3259ffd](https://github.com/decentralized-identity/did-jwt/commit/3259ffd25840e9baf8046494fdafe3f0697e13b9))
+
 ## [6.10.1](https://github.com/decentralized-identity/did-jwt/compare/6.10.0...6.10.1) (2022-11-29)
 
 
