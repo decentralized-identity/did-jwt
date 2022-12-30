@@ -1,4 +1,4 @@
-import type { VerificationMethod } from 'did-resolver'
+import type { VerificationMethod } from '@tonomy/did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
 import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'

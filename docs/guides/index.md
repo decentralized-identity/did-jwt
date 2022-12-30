@@ -50,7 +50,7 @@ Use the `verifyJWT()` function
 
 ```js
 import { verifyJWT } from 'did-jwt'
-import { Resolver } from 'did-resolver'
+import { Resolver } from '@tonomy/did-resolver'
 
 const resolver = new Resolver({...})
 

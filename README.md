@@ -87,7 +87,7 @@ npm install ethr-did-resolver
 ```
 
 ```js
-import {Resolver} from 'did-resolver';
+import {Resolver} from '@tonomy/did-resolver';
 import {getResolver} from 'ethr-did-resolver'
 
 let resolver = new Resolver({...getResolver({infuraProjectId: '<get a free ID from infura.io>'})});

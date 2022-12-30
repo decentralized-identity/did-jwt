@@ -2020,6 +2020,11 @@
     "magic-string" "^0.25.0"
     "string.prototype.matchall" "^4.0.6"
 
+"@tonomy/did-resolver@^4.0.4":
+  "integrity" "sha512-7sgPKUENMsGfq2TaAo4/hwthy45pvVnZep79o6BpmPK5xSwzPctglITkgfM7OY6hyS4le4wQC0LYI7mrGShD2A=="
+  "resolved" "https://registry.npmjs.org/@tonomy/did-resolver/-/did-resolver-4.0.4.tgz"
+  "version" "4.0.4"
+
 "@tootallnate/once@1":
   "integrity" "sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw=="
   "resolved" "https://registry.npmjs.org/@tootallnate/once/-/once-1.1.2.tgz"
@@ -3518,10 +3523,6 @@
   dependencies:
     "asap" "^2.0.0"
     "wrappy" "1"
-
-"did-resolver@file:../did-resolver":
-  "resolved" "file:../did-resolver"
-  "version" "4.0.1"
 
 "diff-sequences@^28.1.1":
   "integrity" "sha512-FU0iFaH/E23a+a718l8Qa/19bF9p06kgE0KipMOMadwa3SjnaElKzPaUC0vnibs6/B/9ni97s61mcejk8W1fQw=="
