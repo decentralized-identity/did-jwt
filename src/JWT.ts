@@ -419,8 +419,7 @@ export function verifyJWSDecoded(
  */
 export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
-  // @ts-ignore
-  return verifyJWSDecoded(jwsDecoded, pubKeys)
+  return verifyJWSDecoded(jwsDecoded as unknown as JWTDecoded, pubKeys)
 }
 
 /**

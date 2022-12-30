@@ -1,4 +1,4 @@
-import type { VerificationMethod } from '@tonomy/did-resolver'
+import type { DIDResolutionResult, VerificationMethod } from '@tonomy/did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
 import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'
@@ -66,14 +66,13 @@ async function verifyConditionWeightedThreshold(
           ...options,
           ...{
             didAuthenticator: {
-              // @ts-ignore
-              didResolutionResult: options.didAuthenticator.didResolutionResult,
+              didResolutionResult: options.didAuthenticator?.didResolutionResult,
               authenticators: [currentCondition],
               issuer: currentCondition.id,
             },
           },
         }
-        const { verified } = await verifyJWT(jwt, newOptions)
+        const { verified } = await verifyJWT(jwt, newOptions as JWTVerifyOptions)
         if (verified) {
           foundSigner = currentCondition
         }
