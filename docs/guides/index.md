@@ -5,7 +5,7 @@
 Use the `createJWT()` function
 
 ```js
-import { createJWT, ES256KSigner } from 'did-jwt'
+import { createJWT, ES256KSigner } from '@tonomy/did-jwt'
 
 const signer = EdDSASigner('YOUR PRIVATE KEY')
 
@@ -49,7 +49,7 @@ If there are any errors found during the signing process the promise is rejected
 Use the `verifyJWT()` function
 
 ```js
-import { verifyJWT } from 'did-jwt'
+import { verifyJWT } from '@tonomy/did-jwt'
 import { Resolver } from '@tonomy/did-resolver'
 
 const resolver = new Resolver({...})
@@ -110,7 +110,7 @@ You can also provide the private key bytes as a `Uint8Array`
 Example using a `hex` encoded key:
 
 ```js
-import { ES256KSigner } from 'did-jwt'
+import { ES256KSigner } from '@tonomy/did-jwt'
 const signer: Signer = ES256KSigner('0x278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f')
 ```
 
@@ -136,7 +136,7 @@ You can also provide the private key bytes as a `Uint8Array`
 Example using a `base58btc` encoded key:
 
 ```js
-import { EdDSASigner } from 'did-jwt'
+import { EdDSASigner } from '@tonomy/did-jwt'
 const signer: Signer = EdDSASigner(
   '4AcB6rb1mUBf82U7pBzPZ53ZAQycdi4Q1LWoUREvHSRXBRo9Sus9bzCJPKVTQQeDpjHMJN7fBAGWKEnJw5SPbaC4'
 )
