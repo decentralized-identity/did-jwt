@@ -1,7 +1,15 @@
 import type { DIDResolutionResult, VerificationMethod } from '@tonomy/did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
-import { decodeJWT, JWSDecoded, JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'
+import {
+  decodeJWT,
+  JWSDecoded,
+  JWTDecoded,
+  JWTVerifyOptions,
+  resolveAuthenticator,
+  verifyJWSDecoded,
+  verifyJWT,
+} from './JWT'
 import SignerAlg from './SignerAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>

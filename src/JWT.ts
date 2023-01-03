@@ -1,5 +1,12 @@
 import canonicalizeData from 'canonicalize'
-import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from '@tonomy/did-resolver'
+import {
+  DIDDocument,
+  DIDResolutionResult,
+  parse,
+  ParsedDID,
+  Resolvable,
+  VerificationMethod,
+} from '@tonomy/did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
