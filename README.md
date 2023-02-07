@@ -22,13 +22,13 @@ If your DID method requires a different signing algorithm than what is already s
 ## Installation
 
 ```bash
-npm install did-jwt
+npm install @tonomy/did-jwt
 ```
 
 or if you use `yarn`
 
 ```bash
-yarn add did-jwt
+yarn add @tonomy/did-jwt
 ```
 
 ## Example
