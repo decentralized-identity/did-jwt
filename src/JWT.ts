@@ -385,7 +385,7 @@ export function verifyJWSDecoded(
   let level = 0
   let recurse = true
   do {
-    console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
+    // console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
     if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
 
     try {
@@ -517,12 +517,12 @@ export async function verifyJWT(
     // Add to options object for recursive reference
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
-  console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
-  console.log(
-    `verifyJWT(): verifying ${did} with 
-    ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators:
-    ${authenticators.map((auth) => auth.id).join(', ')}`
-  )
+  // console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
+  // console.log(
+  //   `verifyJWT(): verifying ${did} with 
+  //   ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators:
+  //   ${authenticators.map((auth) => auth.id).join(', ')}`
+  // )
 
   const { didUrl } = parse(did) as ParsedDID
 
