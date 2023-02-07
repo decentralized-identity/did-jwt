@@ -18,6 +18,7 @@ import {
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
 import { bytesToBase64url, decodeBase64url } from '../util'
+import { JWT_ERROR } from '../Errors'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -436,7 +437,7 @@ describe('verifyJWT()', () => {
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
     it('rejects a JWT with bad signature', async () => {
       expect.assertions(1)
-      await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(/Signature invalid for JWT/)
+      await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(JWT_ERROR.INVALID_SIGNATURE)
     })
   })
 
