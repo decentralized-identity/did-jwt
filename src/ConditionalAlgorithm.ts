@@ -61,11 +61,15 @@ async function verifyConditionWeightedThreshold(
     try {
       if (currentCondition.type === CONDITIONAL_PROOF_2022) {
         // console.log(`verifyConditionWeightedThreshold(): nested condition found in ${currentCondition.id}`)
+
+        if (!options.didAuthenticator) {
+          throw new Error('Expected didAuthenticator')
+        }
+
         const newOptions = {
           ...options,
           ...{
             didAuthenticator: {
-              // @ts-ignore
               didResolutionResult: options.didAuthenticator.didResolutionResult,
               authenticators: [currentCondition],
               issuer: currentCondition.id,

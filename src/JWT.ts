@@ -1,5 +1,12 @@
 import canonicalizeData from 'canonicalize'
-import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from '@tonomy/did-resolver'
+import {
+  DIDDocument,
+  DIDResolutionResult,
+  parse,
+  ParsedDID,
+  Resolvable,
+  VerificationMethod,
+} from '@tonomy/did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
@@ -382,7 +389,7 @@ export function verifyJWSDecoded(
   if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
 
   const iss = payload.iss
-  let level = 0
+  // let level = 0
   let recurse = true
   do {
     // console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
@@ -400,7 +407,7 @@ export function verifyJWSDecoded(
     } else {
       ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
     }
-    level++
+    // level++
   } while (recurse)
 
   throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
@@ -419,8 +426,7 @@ export function verifyJWSDecoded(
  */
 export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
-  // @ts-ignore
-  return verifyJWSDecoded(jwsDecoded, pubKeys)
+  return verifyJWSDecoded(jwsDecoded as unknown as JWTDecoded, pubKeys)
 }
 
 /**
@@ -519,7 +525,7 @@ export async function verifyJWT(
   }
   // console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
   // console.log(
-  //   `verifyJWT(): verifying ${did} with 
+  //   `verifyJWT(): verifying ${did} with
   //   ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators:
   //   ${authenticators.map((auth) => auth.id).join(', ')}`
   // )
