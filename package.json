@@ -1,6 +1,6 @@
 {
   "name": "@tonomy/did-jwt",
-  "version": "6.8.0",
+  "version": "6.8.1",
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
@@ -91,9 +91,9 @@
     "@stablelib/sha256": "^1.0.1",
     "@stablelib/x25519": "^1.0.2",
     "@stablelib/xchacha20poly1305": "^1.0.1",
+    "@tonomy/did-resolver": "^4.0.4",
     "bech32": "^2.0.0",
     "canonicalize": "^1.0.8",
-    "@tonomy/did-resolver": "^4.0.4",
     "elliptic": "^6.5.4",
     "js-sha3": "^0.8.0",
     "multiformats": "^9.6.5",
