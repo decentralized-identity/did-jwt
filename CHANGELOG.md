@@ -1,3 +1,10 @@
+## [6.11.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.0...6.11.1) (2023-02-13)
+
+
+### Bug Fixes
+
+* add ESM types exports resolution ([#269](https://github.com/decentralized-identity/did-jwt/issues/269)) ([dea4e6b](https://github.com/decentralized-identity/did-jwt/commit/dea4e6b86cdda39170f69d7e8c4b2b7e237a4bfb))
+
 # [6.11.0](https://github.com/decentralized-identity/did-jwt/compare/6.10.1...6.11.0) (2022-12-13)
 
 
