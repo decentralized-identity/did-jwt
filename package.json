@@ -42,7 +42,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:cheqd/did-jwt.git"
+    "url": "git@github.com:decentralized-identity/did-jwt.gi"
   },
   "license": "Apache-2.0",
   "jest": {
