@@ -16,6 +16,53 @@ const edSigner = NaclSigner(ed25519PrivateKey)
 const ecSigner = EllipticSigner(privateKey)
 const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 
+// Add tests specific to new ES256 signer for curve secp256r1 / P-256
+const secp256r1 = new EC('p256')
+import { ES256Signer } from '../signers/ES256Signer'
+import { hexToBytes } from '../util'
+const p256privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
+const p256kp = secp256r1.keyFromPrivate(p256privateKey)
+const p256signer = ES256Signer(hexToBytes(p256privateKey))
+
+describe('SignerAlgorithm', () => {
+  it('supports ES256', () => {
+    expect(typeof SignerAlgorithm('ES256')).toEqual('function')
+  })
+})
+
+describe('ES256', () => {
+  const jwtSigner = SignerAlgorithm('ES256')
+  it('returns correct signature', async () => {
+    expect.assertions(1)
+    return await expect(jwtSigner('hello', p256signer)).resolves.toEqual(
+      'Zks0QO1ma5pHHtNbpb0qDap0VJSvQvA775N0GZsAp3PQjmDGbsfyKlUVcU9PFueIXksioSTsPXiOCgAHIOe4WA'
+    )
+  })
+  
+  it('returns signature of 64 bytes', async () => {
+    expect.assertions(1)
+    const signature = await jwtSigner('hello', p256signer)
+    expect(base64ToBytes(signature).length).toEqual(64)
+  })
+  
+  it('contains only r and s of signature', async () => {
+    expect.assertions(1)
+    const signature = await jwtSigner('hello', p256signer)
+    expect(toSignatureObject(signature)).toEqual({
+      r: '664b3440ed666b9a471ed35ba5bd2a0daa745494af42f03bef9374199b00a773',
+      s: 'd08e60c66ec7f22a5515714f4f16e7885e4b22a124ec3d788e0a000720e7b858',
+    })
+  })
+  
+  it('can verify the signature', async () => {
+    expect.assertions(1)
+    const signature = await jwtSigner('hello', p256signer)
+    expect(p256kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
+  })
+   
+})
+// end of tests added for P-256
+
 describe('SignerAlgorithm', () => {
   it('supports ES256K', () => {
     expect(typeof SignerAlgorithm('ES256K')).toEqual('function')
