@@ -547,7 +547,12 @@ export async function verifyJWT(
     let i = 0
     while (!signer && i < authenticators.length) {
       const authenticator = authenticators[i]
-      signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+      try {
+        signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+      } catch (e) {
+        if (!(e as Error).message.includes(JWT_ERROR.INVALID_SIGNATURE) || i === authenticators.length - 1) throw e
+      }
+
       i++
     }
   }
