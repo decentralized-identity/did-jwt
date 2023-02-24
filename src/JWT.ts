@@ -178,6 +178,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *  TODO - support R1 key aswell
      *   'ConditionalProof2022',
      */
+    'JsonWebKey2020',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -201,6 +202,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaPublicKeySecp256k1',
     'ConditionalProof2022',
+    'JsonWebKey2020',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
