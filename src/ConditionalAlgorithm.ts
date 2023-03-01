@@ -70,13 +70,13 @@ async function verifyConditionWeightedThreshold(
           ...options,
           ...{
             didAuthenticator: {
-              didResolutionResult: options.didAuthenticator.didResolutionResult,
+              didResolutionResult: options.didAuthenticator?.didResolutionResult,
               authenticators: [currentCondition],
               issuer: currentCondition.id,
             },
           },
         }
-        const { verified } = await verifyJWT(jwt, newOptions)
+        const { verified } = await verifyJWT(jwt, newOptions as JWTVerifyOptions)
         if (verified) {
           foundSigner = currentCondition
         }

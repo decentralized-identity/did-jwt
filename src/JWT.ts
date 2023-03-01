@@ -178,6 +178,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *  TODO - support R1 key aswell
      *   'ConditionalProof2022',
      */
+    'JsonWebKey2020',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -201,6 +202,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaPublicKeySecp256k1',
     'ConditionalProof2022',
+    'JsonWebKey2020',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
@@ -396,7 +398,9 @@ export function verifyJWSDecoded(
     if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
 
     try {
-      return VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+      const result = VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+
+      return result
     } catch (e) {
       if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
     }
@@ -545,7 +549,12 @@ export async function verifyJWT(
     let i = 0
     while (!signer && i < authenticators.length) {
       const authenticator = authenticators[i]
-      signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+      try {
+        signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+      } catch (e) {
+        if (!(e as Error).message.includes(JWT_ERROR.INVALID_SIGNATURE) || i === authenticators.length - 1) throw e
+      }
+
       i++
     }
   }

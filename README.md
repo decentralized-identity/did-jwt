@@ -39,7 +39,7 @@ In practice, you must secure the key passed to `ES256KSigner`. The key provided 
 purposes only.
 
 ```ts
-import didJWT from 'did-jwt';
+import didJWT from '@tonomy/did-jwt';
 
 const signer = didJWT.ES256KSigner(didJWT.hexToBytes('278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'))
 
@@ -87,7 +87,7 @@ npm install ethr-did-resolver
 ```
 
 ```js
-import {Resolver} from 'did-resolver';
+import {Resolver} from '@tonomy/did-resolver';
 import {getResolver} from 'ethr-did-resolver'
 
 let resolver = new Resolver({...getResolver({infuraProjectId: '<get a free ID from infura.io>'})});
