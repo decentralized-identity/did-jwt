@@ -1,3 +1,38 @@
+## [6.11.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.0...6.11.1) (2023-02-13)
+
+
+### Bug Fixes
+
+* add ESM types exports resolution ([#269](https://github.com/decentralized-identity/did-jwt/issues/269)) ([dea4e6b](https://github.com/decentralized-identity/did-jwt/commit/dea4e6b86cdda39170f69d7e8c4b2b7e237a4bfb))
+
+# [6.11.0](https://github.com/decentralized-identity/did-jwt/compare/6.10.1...6.11.0) (2022-12-13)
+
+
+### Features
+
+* add support for SIOP request JWT ([#262](https://github.com/decentralized-identity/did-jwt/issues/262)) ([3259ffd](https://github.com/decentralized-identity/did-jwt/commit/3259ffd25840e9baf8046494fdafe3f0697e13b9))
+
+## [6.10.1](https://github.com/decentralized-identity/did-jwt/compare/6.10.0...6.10.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* support jwts generated for JWT VC Presentation Profile ([#260](https://github.com/decentralized-identity/did-jwt/issues/260)) ([8b36550](https://github.com/decentralized-identity/did-jwt/commit/8b3655097a1382934cabdf774d580e6731a636b1))
+
+# [6.10.0](https://github.com/decentralized-identity/did-jwt/compare/6.9.0...6.10.0) (2022-11-28)
+
+
+### Features
+
+* support JsonWebKey for ES256K(-R)([#259](https://github.com/decentralized-identity/did-jwt/issues/259)) ([f9f1aeb](https://github.com/decentralized-identity/did-jwt/commit/f9f1aebb33ef8adfe2200a5d0e365a0c12042098))
+
+# [6.9.0](https://github.com/decentralized-identity/did-jwt/compare/6.8.0...6.9.0) (2022-10-15)
+
+
+### Features
+
+* add ES256 to JWT verifier ([#254](https://github.com/decentralized-identity/did-jwt/issues/254)) ([86a4d23](https://github.com/decentralized-identity/did-jwt/commit/86a4d2328a33c1b38ffa7cc31374c5a3f1461a44))
+
 # [6.8.0](https://github.com/decentralized-identity/did-jwt/compare/6.7.0...6.8.0) (2022-09-06)
 
 
