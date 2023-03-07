@@ -346,7 +346,28 @@ export async function createJWT(
   return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>
 }
 
-// TODO create TSDoc
+/**
+ *  Creates a multi-signature signed JWT given multiple issuers and their corresponding signers, and a payload for which the signature is
+ * over.
+ *
+ *  @example
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
+ *  createJWT({address: '5A8bRWU3F7j3REx3vkJ...', signer}, {key1: 'value', key2: ..., ... }).then(jwt => {
+ *      ...
+ *  })
+ *
+ *  @param    {Object}            payload               payload object
+ *  @param    {Object}            [options]             an unsigned credential object
+ *  @param    {boolean}           options.expiresIn     optional flag to denote the expiration time
+ *  @param    {boolean}           options.canonicalize  optional flag to canonicalize header and payload before signing
+ *  @param    {Object[]}          issuers               array of the issuers, their signers and algorithms
+ *  @param    {string}            issuers[].issuer      The DID of the issuer (signer) of JWT
+ *  @param    {Signer}            issuers[].signer      a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
+ *  @param    {String}            issuers[].alg         [DEPRECATED] The JWT signing algorithm to use. Supports:
+ *   [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K. Please use `header.alg` to specify the algorithm
+ *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or
+ *   rejects with an error
+ */
 export async function createMultisignatureJWT(
   payload: Partial<JWTPayload>,
   { expiresIn, canonicalize }: Partial<JWTOptions>,
