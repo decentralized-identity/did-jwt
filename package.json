@@ -9,9 +9,6 @@
   "unpkg": "./lib/index.umd.js",
   "types": "./lib/index.d.ts",
   "umd:main": "./lib/index.umd.js",
-  "publishConfig": {
-    "access": "public"
-  },
   "files": [
     "lib",
     "dist",
