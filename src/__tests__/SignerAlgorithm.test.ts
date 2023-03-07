@@ -38,13 +38,13 @@ describe('ES256', () => {
       'Zks0QO1ma5pHHtNbpb0qDap0VJSvQvA775N0GZsAp3PQjmDGbsfyKlUVcU9PFueIXksioSTsPXiOCgAHIOe4WA'
     )
   })
-
+  
   it('returns signature of 64 bytes', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(base64ToBytes(signature).length).toEqual(64)
   })
-
+  
   it('contains only r and s of signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
@@ -53,12 +53,13 @@ describe('ES256', () => {
       s: 'd08e60c66ec7f22a5515714f4f16e7885e4b22a124ec3d788e0a000720e7b858',
     })
   })
-
+  
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(p256kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
+   
 })
 // end of tests added for P-256
 

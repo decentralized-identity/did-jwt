@@ -51,7 +51,7 @@ describe('Secp256r1 Signer', () => {
       'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
-
+  
   it('refuses wrong key size (too short)', async () => {
     expect.assertions(1)
     const privateKey = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad7'
