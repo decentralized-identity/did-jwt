@@ -1,12 +1,5 @@
 import canonicalizeData from 'canonicalize'
-import {
-  DIDDocument,
-  DIDResolutionResult,
-  parse,
-  ParsedDID,
-  Resolvable,
-  VerificationMethod,
-} from 'did-resolver'
+import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
@@ -536,12 +529,6 @@ export async function verifyJWT(
     // Add to options object for recursive reference
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
-  // console.log(JSON.stringify(didResolutionResult.didDocument, null, 2))
-  // console.log(
-  //   `verifyJWT(): verifying ${did} with
-  //   ${options.didAuthenticator ? 'provided' : 'resolved'} authenticators:
-  //   ${authenticators.map((auth) => auth.id).join(', ')}`
-  // )
 
   const { didUrl } = parse(did) as ParsedDID
 

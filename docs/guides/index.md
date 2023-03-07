@@ -5,7 +5,7 @@
 Use the `createJWT()` function
 
 ```js
-import { createJWT, ES256KSigner } from did-jwt'
+import { createJWT, ES256KSigner } from 'did-jwt'
 
 const signer = EdDSASigner('YOUR PRIVATE KEY')
 
