@@ -704,12 +704,11 @@ describe('verifyJWT() for ES256K', () => {
   })
 
   describe('badJwt', () => {
-    // TODO need to fix this test (check for different error)
     const badJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4MjBjNzY5ZWM5YzA5OTZiYTc3MzdhNDgyNmMyYWFmZjAwYjFiMjA0MCIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.TTpuw77fUbd_AY3GJcCumd6F6hxnkskMDJYNpJlI2DQi5MKKudXya9NlyM9e8-KFgTLe-WnXgq9EjWLvjpdiXA'
     it('rejects a JWT with bad signature', async () => {
       expect.assertions(1)
-      await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(/Signature invalid for JWT/)
+      await expect(verifyJWT(badJwt, { resolver })).rejects.toThrowError(/invalid_signature: no matching public key found/)
     })
   })
 
