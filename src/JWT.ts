@@ -144,6 +144,7 @@ export interface PublicKeyTypes {
 }
 
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
+  ES256: ['JsonWebKey2020'],
   ES256K: [
     'EcdsaSecp256k1VerificationKey2019',
     /**
@@ -165,6 +166,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    'JsonWebKey2020',
   ],
   'ES256K-R': [
     'EcdsaSecp256k1VerificationKey2019',
@@ -187,6 +189,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    'JsonWebKey2020',
   ],
   Ed25519: [
     'ED25519SignatureVerification',
@@ -198,6 +201,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
 }
 
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
+export const SELF_ISSUED_V2_VC_INTEROP = 'https://self-issued.me/v2/openid-vc' // https://identity.foundation/jwt-vc-presentation-profile/#id-token-validation
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
 
 type LegacyVerificationMethod = { publicKey?: string }
@@ -398,13 +402,13 @@ export async function verifyJWT(
       : undefined
     : options.proofPurpose
 
-  let did = ''
+  let did
 
-  if (!payload.iss) {
-    throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss is required`)
+  if (!payload.iss && !payload.client_id) {
+    throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss or client_id are required`)
   }
 
-  if (payload.iss === SELF_ISSUED_V2) {
+  if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
@@ -418,6 +422,13 @@ export async function verifyJWT(
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT did is required`)
     }
     did = payload.did
+  } else if (!payload.iss && payload.scope === 'openid' && payload.redirect_uri) {
+    // SIOP Request payload
+    // https://identity.foundation/jwt-vc-presentation-profile/#self-issued-op-request-object
+    if (!payload.client_id) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT client_id is required`)
+    }
+    did = payload.client_id
   } else {
     did = payload.iss
   }
