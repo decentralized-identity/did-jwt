@@ -6,7 +6,7 @@ import {
   ParsedDID,
   Resolvable,
   VerificationMethod,
-} from '@tonomy/did-resolver'
+} from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'

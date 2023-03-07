@@ -1,5 +1,5 @@
 import { hexToBytes, base64ToBytes } from '../util'
-import { VerificationMethod } from '@tonomy/did-resolver'
+import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
 import { fromString } from 'uint8arrays/from-string'
