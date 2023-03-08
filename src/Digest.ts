@@ -1,10 +1,11 @@
-import { createHash } from 'crypto'
+import { hash } from '@stablelib/sha256'
+import { Ripemd160 } from './blockchains/utils/ripemd160'
 import * as u8a from 'uint8arrays'
 import sha3 from 'js-sha3'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
-  return createHash('sha256').update(data).digest()
+  return hash(data)
 }
 
 export function keccak(data: Uint8Array): Uint8Array {
@@ -17,7 +18,7 @@ export function toEthereumAddress(hexPublicKey: string): string {
 }
 
 export function ripemd160(data: Uint8Array): Uint8Array {
-  return createHash('ripemd160').update(data).digest()
+  return new Ripemd160().update(data).digest()
 }
 
 function writeUint32BE(value: number, array = new Uint8Array(4)): Uint8Array {
