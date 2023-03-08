@@ -1,3 +1,10 @@
+## [6.11.2](https://github.com/decentralized-identity/did-jwt/compare/6.11.1...6.11.2) (2023-03-08)
+
+
+### Bug Fixes
+
+* provide hash algorithms as exported functions ([#271](https://github.com/decentralized-identity/did-jwt/issues/271)) ([71cc19b](https://github.com/decentralized-identity/did-jwt/commit/71cc19b9a88a76d3fb754d77a4773678460020c5))
+
 ## [6.11.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.0...6.11.1) (2023-02-13)
 
 
