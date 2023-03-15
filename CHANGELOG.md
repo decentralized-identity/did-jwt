@@ -1,3 +1,10 @@
+## [6.11.4](https://github.com/decentralized-identity/did-jwt/compare/6.11.3...6.11.4) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([c637b84](https://github.com/decentralized-identity/did-jwt/commit/c637b84493ee7c3591a7ddcf9ca90fd7baa9287a))
+
 ## [6.11.3](https://github.com/decentralized-identity/did-jwt/compare/6.11.2...6.11.3) (2023-03-15)
 
 
