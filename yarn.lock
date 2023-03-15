@@ -4001,9 +4001,9 @@ dezalgo@^1.0.0:
     wrappy "1"
 
 did-resolver@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/did-resolver/-/did-resolver-4.0.0.tgz"
-  integrity sha512-/roxrDr9EnAmLs+s9T+8+gcpilMo+IkeytcsGO7dcxvTmVJ+0Rt60HtV8o0UXHhGBo0Q+paMH/0ffXz1rqGFYg==
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/did-resolver/-/did-resolver-4.1.0.tgz#740852083c4fd5bf9729d528eca5d105aff45eb6"
+  integrity sha512-S6fWHvCXkZg2IhS4RcVHxwuyVejPR7c+a4Go0xbQ9ps5kILa8viiYQgrM4gfTyeTjJ0ekgJH9gk/BawTpmkbZA==
 
 diff-sequences@^28.1.1:
   version "28.1.1"
