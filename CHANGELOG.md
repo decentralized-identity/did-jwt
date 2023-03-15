@@ -1,3 +1,10 @@
+## [6.11.3](https://github.com/decentralized-identity/did-jwt/compare/6.11.2...6.11.3) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** remove dev dependency did-key-creator ([#274](https://github.com/decentralized-identity/did-jwt/issues/274)) ([fbe09e1](https://github.com/decentralized-identity/did-jwt/commit/fbe09e1639a323fc39b31c3578ba8b7889f1f9f1))
+
 ## [6.11.2](https://github.com/decentralized-identity/did-jwt/compare/6.11.1...6.11.2) (2023-03-08)
 
 
