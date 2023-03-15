@@ -155,10 +155,10 @@ describe('createJWT()', () => {
 
     // input public key in hex, and export pem
     function publicToJWK(
-    publicPointHex_x: string,
-    publicPointHex_y: string,
-    kty_value: string,
-    crv_value: string
+      publicPointHex_x: string,
+      publicPointHex_y: string,
+      kty_value: string,
+      crv_value: string
     ): JsonWebKey {
     if (publicPointHex_x.length % 2 != 0) {
       publicPointHex_x = '0' + publicPointHex_x
@@ -227,7 +227,7 @@ describe('createJWT()', () => {
         },
         { issuer: did, signer, expiresIn: 10000 },
         {alg: 'ES256'}       
-  )
+      )
       const { payload } = decodeJWT(jwt)
       return expect(payload.exp).toEqual(payload.nbf + 10000)
     })
