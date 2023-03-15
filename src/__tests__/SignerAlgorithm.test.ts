@@ -1,12 +1,12 @@
-import SignerAlgorithm from '../SignerAlgorithm'
-import { toSignatureObject } from '../VerifierAlgorithm'
-import SimpleSigner from '../signers/SimpleSigner'
-import EllipticSigner from '../signers/EllipticSigner'
-import NaclSigner from '../signers/NaclSigner'
+import SignerAlgorithm from '../SignerAlgorithm.js'
+import { toSignatureObject } from '../VerifierAlgorithm.js'
+import SimpleSigner from '../signers/SimpleSigner.js'
+import EllipticSigner from '../signers/EllipticSigner.js'
+import NaclSigner from '../signers/NaclSigner.js'
 import { ec as EC } from 'elliptic'
 import nacl from 'tweetnacl'
-import { base64ToBytes, stringToBytes } from '../util'
-import { sha256 } from '../Digest'
+import { base64ToBytes, stringToBytes } from '../util.js'
+import { sha256 } from '../Digest.js'
 const secp256k1 = new EC('secp256k1')
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
@@ -18,8 +18,8 @@ const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 
 // Add tests specific to new ES256 signer for curve secp256r1 / P-256
 const secp256r1 = new EC('p256')
-import { ES256Signer } from '../signers/ES256Signer'
-import { hexToBytes } from '../util'
+import { ES256Signer } from '../signers/ES256Signer.js'
+import { hexToBytes } from '../util.js'
 const p256privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
 const p256kp = secp256r1.keyFromPrivate(p256privateKey)
 const p256signer = ES256Signer(hexToBytes(p256privateKey))
@@ -57,6 +57,7 @@ describe('ES256', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
+    // @ts-ignore
     expect(p256kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
    
@@ -112,6 +113,7 @@ describe('ES256K', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
+    // @ts-ignore
     expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
 })
@@ -134,6 +136,7 @@ describe('ES256K signer which returns signature as string ', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', ecSigner)
+    // @ts-ignore
     expect(kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
 })
@@ -166,6 +169,7 @@ describe('ES256K-R', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
+    // @ts-ignore
     expect(kp.verify(sha256('hello'), toSignatureObject(signature, true))).toBeTruthy()
   })
 })

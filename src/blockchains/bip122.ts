@@ -1,6 +1,6 @@
 import * as u8a from 'uint8arrays'
-import { bytesToBase58, base58ToBytes } from '../util'
-import { sha256, ripemd160 } from '../Digest'
+import { bytesToBase58, base58ToBytes } from '../util.js'
+import { sha256, ripemd160 } from '../Digest.js'
 
 export const publicKeyToAddress = (publicKey: string, otherAddress: string): string => {
   // Use the same version/prefix byte as the given address.

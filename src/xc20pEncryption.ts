@@ -1,11 +1,11 @@
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
-import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
+import { concatKDF } from './Digest.js'
+import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util.js'
+import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE.js'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
-import { ECDH } from './ECDH'
+import { ECDH } from './ECDH.js'
 import { fromString } from 'uint8arrays/from-string'
 
 /**

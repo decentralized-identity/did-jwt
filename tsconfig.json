@@ -1,29 +1,25 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "es6",
-      "es2015.promise"
-    ],
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
-    "outDir": "lib",
     "strict": true,
-    "noImplicitThis": false,
-    "moduleResolution": "node",
-    "types": [
-      "jest"
-    ],
-    "allowSyntheticDefaultImports": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "target": "ES2020",
+    "module": "ES2020",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+    "declarationMap": true,
+    "declaration": true,
+    "composite": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "outDir": "lib",
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "**/__tests__/*",
-    "node_modules",
     "lib"
   ]
 }

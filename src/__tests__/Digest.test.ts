@@ -1,4 +1,4 @@
-import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest'
+import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest.js'
 import * as u8a from 'uint8arrays'
 
 // https://www.di-mgt.com.au/sha_testvectors.html

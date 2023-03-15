@@ -1,7 +1,7 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
-import { Signer } from '../JWT'
-import { sha256 } from '../Digest'
+import { leftpad } from '../util.js'
+import { toJose } from '../util.js'
+import { Signer } from '../JWT.js'
+import { sha256 } from '../Digest.js'
 import elliptic from 'elliptic'
 
 const secp256k1 = new elliptic.ec('secp256k1')

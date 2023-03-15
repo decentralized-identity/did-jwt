@@ -1,7 +1,7 @@
 import elliptic from 'elliptic'
 import { bech32 } from 'bech32'
 import * as u8a from 'uint8arrays'
-import { sha256, ripemd160 } from '../Digest'
+import { sha256, ripemd160 } from '../Digest.js'
 
 const EC = elliptic.ec
 

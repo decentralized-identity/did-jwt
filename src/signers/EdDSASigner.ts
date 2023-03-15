@@ -1,6 +1,6 @@
 import { sign } from '@stablelib/ed25519'
-import { Signer } from '../JWT'
-import { bytesToBase64url, stringToBytes } from '../util'
+import { Signer } from '../JWT.js'
+import { bytesToBase64url, stringToBytes } from '../util.js'
 
 /**
  *  Creates a configured signer function for signing data using the EdDSA (Ed25519) algorithm.

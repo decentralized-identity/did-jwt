@@ -1,11 +1,11 @@
 import type { SignatureInput } from 'elliptic'
 import elliptic from 'elliptic'
-import { sha256, toEthereumAddress } from './Digest'
+import { sha256, toEthereumAddress } from './Digest.js'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
-import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
-import { verifyBlockchainAccountId } from './blockchains'
+import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util.js'
+import { verifyBlockchainAccountId } from './blockchains/index.js'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')
@@ -66,7 +66,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
     const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
     return baseDecoder.decode(pk.publicKeyMultibase)
   }
-  return new Uint8Array()
+  return new Uint8Array(0)
 }
 
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {

@@ -1,6 +1,6 @@
-import { EdDSASigner as EdDSASigner } from './EdDSASigner'
-import { Signer } from '../JWT'
-import { base64ToBytes } from '../util'
+import { EdDSASigner as EdDSASigner } from './EdDSASigner.js'
+import { Signer } from '../JWT.js'
+import { base64ToBytes } from '../util.js'
 
 /**
  * @deprecated Please use EdDSASigner

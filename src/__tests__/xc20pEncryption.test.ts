@@ -1,9 +1,9 @@
-import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption'
-import { decryptJWE, createJWE } from '../JWE'
+import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption.js'
+import { decryptJWE, createJWE } from '../JWE.js'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPair } from '@stablelib/x25519'
-import { createX25519ECDH } from '../ECDH'
+import { createX25519ECDH } from '../ECDH.js'
 
 describe('xc20pEncryption', () => {
   describe('resolveX25519Encrypters', () => {
@@ -177,7 +177,9 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
+      // @ts-ignore
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      // @ts-ignore
       expect(jwe.recipients[1].header.kid).toEqual(did2 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
@@ -228,9 +230,13 @@ describe('xc20pEncryption', () => {
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
 
+          // @ts-ignore
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      // @ts-ignore
       expect(jwe.recipients[1].header.kid).toEqual(did1 + '#def')
+      // @ts-ignore
       expect(jwe.recipients[2].header.kid).toEqual(did2 + '#abc')
+      // @ts-ignore
       expect(jwe.recipients[3].header.kid).toEqual(did2 + '#def')
       expect(await decryptJWE(jwe, newDecrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter2)).toEqual(cleartext)
@@ -243,6 +249,7 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did5], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
+      // @ts-ignore
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
@@ -253,6 +260,7 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did6], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
+      // @ts-ignore
       expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
@@ -263,7 +271,9 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did9], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
+      // @ts-ignore
       expect(jwe.recipients[0].header.kid).toEqual(did2 + '#abc')
+      // @ts-ignore
       expect(jwe.recipients.length).toEqual(1)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2remote)).toEqual(cleartext)

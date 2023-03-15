@@ -1,5 +1,5 @@
 import { hash } from '@stablelib/sha256'
-import { Ripemd160 } from './blockchains/utils/ripemd160'
+import { Ripemd160 } from './blockchains/utils/ripemd160.js'
 import * as u8a from 'uint8arrays'
 import sha3 from 'js-sha3'
 

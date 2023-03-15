@@ -1,4 +1,4 @@
-import { hexToBytes, base64ToBytes } from '../util'
+import { hexToBytes, base64ToBytes } from '../util.js'
 import { VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
@@ -14,13 +14,13 @@ import {
   SELF_ISSUED_V2,
   verifyJWS,
   verifyJWT,
-} from '../JWT'
-import { EdDSASigner } from '../signers/EdDSASigner'
-import { ES256KSigner } from '../signers/ES256KSigner'
-import { bytesToBase64url, decodeBase64url } from '../util'
+} from '../JWT.js'
+import { EdDSASigner } from '../signers/EdDSASigner.js'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
+import { bytesToBase64url, decodeBase64url } from '../util.js'
 
 // add declarations for ES256 Tests
-import { ES256Signer } from '../signers/ES256Signer'
+import { ES256Signer } from '../signers/ES256Signer.js'
 import * as jwt from 'jsonwebtoken'
 import * as u8a from 'uint8arrays'
 import * as jwkToPem from 'jwk-to-pem'
@@ -138,11 +138,11 @@ describe('createJWT()', () => {
     
         // verifyTokenFormAndValidity
         function verifyTokenFormAndValidity(token: string, pemPublic: string): boolean {
-          let result = null
+          let result = false
           try {
             jwt.verify(token, pemPublic)
             result = true
-          } catch (e) {
+          } catch (e: any) {
             console.error(e.name + ': ' + e.message)
             result = false
           }
@@ -191,6 +191,7 @@ describe('createJWT()', () => {
         it('creates a valid JWT', async () => {
           expect.assertions(1)
           const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+          // @ts-ignore
           const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
           expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
         })
@@ -198,6 +199,7 @@ describe('createJWT()', () => {
         it('creates a valid JWT using a MNID', async () => {
           expect.assertions(1)
           const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
+          // @ts-ignore
           const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
           expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
         })
@@ -225,6 +227,7 @@ describe('createJWT()', () => {
             {alg: 'ES256'}       
       )
           const { payload } = decodeJWT(jwt)
+          // @ts-ignore
           return expect(payload.exp).toEqual(payload.nbf + 10000)
         })
       
@@ -233,6 +236,7 @@ describe('createJWT()', () => {
           const { payload } = decodeJWT(
           await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 },{alg: 'ES256'})
           )
+          // @ts-ignore
           return expect(payload.exp).toEqual(payload.iat + 10000)
         })
       
@@ -306,6 +310,7 @@ describe('createJWT()', () => {
         { issuer: did, signer, expiresIn: 10000 }
       )
       const { payload } = decodeJWT(jwt)
+      // @ts-ignore
       return expect(payload.exp).toEqual(payload.nbf + 10000)
     })
 
@@ -314,6 +319,7 @@ describe('createJWT()', () => {
       const { payload } = decodeJWT(
         await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 })
       )
+      // @ts-ignore
       return expect(payload.exp).toEqual(payload.iat + 10000)
     })
 
@@ -428,6 +434,7 @@ describe('createJWT()', () => {
         { alg, issuer: did, signer, expiresIn: 10000 }
       )
       const { payload } = decodeJWT(jwt)
+      // @ts-ignore
       return expect(payload.exp).toEqual(payload.nbf + 10000)
     })
   })
@@ -539,6 +546,7 @@ describe('verifyJWT() for ES256', () => {
     })
     it('rejects the JWT requiring unknown proofPurpose', async () => {
       expect.assertions(1)
+      // @ts-ignore
       await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256 with impossible purpose`
       )
@@ -632,6 +640,7 @@ describe('verifyJWT() for ES256K', () => {
     })
     it('rejects the JWT requiring unknown proofPurpose', async () => {
       expect.assertions(1)
+      // @ts-ignore
       await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256K with impossible purpose`
       )
