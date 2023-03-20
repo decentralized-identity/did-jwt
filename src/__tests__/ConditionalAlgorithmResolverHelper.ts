@@ -60,10 +60,3 @@ export function createSigner(privKey: string): Signer {
   }
   return ES256KSigner(privateKey.data.array, true)
 }
-
-// export function createMockVerify(required_auth: AntelopePermission | AntelopePermission[]) {
-//   // @ts-ignore
-//   return async function mockVerify(verifiableCredential, options?): Promise<boolean> {
-//       return !! await verifyCredential(verifiableCredential, createResolver(required_auth), options);
-//   }
-// }
