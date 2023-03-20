@@ -28,6 +28,7 @@ import * as jwkToPem from 'jwk-to-pem'
 import { encodeDIDfromHexString } from  'did-key-creator'
 import { createResolver, createSigner } from './ConditionalAlgorithmResolverHelper'
 import { PrivateKey } from '@greymass/eosio'
+import { JWT_ERROR } from '../Errors'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -49,7 +50,7 @@ const publicKeys = privateKeys.map((privKey) => {
 })
 
 describe('createMultisignatureJWT()', () => {
-  describe('ConditionalProof', () => {
+  describe('ConditionalProof - multisignature', () => {
 
     it('creates a valid signed JWT that satisfies 1 of 1 signature', async () => {
       expect.assertions(1)
@@ -72,7 +73,6 @@ describe('createMultisignatureJWT()', () => {
       const verified = await verifyJWT(jwt, { resolver })
       expect(verified.verified).toBeTruthy()
     })
-
 
     it('creates a valid signed JWT that satisfies 2 of 2 signature', async () => {
       expect.assertions(1)
@@ -99,5 +99,94 @@ describe('createMultisignatureJWT()', () => {
       const verified = await verifyJWT(jwt, { resolver })
       expect(verified.verified).toBeTruthy()
     })
+
+    it('creates a valid signed JWT that satisfies 2 of 3 signature', async () => {
+      expect.assertions(1)
+
+      const issuers = [{
+        issuer: did,
+        signer: createSigner(privateKeys[0]),
+        alg: 'ES256K-R'
+      }, {
+        issuer: did,
+        signer: createSigner(privateKeys[1]),
+        alg: 'ES256K-R'
+      }]
+
+      const jwt = await createMultisignatureJWT({ requested: ['name', 'phone']}, {}, issuers)
+
+      // resolves to a DID Document with 1 verification method that requires 2 of 3 signatures
+      const resolver = createResolver({
+        threshold: 2,
+        keys: [publicKeys[0], publicKeys[1], publicKeys[2]].map((key) => { return { key, weight: 1}}),
+        accounts: []
+      })
+
+      const verified = await verifyJWT(jwt, { resolver })
+      expect(verified.verified).toBeTruthy()
+    })
+
+    it('creates a valid signed JWT with only one signature that fails to satisfy 2 of 3 signature', async () => {
+      expect.assertions(1)
+
+      const issuers = [{
+        issuer: did,
+        signer: createSigner(privateKeys[0]),
+        alg: 'ES256K-R'
+      }]
+
+      const jwt = await createMultisignatureJWT({ requested: ['name', 'phone']}, {}, issuers)
+
+      // resolves to a DID Document with 1 verification method that requires 2 of 3 signatures
+      const resolver = createResolver({
+        threshold: 2,
+        keys: [publicKeys[0], publicKeys[1], publicKeys[2]].map((key) => { return { key, weight: 1}}),
+        accounts: []
+      })
+
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(JWT_ERROR.INVALID_SIGNATURE)
+    })
+  })
+
+  describe('ConditionalProof - delegated signatures', () => {
+
+    it('creates a valid signed JWT that satisfies 1 of 1 signature', async () => {
+      expect.assertions(1)
+
+      const issuers = [{
+        issuer: did,
+        signer: createSigner(privateKeys[0]),
+        alg: 'ES256K-R'
+      }]
+
+      const jwt = await createMultisignatureJWT({ requested: ['name', 'phone']}, {}, issuers)
+
+      // resolves to a DID Document with 2 verification methods
+      // - one that requires 1 of 1 signatures
+      // - one that delegates to the first
+      const resolver = createResolver([{
+        threshold: 1,
+        keys: [{
+          key: publicKeys[0],
+          weight: 1
+        }],
+        accounts: []
+      }, {
+        threshold: 1,
+        keys: [],
+        accounts: [{
+          permission: {
+            permission: 'permission0',
+            actor: account,
+          },
+          weight: 1
+        }]
+      }])
+
+      const verified = await verifyJWT(jwt, { resolver })
+      expect(verified.verified).toBeTruthy()
+    })
+
+
   })
 })
