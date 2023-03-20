@@ -53,7 +53,7 @@ describe('createMultisignatureJWT()', () => {
   describe('ConditionalProof - multisignature', () => {
 
     it('creates a valid signed JWT that satisfies 1 of 1 signature', async () => {
-      expect.assertions(1)
+      expect.assertions(2)
 
       const issuers = [{
         issuer: did,
@@ -71,7 +71,8 @@ describe('createMultisignatureJWT()', () => {
       })
 
       const verified = await verifyJWT(jwt, { resolver })
-      expect(verified.verified).toBeTruthy()
+      expect(verified.verified).toBe(true)
+      expect(verified.payload.requested).toEqual(['name', 'phone'])
     })
 
     it('creates a valid signed JWT that satisfies 2 of 2 signature', async () => {
@@ -97,7 +98,7 @@ describe('createMultisignatureJWT()', () => {
       })
 
       const verified = await verifyJWT(jwt, { resolver })
-      expect(verified.verified).toBeTruthy()
+      expect(verified.verified).toBe(true)
     })
 
     it('creates a valid signed JWT that satisfies 2 of 3 signature', async () => {
@@ -123,7 +124,7 @@ describe('createMultisignatureJWT()', () => {
       })
 
       const verified = await verifyJWT(jwt, { resolver })
-      expect(verified.verified).toBeTruthy()
+      expect(verified.verified).toBe(true)
     })
 
     it('creates a valid signed JWT with only one signature that fails to satisfy 2 of 3 signature', async () => {
@@ -151,7 +152,7 @@ describe('createMultisignatureJWT()', () => {
   describe('ConditionalProof - delegated signatures', () => {
 
     it('creates a valid signed JWT that satisfies 1 delegation', async () => {
-      expect.assertions(1)
+      expect.assertions(2)
 
       const issuers = [{
         issuer: did + '#permission1',
@@ -184,7 +185,8 @@ describe('createMultisignatureJWT()', () => {
       }])
 
       const verified = await verifyJWT(jwt, { resolver })
-      expect(verified.verified).toBeTruthy()
+      expect(verified.verified).toBe(true)
+      expect(verified.signer.id).toBe(did + '#permission1')
     })
 
     it('creates a valid signed JWT that fails satisfies 1 delegation when the signing key is incorrect', async () => {
@@ -227,18 +229,18 @@ describe('createMultisignatureJWT()', () => {
   describe('ConditionalProof - combination key and delegated signatures', () => {
 
     it('creates a valid signed JWT that satisfies 3 threshold and 2 keys and 2 delegated signature check', async () => {
-      expect.assertions(1)
+      expect.assertions(2)
 
       const issuers = [{
-        issuer: did + '#permission1',
+        issuer: did + '#permission0',
         signer: createSigner(privateKeys[0]),
         alg: 'ES256K-R'
       }, {
-        issuer: did + '#permission1',
+        issuer: did + '#permission0',
         signer: createSigner(privateKeys[1]),
         alg: 'ES256K-R'
       }, {
-        issuer: did + '#permission1',
+        issuer: did + '#permission0',
         signer: createSigner(privateKeys[2]),
         alg: 'ES256K-R'
       }]
@@ -288,10 +290,11 @@ describe('createMultisignatureJWT()', () => {
       }])
 
       const verified = await verifyJWT(jwt, { resolver })
-      expect(verified.verified).toBeTruthy()
+      expect(verified.verified).toBe(true)
+      expect(verified.signer.id).toBe(did + '#permission0')
     })
 
-    it('creates a valid signed JWT that fails satisfies 3 threshold and 2 keys and 2 delegated signature check', async () => {
+    it('creates a valid signed JWT that fails satisfies 3 threshold and 2 keys and 2 delegated signature check, with a bad key', async () => {
       expect.assertions(1)
 
       const issuers = [{
@@ -305,6 +308,71 @@ describe('createMultisignatureJWT()', () => {
       }, {
         issuer: did + '#permission0',
         signer: createSigner(privateKeys[2]),
+        alg: 'ES256K-R'
+      }]
+
+      const jwt = await createMultisignatureJWT({ requested: ['name', 'phone']}, {}, issuers)
+
+      // resolves to a DID Document with 3 verification methods
+      // - one of 3 threshold with 2 signature (privateKey[0] and privateKey[1]) and 2 delegations to the 2nd and 3rd verification method
+      // - one with 1 signature requirement of privateKey[2]
+      // - one with 1 signature requirement of privateKey[3]
+      const resolver = createResolver([{
+        threshold: 3,
+        keys: [{
+          key: publicKeys[0],
+          weight: 1
+        }, {
+          key: publicKeys[1],
+          weight: 1
+        }],
+        accounts: [{
+          permission: {
+            permission: 'permission1',
+            actor: account,
+          },
+          weight: 1
+        }, {
+          permission: {
+            permission: 'permission2',
+            actor: account,
+          },
+          weight: 1
+        }]
+      }, {
+        threshold: 1,
+        keys: [{
+          key: publicKeys[2],
+          weight: 1
+        }],
+        accounts: []
+      }, {
+        threshold: 1,
+        keys: [{
+          key: publicKeys[3],
+          weight: 1
+        }],
+        accounts: []
+      }])
+
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrow(JWT_ERROR.INVALID_SIGNATURE)
+    })
+
+
+    it('creates a valid signed JWT that fails satisfies 3 threshold and 2 keys and 2 delegated signature check, with a bad delegate', async () => {
+      expect.assertions(1)
+
+      const issuers = [{
+        issuer: did + '#permission0',
+        signer: createSigner(privateKeys[0]),
+        alg: 'ES256K-R'
+      }, {
+        issuer: did + '#permission0',
+        signer: createSigner(privateKeys[1]),
+        alg: 'ES256K-R'
+      }, {
+        issuer: did + '#permission0',
+        signer: createSigner(privateKeys[4]),
         alg: 'ES256K-R'
       }]
 
