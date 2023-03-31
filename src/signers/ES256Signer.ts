@@ -1,5 +1,4 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
+import { leftpad, toJose } from '../util'
 import { Signer } from '../JWT'
 import { sha256 } from '../Digest'
 import elliptic from 'elliptic'

@@ -2,9 +2,9 @@ import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
-import type { VerificationMethod, Resolvable } from 'did-resolver'
+import { base58ToBytes, base64ToBytes, bytesToBase64url, encodeBase64url, toSealed } from './util'
+import { Decrypter, Encrypter, EncryptionResult, ProtectedHeader, Recipient } from './JWE'
+import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { ECDH } from './ECDH'
 import { fromString } from 'uint8arrays/from-string'
 
@@ -146,7 +146,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
-    const encodedAad = fromString(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader)
+    const encodedAad = fromString(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader, 'utf-8')
     return {
       ...xc20pEncrypt(cleartext, encodedAad),
       protectedHeader: protHeader,

@@ -1,8 +1,7 @@
-import { hexToBytes, base64ToBytes } from '../util'
-import { VerificationMethod } from 'did-resolver'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util'
+import { Resolvable, VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
-import { fromString } from 'uint8arrays/from-string'
 import { getAddress } from '@ethersproject/address'
 import {
   createJWS,
@@ -17,13 +16,17 @@ import {
 } from '../JWT'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
-import { bytesToBase64url, decodeBase64url } from '../util'
 
 // add declarations for ES256 Tests
 import { ES256Signer } from '../signers/ES256Signer'
 import * as jwt from 'jsonwebtoken'
-import * as u8a from 'uint8arrays'
-import * as jwkToPem from 'jwk-to-pem'
+import { fromString, toString } from 'uint8arrays'
+// @ts-ignore
+import jwkToPem from 'jwk-to-pem'
+
+import { jest } from '@jest/globals'
+
+const u8a = { fromString, toString }
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -120,12 +123,10 @@ const audDidDoc = {
 
 describe('createJWT()', () => {
   describe('ES256', () => {
-    const alg = 'ES256'
     const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
     const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
     const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
 
-    
     // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
     // This originally was constructed by `encodeDIDfromHextString` imported from `did-key-creator`
     // package, but that dependency was removed, so now `did` is just hardcoded
@@ -142,11 +143,11 @@ describe('createJWT()', () => {
 
     // verifyTokenFormAndValidity
     function verifyTokenFormAndValidity(token: string, pemPublic: string): boolean {
-      let result = null
+      let result
       try {
         jwt.verify(token, pemPublic)
         result = true
-      } catch (e) {
+      } catch (e: any) {
         console.error(e.name + ': ' + e.message)
         result = false
       }
@@ -160,64 +161,50 @@ describe('createJWT()', () => {
       kty_value: string,
       crv_value: string
     ): JsonWebKey {
-    if (publicPointHex_x.length % 2 != 0) {
-      publicPointHex_x = '0' + publicPointHex_x
+      if (publicPointHex_x.length % 2 != 0) {
+        publicPointHex_x = '0' + publicPointHex_x
+      }
+      if (publicPointHex_y.length % 2 != 0) {
+        publicPointHex_y = '0' + publicPointHex_y
+      }
+      const publicPointUint8_x = u8a.fromString(publicPointHex_x, 'hex')
+      const publicPointBase64URL_x = u8a.toString(publicPointUint8_x, 'base64url')
+      const publicPointUint8_y = u8a.fromString(publicPointHex_y, 'hex')
+      const publicPointBase64URL_y = u8a.toString(publicPointUint8_y, 'base64url')
+      return {
+        kty: kty_value,
+        crv: crv_value,
+        x: publicPointBase64URL_x,
+        y: publicPointBase64URL_y,
+      }
     }
-    if (publicPointHex_y.length % 2 != 0) {
-      publicPointHex_y = '0' + publicPointHex_y
-    }
-    const publicPointUint8_x = u8a.fromString(publicPointHex_x, 'hex')
-    const publicPointBase64URL_x = u8a.toString(publicPointUint8_x, 'base64url')
-    const publicPointUint8_y = u8a.fromString(publicPointHex_y, 'hex')
-    const publicPointBase64URL_y = u8a.toString(publicPointUint8_y, 'base64url')
-    return {
-      kty: kty_value,
-      crv: crv_value,
-      x: publicPointBase64URL_x,
-      y: publicPointBase64URL_y,
-    }
-  }
-
-  // input private key in hex, and export pem
-  function privateToJWK(privatePointHex: string, kty_value: string, crv_value: string): privateJsonWebKey {
-    if (privatePointHex.length % 2 != 0) {
-      privatePointHex = '0' + privatePointHex
-    }
-    const privatePointUint8 = u8a.fromString(privatePointHex, 'hex')
-    const privatePointBase64URL = u8a.toString(privatePointUint8, 'base64url')
-    return {
-      kty: kty_value,
-      crv: crv_value,
-      d: privatePointBase64URL,
-    }
-  }
 
     it('creates a valid JWT', async () => {
       expect.assertions(1)
-      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-      const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
-      expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer }, { alg: 'ES256' })
+      const pemPublic = jwkToPem(publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256') as any)
+      expect(verifyTokenFormAndValidity(jwt, pemPublic)).toBe(true)
     })
 
     it('creates a valid JWT using a MNID', async () => {
       expect.assertions(1)
-      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
-      const pemPublic = jwkToPem.default(publicToJWK(publicKey_x,publicKey_y,'EC','P-256'))
-      expect(verifyTokenFormAndValidity(jwt,pemPublic)).toBe(true)
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer }, { alg: 'ES256' })
+      const pemPublic = jwkToPem(publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256') as any)
+      expect(verifyTokenFormAndValidity(jwt, pemPublic)).toBe(true)
     })
-  
+
     it('creates a JWT with correct format', async () => {
       expect.assertions(1)
-      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer }, { alg: 'ES256' })
       return expect(decodeJWT(jwt)).toMatchSnapshot()
     })
-  
+
     it('creates a JWT with correct legacy format', async () => {
       expect.assertions(1)
-      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer },{alg: 'ES256'})
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer }, { alg: 'ES256' })
       return expect(decodeJWT(jwt)).toMatchSnapshot()
     })
-  
+
     it('creates a JWT with expiry in 10000 seconds', async () => {
       expect.assertions(1)
       const jwt = await createJWT(
@@ -226,51 +213,59 @@ describe('createJWT()', () => {
           nbf: Math.floor(new Date().getTime() / 1000),
         },
         { issuer: did, signer, expiresIn: 10000 },
-        {alg: 'ES256'}       
+        { alg: 'ES256' }
       )
       const { payload } = decodeJWT(jwt)
-      return expect(payload.exp).toEqual(payload.nbf + 10000)
+      return expect(payload.exp).toEqual(payload.nbf!! + 10000)
     })
-  
+
     it('Uses iat if nbf is not defined but expiresIn is included', async () => {
       expect.assertions(1)
       const { payload } = decodeJWT(
-      await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 },{alg: 'ES256'})
+        await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 }, { alg: 'ES256' })
       )
-      return expect(payload.exp).toEqual(payload.iat + 10000)
+      return expect(payload.exp).toEqual(payload.iat!! + 10000)
     })
-  
+
     it('sets iat to the current time by default', async () => {
       expect.assertions(1)
       const timestamp = Math.floor(Date.now() / 1000)
-      const { payload } = decodeJWT(await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'}))
+      const { payload } = decodeJWT(
+        await createJWT(
+          { requested: ['name', 'phone'] },
+          {
+            issuer: did,
+            signer,
+          },
+          { alg: 'ES256' }
+        )
+      )
       return expect(payload.iat).toEqual(timestamp)
     })
-  
+
     it('sets iat to the value passed in payload', async () => {
       expect.assertions(1)
       const timestamp = 2000000
       const { payload } = decodeJWT(
-          await createJWT({ requested: ['name', 'phone'], iat: timestamp }, { issuer: did, signer },{alg: 'ES256'})
+        await createJWT({ requested: ['name', 'phone'], iat: timestamp }, { issuer: did, signer }, { alg: 'ES256' })
       )
       return expect(payload.iat).toEqual(timestamp)
     })
-  
-      it('does not set iat if value in payload is undefined', async () => {
+
+    it('does not set iat if value in payload is undefined', async () => {
       expect.assertions(1)
       const { payload } = decodeJWT(
-          await createJWT({ requested: ['name', 'phone'], iat: undefined }, { issuer: did, signer },{alg: 'ES256'})
+        await createJWT({ requested: ['name', 'phone'], iat: undefined }, { issuer: did, signer }, { alg: 'ES256' })
       )
       return expect(payload.iat).toBeUndefined()
     })
-  
+
     it('throws an error if unsupported algorithm is passed in', async () => {
       expect.assertions(1)
       await expect(
         createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, alg: 'BADALGO' })
       ).rejects.toThrowError('Unsupported algorithm BADALGO')
     })
-
   })
 })
 
@@ -310,7 +305,7 @@ describe('createJWT()', () => {
         { issuer: did, signer, expiresIn: 10000 }
       )
       const { payload } = decodeJWT(jwt)
-      return expect(payload.exp).toEqual(payload.nbf + 10000)
+      return expect(payload.exp).toEqual(payload.nbf!! + 10000)
     })
 
     it('Uses iat if nbf is not defined but expiresIn is included', async () => {
@@ -318,7 +313,7 @@ describe('createJWT()', () => {
       const { payload } = decodeJWT(
         await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer, expiresIn: 10000 })
       )
-      return expect(payload.exp).toEqual(payload.iat + 10000)
+      return expect(payload.exp).toEqual(payload.iat!! + 10000)
     })
 
     it('sets iat to the current time by default', async () => {
@@ -375,7 +370,7 @@ describe('createJWT()', () => {
           authentication: [],
         },
       }),
-    }
+    } as Resolvable
 
     it('creates a valid JWT with did:nacl issuer', async () => {
       expect.assertions(1)
@@ -432,18 +427,14 @@ describe('createJWT()', () => {
         { alg, issuer: did, signer, expiresIn: 10000 }
       )
       const { payload } = decodeJWT(jwt)
-      return expect(payload.exp).toEqual(payload.nbf + 10000)
+      return expect(payload.exp).toEqual(payload.nbf!! + 10000)
     })
   })
 })
 
 describe('verifyJWT() for ES256', () => {
-
-  const alg = 'ES256'
   const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
   const publicKey = '0314c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
-  const publicKey_x = '14c58e581c7656ba153195669fe4ce53ff78dd5ede60a4039771a90c58cb41de'
-  const publicKey_y = 'ec41869995bd661849414c523c7dff9a96f1c8dbc2e5e78172118f91c7199869'
   // construct did:key for secp256r1 (unlike did for secp256k1 which is for an Ethereum Address)
   // const multicodecName = 'p256-pub';
   // const did = encodeDIDfromHexString(multicodecName,publicKey)
@@ -469,7 +460,7 @@ describe('verifyJWT() for ES256', () => {
   }
 
   const resolver = {
-    resolve: jest.fn().mockImplementation((didUrl: string) => {
+    resolve: jest.fn(async (didUrl: string) => {
       if (didUrl.includes(did)) {
         return {
           didDocument: didDoc.didDocument,
@@ -487,11 +478,11 @@ describe('verifyJWT() for ES256', () => {
         },
       }
     }),
-  }
+  } as Resolvable
 
   describe('pregenerated JWT', () => {
     const incomingJwt =
-    'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
+      'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0.aMYFY0jitx2Bq9_wGBhEeIyVvzr2XkouCyEP662P8TbAPTpXOC3UrGQONaPD7wleLrMhGdvfod7idSxKXLl64Q'
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
       const { payload } = await verifyJWT(incomingJwt, { resolver })
@@ -544,17 +535,16 @@ describe('verifyJWT() for ES256', () => {
     })
     it('rejects the JWT requiring unknown proofPurpose', async () => {
       expect.assertions(1)
-      await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
+      await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' as any })).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256 with impossible purpose`
       )
     })
   })
 })
 
-
 describe('verifyJWT() for ES256K', () => {
   const resolver = {
-    resolve: jest.fn().mockImplementation((didUrl: string) => {
+    resolve: jest.fn(async (didUrl: string) => {
       if (didUrl.includes(did)) {
         return {
           didDocument: didDoc.didDocument,
@@ -580,7 +570,7 @@ describe('verifyJWT() for ES256K', () => {
         },
       }
     }),
-  }
+  } as Resolvable
 
   describe('pregenerated JWT', () => {
     const incomingJwt =
@@ -637,7 +627,7 @@ describe('verifyJWT() for ES256K', () => {
     })
     it('rejects the JWT requiring unknown proofPurpose', async () => {
       expect.assertions(1)
-      await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' })).rejects.toThrowError(
+      await expect(() => verifyJWT(incomingJwt, { resolver, proofPurpose: 'impossible' as any })).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256K with impossible purpose`
       )
     })
@@ -646,7 +636,7 @@ describe('verifyJWT() for ES256K', () => {
   describe('pregenerated JWT with publicKeyJwk in DID doc', () => {
     const incomingJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
-    const jwkResolver = { resolve: jest.fn().mockReturnValue(didDocJwk) }
+    const jwkResolver = { resolve: jest.fn().mockReturnValue(didDocJwk) } as Resolvable
 
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
@@ -672,7 +662,7 @@ describe('verifyJWT() for ES256K', () => {
   describe('pregenerated JWT with legacy resolver', () => {
     const incomingJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
-    const legacyResolver = { resolve: jest.fn().mockReturnValue(didDocLegacy) }
+    const legacyResolver = { resolve: jest.fn().mockReturnValue(didDocLegacy) } as Resolvable
 
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
@@ -850,7 +840,7 @@ describe('verifyJWT() for ES256K', () => {
           ],
         },
       }),
-    }
+    } as Resolvable
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
@@ -872,7 +862,7 @@ describe('verifyJWT() for ES256K', () => {
           ],
         },
       }),
-    }
+    } as Resolvable
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer, alg: 'ES256K' })
     const { payload } = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(payload).toMatchSnapshot()
@@ -893,7 +883,7 @@ describe('verifyJWT() for ES256K', () => {
           verificationMethod: [verificationMethod],
         },
       }),
-    }
+    } as Resolvable
     const jwt = await createJWT({ hello: 'world' }, { issuer: aud, signer: recoverySigner, alg: 'ES256K-R' })
     const result = await verifyJWT(jwt, { resolver: ethResolver })
     return expect(result.signer).toEqual(verificationMethod)
@@ -1245,7 +1235,11 @@ describe('resolveAuthenticator()', () => {
     describe('ES256K', () => {
       it('finds public key', async () => {
         expect.assertions(1)
-        const authenticators = await resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did)
+        const authenticators = await resolveAuthenticator(
+          { resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable,
+          alg,
+          did
+        )
         return expect(authenticators).toEqual({
           authenticators: [ecKey1],
           issuer: did,
@@ -1256,7 +1250,7 @@ describe('resolveAuthenticator()', () => {
       it('filters out irrelevant public keys', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
+          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did
         )
@@ -1270,7 +1264,7 @@ describe('resolveAuthenticator()', () => {
       it('only list authenticators able to authenticate a user', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
+          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1285,7 +1279,7 @@ describe('resolveAuthenticator()', () => {
       it('lists authenticators with multiple key types in doc', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) },
+          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1300,7 +1294,7 @@ describe('resolveAuthenticator()', () => {
       it('errors if no suitable public keys exist', async () => {
         expect.assertions(1)
         return await expect(
-          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) }, alg, did)
+          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
         ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
       })
     })
@@ -1310,7 +1304,7 @@ describe('resolveAuthenticator()', () => {
       it('filters out irrelevant public keys', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
+          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did
         )
@@ -1324,7 +1318,7 @@ describe('resolveAuthenticator()', () => {
       it('only list authenticators able to authenticate a user', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) },
+          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1339,7 +1333,7 @@ describe('resolveAuthenticator()', () => {
       it('lists authenticators with multiple key types in doc', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) },
+          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1354,7 +1348,7 @@ describe('resolveAuthenticator()', () => {
       it('errors if no suitable public keys exist', async () => {
         expect.assertions(1)
         return await expect(
-          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) }, alg, did)
+          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
         ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
       })
     })
@@ -1362,7 +1356,12 @@ describe('resolveAuthenticator()', () => {
     it('errors if no suitable public keys exist for authentication', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, alg, did, 'authentication')
+        resolveAuthenticator(
+          { resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable,
+          alg,
+          did,
+          'authentication'
+        )
       ).rejects.toThrowError(
         `DID document for ${did} does not have public keys suitable for ES256K with authentication purpose`
       )
@@ -1371,7 +1370,7 @@ describe('resolveAuthenticator()', () => {
     it('errors if no public keys exist', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(noPublicKey) }, alg, did)
+        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(noPublicKey) } as Resolvable, alg, did)
       ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
     })
 
@@ -1384,7 +1383,7 @@ describe('resolveAuthenticator()', () => {
               didResolutionMetadata: { error: 'notFound' },
               didDocument: null,
             }),
-          },
+          } as Resolvable,
           alg,
           did
         )
@@ -1394,7 +1393,7 @@ describe('resolveAuthenticator()', () => {
     it('errors if no supported signature types exist', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) }, 'ESBAD', did)
+        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable, 'ESBAD', did)
       ).rejects.toThrowError('No supported signature types for algorithm ESBAD')
     })
   })

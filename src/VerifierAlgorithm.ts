@@ -4,7 +4,7 @@ import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
-import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
+import { base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, hexToBytes, stringToBytes } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
 
 const secp256k1 = new elliptic.ec('secp256k1')

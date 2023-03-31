@@ -3,11 +3,15 @@ import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../signers/SimpleSigner'
 import EllipticSigner from '../signers/EllipticSigner'
 import NaclSigner from '../signers/NaclSigner'
-import { ec as EC } from 'elliptic'
+// @ts-ignore
+import elliptic from 'elliptic'
+// @ts-ignore
 import nacl from 'tweetnacl'
-import { base64ToBytes, stringToBytes } from '../util'
+import { base64ToBytes, hexToBytes, stringToBytes } from '../util'
 import { sha256 } from '../Digest'
-const secp256k1 = new EC('secp256k1')
+import { ES256Signer } from '../signers/ES256Signer'
+
+const secp256k1 = new elliptic.ec('secp256k1')
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const kp = secp256k1.keyFromPrivate(privateKey)
@@ -17,9 +21,8 @@ const ecSigner = EllipticSigner(privateKey)
 const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
 
 // Add tests specific to new ES256 signer for curve secp256r1 / P-256
-const secp256r1 = new EC('p256')
-import { ES256Signer } from '../signers/ES256Signer'
-import { hexToBytes } from '../util'
+const secp256r1 = new elliptic.ec('p256')
+
 const p256privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
 const p256kp = secp256r1.keyFromPrivate(p256privateKey)
 const p256signer = ES256Signer(hexToBytes(p256privateKey))
@@ -38,13 +41,13 @@ describe('ES256', () => {
       'Zks0QO1ma5pHHtNbpb0qDap0VJSvQvA775N0GZsAp3PQjmDGbsfyKlUVcU9PFueIXksioSTsPXiOCgAHIOe4WA'
     )
   })
-  
+
   it('returns signature of 64 bytes', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(base64ToBytes(signature).length).toEqual(64)
   })
-  
+
   it('contains only r and s of signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
@@ -53,13 +56,12 @@ describe('ES256', () => {
       s: 'd08e60c66ec7f22a5515714f4f16e7885e4b22a124ec3d788e0a000720e7b858',
     })
   })
-  
+
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(p256kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
-   
 })
 // end of tests added for P-256
 

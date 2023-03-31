@@ -129,7 +129,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
   if (protHeader.enc !== decrypter.enc)
     throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
   const sealed = toSealed(jwe.ciphertext, jwe.tag)
-  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
+  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected, 'utf-8')
   let cleartext = null
   if (protHeader.alg === 'dir' && decrypter.alg === 'dir') {
     cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)

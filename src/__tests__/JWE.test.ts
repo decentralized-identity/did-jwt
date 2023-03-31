@@ -1,22 +1,24 @@
-import { decryptJWE, createJWE, Encrypter, JWE } from '../JWE'
-import vectors from './jwe-vectors.js'
+import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../JWE'
+import { vectors } from './jwe-vectors'
 import {
-  xc20pDirEncrypter,
-  xc20pDirDecrypter,
-  x25519Encrypter,
+  createAnonDecrypter,
+  createAnonEncrypter,
+  createAuthDecrypter,
+  createAuthEncrypter,
   x25519Decrypter,
+  x25519Encrypter,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
-  createAnonEncrypter,
-  createAnonDecrypter,
-  createAuthEncrypter,
-  createAuthDecrypter,
+  xc20pDirDecrypter,
+  xc20pDirEncrypter,
 } from '../xc20pEncryption'
-import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
-import * as u8a from 'uint8arrays'
+import { decodeBase64url, encodeBase64url } from '../util'
+import { fromString, toString } from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
 import { createX25519ECDH, ECDH } from '../ECDH'
+
+const u8a = { toString, fromString }
 
 describe('JWE', () => {
   describe('decryptJWE', () => {
@@ -102,7 +104,7 @@ describe('JWE', () => {
 
   describe('createJWE', () => {
     describe('Direct encryption', () => {
-      let key, cleartext, encrypter, decrypter
+      let key: Uint8Array, cleartext: Uint8Array, encrypter: Encrypter, decrypter: Decrypter
 
       beforeEach(() => {
         key = randomBytes(32)
@@ -131,7 +133,7 @@ describe('JWE', () => {
         expect.assertions(4)
         const aad = u8a.fromString('this data is authenticated')
         const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
-        expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+        expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ alg: 'dir', enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
@@ -141,7 +143,7 @@ describe('JWE', () => {
 
     describe('X25519 key exchange encryption', () => {
       describe('One recipient', () => {
-        let pubkey, secretkey, cleartext, encrypter, decrypter
+        let pubkey, secretkey, cleartext: Uint8Array, encrypter: Encrypter, decrypter: Decrypter
 
         beforeEach(() => {
           secretkey = randomBytes(32)
@@ -171,7 +173,7 @@ describe('JWE', () => {
           expect.assertions(4)
           const aad = u8a.fromString('this data is authenticated')
           const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
-          expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+          expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
           expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
           delete jwe.aad
@@ -180,8 +182,8 @@ describe('JWE', () => {
       })
 
       describe('Multiple recipients', () => {
-        let pubkey1, secretkey1, pubkey2, secretkey2, cleartext
-        let encrypter1, decrypter1, encrypter2, decrypter2
+        let pubkey1, secretkey1, pubkey2, secretkey2, cleartext: Uint8Array
+        let encrypter1: Encrypter, decrypter1: Decrypter, encrypter2: Encrypter, decrypter2: Decrypter
 
         beforeEach(() => {
           secretkey1 = randomBytes(32)
@@ -217,7 +219,7 @@ describe('JWE', () => {
           expect.assertions(6)
           const aad = u8a.fromString('this data is authenticated')
           const jwe = await createJWE(cleartext, [encrypter1, encrypter2], { more: 'protected' }, aad)
-          expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+          expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
           expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
           expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
           expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
@@ -238,7 +240,7 @@ describe('JWE', () => {
 
   describe('ECDH-1PU+XC20PKW (X25519), Key Wrapping Mode with XC20P content encryption', () => {
     describe('One recipient', () => {
-      let cleartext, recipientKey, senderKey, decrypter
+      let cleartext: Uint8Array, recipientKey: any, senderKey: any, decrypter: Decrypter
 
       beforeEach(() => {
         recipientKey = generateKeyPairFromSeed(randomBytes(32))
@@ -265,9 +267,9 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
-        expect(jwe.recipients[0].header.kid).toEqual(kid)
-        expect(jwe.recipients[0].header.apu).toBeUndefined()
-        expect(jwe.recipients[0].header.apv).toBeUndefined()
+        expect(jwe.recipients!![0].header.kid).toEqual(kid)
+        expect(jwe.recipients!![0].header.apu).toBeUndefined()
+        expect(jwe.recipients!![0].header.apv).toBeUndefined()
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -282,9 +284,9 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
-        expect(jwe.recipients[0].header.kid).toBeUndefined()
-        expect(jwe.recipients[0].header.apu).toEqual(apu)
-        expect(jwe.recipients[0].header.apv).toEqual(apv)
+        expect(jwe.recipients!![0].header.kid).toBeUndefined()
+        expect(jwe.recipients!![0].header.apu).toEqual(apu)
+        expect(jwe.recipients!![0].header.apv).toEqual(apv)
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -301,9 +303,9 @@ describe('JWE', () => {
         const jwe = await createJWE(cleartext, [encrypter])
         expect(jwe.aad).toBeUndefined()
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
-        expect(jwe.recipients[0].header.kid).toEqual(kid)
-        expect(jwe.recipients[0].header.apu).toEqual(apu)
-        expect(jwe.recipients[0].header.apv).toEqual(apv)
+        expect(jwe.recipients!![0].header.kid).toEqual(kid)
+        expect(jwe.recipients!![0].header.apu).toEqual(apu)
+        expect(jwe.recipients!![0].header.apv).toEqual(apv)
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
       })
 
@@ -322,7 +324,7 @@ describe('JWE', () => {
         expect.assertions(4)
         const aad = u8a.fromString('this data is authenticated')
         const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
-        expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+        expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         delete jwe.aad
@@ -372,8 +374,8 @@ describe('JWE', () => {
     })
 
     describe('Multiple recipients', () => {
-      let cleartext, senderkey
-      const recipients = []
+      let cleartext: any, senderkey: any
+      const recipients: any[] = []
 
       beforeEach(() => {
         senderkey = generateKeyPairFromSeed(randomBytes(32))
@@ -443,7 +445,7 @@ describe('JWE', () => {
           { more: 'protected' },
           aad
         )
-        expect(u8a.fromString(jwe.aad, 'base64url')).toEqual(aad)
+        expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
         expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
         expect(await decryptJWE(jwe, recipients[0].decrypter)).toEqual(cleartext)
         expect(await decryptJWE(jwe, recipients[1].decrypter)).toEqual(cleartext)

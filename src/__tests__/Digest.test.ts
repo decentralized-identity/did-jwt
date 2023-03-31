@@ -1,5 +1,7 @@
 import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest'
-import * as u8a from 'uint8arrays'
+import { toString, fromString } from 'uint8arrays'
+
+const u8a = { toString, fromString }
 
 // https://www.di-mgt.com.au/sha_testvectors.html
 describe('sha256', () => {

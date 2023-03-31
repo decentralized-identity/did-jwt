@@ -1,5 +1,4 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
+import { leftpad, toJose } from '../util'
 import { Signer } from '../JWT'
 import { sha256 } from '../Digest'
 import elliptic from 'elliptic'
@@ -34,7 +33,7 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
       {
         r: leftpad(r.toString('hex')),
         s: leftpad(s.toString('hex')),
-        recoveryParam,
+        recoveryParam: recoveryParam ?? undefined,
       },
       recoverable
     )
