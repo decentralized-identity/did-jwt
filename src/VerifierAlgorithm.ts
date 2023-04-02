@@ -78,7 +78,7 @@ export function verifyES256(data: string, signature: string, authenticators: Ver
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
-      const pubBytes = extractPublicKeyBytes(pk) as Uint8Array
+      const pubBytes = extractPublicKeyBytes(pk)
       return secp256r1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
     } catch (err) {
       return false
