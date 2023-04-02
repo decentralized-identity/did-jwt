@@ -452,7 +452,6 @@ export function verifyJWSDecoded(
  */
 export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
-  // here JWS
   return verifyJWSDecoded(jwsDecoded, pubKeys)
 }
 
