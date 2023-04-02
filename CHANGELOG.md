@@ -1,3 +1,31 @@
+## [6.11.5](https://github.com/decentralized-identity/did-jwt/compare/6.11.4...6.11.5) (2023-03-16)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency did-resolver to v4.1.0 ([85de440](https://github.com/decentralized-identity/did-jwt/commit/85de44043021e6bd7217aa3cb5c2af72cc4f69f3))
+
+## [6.11.4](https://github.com/decentralized-identity/did-jwt/compare/6.11.3...6.11.4) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([c637b84](https://github.com/decentralized-identity/did-jwt/commit/c637b84493ee7c3591a7ddcf9ca90fd7baa9287a))
+
+## [6.11.3](https://github.com/decentralized-identity/did-jwt/compare/6.11.2...6.11.3) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** remove dev dependency did-key-creator ([#274](https://github.com/decentralized-identity/did-jwt/issues/274)) ([fbe09e1](https://github.com/decentralized-identity/did-jwt/commit/fbe09e1639a323fc39b31c3578ba8b7889f1f9f1))
+
+## [6.11.2](https://github.com/decentralized-identity/did-jwt/compare/6.11.1...6.11.2) (2023-03-08)
+
+
+### Bug Fixes
+
+* provide hash algorithms as exported functions ([#271](https://github.com/decentralized-identity/did-jwt/issues/271)) ([71cc19b](https://github.com/decentralized-identity/did-jwt/commit/71cc19b9a88a76d3fb754d77a4773678460020c5))
+
 ## [6.11.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.0...6.11.1) (2023-02-13)
 
 
