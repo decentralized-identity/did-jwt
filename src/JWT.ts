@@ -498,40 +498,40 @@ export async function verifyJWT(
       : undefined
     : options.proofPurpose
 
-  let did
+  let didUrl: string | undefined
 
   if (!payload.iss && !payload.client_id) {
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss or client_id are required`)
   }
 
   if (options.didAuthenticator) {
-    did = options.didAuthenticator.issuer
+    didUrl = options.didAuthenticator.issuer
   } else if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
     if (typeof payload.sub_jwk === 'undefined') {
-      did = payload.sub
+      didUrl = payload.sub
     } else {
-      did = (header.kid || '').split('#')[0]
+      didUrl = (header.kid || '').split('#')[0]
     }
   } else if (payload.iss === SELF_ISSUED_V0_1) {
     if (!payload.did) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT did is required`)
     }
-    did = payload.did
+    didUrl = payload.did
   } else if (!payload.iss && payload.scope === 'openid' && payload.redirect_uri) {
     // SIOP Request payload
     // https://identity.foundation/jwt-vc-presentation-profile/#self-issued-op-request-object
     if (!payload.client_id) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT client_id is required`)
     }
-    did = payload.client_id
+    didUrl = payload.client_id
   } else {
-    did = payload.iss
+    didUrl = payload.iss
   }
 
-  if (!did) {
+  if (!didUrl) {
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
@@ -544,21 +544,21 @@ export async function verifyJWT(
     ;({ didResolutionResult, authenticators, issuer } = await resolveAuthenticator(
       options.resolver,
       header.alg,
-      did,
+      didUrl,
       proofPurpose
     ))
     // Add to options object for recursive reference
     options.didAuthenticator = { didResolutionResult, authenticators, issuer }
   }
 
-  const { didUrl } = parse(did) as ParsedDID
+  const { did } = parse(didUrl) as ParsedDID
 
   let signer: VerificationMethod | null = null
 
   if (did !== didUrl) {
-    const authenticator = authenticators.find((auth) => auth.id === did)
+    const authenticator = authenticators.find((auth) => auth.id === didUrl)
     if (!authenticator) {
-      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${did}`)
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${didUrl}`)
     }
 
     signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
