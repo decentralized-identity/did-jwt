@@ -1,31 +1,10 @@
-import { hexToBytes, base64ToBytes } from '../util'
-import { VerificationMethod } from 'did-resolver'
-import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
-import { fromString } from 'uint8arrays/from-string'
-import { getAddress } from '@ethersproject/address'
 import {
-  createJWS,
-  createJWT,
   createMultisignatureJWT,
-  decodeJWT,
-  NBF_SKEW,
-  resolveAuthenticator,
-  SELF_ISSUED_V0_1,
-  SELF_ISSUED_V2,
-  verifyJWS,
   verifyJWT,
 } from '../JWT'
-import { EdDSASigner } from '../signers/EdDSASigner'
-import { ES256KSigner } from '../signers/ES256KSigner'
-import { bytesToBase64url, decodeBase64url } from '../util'
 
 // add declarations for ES256 Tests
-import { ES256Signer } from '../signers/ES256Signer'
-import * as jwt from 'jsonwebtoken'
-import * as u8a from 'uint8arrays'
-import * as jwkToPem from 'jwk-to-pem'
-import { encodeDIDfromHexString } from  'did-key-creator'
 import { createResolver, createSigner } from './ConditionalAlgorithmResolverHelper'
 import { PrivateKey } from '@greymass/eosio'
 import { JWT_ERROR } from '../Errors'

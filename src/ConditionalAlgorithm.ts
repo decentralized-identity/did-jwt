@@ -1,7 +1,7 @@
 import type { VerificationMethod } from 'did-resolver'
 import { EcdsaSignature } from './util'
 import { JWT_ERROR } from './Errors'
-import { JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWSDecoded, verifyJWT } from './JWT'
+import { JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWT, verifyJWTDecoded } from './JWT'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -17,7 +17,7 @@ export async function verifyProof(
   if (authenticator.type === CONDITIONAL_PROOF_2022) {
     return await verifyConditionalProof(jwt, { payload, header, signature, data }, authenticator, options)
   } else {
-    return await verifyJWSDecoded({ header, payload, data, signature }, [authenticator])
+    return await verifyJWTDecoded({ header, payload, data, signature }, [authenticator])
   }
 }
 
@@ -79,7 +79,7 @@ async function verifyConditionWeightedThreshold(
           foundSigner = currentCondition
         }
       } else {
-        foundSigner = await verifyJWSDecoded({ header, payload, data, signature }, currentCondition)
+        foundSigner = await verifyJWTDecoded({ header, payload, data, signature }, currentCondition)
       }
     } catch (e) {
       if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
@@ -143,7 +143,7 @@ async function verifyConditionDelegated(
     }
   } else {
     try {
-      foundSigner = await verifyJWSDecoded({ header, payload, data, signature }, delegatedAuthenticator)
+      foundSigner = await verifyJWTDecoded({ header, payload, data, signature }, delegatedAuthenticator)
     } catch (e) {
       if (!(e as Error).message.startsWith('invalid_signature:')) throw e
     }

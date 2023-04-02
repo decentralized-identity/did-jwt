@@ -400,17 +400,15 @@ export async function createMultisignatureJWT(
   return jwt
 }
 
-export function verifyJWSDecoded(
+export function verifyJWTDecoded(
   { header, payload, data, signature }: JWTDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
   if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
 
   const iss = payload.iss
-  // let level = 0
   let recurse = true
   do {
-    // console.log(`verifyJWSDecoded(): checking JWT at level ${level}`)
     if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
 
     try {
@@ -427,10 +425,18 @@ export function verifyJWSDecoded(
     } else {
       ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
     }
-    // level++
   } while (recurse)
 
   throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
+}
+
+export function verifyJWSDecoded(
+  { header, data, signature }: JWSDecoded,
+  pubKeys: VerificationMethod | VerificationMethod[]
+): VerificationMethod {
+  if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
+  const signer: VerificationMethod = VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+  return signer
 }
 
 /**
@@ -446,7 +452,8 @@ export function verifyJWSDecoded(
  */
 export function verifyJWS(jws: string, pubKeys: VerificationMethod | VerificationMethod[]): VerificationMethod {
   const jwsDecoded: JWSDecoded = decodeJWS(jws)
-  return verifyJWSDecoded(jwsDecoded as unknown as JWTDecoded, pubKeys)
+  // here JWS
+  return verifyJWSDecoded(jwsDecoded, pubKeys)
 }
 
 /**
