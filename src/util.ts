@@ -1,6 +1,8 @@
-import * as u8a from 'uint8arrays'
+import { concat, fromString, toString } from 'uint8arrays'
 import { bases } from 'multiformats/basics'
 import { x25519 } from '@noble/curves/ed25519'
+
+const u8a = { toString, fromString, concat }
 
 /**
  * @deprecated Signers will be expected to return base64url `string` signatures.
@@ -8,7 +10,7 @@ import { x25519 } from '@noble/curves/ed25519'
 export interface EcdsaSignature {
   r: string
   s: string
-  recoveryParam?: number | null
+  recoveryParam?: number
 }
 
 /**
@@ -97,8 +99,8 @@ export function fromJose(signature: string): { r: string; s: string; recoveryPar
   return { r, s, recoveryParam }
 }
 
-export function toSealed(ciphertext: string, tag: string): Uint8Array {
-  return u8a.concat([base64ToBytes(ciphertext), base64ToBytes(tag)])
+export function toSealed(ciphertext: string, tag?: string): Uint8Array {
+  return u8a.concat([base64ToBytes(ciphertext), tag ? base64ToBytes(tag) : new Uint8Array(0)])
 }
 
 export function leftpad(data: string, size = 64): string {

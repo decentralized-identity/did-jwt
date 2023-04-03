@@ -1,10 +1,10 @@
 import canonicalizeData from 'canonicalize'
 import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
-import SignerAlg from './SignerAlgorithm'
-import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
-import VerifierAlgorithm from './VerifierAlgorithm'
-import { JWT_ERROR } from './Errors'
-import { verifyProof } from './ConditionalAlgorithm'
+import SignerAlg from './SignerAlgorithm.js'
+import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util.js'
+import VerifierAlgorithm from './VerifierAlgorithm.js'
+import { JWT_ERROR } from './Errors.js'
+import { verifyProof } from './ConditionalAlgorithm.js'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>

@@ -1,12 +1,12 @@
-import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
-import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, generateKeyPair } from './util'
-import type { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
-import type { VerificationMethod, Resolvable } from 'did-resolver'
-import type { ECDH } from './ECDH'
-import { fromString } from 'uint8arrays/from-string'
-import { x25519 } from '@noble/curves/ed25519'
+import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { randomBytes } from '@noble/hashes/utils'
+import { base64ToBytes, bytesToBase64url, toSealed, generateKeyPair } from '../util.js'
+import { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
+import { ECDH } from './ECDH.js'
+import { xc20pDirDecrypter, xc20pDirEncrypter, xc20pEncrypter } from './xc20pDir.js'
+import { computeX25519Ecdh1PUv3Kek, createX25519Ecdh1PUv3Kek } from './X25519-ECDH-1PU.js'
+import { computeX25519EcdhEsKek, createX25519EcdhEsKek } from './X25519-ECDH-ES.js'
+import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 
 /**
  * Extra parameters for JWE using authenticated encryption
@@ -38,6 +38,12 @@ export type AnonEncryptParams = {
    * recipient key ID
    */
   kid?: string
+
+  /**
+   * See {@link https://datatracker.ietf.org/doc/html/rfc7518#section-4.6.1.3}
+   * base64url encoded
+   */
+  apv?: string
 }
 
 /**
@@ -81,7 +87,7 @@ export function createAuthEncrypter(
  * @beta
  */
 export function createAnonEncrypter(publicKey: Uint8Array, options: Partial<AnonEncryptParams> = {}): Encrypter {
-  return x25519Encrypter(publicKey, options?.kid)
+  return x25519Encrypter(publicKey, options?.kid, options?.apv)
 }
 
 /**
@@ -123,84 +129,66 @@ export function createAnonDecrypter(recipientSecret: Uint8Array | ECDH): Decrypt
   return x25519Decrypter(recipientSecret)
 }
 
-function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
-  const cipher = new XChaCha20Poly1305(key)
-  return (cleartext: Uint8Array, aad?: Uint8Array) => {
-    const iv = randomBytes(cipher.nonceLength)
-    const sealed = cipher.seal(iv, cleartext, aad)
-    return {
-      ciphertext: sealed.subarray(0, sealed.length - cipher.tagLength),
-      tag: sealed.subarray(sealed.length - cipher.tagLength),
-      iv,
-    }
+export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
+  if (!(header && header.epk && header.iv && header.tag)) {
+    throw new Error('bad_jwe: malformed header')
   }
+  return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
 }
 
-export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
-  const xc20pEncrypt = xc20pEncrypter(key)
-  const enc = 'XC20P'
-  const alg = 'dir'
-  async function encrypt(
-    cleartext: Uint8Array,
-    protectedHeader: ProtectedHeader = {},
-    aad?: Uint8Array
-  ): Promise<EncryptionResult> {
-    const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
-    const encodedAad = fromString(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader)
-    return {
-      ...xc20pEncrypt(cleartext, encodedAad),
-      protectedHeader: protHeader,
-    }
-  }
-  return { alg, enc, encrypt }
-}
-
-export function xc20pDirDecrypter(key: Uint8Array): Decrypter {
-  const cipher = new XChaCha20Poly1305(key)
-  async function decrypt(sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array): Promise<Uint8Array | null> {
-    return cipher.open(iv, sealed, aad)
-  }
-  return { alg: 'dir', enc: 'XC20P', decrypt }
-}
-
-export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter {
+export function x25519Encrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
   const alg = 'ECDH-ES+XC20PKW'
-  const keyLen = 256
-  const crv = 'X25519'
-  async function encryptCek(cek: Uint8Array): Promise<Recipient> {
-    const epk = generateKeyPair()
-    const sharedSecret = x25519.getSharedSecret(epk.secretKey, publicKey)
-    // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg)
+  const enc = 'XC20P'
+
+  async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
+    const { epk, kek } = createX25519EcdhEsKek(ephemeralKeyPair, publicKey, apv, alg)
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
       encrypted_key: bytesToBase64url(res.ciphertext),
-      header: {
-        alg,
-        iv: bytesToBase64url(res.iv),
-        tag: bytesToBase64url(res.tag),
-        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) },
-      },
+      header: {},
     }
+    if (res.iv) recipient.header.iv = bytesToBase64url(res.iv)
+    if (res.tag) recipient.header.tag = bytesToBase64url(res.tag)
     if (kid) recipient.header.kid = kid
+    if (apv) recipient.header.apv = apv
+    if (!ephemeralKeyPair) {
+      recipient.header.alg = alg
+      recipient.header.epk = epk
+    }
     return recipient
   }
+
   async function encrypt(
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
-    aad?: Uint8Array
+    aad?: Uint8Array,
+    ephemeralKeyPair?: EphemeralKeyPair
   ): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
     Object.assign(protectedHeader, { alg: undefined })
     // Content Encryption Key
     const cek = randomBytes(32)
+    const recipient: Recipient = await encryptCek(cek, ephemeralKeyPair)
+    if (ephemeralKeyPair) {
+      protectedHeader.alg = alg
+      protectedHeader.epk = ephemeralKeyPair.publicKeyJWK
+    }
     return {
       ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
-      recipient: await encryptCek(cek),
+      recipient,
       cek,
     }
   }
-  return { alg, enc: 'XC20P', encrypt, encryptCek }
+
+  return { alg, enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
+}
+
+export function genX25519EphemeralKeyPair(): EphemeralKeyPair {
+  const epk = generateKeyPair()
+  return {
+    publicKeyJWK: { kty: 'OKP', crv: 'X25519', x: bytesToBase64url(epk.publicKey) },
+    secretKey: epk.secretKey,
+  }
 }
 
 /**
@@ -214,66 +202,59 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
   options: Partial<AuthEncryptParams> = {}
 ): Encrypter {
   const alg = 'ECDH-1PU+XC20PKW'
-  const keyLen = 256
-  const crv = 'X25519'
+  const enc = 'XC20P'
 
-  let partyUInfo: Uint8Array
-  let partyVInfo: Uint8Array
-  if (options.apu !== undefined) partyUInfo = base64ToBytes(options.apu)
-  if (options.apv !== undefined) partyVInfo = base64ToBytes(options.apv)
-
-  async function encryptCek(cek: Uint8Array): Promise<Recipient> {
-    const epk = generateKeyPair()
-    const zE = x25519.getSharedSecret(epk.secretKey, recipientPublicKey)
-
-    // ECDH-1PU requires additional shared secret between
-    // static key of sender and static key of recipient
-    let zS
-    if (senderSecret instanceof Uint8Array) {
-      zS = x25519.getSharedSecret(senderSecret, recipientPublicKey)
-    } else {
-      zS = await senderSecret(recipientPublicKey)
-    }
-
-    const sharedSecret = new Uint8Array(zE.length + zS.length)
-    sharedSecret.set(zE)
-    sharedSecret.set(zS, zE.length)
-
-    // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo, partyVInfo)
+  async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
+    const { epk, kek } = await createX25519Ecdh1PUv3Kek(
+      ephemeralKeyPair,
+      recipientPublicKey,
+      senderSecret,
+      options.apu,
+      options.apv,
+      alg
+    )
 
     const res = xc20pEncrypter(kek)(cek)
     const recipient: Recipient = {
       encrypted_key: bytesToBase64url(res.ciphertext),
-      header: {
-        alg,
-        iv: bytesToBase64url(res.iv),
-        tag: bytesToBase64url(res.tag),
-        epk: { kty: 'OKP', crv, x: bytesToBase64url(epk.publicKey) },
-      },
+      header: {},
     }
+    if (res.iv) recipient.header.iv = bytesToBase64url(res.iv)
+    if (res.tag) recipient.header.tag = bytesToBase64url(res.tag)
     if (options.kid) recipient.header.kid = options.kid
     if (options.apu) recipient.header.apu = options.apu
     if (options.apv) recipient.header.apv = options.apv
+    if (!ephemeralKeyPair) {
+      recipient.header.alg = alg
+      recipient.header.epk = epk
+    }
 
     return recipient
   }
+
   async function encrypt(
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
-    aad?: Uint8Array
+    aad?: Uint8Array,
+    ephemeralKeyPair?: EphemeralKeyPair
   ): Promise<EncryptionResult> {
     // we won't want alg to be set to dir from xc20pDirEncrypter
     Object.assign(protectedHeader, { alg: undefined })
     // Content Encryption Key
     const cek = randomBytes(32)
+    const recipient: Recipient = await encryptCek(cek, ephemeralKeyPair)
+    if (ephemeralKeyPair) {
+      protectedHeader.alg = alg
+      protectedHeader.epk = ephemeralKeyPair.publicKeyJWK
+    }
     return {
       ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
-      recipient: await encryptCek(cek),
+      recipient,
       cek,
     }
   }
-  return { alg, enc: 'XC20P', encrypt, encryptCek }
+
+  return { alg, enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
 }
 
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
@@ -312,14 +293,11 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
     const pks =
       agreementKeys?.filter((key) => {
-        // TODO: should be able to use non base58 keys too
-        return key.type === 'X25519KeyAgreementKey2019' && Boolean(key.publicKeyBase58)
+        return key.type === 'X25519KeyAgreementKey2019' || key.type === 'X25519KeyAgreementKey2020'
       }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
-    return pks
-      .map((pk) => x25519Encrypter(base58ToBytes(<string>pk.publicKeyBase58), pk.id))
-      .concat(...controllerEncrypters)
+    return pks.map((pk) => x25519Encrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
   }
 
   const encrypterPromises = dids.map((did) => encryptersForDID(did))
@@ -328,43 +306,30 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
   return flattenedArray
 }
 
-function validateHeader(header?: ProtectedHeader) {
-  if (!(header && header.epk && header.iv && header.tag)) {
-    throw new Error('bad_jwe: malformed header')
-  }
-}
-
 export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
   const alg = 'ECDH-ES+XC20PKW'
-  const keyLen = 256
-  const crv = 'X25519'
+  const enc = 'XC20P'
+
   async function decrypt(
     sealed: Uint8Array,
     iv: Uint8Array,
     aad?: Uint8Array,
     recipient?: Recipient
   ): Promise<Uint8Array | null> {
-    validateHeader(recipient?.header)
     recipient = <Recipient>recipient
-    if (recipient.header.epk?.crv !== crv || typeof recipient.header.epk.x == 'undefined') return null
-    const publicKey = base64ToBytes(recipient.header.epk.x)
-    let sharedSecret
-    if (receiverSecret instanceof Uint8Array) {
-      sharedSecret = x25519.getSharedSecret(receiverSecret, publicKey)
-    } else {
-      sharedSecret = await receiverSecret(publicKey)
-    }
+    const header = validateHeader(recipient.header)
 
-    // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg)
+    const kek = await computeX25519EcdhEsKek(recipient, receiverSecret, alg)
+    if (!kek) return null
     // Content Encryption Key
-    const sealedCek = toSealed(<string>recipient.encrypted_key, recipient.header.tag)
-    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
+    const sealedCek = toSealed(recipient.encrypted_key, header.tag)
+    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(header.iv))
     if (cek === null) return null
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
-  return { alg, enc: 'XC20P', decrypt }
+
+  return { alg, enc, decrypt }
 }
 
 /**
@@ -377,8 +342,8 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   senderPublicKey: Uint8Array
 ): Decrypter {
   const alg = 'ECDH-1PU+XC20PKW'
-  const keyLen = 256
-  const crv = 'X25519'
+  const enc = 'XC20P'
+
   async function decrypt(
     sealed: Uint8Array,
     iv: Uint8Array,
@@ -386,39 +351,16 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
     recipient?: Recipient
   ): Promise<Uint8Array | null> {
     recipient = <Recipient>recipient
-    validateHeader(recipient.header)
-    if (recipient.header.epk?.crv !== crv || typeof recipient.header.epk.x == 'undefined') return null
-    // ECDH-1PU requires additional shared secret between
-    // static key of sender and static key of recipient
-    const publicKey = base64ToBytes(recipient.header.epk.x)
-    let zE: Uint8Array
-    let zS: Uint8Array
-
-    if (recipientSecret instanceof Uint8Array) {
-      zE = x25519.getSharedSecret(recipientSecret, publicKey)
-      zS = x25519.getSharedSecret(recipientSecret, senderPublicKey)
-    } else {
-      zE = await recipientSecret(publicKey)
-      zS = await recipientSecret(senderPublicKey)
-    }
-
-    const sharedSecret = new Uint8Array(zE.length + zS.length)
-    sharedSecret.set(zE)
-    sharedSecret.set(zS, zE.length)
-
-    // Key Encryption Key
-    let producerInfo
-    let consumerInfo
-    if (recipient.header.apu) producerInfo = base64ToBytes(recipient.header.apu)
-    if (recipient.header.apv) consumerInfo = base64ToBytes(recipient.header.apv)
-
-    const kek = concatKDF(sharedSecret, keyLen, alg, producerInfo, consumerInfo)
+    const header = validateHeader(recipient.header)
+    const kek = await computeX25519Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
+    if (!kek) return null
     // Content Encryption Key
-    const sealedCek = toSealed(recipient.encrypted_key, recipient.header.tag)
-    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(recipient.header.iv))
+    const sealedCek = toSealed(recipient.encrypted_key, header.tag)
+    const cek = await xc20pDirDecrypter(kek).decrypt(sealedCek, base64ToBytes(header.iv))
     if (cek === null) return null
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
-  return { alg, enc: 'XC20P', decrypt }
+
+  return { alg, enc, decrypt }
 }
