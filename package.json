@@ -20,6 +20,7 @@
       "import": "./lib/index.module.js"
     }
   },
+  "browser": "./dist/did-jwt.js",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:ci": "yarn test --coverage",

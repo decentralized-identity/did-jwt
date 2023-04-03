@@ -1,13 +1,14 @@
-import { EdDSASigner as EdDSASigner } from './EdDSASigner'
-import { Signer } from '../JWT'
-import { base64ToBytes } from '../util'
+import { EdDSASigner as EdDSASigner } from './EdDSASigner.js'
+import type { Signer } from '../JWT.js'
+import { base64ToBytes } from '../util.js'
 
 /**
  * @deprecated Please use EdDSASigner
  *
  *  The NaclSigner returns a configured function for signing data using the Ed25519 algorithm.
  *
- *  The signing function itself takes the data as a `string` or `Uint8Array` parameter and returns a `base64Url`-encoded signature.
+ *  The signing function itself takes the data as a `string` or `Uint8Array` parameter and returns a
+ *   `base64Url`-encoded signature.
  *
  *  @example
  *  const signer = NaclSigner(process.env.PRIVATE_KEY)

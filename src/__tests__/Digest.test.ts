@@ -1,4 +1,4 @@
-import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest'
+import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest.js'
 import { toString, fromString } from 'uint8arrays'
 
 const u8a = { toString, fromString }

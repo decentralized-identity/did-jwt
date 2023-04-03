@@ -1,5 +1,5 @@
-import { base58ToBytes, bytesToBase58, bytesToHex, hexToBytes } from '../util'
-import { ripemd160, sha256 } from '../Digest'
+import { base58ToBytes, bytesToBase58, bytesToHex, hexToBytes } from '../util.js'
+import { ripemd160, sha256 } from '../Digest.js'
 
 export const publicKeyToAddress = (publicKey: string, otherAddress: string): string => {
   // Use the same version/prefix byte as the given address.

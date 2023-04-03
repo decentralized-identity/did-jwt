@@ -13,12 +13,6 @@
     [
       "@semantic-release/git",
       {
-        "assets": [
-          "CHANGELOG.md",
-          "docs",
-          "package.json",
-          "yarn.lock"
-        ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],

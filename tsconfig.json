@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "lib",
     "strict": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
     "types": [
       "jest"
     ],

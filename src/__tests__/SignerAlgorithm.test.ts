@@ -1,15 +1,16 @@
-import SignerAlgorithm from '../SignerAlgorithm'
-import { toSignatureObject } from '../VerifierAlgorithm'
-import SimpleSigner from '../signers/SimpleSigner'
-import EllipticSigner from '../signers/EllipticSigner'
-import NaclSigner from '../signers/NaclSigner'
 // @ts-ignore
 import elliptic from 'elliptic'
 // @ts-ignore
 import nacl from 'tweetnacl'
-import { base64ToBytes, hexToBytes, stringToBytes } from '../util'
-import { sha256 } from '../Digest'
-import { ES256Signer } from '../signers/ES256Signer'
+
+import SignerAlgorithm from '../SignerAlgorithm.js'
+import { toSignatureObject } from '../VerifierAlgorithm.js'
+import SimpleSigner from '../signers/SimpleSigner.js'
+import EllipticSigner from '../signers/EllipticSigner.js'
+import NaclSigner from '../signers/NaclSigner.js'
+import { base64ToBytes, hexToBytes, stringToBytes } from '../util.js'
+import { sha256 } from '../Digest.js'
+import { ES256Signer } from '../signers/ES256Signer.js'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'

@@ -1,8 +1,9 @@
 import { hash } from '@stablelib/sha256'
-import { Ripemd160 } from './blockchains/utils/ripemd160'
-import { fromString, concat } from 'uint8arrays'
+import { concat, fromString } from 'uint8arrays'
+// @ts-ignore
 import sha3 from 'js-sha3'
-import { bytesToHex, hexToBytes } from './util'
+import { bytesToHex, hexToBytes } from './util.js'
+import { Ripemd160 } from './blockchains/utils/ripemd160.js'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? fromString(payload, 'utf-8') : payload

@@ -1,18 +1,18 @@
-import VerifierAlgorithm from '../VerifierAlgorithm'
-import { createJWT } from '../JWT'
 // @ts-ignore
 import nacl from 'tweetnacl'
 // @ts-ignore
 import elliptic from 'elliptic'
-import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64url, bytesToMultibase } from '../util'
-import { toString, fromString } from 'uint8arrays'
-import { EdDSASigner } from '../signers/EdDSASigner'
-import { ES256KSigner } from '../signers/ES256KSigner'
-import { toEthereumAddress } from '../Digest'
-import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
-import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
+import { fromString, toString } from 'uint8arrays'
+import VerifierAlgorithm from '../VerifierAlgorithm.js'
+import { createJWT } from '../JWT.js'
+import { base64ToBytes, bytesToBase58, bytesToBase64, bytesToBase64url, bytesToMultibase, hexToBytes } from '../util.js'
+import { EdDSASigner } from '../signers/EdDSASigner.js'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
+import { toEthereumAddress } from '../Digest.js'
+import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122.js'
+import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos.js'
 
-import { ES256Signer } from '../signers/ES256Signer'
+import { ES256Signer } from '../signers/ES256Signer.js'
 
 const u8a = { toString, fromString }
 

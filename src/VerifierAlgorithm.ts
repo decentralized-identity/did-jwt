@@ -1,11 +1,14 @@
+// noinspection ES6PreferShortImport
+
 import type { SignatureInput } from 'elliptic'
+// @ts-ignore
 import elliptic from 'elliptic'
-import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
-import { base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, hexToBytes, stringToBytes } from './util'
-import { verifyBlockchainAccountId } from './blockchains'
+import { sha256, toEthereumAddress } from './Digest.js'
+import { base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, hexToBytes, stringToBytes } from './util.js'
+import { verifyBlockchainAccountId } from './blockchains/index.js'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 const secp256r1 = new elliptic.ec('p256')

@@ -1,5 +1,5 @@
 import { fromString } from 'uint8arrays'
-import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ProtectedHeader = Record<string, any> & Partial<RecipientHeader>

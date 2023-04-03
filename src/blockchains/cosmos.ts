@@ -1,7 +1,8 @@
+// @ts-ignore
 import elliptic from 'elliptic'
 import { bech32 } from 'bech32'
-import { sha256, ripemd160 } from '../Digest'
-import { hexToBytes } from '../util'
+import { sha256, ripemd160 } from '../Digest.js'
+import { hexToBytes } from '../util.js'
 
 const EC = elliptic.ec
 

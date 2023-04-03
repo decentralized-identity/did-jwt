@@ -1,12 +1,12 @@
+import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
-import { concatKDF } from './Digest'
-import { base58ToBytes, base64ToBytes, bytesToBase64url, encodeBase64url, toSealed } from './util'
-import { Decrypter, Encrypter, EncryptionResult, ProtectedHeader, Recipient } from './JWE'
-import type { Resolvable, VerificationMethod } from 'did-resolver'
-import { ECDH } from './ECDH'
-import { fromString } from 'uint8arrays/from-string'
+import { fromString } from 'uint8arrays'
+import { concatKDF } from './Digest.js'
+import { base58ToBytes, base64ToBytes, bytesToBase64url, encodeBase64url, toSealed } from './util.js'
+import { Decrypter, Encrypter, EncryptionResult, ProtectedHeader, Recipient } from './JWE.js'
+import { ECDH } from './ECDH.js'
 
 /**
  * Extra parameters for JWE using authenticated encryption
@@ -140,6 +140,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
   const xc20pEncrypt = xc20pEncrypter(key)
   const enc = 'XC20P'
   const alg = 'dir'
+
   async function encrypt(
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
@@ -152,14 +153,17 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
       protectedHeader: protHeader,
     }
   }
+
   return { alg, enc, encrypt }
 }
 
 export function xc20pDirDecrypter(key: Uint8Array): Decrypter {
   const cipher = new XChaCha20Poly1305(key)
+
   async function decrypt(sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array): Promise<Uint8Array | null> {
     return cipher.open(iv, sealed, aad)
   }
+
   return { alg: 'dir', enc: 'XC20P', decrypt }
 }
 
@@ -167,6 +171,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   const alg = 'ECDH-ES+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
+
   async function encryptCek(cek: Uint8Array): Promise<Recipient> {
     const epk = generateKeyPair()
     const sharedSecret = sharedKey(epk.secretKey, publicKey)
@@ -185,6 +190,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
     if (kid) recipient.header.kid = kid
     return recipient
   }
+
   async function encrypt(
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
@@ -200,6 +206,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
       cek,
     }
   }
+
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
@@ -258,6 +265,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
 
     return recipient
   }
+
   async function encrypt(
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
@@ -273,6 +281,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
       cek,
     }
   }
+
   return { alg, enc: 'XC20P', encrypt, encryptCek }
 }
 
@@ -338,6 +347,7 @@ export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
   const alg = 'ECDH-ES+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
+
   async function decrypt(
     sealed: Uint8Array,
     iv: Uint8Array,
@@ -364,6 +374,7 @@ export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
+
   return { alg, enc: 'XC20P', decrypt }
 }
 
@@ -379,6 +390,7 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   const alg = 'ECDH-1PU+XC20PKW'
   const keyLen = 256
   const crv = 'X25519'
+
   async function decrypt(
     sealed: Uint8Array,
     iv: Uint8Array,
@@ -420,5 +432,6 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
+
   return { alg, enc: 'XC20P', decrypt }
 }

@@ -1,5 +1,5 @@
-import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../JWE'
-import { vectors } from './jwe-vectors'
+import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../JWE.js'
+import { vectors } from './jwe-vectors.js'
 import {
   createAnonDecrypter,
   createAnonEncrypter,
@@ -11,12 +11,12 @@ import {
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pDirDecrypter,
   xc20pDirEncrypter,
-} from '../xc20pEncryption'
-import { decodeBase64url, encodeBase64url } from '../util'
+} from '../xc20pEncryption.js'
+import { decodeBase64url, encodeBase64url } from '../util.js'
 import { fromString, toString } from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
-import { createX25519ECDH, ECDH } from '../ECDH'
+import { createX25519ECDH, ECDH } from '../ECDH.js'
 
 const u8a = { toString, fromString }
 

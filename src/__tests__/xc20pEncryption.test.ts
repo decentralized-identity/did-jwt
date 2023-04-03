@@ -1,10 +1,10 @@
-import { resolveX25519Encrypters, x25519Decrypter } from '../xc20pEncryption'
-import { createJWE, Decrypter, decryptJWE } from '../JWE'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPair } from '@stablelib/x25519'
-import { createX25519ECDH } from '../ECDH'
 import { DIDResolutionResult, Resolvable } from 'did-resolver'
-import { bytesToBase58 } from '../util'
+import { resolveX25519Encrypters, x25519Decrypter } from '../xc20pEncryption.js'
+import { createJWE, Decrypter, decryptJWE } from '../JWE.js'
+import { createX25519ECDH } from '../ECDH.js'
+import { bytesToBase58 } from '../util.js'
 
 import { jest } from '@jest/globals'
 

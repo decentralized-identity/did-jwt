@@ -1,4 +1,4 @@
-import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util.js'
 import { Resolvable, VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
@@ -13,12 +13,12 @@ import {
   SELF_ISSUED_V2,
   verifyJWS,
   verifyJWT,
-} from '../JWT'
-import { EdDSASigner } from '../signers/EdDSASigner'
-import { ES256KSigner } from '../signers/ES256KSigner'
+} from '../JWT.js'
+import { EdDSASigner } from '../signers/EdDSASigner.js'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
 
 // add declarations for ES256 Tests
-import { ES256Signer } from '../signers/ES256Signer'
+import { ES256Signer } from '../signers/ES256Signer.js'
 import * as jwt from 'jsonwebtoken'
 import { fromString, toString } from 'uint8arrays'
 // @ts-ignore

@@ -20,6 +20,7 @@ jobs:
           cache: 'yarn'
 
       - run: yarn install --frozen-lockfile
+      - run: yarn run format
       - run: yarn run build
 
       - name: "Setup git coordinates"
