@@ -1,3 +1,10 @@
+## [6.11.7-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...6.11.7-alpha.1) (2023-04-03)
+
+
+### Bug Fixes
+
+* better handling of ESM dependencies in tests ([#277](https://github.com/decentralized-identity/did-jwt/issues/277)) ([2a7865e](https://github.com/decentralized-identity/did-jwt/commit/2a7865e82d03af2b78a814ceea6e9879007f8b30))
+
 ## [6.11.6](https://github.com/decentralized-identity/did-jwt/compare/6.11.5...6.11.6) (2023-04-03)
 
 
