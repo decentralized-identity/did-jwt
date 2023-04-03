@@ -1,7 +1,6 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
-import { Signer } from '../JWT'
-import { sha256 } from '../Digest'
+import { leftpad, toJose } from '../util.js'
+import { Signer } from '../JWT.js'
+import { sha256 } from '../Digest.js'
 import { secp256k1 } from '@noble/curves/secp256k1'
 
 /**
