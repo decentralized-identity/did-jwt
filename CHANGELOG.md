@@ -1,3 +1,10 @@
+## [6.11.6](https://github.com/decentralized-identity/did-jwt/compare/6.11.5...6.11.6) (2023-04-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency canonicalize to v2 ([a916e62](https://github.com/decentralized-identity/did-jwt/commit/a916e6216c82db98cf5023cd66fbacb7515681c7))
+
 ## [6.11.5](https://github.com/decentralized-identity/did-jwt/compare/6.11.4...6.11.5) (2023-03-16)
 
 
