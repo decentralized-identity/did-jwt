@@ -1,5 +1,5 @@
-import { hexToBytes, base58ToBytes, base64ToBytes } from '../util'
-import { ES256KSigner } from '../signers/ES256KSigner'
+import { hexToBytes, base58ToBytes, base64ToBytes } from '../util.js'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
 
 describe('Secp256k1 Signer', () => {
   it('signs data, given a hex private key', async () => {

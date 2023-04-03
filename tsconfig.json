@@ -1,19 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
-    "lib": [
-      "dom",
-      "es6",
-      "es2015.promise"
-    ],
+    "target": "ESNext",
+    "module": "ESNext",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "lib",
     "strict": true,
-    "noImplicitThis": false,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
     "types": [
       "jest"
     ],
@@ -25,5 +20,8 @@
     "**/__tests__/*",
     "node_modules",
     "lib"
+  ],
+  "include": [
+    "src"
   ]
 }

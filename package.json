@@ -6,9 +6,7 @@
   "source": "src/index.ts",
   "main": "./lib/index.cjs",
   "module": "./lib/index.module.js",
-  "unpkg": "./lib/index.umd.js",
   "types": "./lib/index.d.ts",
-  "umd:main": "./lib/index.umd.js",
   "files": [
     "lib",
     "dist",
@@ -22,9 +20,10 @@
       "import": "./lib/index.module.js"
     }
   },
+  "browser": "./dist/did-jwt.js",
   "scripts": {
-    "test": "jest",
-    "test:ci": "jest --coverage",
+    "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "test:ci": "yarn test --coverage",
     "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.cjs",
     "build": "yarn build:js && yarn build:browser",
@@ -37,7 +36,7 @@
   "author": "Pelle Braendgaard",
   "contributors": [
     "Mircea Nistor <mircea.nistor@mesh.xyz>",
-    "Oliver Terbu <oliver.terbu@mesh.xyz>",
+    "Oliver Terbu",
     "Joel Thorstensson <oed@3box.io>"
   ],
   "repository": {
@@ -45,19 +44,6 @@
     "url": "git@github.com:decentralized-identity/did-jwt.git"
   },
   "license": "Apache-2.0",
-  "jest": {
-    "clearMocks": true,
-    "collectCoverageFrom": [
-      "src/**/*.{ts,tsx}",
-      "!src/**/*.d.ts",
-      "!**/node_modules/**",
-      "!src/**/index.ts"
-    ],
-    "testEnvironment": "node",
-    "testMatch": [
-      "**/__tests__/**/*.test.[jt]s"
-    ]
-  },
   "devDependencies": {
     "@babel/core": "7.21.3",
     "@babel/preset-env": "7.20.2",
@@ -66,43 +52,46 @@
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/git": "10.0.1",
     "@types/elliptic": "6.4.14",
-    "@types/jest": "28.1.8",
-    "@types/jsonwebtoken": "^8.5.9",
-    "@types/jwk-to-pem": "^2.0.1",
-    "@typescript-eslint/eslint-plugin": "5.56.0",
-    "@typescript-eslint/parser": "5.56.0",
+    "@types/jest": "29.5.0",
+    "@types/jsonwebtoken": "9.0.1",
+    "@types/jwk-to-pem": "2.0.1",
+    "@typescript-eslint/eslint-plugin": "5.57.0",
+    "@typescript-eslint/parser": "5.57.0",
     "codecov": "3.8.3",
-    "eslint": "8.36.0",
+    "cross-env": "7.0.3",
+    "eslint": "8.37.0",
     "eslint-config-prettier": "8.8.0",
-    "eslint-plugin-jest": "26.9.0",
+    "eslint-plugin-jest": "27.2.1",
     "eslint-plugin-prettier": "4.2.1",
-    "jest": "28.1.3",
-    "jsontokens": "3.1.1",
-    "jsonwebtoken": "^8.5.1",
-    "jwk-to-pem": "^2.0.5",
+    "jest": "29.5.0",
+    "jsontokens": "4.0.1",
+    "jsonwebtoken": "9.0.0",
+    "jwk-to-pem": "2.0.5",
     "microbundle": "0.15.1",
     "mockdate": "3.0.5",
     "prettier": "2.8.7",
     "regenerator-runtime": "0.13.11",
-    "semantic-release": "19.0.5",
+    "semantic-release": "21.0.0",
+    "ts-jest": "29.0.5",
+    "ts-node": "10.9.1",
     "tweetnacl": "1.0.3",
-    "typescript": "4.9.5",
-    "webpack": "5.76.3",
-    "webpack-cli": "4.10.0"
+    "typescript": "5.0.2",
+    "webpack": "5.77.0",
+    "webpack-cli": "5.0.1"
   },
   "dependencies": {
-    "@stablelib/ed25519": "^1.0.2",
-    "@stablelib/random": "^1.0.1",
+    "@stablelib/ed25519": "^1.0.3",
+    "@stablelib/random": "^1.0.2",
     "@stablelib/sha256": "^1.0.1",
-    "@stablelib/x25519": "^1.0.2",
+    "@stablelib/x25519": "^1.0.3",
     "@stablelib/xchacha20poly1305": "^1.0.1",
     "bech32": "^2.0.0",
     "canonicalize": "^2.0.0",
-    "did-resolver": "^4.0.0",
+    "did-resolver": "^4.1.0",
     "elliptic": "^6.5.4",
     "js-sha3": "^0.8.0",
-    "multiformats": "^9.6.5",
-    "uint8arrays": "^3.0.0"
+    "multiformats": "^11.0.2",
+    "uint8arrays": "^4.0.3"
   },
   "eslintIgnore": [
     "*.test.ts"

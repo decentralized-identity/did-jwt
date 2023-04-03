@@ -1,5 +1,7 @@
-import * as u8a from 'uint8arrays'
+import { concat, fromString, toString } from 'uint8arrays'
 import { bases } from 'multiformats/basics'
+
+const u8a = { toString, fromString, concat }
 
 /**
  * @deprecated Signers will be expected to return base64url `string` signatures.
@@ -7,7 +9,7 @@ import { bases } from 'multiformats/basics'
 export interface EcdsaSignature {
   r: string
   s: string
-  recoveryParam?: number | null
+  recoveryParam?: number
 }
 
 export function bytesToBase64url(b: Uint8Array): string {

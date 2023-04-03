@@ -1,24 +1,33 @@
-import SimpleSigner from './signers/SimpleSigner'
-import EllipticSigner from './signers/EllipticSigner'
-import NaclSigner from './signers/NaclSigner'
-import { ES256KSigner } from './signers/ES256KSigner'
-import { ES256Signer } from './signers/ES256Signer'
-import { EdDSASigner } from './signers/EdDSASigner'
+import SimpleSigner from './signers/SimpleSigner.js'
+import EllipticSigner from './signers/EllipticSigner.js'
+import NaclSigner from './signers/NaclSigner.js'
+import { ES256KSigner } from './signers/ES256KSigner.js'
+import { ES256Signer } from './signers/ES256Signer.js'
+import { EdDSASigner } from './signers/EdDSASigner.js'
 import {
   createJWS,
   createJWT,
   decodeJWT,
-  JWTHeader,
-  JWTPayload,
-  JWTVerified,
-  Signer,
+  type JWTHeader,
+  type JWTPayload,
+  type JWTVerified,
+  type Signer,
   verifyJWS,
   verifyJWT,
-} from './JWT'
-import { toEthereumAddress } from './Digest'
+} from './JWT.js'
+import { toEthereumAddress } from './Digest.js'
 
-export { JWE, createJWE, decryptJWE, Encrypter, Decrypter, ProtectedHeader, Recipient, RecipientHeader } from './JWE'
-export { ECDH, createX25519ECDH } from './ECDH'
+export {
+  type JWE,
+  createJWE,
+  decryptJWE,
+  type Encrypter,
+  type Decrypter,
+  type ProtectedHeader,
+  type Recipient,
+  type RecipientHeader,
+} from './JWE.js'
+export { type ECDH, createX25519ECDH } from './ECDH.js'
 export {
   xc20pDirEncrypter,
   xc20pDirDecrypter,
@@ -31,7 +40,7 @@ export {
   createAnonDecrypter,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
-} from './xc20pEncryption'
+} from './xc20pEncryption.js'
 
 export {
   SimpleSigner,
@@ -46,14 +55,14 @@ export {
   verifyJWS,
   createJWS,
   toEthereumAddress,
-  Signer,
-  JWTHeader,
-  JWTPayload,
-  JWTVerified,
+  type Signer,
+  type JWTHeader,
+  type JWTPayload,
+  type JWTVerified,
 }
 
-export { JWTOptions, JWTVerifyOptions } from './JWT'
+export { type JWTOptions, type JWTVerifyOptions } from './JWT.js'
 
-export { base64ToBytes, base58ToBytes, hexToBytes } from './util'
+export { base64ToBytes, base58ToBytes, hexToBytes } from './util.js'
 
-export * from './Errors'
+export * from './Errors.js'

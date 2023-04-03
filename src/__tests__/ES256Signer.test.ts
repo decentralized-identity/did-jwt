@@ -1,5 +1,5 @@
-import { hexToBytes, base58ToBytes, base64ToBytes } from '../util'
-import { ES256Signer } from '../signers/ES256Signer'
+import { hexToBytes, base58ToBytes, base64ToBytes } from '../util.js'
+import { ES256Signer } from '../signers/ES256Signer.js'
 
 describe('Secp256r1 Signer', () => {
   it('signs data, given a hex private key', async () => {
@@ -51,7 +51,7 @@ describe('Secp256r1 Signer', () => {
       'vOTe64WujVUjEiQrAlwaPJtNADx4usSlCfe8OXHS6Np1BqJdqdJX912pVwVlAjmbqR_TMVE5i5TWB_GJVgrHgg'
     )
   })
-  
+
   it('refuses wrong key size (too short)', async () => {
     expect.assertions(1)
     const privateKey = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad7'

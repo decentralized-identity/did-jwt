@@ -1,8 +1,7 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
-import { Signer } from '../JWT'
-import { sha256 } from '../Digest'
 import elliptic from 'elliptic'
+import type { Signer } from '../JWT.js'
+import { leftpad, toJose } from '../util.js'
+import { sha256 } from '../Digest.js'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 
@@ -34,7 +33,7 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
       {
         r: leftpad(r.toString('hex')),
         s: leftpad(s.toString('hex')),
-        recoveryParam,
+        recoveryParam: recoveryParam ?? undefined,
       },
       recoverable
     )
