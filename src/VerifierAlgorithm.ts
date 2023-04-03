@@ -1,4 +1,4 @@
-import { sha256, toEthereumAddress } from './Digest'
+import { sha256, toEthereumAddress } from './Digest.js'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import {
@@ -10,8 +10,8 @@ import {
   stringToBytes,
   bytesToBigInt,
   ECDSASignature,
-} from './util'
-import { verifyBlockchainAccountId } from './blockchains'
+} from './util.js'
+import { verifyBlockchainAccountId } from './blockchains/index.js'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { p256 } from '@noble/curves/p256'
 import { ed25519 } from '@noble/curves/ed25519'
@@ -42,7 +42,7 @@ export function toSignatureObject2(signature: string, recoverable = false): ECDS
   }
 }
 
-function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
+export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
     return base58ToBytes(pk.publicKeyBase58)
   } else if (pk.publicKeyBase64) {
@@ -62,7 +62,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   } else if (
     pk.publicKeyJwk &&
     pk.publicKeyJwk.kty === 'OKP' &&
-    pk.publicKeyJwk.crv === 'Ed25519' &&
+    ['Ed25519', 'X25519'].includes(pk.publicKeyJwk.crv ?? '') &&
     pk.publicKeyJwk.x
   ) {
     return base64ToBytes(pk.publicKeyJwk.x)

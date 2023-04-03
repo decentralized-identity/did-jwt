@@ -1,7 +1,9 @@
 const path = require('path')
 
+// @type {import('webpack').Configuration}
 module.exports = {
-  entry: './lib/index.cjs',
+  // entry: './lib/index.js',
+  entry: './lib/index.module.js',
   mode: 'production',
   resolve: {
     fallback: {
@@ -14,8 +16,11 @@ module.exports = {
   output: {
     filename: 'did-jwt.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'umd',
+    libraryTarget: 'module',
     umdNamedDefine: true,
-    library: 'DID-JWT'
+    // library: 'DID-JWT',
+  },
+  experiments: {
+    outputModule: true
   }
 }

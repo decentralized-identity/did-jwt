@@ -1,15 +1,5 @@
 import { x25519 } from '@noble/curves/ed25519'
-
-/**
- * A wrapper around `mySecretKey` that can compute a shared secret using `theirPublicKey`.
- * The promise should resolve to a `Uint8Array` containing the raw shared secret.
- *
- * This method is meant to be used when direct access to a secret key is impossible or not desired.
- *
- * @param theirPublicKey `Uint8Array` the other party's public key
- * @returns a `Promise` that resolves to a `Uint8Array` representing the computed shared secret
- */
-export type ECDH = (theirPublicKey: Uint8Array) => Promise<Uint8Array>
+import type { ECDH } from './types.js'
 
 /**
  * Wraps an X25519 secret key into an ECDH method that can be used to compute a shared secret with a public key.

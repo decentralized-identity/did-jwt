@@ -1,5 +1,5 @@
-import { base64ToBytes, base58ToBytes, hexToBytes } from '../util'
-import { EdDSASigner } from '../signers/EdDSASigner'
+import { base64ToBytes, base58ToBytes, hexToBytes } from '../util.js'
+import { EdDSASigner } from '../signers/EdDSASigner.js'
 
 describe('EdDSASigner', () => {
   it('signs data with base64 key', async () => {

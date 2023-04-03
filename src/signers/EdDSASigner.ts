@@ -1,6 +1,6 @@
 import { ed25519 } from '@noble/curves/ed25519'
-import type { Signer } from '../JWT'
-import { bytesToBase64url, stringToBytes } from '../util'
+import type { Signer } from '../JWT.js'
+import { bytesToBase64url, stringToBytes } from '../util.js'
 
 /**
  *  Creates a configured signer function for signing data using the EdDSA (Ed25519) algorithm.
