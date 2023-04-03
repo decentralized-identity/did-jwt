@@ -1,6 +1,5 @@
 import { hash } from '@stablelib/sha256'
 import { concat, fromString } from 'uint8arrays'
-// @ts-ignore
 import sha3 from 'js-sha3'
 import { bytesToHex, hexToBytes } from './util.js'
 import { Ripemd160 } from './blockchains/utils/ripemd160.js'

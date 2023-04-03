@@ -1,7 +1,6 @@
 // noinspection ES6PreferShortImport
 
 import type { SignatureInput } from 'elliptic'
-// @ts-ignore
 import elliptic from 'elliptic'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'

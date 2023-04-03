@@ -1,4 +1,3 @@
-// @ts-ignore
 import elliptic from 'elliptic'
 import { leftpad, toJose } from '../util.js'
 import type { Signer } from '../JWT.js'

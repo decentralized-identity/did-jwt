@@ -1,4 +1,3 @@
-// @ts-ignore
 import elliptic from 'elliptic'
 import { bech32 } from 'bech32'
 import { sha256, ripemd160 } from '../Digest.js'
