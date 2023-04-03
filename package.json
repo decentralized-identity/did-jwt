@@ -4,8 +4,7 @@
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.module.js",
+  "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
@@ -16,15 +15,14 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.module.js"
+      "import": "./lib/index.js"
     }
   },
   "browser": "./dist/did-jwt.js",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:ci": "yarn test --coverage",
-    "build:js": "microbundle --compress=false",
+    "build:js": "tsc",
     "build:browser": "webpack --config webpack.config.cjs",
     "build": "yarn build:js && yarn build:browser",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
@@ -45,9 +43,9 @@
   },
   "license": "Apache-2.0",
   "devDependencies": {
-    "@babel/core": "7.21.3",
-    "@babel/preset-env": "7.20.2",
-    "@babel/preset-typescript": "7.21.0",
+    "@babel/core": "7.21.4",
+    "@babel/preset-env": "7.21.4",
+    "@babel/preset-typescript": "7.21.4",
     "@ethersproject/address": "5.7.0",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/git": "10.0.1",
@@ -71,11 +69,11 @@
     "mockdate": "3.0.5",
     "prettier": "2.8.7",
     "regenerator-runtime": "0.13.11",
-    "semantic-release": "21.0.0",
-    "ts-jest": "29.0.5",
+    "semantic-release": "21.0.1",
+    "ts-jest": "29.1.0",
     "ts-node": "10.9.1",
     "tweetnacl": "1.0.3",
-    "typescript": "5.0.2",
+    "typescript": "5.0.3",
     "webpack": "5.77.0",
     "webpack-cli": "5.0.1"
   },

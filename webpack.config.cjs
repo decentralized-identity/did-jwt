@@ -2,7 +2,7 @@ const path = require('path')
 
 // @type {import('webpack').Configuration}
 module.exports = {
-  entry: './lib/index.module.js',
+  entry: './lib/index.js',
   mode: 'production',
   resolve: {
     fallback: {
