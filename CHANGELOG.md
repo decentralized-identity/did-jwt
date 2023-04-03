@@ -1,3 +1,15 @@
+# [7.0.0-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.7-alpha.1...7.0.0-alpha.1) (2023-04-03)
+
+
+### Features
+
+* pure ESM output ([6cb5075](https://github.com/decentralized-identity/did-jwt/commit/6cb50758fc5f5effceeff8423dadc0b6a2616308))
+
+
+### BREAKING CHANGES
+
+* This version no longer publishes a commonjs variant. This will affect uses of `require('did-jwt')`
+
 ## [6.11.7-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...6.11.7-alpha.1) (2023-04-03)
 
 
