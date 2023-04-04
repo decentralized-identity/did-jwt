@@ -8,7 +8,7 @@ export type ProtectedHeader = Record<string, any> & Partial<RecipientHeader>
  * The JWK representation of an ephemeral public key.
  * See https://www.rfc-editor.org/rfc/rfc7518.html#section-6
  */
-interface EphemeralPublicKey {
+export interface EphemeralPublicKey {
   kty?: string
   //ECC
   crv?: string
@@ -19,10 +19,15 @@ interface EphemeralPublicKey {
   e?: string
 }
 
+export interface EphemeralKeyPair {
+  publicKey: EphemeralPublicKey
+  secretKey: Uint8Array
+}
+
 export interface RecipientHeader {
-  alg: string
-  iv: string
-  tag: string
+  alg?: string
+  iv?: string
+  tag?: string
   epk?: EphemeralPublicKey
   kid?: string
   apv?: string
@@ -55,8 +60,14 @@ export interface EncryptionResult {
 export interface Encrypter {
   alg: string
   enc: string
-  encrypt: (cleartext: Uint8Array, protectedHeader: ProtectedHeader, aad?: Uint8Array) => Promise<EncryptionResult>
-  encryptCek?: (cek: Uint8Array) => Promise<Recipient>
+  encrypt: (
+    cleartext: Uint8Array,
+    protectedHeader: ProtectedHeader,
+    aad?: Uint8Array,
+    ephemeralKeyPair?: EphemeralKeyPair
+  ) => Promise<EncryptionResult>
+  encryptCek?: (cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair) => Promise<Recipient>
+  genEpk?: () => EphemeralKeyPair
 }
 
 export interface Decrypter {
@@ -93,8 +104,9 @@ function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: Encrypti
 export async function createJWE(
   cleartext: Uint8Array,
   encrypters: Encrypter[],
-  protectedHeader = {},
-  aad?: Uint8Array
+  protectedHeader: ProtectedHeader = {},
+  aad?: Uint8Array,
+  useSingleEphemeralKey = false
 ): Promise<JWE> {
   if (encrypters[0].alg === 'dir') {
     if (encrypters.length > 1) throw new Error('not_supported: Can only do "dir" encryption to one key.')
@@ -105,15 +117,22 @@ export async function createJWE(
     if (!encrypters.reduce((acc, encrypter) => acc && encrypter.enc === tmpEnc, true)) {
       throw new Error('invalid_argument: Incompatible encrypters passed')
     }
-    let cek
-    let jwe
+    let cek: Uint8Array | undefined
+    let jwe: JWE | undefined
+    let epk: EphemeralKeyPair | undefined
+    if (useSingleEphemeralKey) {
+      epk = encrypters[0].genEpk?.()
+      const alg = encrypters[0].alg
+      protectedHeader = { ...protectedHeader, alg, epk: epk?.publicKey }
+    }
+
     for (const encrypter of encrypters) {
       if (!cek) {
-        const encryptionResult = await encrypter.encrypt(cleartext, protectedHeader, aad)
+        const encryptionResult = await encrypter.encrypt(cleartext, protectedHeader, aad, epk)
         cek = encryptionResult.cek
         jwe = encodeJWE(encryptionResult, aad)
       } else {
-        const recipient = await encrypter.encryptCek?.(cek)
+        const recipient = await encrypter.encryptCek?.(cek, epk)
         if (recipient) {
           jwe?.recipients?.push(recipient)
         }

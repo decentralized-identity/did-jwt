@@ -87,6 +87,7 @@
     "canonicalize": "^2.0.0",
     "did-resolver": "^4.1.0",
     "elliptic": "^6.5.4",
+    "isomorphic-webcrypto": "^2.3.8",
     "js-sha3": "^0.8.0",
     "multiformats": "^11.0.2",
     "uint8arrays": "^4.0.3"
