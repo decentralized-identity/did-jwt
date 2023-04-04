@@ -1,3 +1,10 @@
+# [7.0.0-alpha.2](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.1...7.0.0-alpha.2) (2023-04-04)
+
+
+### Features
+
+* initial support for X25519 ECDH-ES+A256KW for JWE ([#279](https://github.com/decentralized-identity/did-jwt/issues/279)) ([375b93c](https://github.com/decentralized-identity/did-jwt/commit/375b93c79531003f1afdbf8b39e10556d67072d6))
+
 # [7.0.0-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.7-alpha.1...7.0.0-alpha.1) (2023-04-03)
 
 
