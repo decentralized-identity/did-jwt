@@ -1,3 +1,6 @@
+import { fromString, toString } from 'uint8arrays'
+import { randomBytes } from '@stablelib/random'
+import { generateKeyPairFromSeed } from '@stablelib/x25519'
 import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../JWE.js'
 import { vectors } from './jwe-vectors.js'
 import {
@@ -12,11 +15,9 @@ import {
   xc20pDirDecrypter,
   xc20pDirEncrypter,
 } from '../xc20pEncryption.js'
-import { decodeBase64url, encodeBase64url } from '../util.js'
-import { fromString, toString } from 'uint8arrays'
-import { randomBytes } from '@stablelib/random'
-import { generateKeyPairFromSeed } from '@stablelib/x25519'
+import { base64ToBytes, decodeBase64url, encodeBase64url } from '../util.js'
 import { createX25519ECDH, ECDH } from '../ECDH.js'
+import { x25519DecrypterWithA256KW, x25519EncrypterWithA256KW } from '../aesEncryption.js'
 
 const u8a = { toString, fromString }
 
@@ -100,6 +101,19 @@ describe('JWE', () => {
         await expect(decryptJWE(jwe as any, decrypter)).rejects.toThrowError('bad_jwe:')
       })
     })
+
+    describe('XC20P with X25519-ECDH-ES+A256KW', () => {
+      test.each(vectors['XC20P with X25519-ECDH-ES+A256KW'].pass)(
+        'decrypts valid jwe',
+        async ({ key, cleartext, jwe }) => {
+          expect.assertions(1)
+          const receiverSecret = base64ToBytes(key)
+          const decrypter = x25519DecrypterWithA256KW(receiverSecret)
+          const cleartextU8a = await decryptJWE(jwe as any, decrypter)
+          expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
+        }
+      )
+    })
   })
 
   describe('createJWE', () => {
@@ -158,6 +172,45 @@ describe('JWE', () => {
           const jwe = await createJWE(cleartext, [encrypter])
           expect(jwe.aad).toBeUndefined()
           expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P' })
+          expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
+        })
+
+        it('Creates with data in protected header', async () => {
+          expect.assertions(3)
+          const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' })
+          expect(jwe.aad).toBeUndefined()
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
+          expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
+        })
+
+        it('Creates with aad', async () => {
+          expect.assertions(4)
+          const aad = u8a.fromString('this data is authenticated')
+          const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
+          expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
+          expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'XC20P', more: 'protected' })
+          expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
+          delete jwe.aad
+          await expect(decryptJWE(jwe, decrypter)).rejects.toThrowError('Failed to decrypt')
+        })
+      })
+
+      describe('One recipient A256KW', () => {
+        let pubkey, secretkey, cleartext: Uint8Array, encrypter: Encrypter, decrypter: Decrypter
+
+        beforeEach(() => {
+          secretkey = randomBytes(32)
+          pubkey = generateKeyPairFromSeed(secretkey).publicKey
+          cleartext = u8a.fromString('hello world')
+          encrypter = x25519EncrypterWithA256KW(pubkey)
+          decrypter = x25519DecrypterWithA256KW(secretkey)
+        })
+
+        it('Creates with only ciphertext', async () => {
+          expect.assertions(3)
+          const jwe = await createJWE(cleartext, [encrypter], {}, undefined, true)
+          expect(jwe.aad).toBeUndefined()
+          expect(JSON.parse(decodeBase64url(jwe.protected)).enc).toEqual('XC20P')
           expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
         })
 
