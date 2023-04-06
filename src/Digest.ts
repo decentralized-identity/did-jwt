@@ -1,4 +1,5 @@
 import { hash } from '@stablelib/sha256'
+import { Ripemd160 } from './blockchains/utils/ripemd160'
 import * as u8a from 'uint8arrays'
 import sha3 from 'js-sha3'
 
@@ -14,6 +15,10 @@ export function keccak(data: Uint8Array): Uint8Array {
 export function toEthereumAddress(hexPublicKey: string): string {
   const hashInput = u8a.fromString(hexPublicKey.slice(2), 'base16')
   return `0x${u8a.toString(keccak(hashInput).slice(-20), 'base16')}`
+}
+
+export function ripemd160(data: Uint8Array): Uint8Array {
+  return new Ripemd160().update(data).digest()
 }
 
 function writeUint32BE(value: number, array = new Uint8Array(4)): Uint8Array {
@@ -44,5 +49,5 @@ export function concatKDF(
 
   // since our key lenght is 256 we only have to do one round
   const roundNumber = 1
-  return hash(u8a.concat([writeUint32BE(roundNumber), secret, value]))
+  return sha256(u8a.concat([writeUint32BE(roundNumber), secret, value]))
 }

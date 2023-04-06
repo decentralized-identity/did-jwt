@@ -1,3 +1,73 @@
+## [6.11.6](https://github.com/decentralized-identity/did-jwt/compare/6.11.5...6.11.6) (2023-04-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency canonicalize to v2 ([a916e62](https://github.com/decentralized-identity/did-jwt/commit/a916e6216c82db98cf5023cd66fbacb7515681c7))
+
+## [6.11.5](https://github.com/decentralized-identity/did-jwt/compare/6.11.4...6.11.5) (2023-03-16)
+
+
+### Bug Fixes
+
+* **deps:** Update dependency did-resolver to v4.1.0 ([85de440](https://github.com/decentralized-identity/did-jwt/commit/85de44043021e6bd7217aa3cb5c2af72cc4f69f3))
+
+## [6.11.4](https://github.com/decentralized-identity/did-jwt/compare/6.11.3...6.11.4) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([c637b84](https://github.com/decentralized-identity/did-jwt/commit/c637b84493ee7c3591a7ddcf9ca90fd7baa9287a))
+
+## [6.11.3](https://github.com/decentralized-identity/did-jwt/compare/6.11.2...6.11.3) (2023-03-15)
+
+
+### Bug Fixes
+
+* **deps:** remove dev dependency did-key-creator ([#274](https://github.com/decentralized-identity/did-jwt/issues/274)) ([fbe09e1](https://github.com/decentralized-identity/did-jwt/commit/fbe09e1639a323fc39b31c3578ba8b7889f1f9f1))
+
+## [6.11.2](https://github.com/decentralized-identity/did-jwt/compare/6.11.1...6.11.2) (2023-03-08)
+
+
+### Bug Fixes
+
+* provide hash algorithms as exported functions ([#271](https://github.com/decentralized-identity/did-jwt/issues/271)) ([71cc19b](https://github.com/decentralized-identity/did-jwt/commit/71cc19b9a88a76d3fb754d77a4773678460020c5))
+
+## [6.11.1](https://github.com/decentralized-identity/did-jwt/compare/6.11.0...6.11.1) (2023-02-13)
+
+
+### Bug Fixes
+
+* add ESM types exports resolution ([#269](https://github.com/decentralized-identity/did-jwt/issues/269)) ([dea4e6b](https://github.com/decentralized-identity/did-jwt/commit/dea4e6b86cdda39170f69d7e8c4b2b7e237a4bfb))
+
+# [6.11.0](https://github.com/decentralized-identity/did-jwt/compare/6.10.1...6.11.0) (2022-12-13)
+
+
+### Features
+
+* add support for SIOP request JWT ([#262](https://github.com/decentralized-identity/did-jwt/issues/262)) ([3259ffd](https://github.com/decentralized-identity/did-jwt/commit/3259ffd25840e9baf8046494fdafe3f0697e13b9))
+
+## [6.10.1](https://github.com/decentralized-identity/did-jwt/compare/6.10.0...6.10.1) (2022-11-29)
+
+
+### Bug Fixes
+
+* support jwts generated for JWT VC Presentation Profile ([#260](https://github.com/decentralized-identity/did-jwt/issues/260)) ([8b36550](https://github.com/decentralized-identity/did-jwt/commit/8b3655097a1382934cabdf774d580e6731a636b1))
+
+# [6.10.0](https://github.com/decentralized-identity/did-jwt/compare/6.9.0...6.10.0) (2022-11-28)
+
+
+### Features
+
+* support JsonWebKey for ES256K(-R)([#259](https://github.com/decentralized-identity/did-jwt/issues/259)) ([f9f1aeb](https://github.com/decentralized-identity/did-jwt/commit/f9f1aebb33ef8adfe2200a5d0e365a0c12042098))
+
+# [6.9.0](https://github.com/decentralized-identity/did-jwt/compare/6.8.0...6.9.0) (2022-10-15)
+
+
+### Features
+
+* add ES256 to JWT verifier ([#254](https://github.com/decentralized-identity/did-jwt/issues/254)) ([86a4d23](https://github.com/decentralized-identity/did-jwt/commit/86a4d2328a33c1b38ffa7cc31374c5a3f1461a44))
+
 # [6.8.0](https://github.com/decentralized-identity/did-jwt/compare/6.7.0...6.8.0) (2022-09-06)
 
 
