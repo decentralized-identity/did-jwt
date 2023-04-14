@@ -3,10 +3,13 @@ import { toSignatureObject } from '../VerifierAlgorithm'
 import SimpleSigner from '../signers/SimpleSigner'
 import EllipticSigner from '../signers/EllipticSigner'
 import NaclSigner from '../signers/NaclSigner'
-import { ec as EC } from 'elliptic'
+import elliptic from 'elliptic'
 import nacl from 'tweetnacl'
 import { base64ToBytes, stringToBytes } from '../util'
 import { sha256 } from '../Digest'
+
+const EC = elliptic.ec
+
 const secp256k1 = new EC('secp256k1')
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
@@ -38,13 +41,13 @@ describe('ES256', () => {
       'Zks0QO1ma5pHHtNbpb0qDap0VJSvQvA775N0GZsAp3PQjmDGbsfyKlUVcU9PFueIXksioSTsPXiOCgAHIOe4WA'
     )
   })
-  
+
   it('returns signature of 64 bytes', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(base64ToBytes(signature).length).toEqual(64)
   })
-  
+
   it('contains only r and s of signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
@@ -53,13 +56,12 @@ describe('ES256', () => {
       s: 'd08e60c66ec7f22a5515714f4f16e7885e4b22a124ec3d788e0a000720e7b858',
     })
   })
-  
+
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
     expect(p256kp.verify(sha256('hello'), toSignatureObject(signature))).toBeTruthy()
   })
-   
 })
 // end of tests added for P-256
 

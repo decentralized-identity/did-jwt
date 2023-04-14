@@ -23,7 +23,7 @@
     }
   },
   "scripts": {
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "jest --coverage",
     "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.cjs",
@@ -54,6 +54,7 @@
       "!src/**/index.ts"
     ],
     "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [".ts"],
     "testMatch": [
       "**/__tests__/**/*.test.[jt]s"
     ]

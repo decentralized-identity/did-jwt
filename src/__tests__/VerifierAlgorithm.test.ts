@@ -1,7 +1,7 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { createJWT } from '../JWT'
 import nacl from 'tweetnacl'
-import { ec as EC } from 'elliptic'
+import elliptic from 'elliptic'
 import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64url, bytesToMultibase } from '../util'
 import * as u8a from 'uint8arrays'
 import { EdDSASigner } from '../signers/EdDSASigner'
@@ -9,6 +9,8 @@ import { ES256KSigner } from '../signers/ES256KSigner'
 import { toEthereumAddress } from '../Digest'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
+
+const EC = elliptic.ec
 
 import { ES256Signer } from '../signers/ES256Signer'
 

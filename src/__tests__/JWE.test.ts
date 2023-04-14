@@ -1,5 +1,5 @@
 import { decryptJWE, createJWE, Encrypter, JWE } from '../JWE'
-import vectors from './jwe-vectors.js'
+import vectors from './jwe-vectors'
 import {
   xc20pDirEncrypter,
   xc20pDirDecrypter,
