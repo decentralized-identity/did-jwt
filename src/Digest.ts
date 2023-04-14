@@ -1,15 +1,15 @@
-import { hash } from '@stablelib/sha256'
+import { sha256 as sha256Hash } from '@noble/hashes/sha256'
 import { Ripemd160 } from './blockchains/utils/ripemd160'
 import * as u8a from 'uint8arrays'
-import sha3 from 'js-sha3'
+import { keccak_256 } from '@noble/hashes/sha3'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
-  return hash(data)
+  return sha256Hash(data)
 }
 
 export function keccak(data: Uint8Array): Uint8Array {
-  return new Uint8Array(sha3.keccak_256.arrayBuffer(data))
+  return new Uint8Array(keccak_256(data))
 }
 
 export function toEthereumAddress(hexPublicKey: string): string {
