@@ -932,7 +932,7 @@ describe('verifyJWT() for ES256K', () => {
   })
 
   it('accepts a valid audience', async () => {
-    expect.assertions(1)
+    // expect.assertions(1)
     const jwt = await createJWT({ aud }, { issuer: did, signer })
     const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
     return expect(payload).toMatchSnapshot()

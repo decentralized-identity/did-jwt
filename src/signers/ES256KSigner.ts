@@ -1,8 +1,9 @@
-import { leftpad } from '../util'
+import { bytesToBigInt, hexToBytes, leftpad } from '../util'
 import { toJose } from '../util'
 import { Signer } from '../JWT'
 import { sha256 } from '../Digest'
 import elliptic from 'elliptic'
+import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
 
 const secp256k1 = new elliptic.ec('secp256k1')
 

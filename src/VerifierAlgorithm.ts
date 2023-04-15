@@ -1,14 +1,20 @@
-import type { SignatureInput } from 'elliptic'
-import elliptic from 'elliptic'
 import { sha256, toEthereumAddress } from './Digest'
 import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
-import { hexToBytes, base58ToBytes, base64ToBytes, bytesToHex, EcdsaSignature, stringToBytes } from './util'
+import {
+  hexToBytes,
+  base58ToBytes,
+  base64ToBytes,
+  bytesToHex,
+  EcdsaSignature,
+  stringToBytes,
+  bytesToBigInt,
+} from './util'
 import { verifyBlockchainAccountId } from './blockchains'
-
-const secp256k1 = new elliptic.ec('secp256k1')
-const secp256r1 = new elliptic.ec('p256')
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { p256 } from '@noble/curves/p256'
+import { concat } from 'uint8arrays/concat'
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
@@ -37,23 +43,15 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   } else if (pk.publicKeyHex) {
     return hexToBytes(pk.publicKeyHex)
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-    return hexToBytes(
-      secp256k1
-        .keyFromPublic({
-          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
-          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
-        })
-        .getPublic('hex')
-    )
+    return secp256k1.ProjectivePoint.fromAffine({
+      x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
+      y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
+    }).toRawBytes(false)
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-    return hexToBytes(
-      secp256r1
-        .keyFromPublic({
-          x: bytesToHex(base64ToBytes(pk.publicKeyJwk.x)),
-          y: bytesToHex(base64ToBytes(pk.publicKeyJwk.y)),
-        })
-        .getPublic('hex')
-    )
+    return p256.ProjectivePoint.fromAffine({
+      x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
+      y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
+    }).toRawBytes(false)
   } else if (
     pk.publicKeyJwk &&
     pk.publicKeyJwk.kty === 'OKP' &&
@@ -69,17 +67,20 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
+// FIXME signature as string??
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash: Uint8Array = sha256(data)
   const sigObj: EcdsaSignature = toSignatureObject(signature)
+  const sigCompact = concat([hexToBytes(sigObj.r), hexToBytes(sigObj.s)]) // FIXME
+  const sig = p256.Signature.fromCompact(sigCompact)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
+    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined' // FIXME
   })
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const pubBytes = extractPublicKeyBytes(pk)
-      return secp256r1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
+      return p256.verify(sig, hash, pubBytes)
     } catch (err) {
       return false
     }
@@ -95,18 +96,18 @@ export function verifyES256K(
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   const hash: Uint8Array = sha256(data)
-  const sigObj: EcdsaSignature = toSignatureObject(signature)
+  const signatureNormalized = secp256k1.Signature.fromCompact(base64ToBytes(signature)).normalizeS()
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined'
+    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined' // FIXME This is ugly
   })
   const blockchainAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== 'undefined'
+    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== 'undefined' // FIXME This is ugly
   })
 
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const pubBytes = extractPublicKeyBytes(pk)
-      return secp256k1.keyFromPublic(pubBytes).verify(hash, <SignatureInput>sigObj)
+      return secp256k1.verify(signatureNormalized, hash, pubBytes)
     } catch (err) {
       return false
     }
@@ -136,13 +137,16 @@ export function verifyRecoverableES256K(
     ]
   }
 
+  // FIXME sigObj?
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
-    const hash: Uint8Array = sha256(data)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recoveredKey: any = secp256k1.recoverPubKey(hash, <SignatureInput>sigObj, <number>sigObj.recoveryParam)
-    const recoveredPublicKeyHex: string = recoveredKey.encode('hex')
-    const recoveredCompressedPublicKeyHex: string = recoveredKey.encode('hex', true)
-    const recoveredAddress: string = toEthereumAddress(recoveredPublicKeyHex).toLowerCase()
+    const hash = sha256(data)
+    const sig0 = secp256k1.Signature.fromCompact(concat([hexToBytes(sigObj.r), hexToBytes(sigObj.s)])).addRecoveryBit(
+      sigObj.recoveryParam || 0
+    )
+    const recoveredPublicKey = sig0.recoverPublicKey(hash)
+    const recoveredAddress = toEthereumAddress(recoveredPublicKey.toHex(false)).toLowerCase()
+    const recoveredPublicKeyHex = recoveredPublicKey.toHex(false)
+    const recoveredCompressedPublicKeyHex = recoveredPublicKey.toHex(true)
 
     const signer: VerificationMethod | undefined = authenticators.find((pk: VerificationMethod) => {
       const keyHex = bytesToHex(extractPublicKeyBytes(pk))

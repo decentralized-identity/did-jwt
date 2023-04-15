@@ -52,6 +52,10 @@ export function bytesToHex(b: Uint8Array): string {
   return u8a.toString(b, 'base16')
 }
 
+export function bytesToBigInt(b: Uint8Array): bigint {
+  return BigInt(`0x` + u8a.toString(b, 'base16'))
+}
+
 export function stringToBytes(s: string): Uint8Array {
   return u8a.fromString(s)
 }
