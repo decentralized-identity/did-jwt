@@ -82,7 +82,7 @@ export function verifyES256(data: string, signature: string, authenticators: Ver
   const hash = sha256(data)
   const sig = p256.Signature.fromCompact(toSignatureObject2(signature).compact)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined' // FIXME
+    return !ethereumAddress && !blockchainAccountId
   })
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
@@ -106,10 +106,10 @@ export function verifyES256K(
   const hash: Uint8Array = sha256(data)
   const signatureNormalized = secp256k1.Signature.fromCompact(base64ToBytes(signature)).normalizeS()
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined' // FIXME This is ugly
+    return !ethereumAddress && !blockchainAccountId
   })
   const blockchainAddressKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
-    return typeof ethereumAddress !== 'undefined' || typeof blockchainAccountId !== 'undefined' // FIXME This is ugly
+    return ethereumAddress || blockchainAccountId
   })
 
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
@@ -145,7 +145,6 @@ export function verifyRecoverableES256K(
     ]
   }
 
-  // FIXME sigObj?
   const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
     const hash = sha256(data)
     const sig0 = secp256k1.Signature.fromCompact(concat([hexToBytes(sigObj.r), hexToBytes(sigObj.s)])).addRecoveryBit(
