@@ -1,5 +1,4 @@
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
-import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, generateKeyPair } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
@@ -7,6 +6,7 @@ import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 import { fromString } from 'uint8arrays/from-string'
 import { x25519 } from '@noble/curves/ed25519'
+import { randomBytes } from '@noble/hashes/utils'
 
 /**
  * Extra parameters for JWE using authenticated encryption

@@ -2,7 +2,7 @@ import { jest, beforeEach, expect, it } from '@jest/globals'
 import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption'
 import { decryptJWE, createJWE } from '../JWE'
 import * as u8a from 'uint8arrays'
-import { randomBytes } from '@stablelib/random'
+import { randomBytes } from '@noble/hashes/utils'
 import { generateKeyPair } from '../util'
 import { createX25519ECDH } from '../ECDH'
 

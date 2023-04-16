@@ -14,7 +14,7 @@ import {
 } from '../xc20pEncryption'
 import { decodeBase64url, encodeBase64url, generateKeyPairFromSeed } from '../util'
 import * as u8a from 'uint8arrays'
-import { randomBytes } from '@stablelib/random'
+import { randomBytes } from '@noble/hashes/utils'
 import { createX25519ECDH, ECDH } from '../ECDH'
 
 describe('JWE', () => {
