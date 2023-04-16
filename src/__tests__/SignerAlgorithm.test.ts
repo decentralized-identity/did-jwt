@@ -89,7 +89,7 @@ describe('ES256K', () => {
   it('returns correct signature', async () => {
     expect.assertions(1)
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
+      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bcsmg5b7iPXXtVkMw-4_amnn3jEJ_phgLiCPgC-a27X_A'
     )
   })
 
@@ -104,7 +104,7 @@ describe('ES256K', () => {
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
-      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945',
+      s: '2c9a0e5bee23d75ed564330fb8fda9a79f78c427fa6180b8823e00be6b6ed7fc',
     })
   })
 
@@ -121,7 +121,7 @@ describe('ES256K signer which returns signature as string ', () => {
   it('returns correct signature', async () => {
     expect.assertions(1)
     return await expect(jwtSigner('hello', ecSigner)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQ'
+      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bcsmg5b7iPXXtVkMw-4_amnn3jEJ_phgLiCPgC-a27X_A'
     )
   })
 
@@ -144,7 +144,7 @@ describe('ES256K-R', () => {
   expect.assertions(1)
   it('returns correct signature', async () => {
     return await expect(jwtSigner('hello', signer)).resolves.toEqual(
-      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bfTZfGkEdwooSqbzPBHAlZXGzYYvrTnH4M9lF3OZMdpRQE'
+      'MaCPcIypS76TnvKSbhbPMG01BJvjQ6ouITV-mVt7_bcsmg5b7iPXXtVkMw-4_amnn3jEJ_phgLiCPgC-a27X_AA'
     )
   })
 
@@ -159,8 +159,8 @@ describe('ES256K-R', () => {
     const signature = await jwtSigner('hello', signer)
     expect(toSignatureObject(signature, true)).toEqual({
       r: '31a08f708ca94bbe939ef2926e16cf306d35049be343aa2e21357e995b7bfdb7',
-      s: 'd365f1a411dc28a12a9bccf0470256571b3618beb4e71f833d945dce64c76945',
-      recoveryParam: 1,
+      s: '2c9a0e5bee23d75ed564330fb8fda9a79f78c427fa6180b8823e00be6b6ed7fc',
+      recoveryParam: 0,
     })
   })
 
