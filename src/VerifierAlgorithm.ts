@@ -9,12 +9,12 @@ import {
   EcdsaSignature,
   stringToBytes,
   bytesToBigInt,
+  ECDSASignature,
 } from './util'
 import { verifyBlockchainAccountId } from './blockchains'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { p256 } from '@noble/curves/p256'
 import { ed25519 } from '@noble/curves/ed25519'
-import { concat } from 'uint8arrays/concat'
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
@@ -31,7 +31,7 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
-export function toSignatureObject2(signature: string, recoverable = false) {
+export function toSignatureObject2(signature: string, recoverable = false): ECDSASignature {
   const bytes = base64ToBytes(signature)
   if (bytes.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
@@ -134,23 +134,19 @@ export function verifyRecoverableES256K(
   signature: string,
   authenticators: VerificationMethod[]
 ): VerificationMethod {
-  let signatures: EcdsaSignature[]
+  const signatures: ECDSASignature[] = []
   if (signature.length > 86) {
-    signatures = [toSignatureObject(signature, true)]
+    signatures.push(toSignatureObject2(signature, true))
   } else {
-    const so = toSignatureObject(signature, false)
-    signatures = [
-      { ...so, recoveryParam: 0 },
-      { ...so, recoveryParam: 1 },
-    ]
+    const so = toSignatureObject2(signature, false)
+    signatures.push({ ...so, recovery: 0 })
+    signatures.push({ ...so, recovery: 1 })
   }
 
-  const checkSignatureAgainstSigner = (sigObj: EcdsaSignature): VerificationMethod | undefined => {
+  const checkSignatureAgainstSigner = (sigObj: ECDSASignature): VerificationMethod | undefined => {
     const hash = sha256(data)
-    const sig0 = secp256k1.Signature.fromCompact(concat([hexToBytes(sigObj.r), hexToBytes(sigObj.s)])).addRecoveryBit(
-      sigObj.recoveryParam || 0
-    )
-    const recoveredPublicKey = sig0.recoverPublicKey(hash)
+    const signature = secp256k1.Signature.fromCompact(sigObj.compact).addRecoveryBit(sigObj.recovery || 0)
+    const recoveredPublicKey = signature.recoverPublicKey(hash)
     const recoveredAddress = toEthereumAddress(recoveredPublicKey.toHex(false)).toLowerCase()
     const recoveredPublicKeyHex = recoveredPublicKey.toHex(false)
     const recoveredCompressedPublicKeyHex = recoveredPublicKey.toHex(true)

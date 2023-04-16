@@ -11,6 +11,14 @@ export interface EcdsaSignature {
   recoveryParam?: number | null
 }
 
+/**
+ * @deprecated Signers will be expected to return base64url `string` signatures.
+ */
+export type ECDSASignature = {
+  compact: Uint8Array
+  recovery?: number
+}
+
 export function bytesToBase64url(b: Uint8Array): string {
   return u8a.toString(b, 'base64url')
 }
