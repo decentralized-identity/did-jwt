@@ -142,9 +142,9 @@ export function verifyRecoverableES256K(
     signatures.push({ ...so, recovery: 0 })
     signatures.push({ ...so, recovery: 1 })
   }
+  const hash = sha256(data)
 
   const checkSignatureAgainstSigner = (sigObj: ECDSASignature): VerificationMethod | undefined => {
-    const hash = sha256(data)
     const signature = secp256k1.Signature.fromCompact(sigObj.compact).addRecoveryBit(sigObj.recovery || 0)
     const recoveredPublicKey = signature.recoverPublicKey(hash)
     const recoveredAddress = toEthereumAddress(recoveredPublicKey.toHex(false)).toLowerCase()
