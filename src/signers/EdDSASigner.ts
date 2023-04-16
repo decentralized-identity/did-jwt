@@ -23,7 +23,7 @@ export function EdDSASigner(secretKey: Uint8Array): Signer {
   }
   return async (data: string | Uint8Array): Promise<string> => {
     const dataBytes: Uint8Array = typeof data === 'string' ? stringToBytes(data) : data
-    const signature = ed25519.sign(dataBytes, privateKeyBytes.slice(0, 32)) // FIXME
+    const signature = ed25519.sign(dataBytes, privateKeyBytes.slice(0, 32))
     return bytesToBase64url(signature)
   }
 }
