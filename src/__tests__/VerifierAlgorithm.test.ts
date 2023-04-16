@@ -17,7 +17,7 @@ import { toEthereumAddress } from '../Digest'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
 import { p256 } from '@noble/curves/p256'
-import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 import { ES256Signer } from '../signers/ES256Signer'
 
@@ -187,10 +187,10 @@ describe('ES256', () => {
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
-const publicKeyBytes = SECP256K1.getPublicKey(privateKey, false)
-const publicKeyPoint = SECP256K1.ProjectivePoint.fromHex(publicKeyBytes)
+const publicKeyBytes = secp256k1.getPublicKey(privateKey, false)
+const publicKeyPoint = secp256k1.ProjectivePoint.fromHex(publicKeyBytes)
 const publicKeyHex = u8a.toString(publicKeyBytes, 'base16')
-const compressedPublicKeyBytes = SECP256K1.getPublicKey(privateKey, true)
+const compressedPublicKeyBytes = secp256k1.getPublicKey(privateKey, true)
 const compressedPublicKey = u8a.toString(compressedPublicKeyBytes, 'base16')
 const publicKeyBase64 = bytesToBase64(publicKeyBytes)
 const publicKeyBase58 = bytesToBase58(publicKeyBytes)

@@ -2,7 +2,7 @@ import { leftpad } from '../util'
 import { toJose } from '../util'
 import { Signer } from '../JWT'
 import { sha256 } from '../Digest'
-import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 /**
  *  Creates a configured signer function for signing data using the ES256K (secp256k1 + sha256) algorithm.
@@ -26,7 +26,7 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
   }
 
   return async (data: string | Uint8Array): Promise<string> => {
-    const signature = SECP256K1.sign(sha256(data), privateKeyBytes)
+    const signature = secp256k1.sign(sha256(data), privateKeyBytes)
     return toJose(
       {
         r: leftpad(signature.r.toString(16)),
