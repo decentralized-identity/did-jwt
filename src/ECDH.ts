@@ -1,4 +1,4 @@
-import { sharedKey } from '@stablelib/x25519'
+import { x25519 } from '@noble/curves/ed25519'
 
 /**
  * A wrapper around `mySecretKey` that can compute a shared secret using `theirPublicKey`.
@@ -26,6 +26,6 @@ export function createX25519ECDH(mySecretKey: Uint8Array): ECDH {
     if (theirPublicKey.length !== 32) {
       throw new Error('invalid_argument: incorrect publicKey key length for X25519')
     }
-    return sharedKey(mySecretKey, theirPublicKey)
+    return x25519.getSharedSecret(mySecretKey, theirPublicKey)
   }
 }

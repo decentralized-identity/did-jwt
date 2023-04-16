@@ -12,10 +12,9 @@ import {
   createAuthEncrypter,
   createAuthDecrypter,
 } from '../xc20pEncryption'
-import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
+import { decodeBase64url, encodeBase64url, generateKeyPairFromSeed } from '../util'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
-import { generateKeyPairFromSeed } from '@stablelib/x25519'
 import { createX25519ECDH, ECDH } from '../ECDH'
 
 describe('JWE', () => {

@@ -3,7 +3,7 @@ import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption'
 import { decryptJWE, createJWE } from '../JWE'
 import * as u8a from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
-import { generateKeyPair } from '@stablelib/x25519'
+import { generateKeyPair } from '../util'
 import { createX25519ECDH } from '../ECDH'
 
 describe('xc20pEncryption', () => {

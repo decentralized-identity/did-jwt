@@ -1,12 +1,12 @@
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
-import { generateKeyPair, sharedKey } from '@stablelib/x25519'
 import { randomBytes } from '@stablelib/random'
 import { concatKDF } from './Digest'
-import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes } from './util'
+import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, generateKeyPair } from './util'
 import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 import { fromString } from 'uint8arrays/from-string'
+import { x25519 } from '@noble/curves/ed25519'
 
 /**
  * Extra parameters for JWE using authenticated encryption
@@ -169,7 +169,7 @@ export function x25519Encrypter(publicKey: Uint8Array, kid?: string): Encrypter 
   const crv = 'X25519'
   async function encryptCek(cek: Uint8Array): Promise<Recipient> {
     const epk = generateKeyPair()
-    const sharedSecret = sharedKey(epk.secretKey, publicKey)
+    const sharedSecret = x25519.getSharedSecret(epk.secretKey, publicKey)
     // Key Encryption Key
     const kek = concatKDF(sharedSecret, keyLen, alg)
     const res = xc20pEncrypter(kek)(cek)
@@ -224,13 +224,13 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
 
   async function encryptCek(cek: Uint8Array): Promise<Recipient> {
     const epk = generateKeyPair()
-    const zE = sharedKey(epk.secretKey, recipientPublicKey)
+    const zE = x25519.getSharedSecret(epk.secretKey, recipientPublicKey)
 
     // ECDH-1PU requires additional shared secret between
     // static key of sender and static key of recipient
     let zS
     if (senderSecret instanceof Uint8Array) {
-      zS = sharedKey(senderSecret, recipientPublicKey)
+      zS = x25519.getSharedSecret(senderSecret, recipientPublicKey)
     } else {
       zS = await senderSecret(recipientPublicKey)
     }
@@ -350,7 +350,7 @@ export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
     const publicKey = base64ToBytes(recipient.header.epk.x)
     let sharedSecret
     if (receiverSecret instanceof Uint8Array) {
-      sharedSecret = sharedKey(receiverSecret, publicKey)
+      sharedSecret = x25519.getSharedSecret(receiverSecret, publicKey)
     } else {
       sharedSecret = await receiverSecret(publicKey)
     }
@@ -395,8 +395,8 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
     let zS: Uint8Array
 
     if (recipientSecret instanceof Uint8Array) {
-      zE = sharedKey(recipientSecret, publicKey)
-      zS = sharedKey(recipientSecret, senderPublicKey)
+      zE = x25519.getSharedSecret(recipientSecret, publicKey)
+      zS = x25519.getSharedSecret(recipientSecret, senderPublicKey)
     } else {
       zE = await recipientSecret(publicKey)
       zS = await recipientSecret(senderPublicKey)
