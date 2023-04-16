@@ -31,6 +31,14 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
+export function toSignatureObject2(signature: string, recoverable = false) {
+  const bytes = base64ToBytes(signature)
+  return {
+    compact: bytes.slice(0, 64),
+    recovery: bytes[64],
+  }
+}
+
 interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
