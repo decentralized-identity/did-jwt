@@ -33,6 +33,9 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
 
 export function toSignatureObject2(signature: string, recoverable = false) {
   const bytes = base64ToBytes(signature)
+  if (bytes.length !== (recoverable ? 65 : 64)) {
+    throw new Error('wrong signature length')
+  }
   return {
     compact: bytes.slice(0, 64),
     recovery: bytes[64],
@@ -75,12 +78,9 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   return new Uint8Array()
 }
 
-// FIXME signature as string??
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
-  const hash: Uint8Array = sha256(data)
-  const sigObj: EcdsaSignature = toSignatureObject(signature)
-  const sigCompact = concat([hexToBytes(sigObj.r), hexToBytes(sigObj.s)]) // FIXME
-  const sig = p256.Signature.fromCompact(sigCompact)
+  const hash = sha256(data)
+  const sig = p256.Signature.fromCompact(toSignatureObject2(signature).compact)
   const fullPublicKeys = authenticators.filter(({ ethereumAddress, blockchainAccountId }) => {
     return typeof ethereumAddress === 'undefined' && typeof blockchainAccountId === 'undefined' // FIXME
   })

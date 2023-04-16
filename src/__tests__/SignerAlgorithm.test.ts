@@ -167,7 +167,7 @@ describe('ES256K-R', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
-    const sig = secp256k1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
+    const sig = secp256k1.Signature.fromCompact(toSignatureObject2(signature, true).compact).normalizeS()
     expect(secp256k1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
   })
 })
