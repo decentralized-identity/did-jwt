@@ -56,6 +56,10 @@ export function bytesToBigInt(b: Uint8Array): bigint {
   return BigInt(`0x` + u8a.toString(b, 'base16'))
 }
 
+export function bigintToBytes(n: bigint): Uint8Array {
+  return u8a.fromString(n.toString(16), 'base16')
+}
+
 export function stringToBytes(s: string): Uint8Array {
   return u8a.fromString(s)
 }

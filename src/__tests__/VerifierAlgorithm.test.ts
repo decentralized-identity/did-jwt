@@ -1,8 +1,15 @@
 import VerifierAlgorithm from '../VerifierAlgorithm'
 import { createJWT } from '../JWT'
 import nacl from 'tweetnacl'
-import elliptic from 'elliptic'
-import { base64ToBytes, bytesToBase58, bytesToBase64, hexToBytes, bytesToBase64url, bytesToMultibase } from '../util'
+import {
+  base64ToBytes,
+  bytesToBase58,
+  bytesToBase64,
+  hexToBytes,
+  bytesToBase64url,
+  bytesToMultibase,
+  bigintToBytes,
+} from '../util'
 import * as u8a from 'uint8arrays'
 import { EdDSASigner } from '../signers/EdDSASigner'
 import { ES256KSigner } from '../signers/ES256KSigner'
@@ -10,8 +17,7 @@ import { toEthereumAddress } from '../Digest'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
 import { p256 } from '@noble/curves/p256'
-
-const EC = elliptic.ec
+import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
 
 import { ES256Signer } from '../signers/ES256Signer'
 
@@ -178,26 +184,27 @@ describe('ES256', () => {
   })
 })
 
-const secp256k1 = new EC('secp256k1')
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
-const kp = secp256k1.keyFromPrivate(privateKey)
-const publicKey = String(kp.getPublic('hex'))
-const compressedPublicKey = String(kp.getPublic().encode('hex', true))
-const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
-const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
+const publicKeyBytes = SECP256K1.getPublicKey(privateKey, false)
+const publicKeyPoint = SECP256K1.ProjectivePoint.fromHex(publicKeyBytes)
+const publicKeyHex = u8a.toString(publicKeyBytes, 'base16')
+const compressedPublicKeyBytes = SECP256K1.getPublicKey(privateKey, true)
+const compressedPublicKey = u8a.toString(compressedPublicKeyBytes, 'base16')
+const publicKeyBase64 = bytesToBase64(publicKeyBytes)
+const publicKeyBase58 = bytesToBase58(publicKeyBytes)
 const publicKeyJwk = {
   crv: 'secp256k1',
   kty: 'EC',
-  x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
-  y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
+  x: bytesToBase64url(bigintToBytes(publicKeyPoint.x)),
+  y: bytesToBase64url(bigintToBytes(publicKeyPoint.y)),
 }
-const publicKeyMultibase = bytesToMultibase(hexToBytes(publicKey), 'base58btc')
-const eip155 = toEthereumAddress(publicKey)
-const bip122 = toBip122Address(publicKey)
+const publicKeyMultibase = bytesToMultibase(publicKeyBytes, 'base58btc')
+const eip155 = toEthereumAddress(publicKeyHex)
+const bip122 = toBip122Address(publicKeyHex)
 const cosmosPrefix = 'example'
-const cosmos = toCosmosAddressWithoutPrefix(publicKey, cosmosPrefix)
+const cosmos = toCosmosAddressWithoutPrefix(publicKeyHex, cosmosPrefix)
 const signer = ES256KSigner(hexToBytes(privateKey))
 const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
@@ -219,7 +226,7 @@ const ecKey2 = {
   id: `${did}#keys-2`,
   type: 'Secp256k1VerificationKey2018',
   controller: did,
-  publicKeyHex: publicKey,
+  publicKeyHex: publicKeyHex,
 }
 
 const ethAddress = {
