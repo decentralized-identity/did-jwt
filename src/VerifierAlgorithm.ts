@@ -171,10 +171,10 @@ export function verifyEd25519(
   signature: string,
   authenticators: VerificationMethod[]
 ): VerificationMethod {
-  const text = stringToBytes(data)
+  const clear = stringToBytes(data)
   const signatureBytes = base64ToBytes(signature)
   const signer = authenticators.find((a: VerificationMethod) => {
-    return ed25519.verify(signatureBytes, text, extractPublicKeyBytes(a))
+    return ed25519.verify(signatureBytes, clear, extractPublicKeyBytes(a))
   })
   if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
