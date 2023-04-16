@@ -20,20 +20,20 @@ import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
  *  @return   {Function}               a configured signer function `(data: string | Uint8Array): Promise<string>`
  */
 export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signer {
-    const privateKeyBytes: Uint8Array = privateKey
-    if (privateKeyBytes.length !== 32) {
-        throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
-    }
+  const privateKeyBytes: Uint8Array = privateKey
+  if (privateKeyBytes.length !== 32) {
+    throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
+  }
 
-    return async (data: string | Uint8Array): Promise<string> => {
-        const signature = SECP256K1.sign(sha256(data), privateKeyBytes)
-        return toJose(
-            {
-                r: leftpad(signature.r.toString(16)),
-                s: leftpad(signature.s.toString(16)),
-                recoveryParam: signature.recovery,
-            },
-            recoverable
-        )
-    }
+  return async (data: string | Uint8Array): Promise<string> => {
+    const signature = SECP256K1.sign(sha256(data), privateKeyBytes)
+    return toJose(
+      {
+        r: leftpad(signature.r.toString(16)),
+        s: leftpad(signature.s.toString(16)),
+        recoveryParam: signature.recovery,
+      },
+      recoverable
+    )
+  }
 }
