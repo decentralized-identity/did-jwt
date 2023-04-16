@@ -1,5 +1,4 @@
 import { sha256, toEthereumAddress } from './Digest'
-import { verify } from '@stablelib/ed25519'
 import type { VerificationMethod } from 'did-resolver'
 import { bases } from 'multiformats/basics'
 import {
@@ -14,6 +13,7 @@ import {
 import { verifyBlockchainAccountId } from './blockchains'
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { p256 } from '@noble/curves/p256'
+import { ed25519 } from '@noble/curves/ed25519'
 import { concat } from 'uint8arrays/concat'
 
 // converts a JOSE signature to it's components
@@ -186,7 +186,7 @@ export function verifyEd25519(
   const clear: Uint8Array = stringToBytes(data)
   const sig: Uint8Array = base64ToBytes(signature)
   const signer = authenticators.find((pk: VerificationMethod) => {
-    return verify(extractPublicKeyBytes(pk), clear, sig)
+    return ed25519.verify(sig, clear, extractPublicKeyBytes(pk))
   })
   if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
