@@ -9,10 +9,10 @@ import { sha256 } from '../Digest'
 import { ES256Signer } from '../signers/ES256Signer'
 import { hexToBytes } from '../util'
 import { p256 } from '@noble/curves/p256'
-import { secp256k1 as SECP256K1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
-const scp256k1PublicKey = SECP256K1.getPublicKey(privateKey)
+const scp256k1PublicKey = secp256k1.getPublicKey(privateKey)
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const signer = SimpleSigner(privateKey)
 const edSigner = NaclSigner(ed25519PrivateKey)
@@ -111,8 +111,8 @@ describe('ES256K', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
-    const sig = SECP256K1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
-    expect(SECP256K1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
+    const sig = secp256k1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
+    expect(secp256k1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
   })
 })
 
@@ -134,8 +134,8 @@ describe('ES256K signer which returns signature as string ', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', ecSigner)
-    const sig = SECP256K1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
-    expect(SECP256K1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
+    const sig = secp256k1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
+    expect(secp256k1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
   })
 })
 
@@ -167,8 +167,8 @@ describe('ES256K-R', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
-    const sig = SECP256K1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
-    expect(SECP256K1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
+    const sig = secp256k1.Signature.fromCompact(toSignatureObject2(signature).compact).normalizeS()
+    expect(secp256k1.verify(sig, sha256('hello'), scp256k1PublicKey)).toBeTruthy()
   })
 })
 

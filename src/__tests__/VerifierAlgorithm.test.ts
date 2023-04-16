@@ -9,6 +9,7 @@ import { ES256KSigner } from '../signers/ES256KSigner'
 import { toEthereumAddress } from '../Digest'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos'
+import { p256 } from '@noble/curves/p256'
 
 const EC = elliptic.ec
 
@@ -37,22 +38,23 @@ describe('VerifierAlgorithm', () => {
 })
 
 describe('ES256', () => {
-  const secp256r1 = new EC('p256')
   const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
   const did = `did:uport:${mnid}`
-  const privateKey = '736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8'
-  const kp = secp256r1.keyFromPrivate(privateKey)
-  const publicKey = String(kp.getPublic('hex'))
-  const compressedPublicKey = String(kp.getPublic().encode('hex', true))
-  const publicKeyBase64 = bytesToBase64(hexToBytes(publicKey))
-  const publicKeyBase58 = bytesToBase58(hexToBytes(publicKey))
+  const privateKey = hexToBytes('736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8')
+  const kp = p256.ProjectivePoint.fromPrivateKey(privateKey)
+  const publicKeyBytes = kp.toRawBytes(false)
+  const publicKey = kp.toHex(false)
+  const compressedPublicKey = kp.toHex(true)
+  const publicKeyBase64 = bytesToBase64(publicKeyBytes)
+  const publicKeyBase58 = bytesToBase58(publicKeyBytes)
+
   const publicKeyJwk = {
     crv: 'P-256',
     kty: 'EC',
-    x: bytesToBase64url(hexToBytes(kp.getPublic().getX().toString('hex'))),
-    y: bytesToBase64url(hexToBytes(kp.getPublic().getY().toString('hex'))),
+    x: bytesToBase64url(hexToBytes(kp.x.toString(16))),
+    y: bytesToBase64url(hexToBytes(kp.y.toString(16))),
   }
-  const signer = ES256Signer(hexToBytes(privateKey))
+  const signer = ES256Signer(privateKey)
   const publicKeyMultibase = bytesToMultibase(hexToBytes(publicKey), 'base58btc')
 
   const ecKey1 = {
