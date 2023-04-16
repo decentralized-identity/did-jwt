@@ -1,7 +1,7 @@
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'
 import { concatKDF } from './Digest'
 import { bytesToBase64url, base58ToBytes, encodeBase64url, toSealed, base64ToBytes, generateKeyPair } from './util'
-import { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
+import type { Recipient, EncryptionResult, Encrypter, Decrypter, ProtectedHeader } from './JWE'
 import type { VerificationMethod, Resolvable } from 'did-resolver'
 import { ECDH } from './ECDH'
 import { fromString } from 'uint8arrays/from-string'
