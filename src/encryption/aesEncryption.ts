@@ -144,7 +144,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithA256KW(
   senderSecret: Uint8Array | ECDH,
   options: Partial<AuthEncryptParams> = {}
 ): Encrypter {
-  const alg = 'ECDH-ES+A256KW'
+  const alg = 'ECDH-1PU+A256KW'
   const enc = 'XC20P'
 
   async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
