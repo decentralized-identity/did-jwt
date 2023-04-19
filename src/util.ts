@@ -1,5 +1,6 @@
 import * as u8a from 'uint8arrays'
 import { bases } from 'multiformats/basics'
+import { x25519 } from '@noble/curves/ed25519'
 
 /**
  * @deprecated Signers will be expected to return base64url `string` signatures.
@@ -8,6 +9,14 @@ export interface EcdsaSignature {
   r: string
   s: string
   recoveryParam?: number | null
+}
+
+/**
+ * @deprecated Signers will be expected to return base64url `string` signatures.
+ */
+export type ECDSASignature = {
+  compact: Uint8Array
+  recovery?: number
 }
 
 export function bytesToBase64url(b: Uint8Array): string {
@@ -52,6 +61,14 @@ export function bytesToHex(b: Uint8Array): string {
   return u8a.toString(b, 'base16')
 }
 
+export function bytesToBigInt(b: Uint8Array): bigint {
+  return BigInt(`0x` + u8a.toString(b, 'base16'))
+}
+
+export function bigintToBytes(n: bigint): Uint8Array {
+  return u8a.fromString(n.toString(16), 'base16')
+}
+
 export function stringToBytes(s: string): Uint8Array {
   return u8a.fromString(s)
 }
@@ -87,4 +104,29 @@ export function toSealed(ciphertext: string, tag: string): Uint8Array {
 export function leftpad(data: string, size = 64): string {
   if (data.length === size) return data
   return '0'.repeat(size - data.length) + data
+}
+
+/**
+ * Generate random x25519 key pair.
+ */
+export function generateKeyPair(): { secretKey: Uint8Array; publicKey: Uint8Array } {
+  const secretKey = x25519.utils.randomPrivateKey()
+  const publicKey = x25519.getPublicKey(secretKey)
+  return {
+    secretKey: secretKey,
+    publicKey: publicKey,
+  }
+}
+
+/**
+ * Generate private-public key pair from `seed`.
+ */
+export function generateKeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Array; publicKey: Uint8Array } {
+  if (seed.length !== 32) {
+    throw new Error(`x25519: seed must be ${32} bytes`)
+  }
+  return {
+    publicKey: x25519.getPublicKey(seed),
+    secretKey: seed,
+  }
 }

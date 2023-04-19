@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqeo4OTA7OYheYmlRy1OpNYbtYhDyZj0w1NfCpgsgDMGjw"`;
+exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqdXHxs_ExnehnZauNKxWynjBSaZHRZT3Ohgx8ZgUAM6sg"`;
 
 exports[`JWS createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJzb21lIjoiZGF0YSJ9.dblNz-7BVLknOFIBPmt5VTG0MDls_Q69WI8OfQuqNdUp4y50-b8Ubn0xujm1ijfmfqRunpks5TyWqgMsQkR_GQ"`;
 
@@ -59,7 +59,7 @@ Object {
       "phone",
     ],
   },
-  "signature": "tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvHJrDFQhNbSDzCP2Pe7WdXySosTCuI1T-IQ6SddcWuj_A",
+  "signature": "tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvE2U86veykt8M9wJwhEpioMcCPJ280TUFmu6TcvXsqdRQ",
 }
 `;
 
