@@ -1,3 +1,10 @@
+# [7.0.0-alpha.5](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.4...7.0.0-alpha.5) (2023-04-19)
+
+
+### Bug Fixes
+
+* support multiple JWE recipients with A256KW ([a997a62](https://github.com/decentralized-identity/did-jwt/commit/a997a622f2ae3ec090244489db78d721ceb72d34))
+
 # [7.0.0-alpha.4](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.3...7.0.0-alpha.4) (2023-04-19)
 
 
