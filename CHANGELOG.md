@@ -1,3 +1,15 @@
+# [7.0.0-alpha.3](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.2...7.0.0-alpha.3) (2023-04-19)
+
+
+### Bug Fixes
+
+* export A256KW encrypters and deduplicate code ([a12e833](https://github.com/decentralized-identity/did-jwt/commit/a12e83320afec1b515f724f7c710be7d4edfe248))
+
+
+### Features
+
+* add ECDH-1PU+A256KW support ([cca18f3](https://github.com/decentralized-identity/did-jwt/commit/cca18f3990bc03fe44e1c58e03e649c571a8c3df))
+
 # [7.0.0-alpha.2](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.1...7.0.0-alpha.2) (2023-04-04)
 
 
