@@ -1,3 +1,10 @@
+# [7.0.0-alpha.4](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.3...7.0.0-alpha.4) (2023-04-19)
+
+
+### Bug Fixes
+
+* typo in alg name ([a2de4a4](https://github.com/decentralized-identity/did-jwt/commit/a2de4a4fe6601091804573a1004c16baa1d96ae7))
+
 # [7.0.0-alpha.3](https://github.com/decentralized-identity/did-jwt/compare/7.0.0-alpha.2...7.0.0-alpha.3) (2023-04-19)
 
 
