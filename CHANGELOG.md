@@ -1,3 +1,11 @@
+# [7.1.0-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/7.0.0...7.1.0-alpha.1) (2023-04-19)
+
+
+### Features
+
+* add A256GCM content enc for JWE ([166d841](https://github.com/decentralized-identity/did-jwt/commit/166d841b9b53f83f9dfba3d29d58d0144ef11082))
+* add ECDH-1PU+A256KW and ECDH-ES+A256KW ([bdd3ea4](https://github.com/decentralized-identity/did-jwt/commit/bdd3ea4c80fd2b2a375841d781e05c0a49740a63))
+
 # [7.0.0](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...7.0.0) (2023-04-19)
 
 
