@@ -5,7 +5,7 @@ import { base64ToBytes, bytesToBase64url, toSealed } from '../util.js'
 import { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
 import { ECDH } from './ECDH.js'
 import { xc20pDirDecrypter, xc20pDirEncrypter, xc20pEncrypter } from './xc20pDir.js'
-import { computeX25519Ecdh1PUv3Kek, createX25519Ecdh1PUv3Kek, validateHeader } from './X25519-ECDH-1PU.js'
+import { computeX25519Ecdh1PUv3Kek, createX25519Ecdh1PUv3Kek } from './X25519-ECDH-1PU.js'
 import { computeX25519EcdhEsKek, createX25519EcdhEsKek } from './X25519-ECDH-ES.js'
 import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 
@@ -128,6 +128,13 @@ export function createAuthDecrypter(recipientSecret: Uint8Array | ECDH, senderPu
  */
 export function createAnonDecrypter(recipientSecret: Uint8Array | ECDH): Decrypter {
   return x25519Decrypter(recipientSecret)
+}
+
+export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
+  if (!(header && header.epk && header.iv && header.tag)) {
+    throw new Error('bad_jwe: malformed header')
+  }
+  return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
 }
 
 export function x25519Encrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {

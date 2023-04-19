@@ -13,20 +13,19 @@ import { computeX25519Ecdh1PUv3Kek, createX25519Ecdh1PUv3Kek } from './X25519-EC
  * Creates a wrapper using AES-KW
  * @param wrappingKey
  */
-export async function a256KeyWrapper(wrappingKey: Uint8Array): Promise<KeyWrapper> {
-  // TODO: check wrapping key size
-  const cryptoWrappingKey = await crypto.subtle.importKey(
-    'raw',
-    wrappingKey,
-    {
-      name: 'AES-KW',
-      length: 256,
-    },
-    false,
-    ['wrapKey', 'unwrapKey']
-  )
-
+export function a256KeyWrapper(wrappingKey: Uint8Array): KeyWrapper {
   const wrap = async (cek: Uint8Array): Promise<EncryptionResult> => {
+    // TODO: check wrapping key size
+    const cryptoWrappingKey = await crypto.subtle.importKey(
+      'raw',
+      wrappingKey,
+      {
+        name: 'AES-KW',
+        length: 256,
+      },
+      true,
+      ['wrapKey', 'unwrapKey']
+    )
     // create a CryptoKey instance from the cek. The algorithm doesn't matter since we'll be working with raw keys
     const cryptoCek = await crypto.subtle.importKey('raw', cek, { hash: 'SHA-256', name: 'HMAC' }, true, ['sign'])
     const ciphertext = new Uint8Array(await crypto.subtle.wrapKey('raw', cryptoCek, cryptoWrappingKey, 'AES-KW'))
@@ -35,30 +34,34 @@ export async function a256KeyWrapper(wrappingKey: Uint8Array): Promise<KeyWrappe
   return { wrap, alg: 'A256KW' }
 }
 
-export async function a256KeyUnwrapper(wrappingKey: Uint8Array): Promise<KeyUnwrapper> {
-  // TODO: check wrapping key size
-  const cryptoWrappingKey = await crypto.subtle.importKey(
-    'raw',
-    wrappingKey,
-    {
-      name: 'AES-KW',
-      length: 256,
-    },
-    false,
-    ['wrapKey', 'unwrapKey']
-  )
-
-  const unwrap = async (wrappedCek: Uint8Array): Promise<Uint8Array> => {
-    const cryptoKeyCek = await crypto.subtle.unwrapKey(
+export function a256KeyUnwrapper(wrappingKey: Uint8Array): KeyUnwrapper {
+  const unwrap = async (wrappedCek: Uint8Array): Promise<Uint8Array | null> => {
+    // TODO: check wrapping key size
+    const cryptoWrappingKey = await crypto.subtle.importKey(
       'raw',
-      wrappedCek,
-      cryptoWrappingKey,
-      'AES-KW',
-      // algorithm doesn't matter since we'll be exporting as raw
-      { hash: 'SHA-256', name: 'HMAC' },
+      wrappingKey,
+      {
+        name: 'AES-KW',
+        length: 256,
+      },
       true,
-      ['sign']
+      ['wrapKey', 'unwrapKey']
     )
+    let cryptoKeyCek = null
+    try {
+      cryptoKeyCek = await crypto.subtle.unwrapKey(
+        'raw',
+        wrappedCek,
+        cryptoWrappingKey,
+        'AES-KW',
+        // algorithm doesn't matter since we'll be exporting as raw
+        { hash: 'SHA-256', name: 'HMAC' },
+        true,
+        ['sign']
+      )
+    } catch (e) {
+      return null
+    }
 
     return new Uint8Array(await crypto.subtle.exportKey('raw', cryptoKeyCek))
   }
@@ -75,7 +78,7 @@ export function xc20pAnonEncrypterX25519WithA256KW(
 
   async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
     const { epk, kek } = createX25519EcdhEsKek(ephemeralKeyPair, recipientPublicKey, apv, alg)
-    const wrapper = await a256KeyWrapper(kek)
+    const wrapper = a256KeyWrapper(kek)
     const res = await wrapper.wrap(cek)
     const recipient: Recipient = {
       encrypted_key: bytesToBase64url(res.ciphertext),
@@ -129,7 +132,7 @@ export function xc20pAnonDecrypterX25519WithA256KW(receiverSecret: Uint8Array | 
     const kek = await computeX25519EcdhEsKek(recipient, receiverSecret, alg)
     if (kek === null) return null
     // Content Encryption Key
-    const unwrapper = await a256KeyUnwrapper(kek)
+    const unwrapper = a256KeyUnwrapper(kek)
     const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key))
     if (cek === null) return null
 
@@ -156,7 +159,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithA256KW(
       options.apv,
       alg
     )
-    const wrapper = await a256KeyWrapper(kek)
+    const wrapper = a256KeyWrapper(kek)
     const res = await wrapper.wrap(cek)
     const recipient: Recipient = {
       encrypted_key: bytesToBase64url(res.ciphertext),
@@ -218,7 +221,7 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithA256KW(
     const kek = await computeX25519Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
     if (!kek) return null
     // Content Encryption Key
-    const unwrapper = await a256KeyUnwrapper(kek)
+    const unwrapper = a256KeyUnwrapper(kek)
     const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key))
     if (cek === null) return null
 

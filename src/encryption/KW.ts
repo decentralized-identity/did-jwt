@@ -8,6 +8,6 @@ export type KeyWrapper = {
 
 export type KeyUnwrapper = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  unwrap(ciphertext: Uint8Array, options?: any): Promise<Uint8Array>
+  unwrap(ciphertext: Uint8Array, options?: any): Promise<Uint8Array | null>
   alg: string
 }

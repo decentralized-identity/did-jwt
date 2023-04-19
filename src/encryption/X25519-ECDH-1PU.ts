@@ -1,15 +1,8 @@
-import { EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
+import { EphemeralKeyPair, Recipient } from './JWE.js'
 import { base64ToBytes, bytesToBase64url } from '../util.js'
 import { concatKDF } from '../Digest.js'
 import { generateKeyPair, generateKeyPairFromSeed, KeyPair as X25519KeyPair, sharedKey } from '@stablelib/x25519'
 import { ECDH } from './ECDH.js'
-
-export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
-  if (!(header && header.epk && header.iv && header.tag)) {
-    throw new Error('bad_jwe: malformed header')
-  }
-  return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
-}
 
 export async function computeX25519Ecdh1PUv3Kek(
   recipient: Recipient,
@@ -19,7 +12,7 @@ export async function computeX25519Ecdh1PUv3Kek(
 ) {
   const crv = 'X25519'
   const keyLen = 256
-  const header = validateHeader(recipient.header)
+  const header = recipient.header
   if (header.epk?.crv !== crv || typeof header.epk.x == 'undefined') return null
   // ECDH-1PU requires additional shared secret between
   // static key of sender and static key of recipient
