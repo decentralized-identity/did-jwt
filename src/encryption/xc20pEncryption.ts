@@ -196,6 +196,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
   options: Partial<AuthEncryptParams> = {}
 ): Encrypter {
   const alg = 'ECDH-1PU+XC20PKW'
+  const enc = 'XC20P'
 
   async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
     const { epk, kek } = await createX25519Ecdh1PUv3Kek(
@@ -247,7 +248,7 @@ export function xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2(
     }
   }
 
-  return { alg, enc: 'XC20P', encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
+  return { alg, enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
 }
 
 export async function resolveX25519Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
@@ -301,6 +302,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
 
 export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
   const alg = 'ECDH-ES+XC20PKW'
+  const enc = 'XC20P'
 
   async function decrypt(
     sealed: Uint8Array,
@@ -321,7 +323,7 @@ export function x25519Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
 
-  return { alg, enc: 'XC20P', decrypt }
+  return { alg, enc, decrypt }
 }
 
 /**
@@ -334,6 +336,7 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
   senderPublicKey: Uint8Array
 ): Decrypter {
   const alg = 'ECDH-1PU+XC20PKW'
+  const enc = 'XC20P'
 
   async function decrypt(
     sealed: Uint8Array,
@@ -353,5 +356,5 @@ export function xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2(
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
 
-  return { alg, enc: 'XC20P', decrypt }
+  return { alg, enc, decrypt }
 }

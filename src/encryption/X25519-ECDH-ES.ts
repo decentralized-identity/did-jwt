@@ -27,7 +27,7 @@ export async function computeX25519EcdhEsKek(recipient: Recipient, receiverSecre
 
 export function createX25519EcdhEsKek(
   ephemeralKeyPair: EphemeralKeyPair | undefined,
-  publicKey: Uint8Array,
+  recipientPublicKey: Uint8Array,
   apv: string | undefined,
   alg: string
 ) {
@@ -37,7 +37,7 @@ export function createX25519EcdhEsKek(
     ? generateKeyPairFromSeed(ephemeralKeyPair.secretKey)
     : generateKeyPair()
   const epk = { kty: 'OKP', crv, x: bytesToBase64url(ephemeral.publicKey) }
-  const sharedSecret = sharedKey(ephemeral.secretKey, publicKey)
+  const sharedSecret = sharedKey(ephemeral.secretKey, recipientPublicKey)
   // Key Encryption Key
   const consumerInfo = base64ToBytes(apv ?? '')
   const kek = concatKDF(sharedSecret, keyLen, alg, undefined, consumerInfo)

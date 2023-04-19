@@ -15,7 +15,7 @@ import {
 } from '../encryption/xc20pEncryption.js'
 import { base64ToBytes, decodeBase64url, encodeBase64url } from '../util.js'
 import { createX25519ECDH, ECDH } from '../encryption/ECDH.js'
-import { x25519DecrypterWithA256KW, x25519EncrypterWithA256KW } from '../encryption/aesEncryption.js'
+import { xc20pAnonDecrypterX25519WithA256KW, xc20pAnonEncrypterX25519WithA256KW } from '../encryption/aesEncryption.js'
 import { xc20pDirDecrypter, xc20pDirEncrypter } from '../encryption/xc20pDir'
 
 const u8a = { toString, fromString }
@@ -107,7 +107,7 @@ describe('JWE', () => {
         async ({ key, cleartext, jwe }) => {
           expect.assertions(1)
           const receiverSecret = base64ToBytes(key)
-          const decrypter = x25519DecrypterWithA256KW(receiverSecret)
+          const decrypter = xc20pAnonDecrypterX25519WithA256KW(receiverSecret)
           const cleartextU8a = await decryptJWE(jwe as any, decrypter)
           expect(u8a.toString(cleartextU8a)).toEqual(cleartext)
         }
@@ -201,8 +201,8 @@ describe('JWE', () => {
           secretkey = randomBytes(32)
           pubkey = generateKeyPairFromSeed(secretkey).publicKey
           cleartext = u8a.fromString('hello world')
-          encrypter = x25519EncrypterWithA256KW(pubkey)
-          decrypter = x25519DecrypterWithA256KW(secretkey)
+          encrypter = xc20pAnonEncrypterX25519WithA256KW(pubkey)
+          decrypter = xc20pAnonDecrypterX25519WithA256KW(secretkey)
         })
 
         it('Creates with only ciphertext', async () => {
