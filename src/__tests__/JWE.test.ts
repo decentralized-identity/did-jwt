@@ -1,7 +1,7 @@
 import { fromString, toString } from 'uint8arrays'
 import { randomBytes } from '@stablelib/random'
 import { generateKeyPairFromSeed } from '@stablelib/x25519'
-import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../JWE.js'
+import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../encryption/JWE.js'
 import { vectors } from './jwe-vectors.js'
 import {
   createAnonDecrypter,
@@ -12,12 +12,11 @@ import {
   x25519Encrypter,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
-  xc20pDirDecrypter,
-  xc20pDirEncrypter,
-} from '../xc20pEncryption.js'
+} from '../encryption/xc20pEncryption.js'
 import { base64ToBytes, decodeBase64url, encodeBase64url } from '../util.js'
-import { createX25519ECDH, ECDH } from '../ECDH.js'
-import { x25519DecrypterWithA256KW, x25519EncrypterWithA256KW } from '../aesEncryption.js'
+import { createX25519ECDH, ECDH } from '../encryption/ECDH.js'
+import { x25519DecrypterWithA256KW, x25519EncrypterWithA256KW } from '../encryption/aesEncryption.js'
+import { xc20pDirDecrypter, xc20pDirEncrypter } from '../encryption/xc20pDir'
 
 const u8a = { toString, fromString }
 

@@ -1,13 +1,18 @@
 import { randomBytes } from '@stablelib/random'
-import { generateKeyPair, generateKeyPairFromSeed, KeyPair as X25519KeyPair, sharedKey } from '@stablelib/x25519'
-import { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
-import { concatKDF } from './Digest.js'
-import { base64ToBytes, bytesToBase64url } from './util.js'
-import { genX25519EphemeralKeyPair, xc20pDirDecrypter, xc20pDirEncrypter } from './xc20pEncryption.js'
 import crypto from 'isomorphic-webcrypto'
-import { ECDH } from './ECDH'
+import { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
+import { base64ToBytes, bytesToBase64url } from '../util.js'
+import { genX25519EphemeralKeyPair } from './xc20pEncryption.js'
+import { ECDH } from './ECDH.js'
+import { KeyUnwrapper, KeyWrapper } from './KW.js'
+import { xc20pDirDecrypter, xc20pDirEncrypter } from './xc20pDir.js'
+import { computeX25519EcdhEsKek, createX25519EcdhEsKek } from './X25519-ECDH-ES.js'
 
-export async function a256KeyWrapper(wrappingKey: Uint8Array) {
+/**
+ * Creates a wrapper using AES-KW
+ * @param wrappingKey
+ */
+export async function a256KeyWrapper(wrappingKey: Uint8Array): Promise<KeyWrapper> {
   // TODO: check wrapping key size
   const cryptoWrappingKey = await crypto.subtle.importKey(
     'raw',
@@ -20,14 +25,16 @@ export async function a256KeyWrapper(wrappingKey: Uint8Array) {
     ['wrapKey', 'unwrapKey']
   )
 
-  return async (cek: Uint8Array): Promise<Uint8Array> => {
+  const wrap = async (cek: Uint8Array): Promise<EncryptionResult> => {
     // create a CryptoKey instance from the cek. The algorithm doesn't matter since we'll be working with raw keys
     const cryptoCek = await crypto.subtle.importKey('raw', cek, { hash: 'SHA-256', name: 'HMAC' }, true, ['sign'])
-    return new Uint8Array(await crypto.subtle.wrapKey('raw', cryptoCek, cryptoWrappingKey, 'AES-KW'))
+    const ciphertext = new Uint8Array(await crypto.subtle.wrapKey('raw', cryptoCek, cryptoWrappingKey, 'AES-KW'))
+    return { ciphertext }
   }
+  return { wrap, alg: 'A256KW' }
 }
 
-export async function a256KeyUnwrapper(wrappingKey: Uint8Array) {
+export async function a256KeyUnwrapper(wrappingKey: Uint8Array): Promise<KeyUnwrapper> {
   // TODO: check wrapping key size
   const cryptoWrappingKey = await crypto.subtle.importKey(
     'raw',
@@ -40,7 +47,7 @@ export async function a256KeyUnwrapper(wrappingKey: Uint8Array) {
     ['wrapKey', 'unwrapKey']
   )
 
-  return async (wrappedCek: Uint8Array): Promise<Uint8Array> => {
+  const unwrap = async (wrappedCek: Uint8Array): Promise<Uint8Array> => {
     const cryptoKeyCek = await crypto.subtle.unwrapKey(
       'raw',
       wrappedCek,
@@ -54,31 +61,26 @@ export async function a256KeyUnwrapper(wrappingKey: Uint8Array) {
 
     return new Uint8Array(await crypto.subtle.exportKey('raw', cryptoKeyCek))
   }
+  return { unwrap, alg: 'A256KW' }
 }
 
-export function x25519EncrypterWithA256KW(publicKey: Uint8Array, kid?: string): Encrypter {
+export function x25519EncrypterWithA256KW(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
   const alg = 'ECDH-ES+A256KW'
-  const keyLen = 256
-  const crv = 'X25519'
+  const enc = 'XC20P'
 
   async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
-    const ephemeral: X25519KeyPair = ephemeralKeyPair
-      ? generateKeyPairFromSeed(ephemeralKeyPair.secretKey)
-      : generateKeyPair()
-    const epk = { kty: 'OKP', crv, x: bytesToBase64url(ephemeral.publicKey) }
-    const sharedSecret = sharedKey(ephemeral.secretKey, publicKey)
-    // Key Encryption Key
-    const kek = concatKDF(sharedSecret, keyLen, alg)
+    const { epk, kek } = createX25519EcdhEsKek(ephemeralKeyPair, publicKey, apv, alg)
     const wrapper = await a256KeyWrapper(kek)
-    const res = await wrapper(cek)
+    const res = await wrapper.wrap(cek)
     const recipient: Recipient = {
-      encrypted_key: bytesToBase64url(res),
+      encrypted_key: bytesToBase64url(res.ciphertext),
       header: {},
     }
     if (kid) recipient.header.kid = kid
+    if (apv) recipient.header.apv = apv
     if (!ephemeralKeyPair) {
-      recipient.header.epk = epk
       recipient.header.alg = alg
+      recipient.header.epk = epk
     }
     return recipient
   }
@@ -96,9 +98,7 @@ export function x25519EncrypterWithA256KW(publicKey: Uint8Array, kid?: string): 
     const recipient: Recipient = await encryptCek(cek, ephemeralKeyPair)
     if (ephemeralKeyPair) {
       protectedHeader.alg = alg
-      protectedHeader.epk = ephemeralKeyPair.publicKey
-      delete recipient.header.alg
-      delete recipient.header.epk
+      protectedHeader.epk = ephemeralKeyPair.publicKeyJWK
     }
     return {
       ...(await xc20pDirEncrypter(cek).encrypt(cleartext, protectedHeader, aad)),
@@ -107,13 +107,12 @@ export function x25519EncrypterWithA256KW(publicKey: Uint8Array, kid?: string): 
     }
   }
 
-  return { alg, enc: 'XC20P', encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
+  return { alg, enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
 }
 
 export function x25519DecrypterWithA256KW(receiverSecret: Uint8Array | ECDH): Decrypter {
   const alg = 'ECDH-ES+A256KW'
-  const keyLen = 256
-  const crv = 'X25519'
+  const enc = 'XC20P'
 
   async function decrypt(
     sealed: Uint8Array,
@@ -122,29 +121,15 @@ export function x25519DecrypterWithA256KW(receiverSecret: Uint8Array | ECDH): De
     recipient?: Recipient
   ): Promise<Uint8Array | null> {
     recipient = <Recipient>recipient
-    const header = recipient.header
-    if (header.epk?.crv !== crv || typeof header.epk.x == 'undefined') return null
-    const publicKey = base64ToBytes(header.epk.x)
-    let sharedSecret
-    if (receiverSecret instanceof Uint8Array) {
-      sharedSecret = sharedKey(receiverSecret, publicKey)
-    } else {
-      sharedSecret = await receiverSecret(publicKey)
-    }
-
-    // Key Encryption Key
-    let producerInfo: Uint8Array | undefined = undefined
-    let consumerInfo: Uint8Array | undefined = undefined
-    if (recipient.header.apu) producerInfo = base64ToBytes(recipient.header.apu)
-    if (recipient.header.apv) consumerInfo = base64ToBytes(recipient.header.apv)
-    const kek = concatKDF(sharedSecret, keyLen, alg, producerInfo, consumerInfo)
+    const kek = await computeX25519EcdhEsKek(recipient, receiverSecret, alg)
+    if (kek === null) return null
     // Content Encryption Key
-    const unwrap = await a256KeyUnwrapper(kek)
-    const cek = await unwrap(base64ToBytes(recipient.encrypted_key))
+    const unwrapper = await a256KeyUnwrapper(kek)
+    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key))
     if (cek === null) return null
 
     return xc20pDirDecrypter(cek).decrypt(sealed, iv, aad)
   }
 
-  return { alg, enc: 'XC20P', decrypt }
+  return { alg, enc, decrypt }
 }

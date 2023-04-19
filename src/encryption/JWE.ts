@@ -1,5 +1,5 @@
 import { fromString } from 'uint8arrays'
-import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util.js'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from '../util.js'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ProtectedHeader = Record<string, any> & Partial<RecipientHeader>
@@ -20,7 +20,7 @@ export interface EphemeralPublicKey {
 }
 
 export interface EphemeralKeyPair {
-  publicKey: EphemeralPublicKey
+  publicKeyJWK: EphemeralPublicKey
   secretKey: Uint8Array
 }
 
@@ -50,8 +50,8 @@ export interface JWE {
 
 export interface EncryptionResult {
   ciphertext: Uint8Array
-  tag: Uint8Array
-  iv: Uint8Array
+  tag?: Uint8Array
+  iv?: Uint8Array
   protectedHeader?: string
   recipient?: Recipient
   cek?: Uint8Array
@@ -92,9 +92,9 @@ function validateJWE(jwe: JWE) {
 function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: EncryptionResult, aad?: Uint8Array): JWE {
   const jwe: JWE = {
     protected: <string>protectedHeader,
-    iv: bytesToBase64url(iv),
+    iv: bytesToBase64url(iv ?? new Uint8Array(0)),
     ciphertext: bytesToBase64url(ciphertext),
-    tag: bytesToBase64url(tag),
+    tag: bytesToBase64url(tag ?? new Uint8Array(0)),
   }
   if (aad) jwe.aad = bytesToBase64url(aad)
   if (recipient) jwe.recipients = [recipient]
@@ -123,7 +123,7 @@ export async function createJWE(
     if (useSingleEphemeralKey) {
       epk = encrypters[0].genEpk?.()
       const alg = encrypters[0].alg
-      protectedHeader = { ...protectedHeader, alg, epk: epk?.publicKey }
+      protectedHeader = { ...protectedHeader, alg, epk: epk?.publicKeyJWK }
     }
 
     for (const encrypter of encrypters) {

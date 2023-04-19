@@ -1,0 +1,88 @@
+import { EphemeralKeyPair, ProtectedHeader, Recipient } from './JWE.js'
+import { base64ToBytes, bytesToBase64url } from '../util.js'
+import { concatKDF } from '../Digest.js'
+import { generateKeyPair, generateKeyPairFromSeed, KeyPair as X25519KeyPair, sharedKey } from '@stablelib/x25519'
+import { ECDH } from './ECDH.js'
+
+export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
+  if (!(header && header.epk && header.iv && header.tag)) {
+    throw new Error('bad_jwe: malformed header')
+  }
+  return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
+}
+
+export async function computeX25519Ecdh1PUv3Kek(
+  recipient: Recipient,
+  recipientSecret: Uint8Array | ECDH,
+  senderPublicKey: Uint8Array,
+  alg: string
+) {
+  const crv = 'X25519'
+  const keyLen = 256
+  const header = validateHeader(recipient.header)
+  if (header.epk?.crv !== crv || typeof header.epk.x == 'undefined') return null
+  // ECDH-1PU requires additional shared secret between
+  // static key of sender and static key of recipient
+  const publicKey = base64ToBytes(header.epk.x)
+  let zE: Uint8Array
+  let zS: Uint8Array
+
+  if (recipientSecret instanceof Uint8Array) {
+    zE = sharedKey(recipientSecret, publicKey)
+    zS = sharedKey(recipientSecret, senderPublicKey)
+  } else {
+    zE = await recipientSecret(publicKey)
+    zS = await recipientSecret(senderPublicKey)
+  }
+
+  const sharedSecret = new Uint8Array(zE.length + zS.length)
+  sharedSecret.set(zE)
+  sharedSecret.set(zS, zE.length)
+
+  // Key Encryption Key
+  let producerInfo
+  let consumerInfo
+  if (recipient.header.apu) producerInfo = base64ToBytes(recipient.header.apu)
+  if (recipient.header.apv) consumerInfo = base64ToBytes(recipient.header.apv)
+
+  return concatKDF(sharedSecret, keyLen, alg, producerInfo, consumerInfo)
+}
+
+export async function createX25519Ecdh1PUv3Kek(
+  ephemeralKeyPair: EphemeralKeyPair | undefined,
+  recipientPublicKey: Uint8Array,
+  senderSecret: Uint8Array | ECDH,
+  apu: string | undefined,
+  apv: string | undefined,
+  alg: string
+) {
+  const crv = 'X25519'
+  const keyLen = 256
+  const ephemeral: X25519KeyPair = ephemeralKeyPair
+    ? generateKeyPairFromSeed(ephemeralKeyPair.secretKey)
+    : generateKeyPair()
+  const epk = { kty: 'OKP', crv, x: bytesToBase64url(ephemeral.publicKey) }
+  const zE = sharedKey(ephemeral.secretKey, recipientPublicKey)
+
+  // ECDH-1PU requires additional shared secret between
+  // static key of sender and static key of recipient
+  let zS
+  if (senderSecret instanceof Uint8Array) {
+    zS = sharedKey(senderSecret, recipientPublicKey)
+  } else {
+    zS = await senderSecret(recipientPublicKey)
+  }
+
+  const sharedSecret = new Uint8Array(zE.length + zS.length)
+  sharedSecret.set(zE)
+  sharedSecret.set(zS, zE.length)
+
+  let partyUInfo: Uint8Array = new Uint8Array(0)
+  let partyVInfo: Uint8Array = new Uint8Array(0)
+  if (apu) partyUInfo = base64ToBytes(apu)
+  if (apv) partyVInfo = base64ToBytes(apv)
+
+  // Key Encryption Key
+  const kek = concatKDF(sharedSecret, keyLen, alg, partyUInfo, partyVInfo)
+  return { epk, kek }
+}

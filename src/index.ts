@@ -26,11 +26,9 @@ export {
   type ProtectedHeader,
   type Recipient,
   type RecipientHeader,
-} from './JWE.js'
-export { type ECDH, createX25519ECDH } from './ECDH.js'
+} from './encryption/JWE.js'
+export { type ECDH, createX25519ECDH } from './encryption/ECDH.js'
 export {
-  xc20pDirEncrypter,
-  xc20pDirDecrypter,
   x25519Encrypter,
   x25519Decrypter,
   resolveX25519Encrypters,
@@ -40,7 +38,7 @@ export {
   createAnonDecrypter,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
-} from './xc20pEncryption.js'
+} from './encryption/xc20pEncryption.js'
 
 export {
   SimpleSigner,
@@ -66,3 +64,5 @@ export { type JWTOptions, type JWTVerifyOptions } from './JWT.js'
 export { base64ToBytes, base58ToBytes, hexToBytes } from './util.js'
 
 export * from './Errors.js'
+export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
+export * from './encryption/aesEncryption.js'

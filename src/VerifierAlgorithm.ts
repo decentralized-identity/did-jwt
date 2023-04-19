@@ -31,7 +31,7 @@ interface LegacyVerificationMethod extends VerificationMethod {
   publicKeyBase64: string
 }
 
-function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
+export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   if (pk.publicKeyBase58) {
     return base58ToBytes(pk.publicKeyBase58)
   } else if ((<LegacyVerificationMethod>pk).publicKeyBase64) {
@@ -59,7 +59,7 @@ function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   } else if (
     pk.publicKeyJwk &&
     pk.publicKeyJwk.kty === 'OKP' &&
-    pk.publicKeyJwk.crv === 'Ed25519' &&
+    ['Ed25519', 'X25519'].includes(pk.publicKeyJwk.crv ?? '') &&
     pk.publicKeyJwk.x
   ) {
     return base64ToBytes(pk.publicKeyJwk.x)
