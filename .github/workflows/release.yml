@@ -4,9 +4,12 @@ on:
   push:
     branches:
       - 'master'
+      - 'alpha'
+      - 'main'
+      - 'next'
 jobs:
   build-test-publish:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:
@@ -16,20 +19,21 @@ jobs:
       - name: "Setup node with cache"
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: 18
           cache: 'yarn'
 
       - run: yarn install --frozen-lockfile
+      - run: yarn run format
       - run: yarn run build
 
       - name: "Setup git coordinates"
         run: |
-          git config user.name uport-automation-bot
-          git config user.email devops@uport.me
+          git config user.name ${{secrets.GH_USER}}
+          git config user.email ${{secrets.GH_EMAIL}}
 
       - name: "Run semantic-release"
         env:
           GH_TOKEN: ${{secrets.GH_TOKEN}}
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/alpha'
         run: yarn run release
