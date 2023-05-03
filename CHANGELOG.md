@@ -1,3 +1,10 @@
+# [7.1.0](https://github.com/decentralized-identity/did-jwt/compare/7.0.0...7.1.0) (2023-05-03)
+
+
+### Features
+
+* add support for ConditionalProof2022 verificationMethods ([#272](https://github.com/decentralized-identity/did-jwt/issues/272)) ([9bebe3f](https://github.com/decentralized-identity/did-jwt/commit/9bebe3fc7393db0a9b1d06655337a6e8b4a9eaf9))
+
 # [7.0.0](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...7.0.0) (2023-04-19)
 
 
