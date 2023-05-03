@@ -104,7 +104,7 @@
     "canonicalize": "^2.0.0",
     "did-resolver": "^4.0.0",
     "multiformats": "^9.6.5",
-    "uint8arrays": "^3.0.0"
+    "uint8arrays": "^4.0.0"
   },
   "eslintIgnore": [
     "*.test.ts"
