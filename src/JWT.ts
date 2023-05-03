@@ -1,9 +1,10 @@
 import canonicalizeData from 'canonicalize'
-import type { DIDDocument, DIDResolutionResult, Resolvable, VerificationMethod } from 'did-resolver'
+import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm'
 import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util'
 import VerifierAlgorithm from './VerifierAlgorithm'
 import { JWT_ERROR } from './Errors'
+import { verifyProof } from './ConditionalAlgorithm'
 
 export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
 export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
@@ -36,6 +37,7 @@ export interface JWTVerifyOptions {
   /** See https://www.w3.org/TR/did-spec-registries/#verification-relationships */
   proofPurpose?: ProofPurposeTypes
   policies?: JWTVerifyPolicies
+  didAuthenticator?: DIDAuthenticator
 }
 
 /**
@@ -166,6 +168,10 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    /**
+     *  TODO - support R1 key aswell
+     *   'ConditionalProof2022',
+     */
     'JsonWebKey2020',
   ],
   'ES256K-R': [
@@ -189,6 +195,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      *   not an ethereumAddress
      */
     'EcdsaPublicKeySecp256k1',
+    'ConditionalProof2022',
     'JsonWebKey2020',
   ],
   Ed25519: [
@@ -233,8 +240,6 @@ function decodeJWS(jws: string): JWSDecoded {
   throw new Error('invalid_argument: Incorrect format JWS')
 }
 
-/**  @module did-jwt/JWT */
-
 /**
  *  Decodes a JWT and returns an object representing the payload
  *
@@ -242,13 +247,22 @@ function decodeJWS(jws: string): JWSDecoded {
  *  decodeJWT('eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE1...')
  *
  *  @param    {String}            jwt                a JSON Web Token to verify
+ * @param    {Object}            [recurse]          whether to recurse into the payload to decode any nested JWTs
  *  @return   {Object}                               a JS object representing the decoded JWT
  */
-export function decodeJWT(jwt: string): JWTDecoded {
+export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
   if (!jwt) throw new Error('invalid_argument: no JWT passed into decodeJWT')
   try {
     const jws = decodeJWS(jwt)
     const decodedJwt: JWTDecoded = Object.assign(jws, { payload: JSON.parse(decodeBase64url(jws.payload)) })
+    const iss = decodedJwt.payload.iss
+
+    if (decodedJwt.header.cty === 'JWT' && recurse) {
+      const innerDecodedJwt = decodeJWT(decodedJwt.payload.jwt)
+
+      if (innerDecodedJwt.payload.iss !== iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
+      return innerDecodedJwt
+    }
     return decodedJwt
   } catch (e) {
     throw new Error('invalid_argument: Incorrect format JWT')
@@ -281,6 +295,9 @@ export async function createJWS(
 
   const jwtSigner: SignerAlgorithm = SignerAlg(header.alg)
   const signature: string = await jwtSigner(signingInput, signer)
+
+  // JWS Compact Serialization
+  // https://www.rfc-editor.org/rfc/rfc7515#section-7.1
   return [signingInput, signature].join('.')
 }
 
@@ -326,10 +343,94 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header, { canonicalize })
+  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>
 }
 
-function verifyJWSDecoded(
+/**
+ *  Creates a multi-signature signed JWT given multiple issuers and their corresponding signers, and a payload for which the signature is
+ * over.
+ *
+ *  @example
+ *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
+ *  createJWT({address: '5A8bRWU3F7j3REx3vkJ...', signer}, {key1: 'value', key2: ..., ... }).then(jwt => {
+ *      ...
+ *  })
+ *
+ *  @param    {Object}            payload               payload object
+ *  @param    {Object}            [options]             an unsigned credential object
+ *  @param    {boolean}           options.expiresIn     optional flag to denote the expiration time
+ *  @param    {boolean}           options.canonicalize  optional flag to canonicalize header and payload before signing
+ *  @param    {Object[]}          issuers               array of the issuers, their signers and algorithms
+ *  @param    {string}            issuers[].issuer      The DID of the issuer (signer) of JWT
+ *  @param    {Signer}            issuers[].signer      a `Signer` function, Please see `ES256KSigner` or `EdDSASigner`
+ *  @param    {String}            issuers[].alg         [DEPRECATED] The JWT signing algorithm to use. Supports:
+ *   [ES256K, ES256K-R, Ed25519, EdDSA], Defaults to: ES256K. Please use `header.alg` to specify the algorithm
+ *  @return   {Promise<Object, Error>}                  a promise which resolves with a signed JSON Web Token or
+ *   rejects with an error
+ */
+export async function createMultisignatureJWT(
+  payload: Partial<JWTPayload>,
+  { expiresIn, canonicalize }: Partial<JWTOptions>,
+  issuers: { issuer: string; signer: Signer; alg: string }[]
+): Promise<string> {
+  if (issuers.length === 0) throw new Error('invalid_argument: must provide one or more issuers')
+
+  let payloadResult: Partial<JWTPayload> = payload
+
+  let jwt = ''
+  for (let i = 0; i < issuers.length; i++) {
+    const issuer = issuers[i]
+
+    const header: Partial<JWTHeader> = {
+      typ: 'JWT',
+      alg: issuer.alg,
+    }
+
+    // Create nested JWT
+    // See Point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
+    // After the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the payload
+    if (i !== 0) {
+      header.cty = 'JWT'
+    }
+
+    jwt = await createJWT(payloadResult, { ...issuer, canonicalize, expiresIn }, header)
+
+    payloadResult = { jwt }
+  }
+  return jwt
+}
+
+export function verifyJWTDecoded(
+  { header, payload, data, signature }: JWTDecoded,
+  pubKeys: VerificationMethod | VerificationMethod[]
+): VerificationMethod {
+  if (!Array.isArray(pubKeys)) pubKeys = [pubKeys]
+
+  const iss = payload.iss
+  let recurse = true
+  do {
+    if (iss !== payload.iss) throw new Error(`${JWT_ERROR.INVALID_JWT}: multiple issuers`)
+
+    try {
+      const result = VerifierAlgorithm(header.alg)(data, signature, pubKeys)
+
+      return result
+    } catch (e) {
+      if (!(e as Error).message.startsWith(JWT_ERROR.INVALID_SIGNATURE)) throw e
+    }
+
+    // TODO probably best to create copy objects than replace reference objects
+    if (header.cty !== 'JWT') {
+      recurse = false
+    } else {
+      ;({ payload, header, signature, data } = decodeJWT(payload.jwt, false))
+    }
+  } while (recurse)
+
+  throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
+}
+
+export function verifyJWSDecoded(
   { header, data, signature }: JWSDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
@@ -392,61 +493,99 @@ export async function verifyJWT(
     skewTime: undefined,
     proofPurpose: undefined,
     policies: {},
+    didAuthenticator: undefined,
   }
 ): Promise<JWTVerified> {
   if (!options.resolver) throw new Error('missing_resolver: No DID resolver has been configured')
-  const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt)
+  const { payload, header, signature, data }: JWTDecoded = decodeJWT(jwt, false)
   const proofPurpose: ProofPurposeTypes | undefined = Object.prototype.hasOwnProperty.call(options, 'auth')
     ? options.auth
       ? 'authentication'
       : undefined
     : options.proofPurpose
 
-  let did
+  let didUrl: string | undefined
 
   if (!payload.iss && !payload.client_id) {
     throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iss or client_id are required`)
   }
 
-  if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
+  if (options.didAuthenticator) {
+    didUrl = options.didAuthenticator.issuer
+  } else if (payload.iss === SELF_ISSUED_V2 || payload.iss === SELF_ISSUED_V2_VC_INTEROP) {
     if (!payload.sub) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT sub is required`)
     }
     if (typeof payload.sub_jwk === 'undefined') {
-      did = payload.sub
+      didUrl = payload.sub
     } else {
-      did = (header.kid || '').split('#')[0]
+      didUrl = (header.kid || '').split('#')[0]
     }
   } else if (payload.iss === SELF_ISSUED_V0_1) {
     if (!payload.did) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT did is required`)
     }
-    did = payload.did
+    didUrl = payload.did
   } else if (!payload.iss && payload.scope === 'openid' && payload.redirect_uri) {
     // SIOP Request payload
     // https://identity.foundation/jwt-vc-presentation-profile/#self-issued-op-request-object
     if (!payload.client_id) {
       throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT client_id is required`)
     }
-    did = payload.client_id
+    didUrl = payload.client_id
   } else {
-    did = payload.iss
+    didUrl = payload.iss
   }
 
-  if (!did) {
+  if (!didUrl) {
     throw new Error(`${JWT_ERROR.INVALID_JWT}: No DID has been found in the JWT`)
   }
 
-  const { didResolutionResult, authenticators, issuer }: DIDAuthenticator = await resolveAuthenticator(
-    options.resolver,
-    header.alg,
-    did,
-    proofPurpose
-  )
-  const signer: VerificationMethod = await verifyJWSDecoded({ header, data, signature } as JWSDecoded, authenticators)
-  const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
-  const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+  let authenticators: VerificationMethod[]
+  let issuer: string
+  let didResolutionResult: DIDResolutionResult
+  if (options.didAuthenticator) {
+    ;({ didResolutionResult, authenticators, issuer } = options.didAuthenticator)
+  } else {
+    ;({ didResolutionResult, authenticators, issuer } = await resolveAuthenticator(
+      options.resolver,
+      header.alg,
+      didUrl,
+      proofPurpose
+    ))
+    // Add to options object for recursive reference
+    options.didAuthenticator = { didResolutionResult, authenticators, issuer }
+  }
+
+  const { did } = parse(didUrl) as ParsedDID
+
+  let signer: VerificationMethod | null = null
+
+  if (did !== didUrl) {
+    const authenticator = authenticators.find((auth) => auth.id === didUrl)
+    if (!authenticator) {
+      throw new Error(`${JWT_ERROR.INVALID_JWT}: No authenticator found for did URL ${didUrl}`)
+    }
+
+    signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+  } else {
+    let i = 0
+    while (!signer && i < authenticators.length) {
+      const authenticator = authenticators[i]
+      try {
+        signer = await verifyProof(jwt, { payload, header, signature, data }, authenticator, options)
+      } catch (e) {
+        if (!(e as Error).message.includes(JWT_ERROR.INVALID_SIGNATURE) || i === authenticators.length - 1) throw e
+      }
+
+      i++
+    }
+  }
+
   if (signer) {
+    const now: number = typeof options.policies?.now === 'number' ? options.policies.now : Math.floor(Date.now() / 1000)
+    const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
+
     const nowSkewed = now + skewTime
     if (options.policies?.nbf !== false && payload.nbf) {
       if (payload.nbf > nowSkewed) {
@@ -471,6 +610,7 @@ export async function verifyJWT(
         throw new Error(`${JWT_ERROR.INVALID_AUDIENCE}: JWT audience does not match your DID or callback url`)
       }
     }
+
     return { verified: true, payload, didResolutionResult, issuer, signer, jwt, policies: options.policies }
   }
   throw new Error(

@@ -38,7 +38,9 @@
   "contributors": [
     "Mircea Nistor <mircea.nistor@mesh.xyz>",
     "Oliver Terbu <oliver.terbu@mesh.xyz>",
-    "Joel Thorstensson <oed@3box.io>"
+    "Joel Thorstensson <oed@3box.io>",
+    "Jack Tanner <jack+public@tonomy.foundation>",
+    "Rebal Alhaqash <rebal@tonomy.foundation>"
   ],
   "repository": {
     "type": "git",
@@ -66,8 +68,10 @@
     "@babel/preset-env": "7.20.2",
     "@babel/preset-typescript": "7.21.0",
     "@ethersproject/address": "5.7.0",
+    "@greymass/eosio": "^0.6.9",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/git": "10.0.1",
+    "@tonomy/antelope-did": "^0.1.5",
     "@types/jest": "28.1.8",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/jwk-to-pem": "^2.0.1",
