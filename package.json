@@ -103,7 +103,7 @@
     "bech32": "^2.0.0",
     "canonicalize": "^2.0.0",
     "did-resolver": "^4.0.0",
-    "multiformats": "^9.6.5",
+    "multiformats": "^11.0.0",
     "uint8arrays": "^3.0.0"
   },
   "eslintIgnore": [
