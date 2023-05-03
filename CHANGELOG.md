@@ -1,3 +1,22 @@
+# [7.0.0](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...7.0.0) (2023-04-19)
+
+
+### Features
+
+* **deps:** replace @stablelib/ with noble-crypto ([#280](https://github.com/decentralized-identity/did-jwt/issues/280)) ([0f6221a](https://github.com/decentralized-identity/did-jwt/commit/0f6221ab7b96383de2f4cdee7d05dd31a5c03c76)), closes [#270](https://github.com/decentralized-identity/did-jwt/issues/270)
+
+
+### BREAKING CHANGES
+
+* **deps:** `ES256*` signers are now enforcing canonical signatures (s-value less than or equal to half the curve order). This will likely break some expectations for dependents that were using the previous versions.
+
+## [6.11.6](https://github.com/decentralized-identity/did-jwt/compare/6.11.5...6.11.6) (2023-04-03)
+
+
+### Bug Fixes
+
+* **deps:** update dependency canonicalize to v2 ([a916e62](https://github.com/decentralized-identity/did-jwt/commit/a916e6216c82db98cf5023cd66fbacb7515681c7))
+
 ## [6.11.5](https://github.com/decentralized-identity/did-jwt/compare/6.11.4...6.11.5) (2023-03-16)
 
 

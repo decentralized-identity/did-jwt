@@ -1,5 +1,5 @@
 import { decryptJWE, createJWE, Encrypter, JWE } from '../JWE'
-import vectors from './jwe-vectors.js'
+import vectors from './jwe-vectors'
 import {
   xc20pDirEncrypter,
   xc20pDirDecrypter,
@@ -12,10 +12,9 @@ import {
   createAuthEncrypter,
   createAuthDecrypter,
 } from '../xc20pEncryption'
-import { bytesToBase64, decodeBase64url, encodeBase64url } from '../util'
+import { decodeBase64url, encodeBase64url, generateKeyPairFromSeed } from '../util'
 import * as u8a from 'uint8arrays'
-import { randomBytes } from '@stablelib/random'
-import { generateKeyPairFromSeed } from '@stablelib/x25519'
+import { randomBytes } from '@noble/hashes/utils'
 import { createX25519ECDH, ECDH } from '../ECDH'
 
 describe('JWE', () => {
