@@ -18,17 +18,12 @@ import {
 } from './JWT.js'
 import { toEthereumAddress } from './Digest.js'
 
-export {
-  type JWE,
-  createJWE,
-  decryptJWE,
-  type Encrypter,
-  type Decrypter,
-  type ProtectedHeader,
-  type Recipient,
-  type RecipientHeader,
-} from './encryption/JWE.js'
-export { type ECDH, createX25519ECDH } from './encryption/ECDH.js'
+export { createJWE, decryptJWE } from './encryption/JWE.js'
+export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
+export * from './encryption/aesEncryption.js'
+export * from './encryption/types.js'
+
+export { createX25519ECDH } from './encryption/ECDH.js'
 export {
   x25519Encrypter,
   x25519Decrypter,
@@ -40,6 +35,8 @@ export {
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
 } from './encryption/xc20pEncryption.js'
+
+export { createFullEncrypter } from './encryption/createEncrypter.js'
 
 export {
   SimpleSigner,
@@ -63,8 +60,6 @@ export {
 
 export { type JWTOptions, type JWTVerifyOptions } from './JWT.js'
 
-export { base64ToBytes, base58ToBytes, hexToBytes } from './util.js'
+export { base64ToBytes, base58ToBytes, hexToBytes, genX25519EphemeralKeyPair } from './util.js'
 
 export * from './Errors.js'
-export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
-export * from './encryption/aesEncryption.js'

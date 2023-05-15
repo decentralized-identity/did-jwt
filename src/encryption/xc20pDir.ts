@@ -1,4 +1,4 @@
-import { Decrypter, Encrypter, EncryptionResult, ProtectedHeader } from './JWE.js'
+import type { Decrypter, Encrypter, EncryptionResult, ProtectedHeader } from './types.js'
 import { bytesToBase64url, encodeBase64url } from '../util.js'
 import { fromString } from 'uint8arrays/from-string'
 import { XChaCha20Poly1305 } from '@stablelib/xchacha20poly1305'

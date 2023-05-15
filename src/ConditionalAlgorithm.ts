@@ -1,10 +1,6 @@
 import type { VerificationMethod } from 'did-resolver'
-import { EcdsaSignature } from './util'
-import { JWT_ERROR } from './Errors'
-import { JWTDecoded, JWTVerifyOptions, resolveAuthenticator, verifyJWT, verifyJWTDecoded } from './JWT'
-
-export type Signer = (data: string | Uint8Array) => Promise<EcdsaSignature | string>
-export type SignerAlgorithm = (payload: string, signer: Signer) => Promise<string>
+import { JWT_ERROR } from './Errors.js'
+import { type JWTDecoded, type JWTVerifyOptions, resolveAuthenticator, verifyJWT, verifyJWTDecoded } from './JWT.js'
 
 export const CONDITIONAL_PROOF_2022 = 'ConditionalProof2022'
 
@@ -15,9 +11,9 @@ export async function verifyProof(
   options: JWTVerifyOptions
 ): Promise<VerificationMethod> {
   if (authenticator.type === CONDITIONAL_PROOF_2022) {
-    return await verifyConditionalProof(jwt, { payload, header, signature, data }, authenticator, options)
+    return verifyConditionalProof(jwt, { payload, header, signature, data }, authenticator, options)
   } else {
-    return await verifyJWTDecoded({ header, payload, data, signature }, [authenticator])
+    return verifyJWTDecoded({ header, payload, data, signature }, [authenticator])
   }
 }
 
@@ -27,11 +23,11 @@ export async function verifyConditionalProof(
   authenticator: VerificationMethod,
   options: JWTVerifyOptions
 ): Promise<VerificationMethod> {
-  // Validate the condition according to it's condition property
+  // Validate the condition according to its condition property
   if (authenticator.conditionWeightedThreshold) {
-    return await verifyConditionWeightedThreshold(jwt, { header, payload, data, signature }, authenticator, options)
+    return verifyConditionWeightedThreshold(jwt, { header, payload, data, signature }, authenticator, options)
   } else if (authenticator.conditionDelegated) {
-    return await verifyConditionDelegated(jwt, { header, payload, data, signature }, authenticator, options)
+    return verifyConditionDelegated(jwt, { header, payload, data, signature }, authenticator, options)
   }
   // TODO other conditions
 
@@ -64,17 +60,15 @@ async function verifyConditionWeightedThreshold(
           throw new Error('Expected didAuthenticator')
         }
 
-        const newOptions = {
+        const newOptions: JWTVerifyOptions = {
           ...options,
-          ...{
-            didAuthenticator: {
-              didResolutionResult: options.didAuthenticator?.didResolutionResult,
-              authenticators: [currentCondition],
-              issuer: currentCondition.id,
-            },
+          didAuthenticator: {
+            didResolutionResult: options.didAuthenticator?.didResolutionResult,
+            authenticators: [currentCondition],
+            issuer: currentCondition.id,
           },
         }
-        const { verified } = await verifyJWT(jwt, newOptions as JWTVerifyOptions)
+        const { verified } = await verifyJWT(jwt, newOptions)
         if (verified) {
           foundSigner = currentCondition
         }

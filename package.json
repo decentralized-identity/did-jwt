@@ -4,7 +4,8 @@
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
-  "module": "./lib/index.js",
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.module.js",
   "types": "./lib/index.d.ts",
   "files": [
     "lib",
@@ -15,16 +16,18 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "import": "./lib/index.js"
+      "require": "./lib/index.cjs",
+      "import": "./lib/index.module.js"
     }
   },
   "browser": "./dist/did-jwt.js",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:ci": "yarn test --coverage",
-    "build:js": "tsc",
+    "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.cjs",
     "build": "yarn build:js && yarn build:browser",
+    "clean": "rimraf lib dist",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
@@ -56,7 +59,7 @@
     "@types/jest": "29.5.0",
     "@types/jsonwebtoken": "9.0.1",
     "@types/jwk-to-pem": "2.0.1",
-    "@types/node": "18.15.11",
+    "@types/node": "^20.1.4",
     "@typescript-eslint/eslint-plugin": "5.57.0",
     "@typescript-eslint/parser": "5.57.0",
     "codecov": "3.8.3",
@@ -73,6 +76,7 @@
     "mockdate": "3.0.5",
     "prettier": "2.8.7",
     "regenerator-runtime": "0.13.11",
+    "rimraf": "^5.0.0",
     "semantic-release": "21.0.1",
     "ts-jest": "29.1.0",
     "ts-node": "10.9.1",

@@ -1,8 +1,7 @@
-import { EphemeralKeyPair, Recipient } from './JWE.js'
+import type { ECDH, EphemeralKeyPair, Recipient } from './types.js'
 import { base64ToBytes, bytesToBase64url, generateKeyPair, generateKeyPairFromSeed } from '../util.js'
 import { concatKDF } from '../Digest.js'
 import { x25519 } from '@noble/curves/ed25519'
-import { ECDH } from './ECDH.js'
 
 export async function computeX25519Ecdh1PUv3Kek(
   recipient: Recipient,
@@ -42,12 +41,12 @@ export async function computeX25519Ecdh1PUv3Kek(
 }
 
 export async function createX25519Ecdh1PUv3Kek(
-  ephemeralKeyPair: EphemeralKeyPair | undefined,
   recipientPublicKey: Uint8Array,
   senderSecret: Uint8Array | ECDH,
+  alg: string, // must be provided as this is the key agreement alg + the key wrapper alg, Example: 'ECDH-ES+A256KW'
   apu: string | undefined,
   apv: string | undefined,
-  alg: string
+  ephemeralKeyPair: EphemeralKeyPair | undefined
 ) {
   const crv = 'X25519'
   const keyLen = 256

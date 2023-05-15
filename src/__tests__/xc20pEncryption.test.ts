@@ -1,6 +1,7 @@
 import { DIDResolutionResult, Resolvable } from 'did-resolver'
 import { resolveX25519Encrypters, x25519Decrypter } from '../encryption/xc20pEncryption.js'
-import { createJWE, Decrypter, decryptJWE } from '../encryption/JWE.js'
+import { createJWE, decryptJWE } from '../encryption/JWE.js'
+import type { Decrypter } from '../encryption/types.js'
 import { createX25519ECDH } from '../encryption/ECDH.js'
 import { bytesToBase58, generateKeyPair } from '../util.js'
 import { randomBytes } from '@noble/hashes/utils'

@@ -1,6 +1,6 @@
 import { randomBytes } from '@noble/hashes/utils'
 import { base64ToBytes, decodeBase64url, encodeBase64url, generateKeyPairFromSeed } from '../util.js'
-import { createJWE, Decrypter, decryptJWE, Encrypter, JWE } from '../encryption/JWE.js'
+import { createJWE, decryptJWE } from '../encryption/JWE.js'
 import { vectors } from './jwe-vectors.js'
 import {
   createAnonDecrypter,
@@ -12,19 +12,20 @@ import {
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
 } from '../encryption/xc20pEncryption.js'
-import { createX25519ECDH, ECDH } from '../encryption/ECDH.js'
+import { createX25519ECDH } from '../encryption/ECDH.js'
 import {
+  a256gcmAnonDecrypterX25519WithA256KW,
+  a256gcmAnonEncrypterX25519WithA256KW,
+  a256gcmAuthDecrypterEcdh1PuV3x25519WithA256KW,
+  a256gcmAuthEncrypterEcdh1PuV3x25519WithA256KW,
   xc20pAnonDecrypterX25519WithA256KW,
   xc20pAnonEncrypterX25519WithA256KW,
   xc20pAuthDecrypterEcdh1PuV3x25519WithA256KW,
   xc20pAuthEncrypterEcdh1PuV3x25519WithA256KW,
-  a256gcmAuthEncrypterEcdh1PuV3x25519WithA256KW,
-  a256gcmAuthDecrypterEcdh1PuV3x25519WithA256KW,
-  a256gcmAnonEncrypterX25519WithA256KW,
-  a256gcmAnonDecrypterX25519WithA256KW,
 } from '../encryption/aesEncryption.js'
 import { xc20pDirDecrypter, xc20pDirEncrypter } from '../encryption/xc20pDir.js'
-import { toString, fromString } from 'uint8arrays'
+import { fromString, toString } from 'uint8arrays'
+import type { Decrypter, ECDH, Encrypter, JWE } from '../encryption/types.js'
 
 const u8a = { toString, fromString }
 

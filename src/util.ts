@@ -1,6 +1,7 @@
 import { concat, fromString, toString } from 'uint8arrays'
 import { bases } from 'multiformats/basics'
 import { x25519 } from '@noble/curves/ed25519'
+import type { EphemeralKeyPair } from './encryption/types.js'
 
 const u8a = { toString, fromString, concat }
 
@@ -19,6 +20,15 @@ export interface EcdsaSignature {
 export type ECDSASignature = {
   compact: Uint8Array
   recovery?: number
+}
+
+export type JsonWebKey = {
+  crv: string
+  kty: string
+  x?: string
+  y?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
 }
 
 export function bytesToBase64url(b: Uint8Array): string {
@@ -121,7 +131,7 @@ export function generateKeyPair(): { secretKey: Uint8Array; publicKey: Uint8Arra
 }
 
 /**
- * Generate private-public key pair from `seed`.
+ * Generate private-public x25519 key pair from `seed`.
  */
 export function generateKeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Array; publicKey: Uint8Array } {
   if (seed.length !== 32) {
@@ -130,5 +140,13 @@ export function generateKeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Arr
   return {
     publicKey: x25519.getPublicKey(seed),
     secretKey: seed,
+  }
+}
+
+export function genX25519EphemeralKeyPair(): EphemeralKeyPair {
+  const epk = generateKeyPair()
+  return {
+    publicKeyJWK: { kty: 'OKP', crv: 'X25519', x: bytesToBase64url(epk.publicKey) },
+    secretKey: epk.secretKey,
   }
 }

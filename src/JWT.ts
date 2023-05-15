@@ -169,7 +169,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
      */
     'EcdsaPublicKeySecp256k1',
     /**
-     *  TODO - support R1 key aswell
+     *  TODO - support R1 key as well
      *   'ConditionalProof2022',
      */
     'JsonWebKey2020',
@@ -343,7 +343,7 @@ export async function createJWT(
     }
   }
   const fullPayload = { ...timestamps, ...payload, iss: issuer }
-  return createJWS(fullPayload, signer, header, { canonicalize }) as Promise<string>
+  return createJWS(fullPayload, signer, header, { canonicalize })
 }
 
 /**
