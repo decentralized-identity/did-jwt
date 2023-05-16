@@ -21,7 +21,6 @@ export { toEthereumAddress, concatKDF } from './Digest.js'
 
 export { createJWE, decryptJWE } from './encryption/JWE.js'
 export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
-export * from './encryption/aesEncryption.js'
 export * from './encryption/types.js'
 export * from './encryption/X25519-ECDH-ES.js'
 export * from './encryption/X25519-ECDH-1PU.js'

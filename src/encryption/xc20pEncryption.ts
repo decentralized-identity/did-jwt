@@ -5,10 +5,10 @@ import type {
   Decrypter,
   ECDH,
   Encrypter,
-  EncryptionResult,
   KeyWrapper,
   ProtectedHeader,
   Recipient,
+  WrappingResult,
 } from './types.js'
 import { base64ToBytes, toSealed } from '../util.js'
 import { xc20pDirDecrypter, xc20pDirEncrypter, xc20pEncrypter } from './xc20pDir.js'
@@ -109,7 +109,7 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
 
 export const xc20pKeyWrapper: KeyWrapper = {
   from: (wrappingKey: Uint8Array) => {
-    const wrap = async (cek: Uint8Array): Promise<EncryptionResult> => {
+    const wrap = async (cek: Uint8Array): Promise<WrappingResult> => {
       return xc20pEncrypter(wrappingKey)(cek)
     }
     return { wrap }

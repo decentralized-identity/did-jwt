@@ -2613,37 +2613,12 @@
   resolved "https://registry.npmjs.org/@stablelib/aead/-/aead-1.0.1.tgz"
   integrity sha512-q39ik6sxGHewqtO0nP4BuSe3db5G1fEJE8ukvngS2gLkBXyy6E7pLubhbYgnkDFv6V8cWaxcE4Xn0t6LWcJkyg==
 
-"@stablelib/aes-kw@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stablelib/aes-kw/-/aes-kw-1.0.1.tgz#43f25517f719d69bb995909a5b69a2d9172c2a93"
-  integrity sha512-KrOkiRex1tQTbWk+hFB5fFw4vqKhNnTUtlCRf1bhUEOFp7hadWe49/sLa/P4X4FBQVoh3Z9Lj0zS1OWu/AHA1w==
-  dependencies:
-    "@stablelib/aes" "^1.0.1"
-    "@stablelib/binary" "^1.0.1"
-    "@stablelib/blockcipher" "^1.0.1"
-    "@stablelib/constant-time" "^1.0.1"
-    "@stablelib/wipe" "^1.0.1"
-
-"@stablelib/aes@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stablelib/aes/-/aes-1.0.1.tgz#f2a8aec2cebaf0e69be2b49c7c57b4267867ffa5"
-  integrity sha512-bMiezJDeFONDHbMEa+Kic26962+bwkZfsHPAmcqTjLaHCAhEQuK3i1H0POPOkcHCdj75oVRIqFCraCA0cyHPvw==
-  dependencies:
-    "@stablelib/binary" "^1.0.1"
-    "@stablelib/blockcipher" "^1.0.1"
-    "@stablelib/wipe" "^1.0.1"
-
 "@stablelib/binary@^1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@stablelib/binary/-/binary-1.0.1.tgz#c5900b94368baf00f811da5bdb1610963dfddf7f"
   integrity sha512-ClJWvmL6UBM/wjkvv/7m5VP3GMr9t0osr4yVgLZsLCOz4hGN9gIAFEqnJ0TsSMAN+n840nf2cHZnA5/KFqHC7Q==
   dependencies:
     "@stablelib/int" "^1.0.1"
-
-"@stablelib/blockcipher@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@stablelib/blockcipher/-/blockcipher-1.0.1.tgz#535f067d147ecdc9625ccd2b0d129f6d53d563d2"
-  integrity sha512-4bkpV8HUAv0CgI1fUqkPUEEvv3RXQ3qBkuZaSWhshXGAz1JCpriesgiO9Qs4f0KzBJkCtvcho5n7d/RKvnHbew==
 
 "@stablelib/chacha20poly1305@^1.0.1":
   version "1.0.1"
@@ -2669,26 +2644,6 @@
   version "1.0.1"
   resolved "https://registry.npmjs.org/@stablelib/constant-time/-/constant-time-1.0.1.tgz"
   integrity sha512-tNOs3uD0vSJcK6z1fvef4Y+buN7DXhzHDPqRLSXUel1UfqMB1PWNsnnAezrKfEwTLpN0cGH2p9NNjs6IqeD0eg==
-
-"@stablelib/ctr@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@stablelib/ctr/-/ctr-1.0.2.tgz#769ade36176ec8a6bc7b15bd7cd5211f4aba8084"
-  integrity sha512-Wq/Zr5QWNiXUu1UMhbeSIWhUm4YOhl01owaZOehxKFOKp6PPuUi9kAUAHv9cE5yQm9PLvIxzhwFco36sRpcOTQ==
-  dependencies:
-    "@stablelib/blockcipher" "^1.0.1"
-    "@stablelib/wipe" "^1.0.1"
-
-"@stablelib/gcm@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@stablelib/gcm/-/gcm-1.0.2.tgz#7fa78b39029d763b20277cbe2cac05b2b5fe4559"
-  integrity sha512-sQIRPGti1UXm740RTI38Apbl3t0oEEQMsdKN6VbC8a2lFHff6Stg90IqbF1xSrMLmm52gDGwtODhub3rKOMkfQ==
-  dependencies:
-    "@stablelib/aead" "^1.0.1"
-    "@stablelib/binary" "^1.0.1"
-    "@stablelib/blockcipher" "^1.0.1"
-    "@stablelib/constant-time" "^1.0.1"
-    "@stablelib/ctr" "^1.0.2"
-    "@stablelib/wipe" "^1.0.1"
 
 "@stablelib/int@^1.0.1":
   version "1.0.1"

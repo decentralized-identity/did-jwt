@@ -73,6 +73,12 @@ export interface EncryptionResult {
   cek?: Uint8Array
 }
 
+export interface WrappingResult {
+  ciphertext: Uint8Array
+  tag?: Uint8Array
+  iv?: Uint8Array
+}
+
 /**
  * An object that can perform content encryption and optionally key wrapping and key generation.
  */
@@ -98,22 +104,28 @@ export interface Encrypter {
   genEpk?: () => EphemeralKeyPair
 }
 
+/**
+ * An object that can perform decryption of a ciphertext.
+ * It also describes the content encryption (enc) and key agreement + wrapping (alg) algorithms it supports.
+ */
 export interface Decrypter {
   alg: string
   enc: string
   decrypt: (sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array, recipient?: Recipient) => Promise<Uint8Array | null>
 }
 
+/**
+ * An object that can perform key unwrapping.
+ */
 export type KeyWrapper = {
+  /**
+   * Create a key wrapper from a key encryption key (kek).
+   * @param kek
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  from: (kek: Uint8Array) => { wrap: (cek: Uint8Array, options?: any) => Promise<EncryptionResult> }
-  alg: string
-}
-
-export type KeyUnwrapper = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  unwrap(ciphertext: Uint8Array, options?: any): Promise<Uint8Array | null>
-  alg: string
+  from: (kek: Uint8Array) => { wrap: (cek: Uint8Array, options?: any) => Promise<WrappingResult> }
+  // key wrapping algorithm (e.g. A256KW, XC20PKW)
+  alg: 'A256KW' | 'XC20PKW' | string
 }
 
 export type KekCreator = {
@@ -132,6 +144,10 @@ export type KekCreator = {
 }
 
 export type ContentEncrypter = {
+  /**
+   * Create a content `Encrypter` from a content encryption key (cek).
+   * @param cek
+   */
   from(cek: Uint8Array): Encrypter
   // content encryption algorithm
   enc: 'XC20P' | 'A256GCM' | 'A256CBC-HS512' | string
