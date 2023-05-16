@@ -1,3 +1,10 @@
+# [7.2.0-alpha.3](https://github.com/decentralized-identity/did-jwt/compare/7.2.0-alpha.2...7.2.0-alpha.3) (2023-05-16)
+
+
+### Bug Fixes
+
+* remove AES support form JWE ([b838c57](https://github.com/decentralized-identity/did-jwt/commit/b838c5779188ab0b14a04b1865620b42642d62a6))
+
 # [7.2.0-alpha.2](https://github.com/decentralized-identity/did-jwt/compare/7.2.0-alpha.1...7.2.0-alpha.2) (2023-05-16)
 
 
