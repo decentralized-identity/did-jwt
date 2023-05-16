@@ -1,3 +1,10 @@
+# [7.2.0-alpha.2](https://github.com/decentralized-identity/did-jwt/compare/7.2.0-alpha.1...7.2.0-alpha.2) (2023-05-16)
+
+
+### Bug Fixes
+
+* export concatKDF and X25519-ECDH helpers ([6b3c799](https://github.com/decentralized-identity/did-jwt/commit/6b3c799e2f39531f344293b6e0707bc5c58731fc))
+
 # [7.2.0-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/7.1.0...7.2.0-alpha.1) (2023-05-16)
 
 
