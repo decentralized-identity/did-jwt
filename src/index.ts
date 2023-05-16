@@ -16,12 +16,15 @@ import {
   verifyJWS,
   verifyJWT,
 } from './JWT.js'
-import { toEthereumAddress } from './Digest.js'
+
+export { toEthereumAddress, concatKDF } from './Digest.js'
 
 export { createJWE, decryptJWE } from './encryption/JWE.js'
 export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
 export * from './encryption/aesEncryption.js'
 export * from './encryption/types.js'
+export * from './encryption/X25519-ECDH-ES.js'
+export * from './encryption/X25519-ECDH-1PU.js'
 
 export { createX25519ECDH } from './encryption/ECDH.js'
 export {
@@ -51,7 +54,6 @@ export {
   decodeJWT,
   verifyJWS,
   createJWS,
-  toEthereumAddress,
   type Signer,
   type JWTHeader,
   type JWTPayload,
