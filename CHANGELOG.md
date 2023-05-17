@@ -1,3 +1,10 @@
+# [7.2.0](https://github.com/decentralized-identity/did-jwt/compare/7.1.0...7.2.0) (2023-05-17)
+
+
+### Features
+
+* refactor JWE code to allow external algorithm implementations ([#284](https://github.com/decentralized-identity/did-jwt/issues/284)) ([e5d570d](https://github.com/decentralized-identity/did-jwt/commit/e5d570da745b89bba9195536210b188e970f1e68))
+
 # [7.1.0](https://github.com/decentralized-identity/did-jwt/compare/7.0.0...7.1.0) (2023-05-03)
 
 
