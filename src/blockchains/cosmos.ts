@@ -1,6 +1,6 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
 import { bech32 } from 'bech32'
-import { sha256, ripemd160 } from '../Digest'
+import { sha256, ripemd160 } from '../Digest.js'
 
 export function publicKeyToAddress(publicKey: string, prefix: string): string {
   const publicKeyBuffer = secp256k1.ProjectivePoint.fromHex(publicKey).toRawBytes()

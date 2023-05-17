@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`signs data 1`] = `
-Object {
+{
   "r": "8ecbdd2f0aabf8edb4ea191e828abaa5ba3b2c98c269f9442870af7e88413fd5",
   "recoveryParam": 1,
   "s": "361fd119e49b30d029dc375ed69eda141069b1699545db3423b541177e177206",
@@ -9,7 +9,7 @@ Object {
 `;
 
 exports[`signs data: privateKey with 0x prefix 1`] = `
-Object {
+{
   "r": "8ecbdd2f0aabf8edb4ea191e828abaa5ba3b2c98c269f9442870af7e88413fd5",
   "recoveryParam": 1,
   "s": "361fd119e49b30d029dc375ed69eda141069b1699545db3423b541177e177206",

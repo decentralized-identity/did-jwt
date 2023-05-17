@@ -1,19 +1,28 @@
 {
   "compilerOptions": {
-    "target": "ES2018",
-    "module": "esnext",
-    "lib": ["dom", "ES2020"],
+    "target": "ES2022",
+    "module": "ES2022",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "lib",
     "strict": true,
-    "noImplicitThis": false,
-    "moduleResolution": "node",
-    "types": ["jest"],
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "types": [
+      "jest"
+    ],
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "exclude": ["**/__tests__/*", "node_modules", "lib"]
+  "exclude": [
+    "**/__tests__/*",
+    "node_modules",
+    "lib"
+  ],
+  "include": [
+    "src"
+  ]
 }

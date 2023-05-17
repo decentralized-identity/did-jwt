@@ -1,6 +1,6 @@
 /* eslint-disable */
 // it.skip('not a test', () => {})
-export default {
+export const vectors = {
   dir: {
     pass: [
       {
@@ -102,7 +102,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6IndPY0FhZTBHUzRPOS0wa3RkYnRDYmciLCJpdiI6IkdkblM4cUNPMFJmbU1hblV0TzJuZ095UHUzYVhSVFhlIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJmamptXzVrTjRITjBOOUpnRjRZZTFPY2NicmNqdGMwT1NiNXZvbEV4UmpBIn19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: '4Q3gQ8U0FN7F19HDx2Y-d3XhSrWjfUJxAfTHDE2k8Qo' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: '4Q3gQ8U0FN7F19HDx2Y-d3XhSrWjfUJxAfTHDE2k8Qo',
+            },
           ],
           iv: 'VI7kbLVnMe39GkVXnkol5nmFJRHZjDCI',
           ciphertext:
@@ -117,7 +120,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6InRfQTVVdTVaaHduZDBxX2hMdzUycXciLCJpdiI6IndVcWxJazloY1JXQ3NIMHZvSlN2aVpGT1NwcnBtM3hiIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJ3M09udXgtNVRCUWEwVENZOHI3THlScHpQMnJkMzNsX1VveUhYcktfakdZIn19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: '7-vOqMDMStkVrm4GVWueZNgSGOaBDyni5Eg1efivsto' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: '7-vOqMDMStkVrm4GVWueZNgSGOaBDyni5Eg1efivsto',
+            },
           ],
           iv: 'ahAxCFOYSK26KGoYztDPYv5HJjPPSXVs',
           ciphertext:
@@ -132,7 +138,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6IlJ0emVOa0VBRVV0UXYzeGJGUzJFN3ciLCJpdiI6IkVBSlVZZ0N4T2pJUkp0dm12R21sdDNGdGxFSWswZ3JkIiwiZXBrIjp7Imt0eSI6Ik9LUCIsImNydiI6IlgyNTUxOSIsIngiOiJsMUVTM0E1cGZadjVwQnFqS3BmQzZhUXVqUjlwRmVQNnVqYWxVdEhOTEh3In19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: 'l27ClhqCGF_aVxg0j3oGgJ8IqUlUyDIbeAzzQwe-yIc' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: 'l27ClhqCGF_aVxg0j3oGgJ8IqUlUyDIbeAzzQwe-yIc',
+            },
           ],
           iv: '4sTe21wDiF6QcXeaMRUpnhwqQ3T17sW0',
           ciphertext:
@@ -344,7 +353,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6Imo5cy10dWthZGFSTWZ0MmV1bDBZc2ciLCJpdiI6InhTY29yMUQxemVSOS13dHk5X3RPb2hOUTIwWTU3SUVhIiwiZXBrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiLXhUVU0yazgtanN1REFLNXBXdWI0QzN5VmQzdm9INzc4NHZTUWMxdUdtNCIsInkiOiJUY1JmbUlmMzAyQjlqc0JKVmJxYldfTUQzSXgxdjZLaWhUVFN1ZGFiZW9ZIn19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: 'ufEVimxuEjOSL3xxosddCnxAycHyEM6YvZnpnBNcFdU' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: 'ufEVimxuEjOSL3xxosddCnxAycHyEM6YvZnpnBNcFdU',
+            },
           ],
           iv: 'KH-z-rAni0OXCwZdEsBdr70Nb9ynB-L0',
           ciphertext:
@@ -359,7 +371,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6ImpTdDRnT2RFc3prbHd1ZkZXX0dDQVEiLCJpdiI6IlFVNHBlTTZNT2R5R2c5ZThNVFFPWnl0Wl9nUHJaMk1NIiwiZXBrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiSk5KVG9XWE02cWh0NTktRXJ0dURrYUdVQWpmdWRyNlo2MUFnWkN1ZVFvNCIsInkiOiJLZk9JaDlIdFJKdWFGM3l1S0hkUklwUU5GTk9nbThpMHF1ZzlPUTEyUTR3In19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: 'mV0ROPhCkbkl6kpqxrJHwtUmp1ag1fX2_Cm1EBVMkH8' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: 'mV0ROPhCkbkl6kpqxrJHwtUmp1ag1fX2_Cm1EBVMkH8',
+            },
           ],
           iv: 'KvOPK3HF_zQ76CrrGsb6Fsf-uz5f2wpw',
           ciphertext:
@@ -374,7 +389,10 @@ export default {
           protected:
             'eyJlbmMiOiJYQzIwUCIsInRhZyI6IndJaGpzcmdEUGp5X3h3b3ByUDBEeUEiLCJpdiI6IjFxWEJzdDRMS1NWcHhaMHF1VkRxcjNvUzY2SkZLeGREIiwiZXBrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiRS1MSGFoQlVjSERzNDFiaXpQT2hwWHVrWmd4M00xSWdFQXFRNkV2dW1mcyIsInkiOiJlYkNoWklPUGlLM0kxTnlCZEN3bmdVSTZxRHptSUxLUlN0RkRIUFRSU1Q4In19',
           recipients: [
-            { header: { alg: 'ECDH-ES+XC20PKW' }, encrypted_key: 'H6hUldKGflwKIKwgucoJBTEVemkOEJaM5BUH-M0cLQk' },
+            {
+              header: { alg: 'ECDH-ES+XC20PKW' },
+              encrypted_key: 'H6hUldKGflwKIKwgucoJBTEVemkOEJaM5BUH-M0cLQk',
+            },
           ],
           iv: 'd-qf4TZIGY_CRr5uhqjN0H11-qdppk8l',
           ciphertext:
