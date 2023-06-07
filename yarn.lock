@@ -9687,9 +9687,9 @@ uglify-js@^3.1.4:
   integrity sha512-aTeNPVmgIMPpm1cxXr2Q/nEbvkmV8yq66F3om7X3P/cvOXQ0TMQ64Wk63iyT1gPlmdmGzjGpyLh1f3y8MZWXGg==
 
 uint8arrays@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-4.0.3.tgz#43109c03c4c10d312e7f2e9f4d53e5cd2398c7fd"
-  integrity sha512-b+aKlI2oTnxnfeSQWV1sMacqSNxqhtXySaH6bflvONGxF8V/fT3ZlYH7z2qgGfydsvpVo4JUgM/Ylyfl2YouCg==
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/uint8arrays/-/uint8arrays-4.0.4.tgz#3254e01aeb166a3f35e66e60e4e37002f4ea13fd"
+  integrity sha512-AOoA66e/A7zoXm1mgzQjGmkWDTvCrS3ttWXLHFtlVAwMobLcaOA7G7WRNNAcyfjjYdFDtkEK6njRDX7hZLIO9Q==
   dependencies:
     multiformats "^11.0.0"
 
