@@ -56,8 +56,18 @@ export function bytesToMultibase(b: Uint8Array, base: keyof typeof bases): strin
   return bases[base].encode(b)
 }
 
-export function hexToBytes(s: string): Uint8Array {
-  const input = s.startsWith('0x') ? s.substring(2) : s
+export function hexToBytes(s: string, minLength?: number): Uint8Array {
+  let input = s.startsWith('0x') ? s.substring(2) : s
+
+  if (input.length % 2 !== 0) {
+    input = `0${input}`
+  }
+
+  if (minLength) {
+    const paddedLength = Math.max(input.length, minLength * 2)
+    input = input.padStart(paddedLength, '00')
+  }
+
   return u8a.fromString(input.toLowerCase(), 'base16')
 }
 
@@ -77,8 +87,8 @@ export function bytesToBigInt(b: Uint8Array): bigint {
   return BigInt(`0x` + u8a.toString(b, 'base16'))
 }
 
-export function bigintToBytes(n: bigint): Uint8Array {
-  return u8a.fromString(n.toString(16), 'base16')
+export function bigintToBytes(n: bigint, minLength?: number): Uint8Array {
+  return hexToBytes(n.toString(16), minLength)
 }
 
 export function stringToBytes(s: string): Uint8Array {
