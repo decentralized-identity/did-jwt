@@ -1,3 +1,10 @@
+## [7.2.3](https://github.com/decentralized-identity/did-jwt/compare/7.2.2...7.2.3) (2023-06-26)
+
+
+### Bug Fixes
+
+* add padding to bigints whose byte-length is expected ([#288](https://github.com/decentralized-identity/did-jwt/issues/288)) ([bfa8e71](https://github.com/decentralized-identity/did-jwt/commit/bfa8e714cbb104d7761e4e23f481c39675bbef31)), closes [#283](https://github.com/decentralized-identity/did-jwt/issues/283)
+
 ## [7.2.2](https://github.com/decentralized-identity/did-jwt/compare/7.2.1...7.2.2) (2023-06-07)
 
 
