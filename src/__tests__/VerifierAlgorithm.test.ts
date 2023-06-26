@@ -211,8 +211,8 @@ const publicKeyBase58 = bytesToBase58(publicKeyBytes)
 const publicKeyJwk = {
   crv: 'secp256k1',
   kty: 'EC',
-  x: bytesToBase64url(bigintToBytes(publicKeyPoint.x)),
-  y: bytesToBase64url(bigintToBytes(publicKeyPoint.y)),
+  x: bytesToBase64url(bigintToBytes(publicKeyPoint.x, 32)),
+  y: bytesToBase64url(bigintToBytes(publicKeyPoint.y, 32)),
 }
 const publicKeyMultibase = bytesToMultibase(publicKeyBytes, 'base58btc')
 const eip155 = toEthereumAddress(publicKeyHex)
