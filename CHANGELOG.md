@@ -1,3 +1,10 @@
+## [7.2.5](https://github.com/decentralized-identity/did-jwt/compare/7.2.4...7.2.5) (2023-08-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency uint8arrays to v4.0.6 ([cf111bc](https://github.com/decentralized-identity/did-jwt/commit/cf111bcd760e5f68ac94863aa2a6cd5c1ae5dd42))
+
 ## [7.2.4](https://github.com/decentralized-identity/did-jwt/compare/7.2.3...7.2.4) (2023-06-26)
 
 
