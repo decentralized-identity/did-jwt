@@ -1,3 +1,10 @@
+## [7.2.6](https://github.com/decentralized-identity/did-jwt/compare/7.2.5...7.2.6) (2023-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([9fe266d](https://github.com/decentralized-identity/did-jwt/commit/9fe266d5fdbcbb350d71d8977aace860dfae31e4))
+
 ## [7.2.5](https://github.com/decentralized-identity/did-jwt/compare/7.2.4...7.2.5) (2023-08-04)
 
 
