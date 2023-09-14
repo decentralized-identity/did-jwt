@@ -1,6 +1,6 @@
-import { sign } from '@stablelib/ed25519'
-import { Signer } from '../JWT'
-import { bytesToBase64url, stringToBytes } from '../util'
+import { ed25519 } from '@noble/curves/ed25519'
+import type { Signer } from '../JWT.js'
+import { bytesToBase64url, stringToBytes } from '../util.js'
 
 /**
  *  Creates a configured signer function for signing data using the EdDSA (Ed25519) algorithm.
@@ -23,7 +23,7 @@ export function EdDSASigner(secretKey: Uint8Array): Signer {
   }
   return async (data: string | Uint8Array): Promise<string> => {
     const dataBytes: Uint8Array = typeof data === 'string' ? stringToBytes(data) : data
-    const sig: Uint8Array = sign(privateKeyBytes, dataBytes)
-    return bytesToBase64url(sig)
+    const signature = ed25519.sign(dataBytes, privateKeyBytes.slice(0, 32))
+    return bytesToBase64url(signature)
   }
 }

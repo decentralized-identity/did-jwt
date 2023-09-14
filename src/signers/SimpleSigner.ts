@@ -1,6 +1,6 @@
-import { fromJose, hexToBytes } from '../util'
-import { Signer } from '../JWT'
-import { ES256KSigner } from './ES256KSigner'
+import { fromJose, hexToBytes } from '../util.js'
+import type { Signer } from '../JWT.js'
+import { ES256KSigner } from './ES256KSigner.js'
 
 /**
  * @deprecated Please use ES256KSigner

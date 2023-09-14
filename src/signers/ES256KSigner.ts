@@ -1,10 +1,7 @@
-import { leftpad } from '../util'
-import { toJose } from '../util'
-import { Signer } from '../JWT'
-import { sha256 } from '../Digest'
-import elliptic from 'elliptic'
-
-const secp256k1 = new elliptic.ec('secp256k1')
+import { leftpad, toJose } from '../util.js'
+import { Signer } from '../JWT.js'
+import { sha256 } from '../Digest.js'
+import { secp256k1 } from '@noble/curves/secp256k1'
 
 /**
  *  Creates a configured signer function for signing data using the ES256K (secp256k1 + sha256) algorithm.
@@ -26,15 +23,14 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
   if (privateKeyBytes.length !== 32) {
     throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKeyBytes.length}`)
   }
-  const keyPair: elliptic.ec.KeyPair = secp256k1.keyFromPrivate(privateKeyBytes)
 
   return async (data: string | Uint8Array): Promise<string> => {
-    const { r, s, recoveryParam }: elliptic.ec.Signature = keyPair.sign(sha256(data))
+    const signature = secp256k1.sign(sha256(data), privateKeyBytes)
     return toJose(
       {
-        r: leftpad(r.toString('hex')),
-        s: leftpad(s.toString('hex')),
-        recoveryParam,
+        r: leftpad(signature.r.toString(16)),
+        s: leftpad(signature.s.toString(16)),
+        recoveryParam: signature.recovery,
       },
       recoverable
     )

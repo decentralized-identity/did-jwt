@@ -1,3 +1,78 @@
+## [7.2.7](https://github.com/decentralized-identity/did-jwt/compare/7.2.6...7.2.7) (2023-09-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency multiformats to v12.1.0 ([b8bafb0](https://github.com/decentralized-identity/did-jwt/commit/b8bafb0a85eaff3153a012b70a6d9f5fe24e27db))
+
+## [7.2.6](https://github.com/decentralized-identity/did-jwt/compare/7.2.5...7.2.6) (2023-08-23)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([9fe266d](https://github.com/decentralized-identity/did-jwt/commit/9fe266d5fdbcbb350d71d8977aace860dfae31e4))
+
+## [7.2.5](https://github.com/decentralized-identity/did-jwt/compare/7.2.4...7.2.5) (2023-08-04)
+
+
+### Bug Fixes
+
+* **deps:** update dependency uint8arrays to v4.0.6 ([cf111bc](https://github.com/decentralized-identity/did-jwt/commit/cf111bcd760e5f68ac94863aa2a6cd5c1ae5dd42))
+
+## [7.2.4](https://github.com/decentralized-identity/did-jwt/compare/7.2.3...7.2.4) (2023-06-26)
+
+
+### Bug Fixes
+
+* **deps:** update dependency multiformats to v12 ([#285](https://github.com/decentralized-identity/did-jwt/issues/285)) ([90b2d68](https://github.com/decentralized-identity/did-jwt/commit/90b2d68e321dda12f04e796b7c2e4fb0e7fddd80))
+
+## [7.2.3](https://github.com/decentralized-identity/did-jwt/compare/7.2.2...7.2.3) (2023-06-26)
+
+
+### Bug Fixes
+
+* add padding to bigints whose byte-length is expected ([#288](https://github.com/decentralized-identity/did-jwt/issues/288)) ([bfa8e71](https://github.com/decentralized-identity/did-jwt/commit/bfa8e714cbb104d7761e4e23f481c39675bbef31)), closes [#283](https://github.com/decentralized-identity/did-jwt/issues/283)
+
+## [7.2.2](https://github.com/decentralized-identity/did-jwt/compare/7.2.1...7.2.2) (2023-06-07)
+
+
+### Bug Fixes
+
+* **deps:** update dependency uint8arrays to v4.0.4 ([d481064](https://github.com/decentralized-identity/did-jwt/commit/d4810647900310fc05bed0a06277d34a7b5a04cf))
+
+## [7.2.1](https://github.com/decentralized-identity/did-jwt/compare/7.2.0...7.2.1) (2023-06-03)
+
+
+### Bug Fixes
+
+* **deps:** update all non-major dependencies ([ce185d5](https://github.com/decentralized-identity/did-jwt/commit/ce185d5c0b3df781394326313dc39a68ad0eff61))
+
+# [7.2.0](https://github.com/decentralized-identity/did-jwt/compare/7.1.0...7.2.0) (2023-05-17)
+
+
+### Features
+
+* refactor JWE code to allow external algorithm implementations ([#284](https://github.com/decentralized-identity/did-jwt/issues/284)) ([e5d570d](https://github.com/decentralized-identity/did-jwt/commit/e5d570da745b89bba9195536210b188e970f1e68))
+
+# [7.1.0](https://github.com/decentralized-identity/did-jwt/compare/7.0.0...7.1.0) (2023-05-03)
+
+
+### Features
+
+* add support for ConditionalProof2022 verificationMethods ([#272](https://github.com/decentralized-identity/did-jwt/issues/272)) ([9bebe3f](https://github.com/decentralized-identity/did-jwt/commit/9bebe3fc7393db0a9b1d06655337a6e8b4a9eaf9))
+
+# [7.0.0](https://github.com/decentralized-identity/did-jwt/compare/6.11.6...7.0.0) (2023-04-19)
+
+
+### Features
+
+* **deps:** replace @stablelib/ with noble-crypto ([#280](https://github.com/decentralized-identity/did-jwt/issues/280)) ([0f6221a](https://github.com/decentralized-identity/did-jwt/commit/0f6221ab7b96383de2f4cdee7d05dd31a5c03c76)), closes [#270](https://github.com/decentralized-identity/did-jwt/issues/270)
+
+
+### BREAKING CHANGES
+
+* **deps:** `ES256*` signers are now enforcing canonical signatures (s-value less than or equal to half the curve order). This will likely break some expectations for dependents that were using the previous versions.
+
 ## [6.11.6](https://github.com/decentralized-identity/did-jwt/compare/6.11.5...6.11.6) (2023-04-03)
 
 

@@ -1,16 +1,15 @@
-import * as u8a from 'uint8arrays'
-import { bytesToBase58, base58ToBytes } from '../util'
-import { sha256, ripemd160 } from '../Digest'
+import { base58ToBytes, bytesToBase58, bytesToHex, hexToBytes } from '../util.js'
+import { ripemd160, sha256 } from '../Digest.js'
 
-export const publicKeyToAddress = (publicKey: string, otherAddress: string): string => {
+export function publicKeyToAddress(publicKey: string, otherAddress: string): string {
   // Use the same version/prefix byte as the given address.
-  const version = u8a.toString(base58ToBytes(otherAddress).slice(0, 1), 'hex')
-  const publicKeyBuffer = u8a.fromString(publicKey, 'hex')
+  const version = bytesToHex(base58ToBytes(otherAddress).slice(0, 1))
+  const publicKeyBuffer = hexToBytes(publicKey)
   const publicKeyHash = ripemd160(sha256(publicKeyBuffer))
-  const step1 = version + u8a.toString(publicKeyHash, 'hex')
-  const step2 = sha256(u8a.fromString(step1, 'hex'))
+  const step1 = version + bytesToHex(publicKeyHash)
+  const step2 = sha256(hexToBytes(step1))
   const step3 = sha256(step2)
-  const checksum = u8a.toString(step3, 'hex').substring(0, 8)
+  const checksum = bytesToHex(step3).substring(0, 8)
   const step4 = step1 + checksum
-  return bytesToBase58(u8a.fromString(step4, 'hex'))
+  return bytesToBase58(hexToBytes(step4))
 }

@@ -1,5 +1,5 @@
-import { hexToBytes, base58ToBytes, base64ToBytes } from '../util'
-import { ES256KSigner } from '../signers/ES256KSigner'
+import { hexToBytes, base58ToBytes, base64ToBytes } from '../util.js'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
 
 describe('Secp256k1 Signer', () => {
   it('signs data, given a hex private key', async () => {
@@ -8,7 +8,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(hexToBytes(privateKey))
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9U2H9EZ5Jsw0CncN17WntoUEGmxaZVF2zQjtUEXfhdyBg'
     )
   })
 
@@ -18,7 +18,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(hexToBytes(privateKey))
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9U2H9EZ5Jsw0CncN17WntoUEGmxaZVF2zQjtUEXfhdyBg'
     )
   })
 
@@ -28,7 +28,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(base58ToBytes(privateKey))
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9U2H9EZ5Jsw0CncN17WntoUEGmxaZVF2zQjtUEXfhdyBg'
     )
   })
 
@@ -38,7 +38,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(base64ToBytes(privateKey))
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9U2H9EZ5Jsw0CncN17WntoUEGmxaZVF2zQjtUEXfhdyBg'
     )
   })
 
@@ -48,7 +48,7 @@ describe('Secp256k1 Signer', () => {
     const signer = ES256KSigner(base64ToBytes(privateKey))
     const plaintext = 'thequickbrownfoxjumpedoverthelazyprogrammer'
     await expect(signer(plaintext)).resolves.toEqual(
-      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9XJ4C7mG2TPL9YjyKEpYSXqqkUrfRoCxQecHR11Uh7POw'
+      'jsvdLwqr-O206hkegoq6pbo7LJjCaflEKHCvfohBP9U2H9EZ5Jsw0CncN17WntoUEGmxaZVF2zQjtUEXfhdyBg'
     )
   })
 

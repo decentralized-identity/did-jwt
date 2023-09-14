@@ -1,9 +1,12 @@
-import { x25519Decrypter, resolveX25519Encrypters } from '../xc20pEncryption'
-import { decryptJWE, createJWE } from '../JWE'
-import * as u8a from 'uint8arrays'
-import { randomBytes } from '@stablelib/random'
-import { generateKeyPair } from '@stablelib/x25519'
-import { createX25519ECDH } from '../ECDH'
+import { DIDResolutionResult, Resolvable } from 'did-resolver'
+import { resolveX25519Encrypters, x25519Decrypter } from '../encryption/xc20pEncryption.js'
+import { createJWE, decryptJWE } from '../encryption/JWE.js'
+import type { Decrypter } from '../encryption/types.js'
+import { createX25519ECDH } from '../encryption/ECDH.js'
+import { bytesToBase58, generateKeyPair } from '../util.js'
+import { randomBytes } from '@noble/hashes/utils'
+
+import { jest } from '@jest/globals'
 
 describe('xc20pEncryption', () => {
   describe('resolveX25519Encrypters', () => {
@@ -17,19 +20,19 @@ describe('xc20pEncryption', () => {
     const did8 = 'did:test:8'
     const did9 = 'did:test:9'
 
-    let resolver
-    let decrypter1, decrypter2
-    let decrypter1remote, decrypter2remote
+    let resolver: Resolvable
+    let decrypter1: Decrypter, decrypter2: Decrypter
+    let decrypter1remote: Decrypter, decrypter2remote: Decrypter
 
-    let didDocumentResult1,
-      didDocumentResult2,
-      didDocumentResult3,
-      didDocumentResult4,
-      didDocumentResult5,
-      didDocumentResult6,
-      didDocumentResult7,
-      didDocumentResult8,
-      didDocumentResult9
+    let didDocumentResult1: DIDResolutionResult,
+      didDocumentResult2: DIDResolutionResult,
+      didDocumentResult3: DIDResolutionResult,
+      didDocumentResult4: DIDResolutionResult,
+      didDocumentResult5: DIDResolutionResult,
+      didDocumentResult6: DIDResolutionResult,
+      didDocumentResult7: DIDResolutionResult,
+      didDocumentResult8: DIDResolutionResult,
+      didDocumentResult9: DIDResolutionResult
 
     beforeEach(() => {
       const kp1 = generateKeyPair()
@@ -47,7 +50,7 @@ describe('xc20pEncryption', () => {
               id: did1 + '#abc',
               type: 'X25519KeyAgreementKey2019',
               controller: did1,
-              publicKeyBase58: u8a.toString(kp1.publicKey, 'base58btc'),
+              publicKeyBase58: bytesToBase58(kp1.publicKey),
             },
           ],
           keyAgreement: [
@@ -57,7 +60,7 @@ describe('xc20pEncryption', () => {
             did1 + '#abc',
           ],
         },
-      }
+      } as DIDResolutionResult
 
       didDocumentResult2 = {
         didDocument: {
@@ -67,14 +70,19 @@ describe('xc20pEncryption', () => {
               id: did2 + '#abc',
               type: 'X25519KeyAgreementKey2019',
               controller: did2,
-              publicKeyBase58: u8a.toString(kp2.publicKey, 'base58btc'),
+              publicKeyBase58: bytesToBase58(kp2.publicKey),
             },
           ],
         },
-      }
+      } as unknown as DIDResolutionResult
 
-      didDocumentResult3 = { didResolutionMetadata: { error: 'notFound' }, didDocument: null }
-      didDocumentResult4 = { didDocument: { publicKey: [], keyAgreement: [{ type: 'wrong type' }] } }
+      didDocumentResult3 = { didResolutionMetadata: { error: 'notFound' }, didDocument: null } as DIDResolutionResult
+      didDocumentResult4 = {
+        didDocument: {
+          publicKey: [],
+          keyAgreement: [{ type: 'wrong type' }],
+        },
+      } as unknown as DIDResolutionResult
 
       didDocumentResult5 = {
         didDocument: {
@@ -88,7 +96,7 @@ describe('xc20pEncryption', () => {
             },
           ],
         },
-      }
+      } as DIDResolutionResult
 
       didDocumentResult6 = {
         didDocument: {
@@ -102,7 +110,7 @@ describe('xc20pEncryption', () => {
             },
           ],
         },
-      }
+      } as DIDResolutionResult
 
       didDocumentResult7 = {
         didDocument: {
@@ -116,7 +124,7 @@ describe('xc20pEncryption', () => {
             },
           ],
         },
-      }
+      } as DIDResolutionResult
 
       didDocumentResult8 = {
         didDocument: {
@@ -130,7 +138,7 @@ describe('xc20pEncryption', () => {
             },
           ],
         },
-      }
+      } as DIDResolutionResult
 
       didDocumentResult9 = {
         didDocument: {
@@ -144,10 +152,10 @@ describe('xc20pEncryption', () => {
             },
           ],
         },
-      }
+      } as DIDResolutionResult
 
       resolver = {
-        resolve: jest.fn((did) => {
+        resolve: jest.fn(async (did) => {
           switch (did) {
             case did1:
               return didDocumentResult1
@@ -169,7 +177,7 @@ describe('xc20pEncryption', () => {
               return didDocumentResult9
           }
         }),
-      }
+      } as Resolvable
     })
 
     it('correctly resolves encrypters for DIDs', async () => {
@@ -177,8 +185,8 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
-      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
-      expect(jwe.recipients[1].header.kid).toEqual(did2 + '#abc')
+      expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
+      expect(jwe.recipients!![1].header.kid).toEqual(did2 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
@@ -209,29 +217,29 @@ describe('xc20pEncryption', () => {
       const newDecrypter1remote = x25519Decrypter(createX25519ECDH(secondKp1.secretKey))
       const newDecrypter2remote = x25519Decrypter(createX25519ECDH(secondKp2.secretKey))
 
-      didDocumentResult1.didDocument.verificationMethod.push({
+      didDocumentResult1.didDocument?.verificationMethod?.push({
         id: did1 + '#def',
         type: 'X25519KeyAgreementKey2019',
         controller: did1,
-        publicKeyBase58: u8a.toString(secondKp1.publicKey, 'base58btc'),
+        publicKeyBase58: bytesToBase58(secondKp1.publicKey),
       })
-      didDocumentResult1.didDocument.keyAgreement.push(did1 + '#def')
+      didDocumentResult1.didDocument?.keyAgreement?.push(did1 + '#def')
 
-      didDocumentResult2.didDocument.keyAgreement.push({
+      didDocumentResult2.didDocument?.keyAgreement?.push({
         id: did2 + '#def',
         type: 'X25519KeyAgreementKey2019',
         controller: did2,
-        publicKeyBase58: u8a.toString(secondKp2.publicKey, 'base58btc'),
+        publicKeyBase58: bytesToBase58(secondKp2.publicKey),
       })
 
       const encrypters = await resolveX25519Encrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
 
-      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
-      expect(jwe.recipients[1].header.kid).toEqual(did1 + '#def')
-      expect(jwe.recipients[2].header.kid).toEqual(did2 + '#abc')
-      expect(jwe.recipients[3].header.kid).toEqual(did2 + '#def')
+      expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
+      expect(jwe.recipients!![1].header.kid).toEqual(did1 + '#def')
+      expect(jwe.recipients!![2].header.kid).toEqual(did2 + '#abc')
+      expect(jwe.recipients!![3].header.kid).toEqual(did2 + '#def')
       expect(await decryptJWE(jwe, newDecrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter2)).toEqual(cleartext)
       expect(await decryptJWE(jwe, newDecrypter1remote)).toEqual(cleartext)
@@ -243,7 +251,7 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did5], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
-      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
     })
@@ -253,7 +261,7 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did6], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
-      expect(jwe.recipients[0].header.kid).toEqual(did1 + '#abc')
+      expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
       expect(await decryptJWE(jwe, decrypter1)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter1remote)).toEqual(cleartext)
     })
@@ -263,8 +271,8 @@ describe('xc20pEncryption', () => {
       const encrypters = await resolveX25519Encrypters([did9], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
-      expect(jwe.recipients[0].header.kid).toEqual(did2 + '#abc')
-      expect(jwe.recipients.length).toEqual(1)
+      expect(jwe.recipients!![0].header.kid).toEqual(did2 + '#abc')
+      expect(jwe.recipients!!.length).toEqual(1)
       expect(await decryptJWE(jwe, decrypter2)).toEqual(cleartext)
       expect(await decryptJWE(jwe, decrypter2remote)).toEqual(cleartext)
     })

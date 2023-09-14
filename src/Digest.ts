@@ -1,33 +1,29 @@
-import { hash } from '@stablelib/sha256'
-import { Ripemd160 } from './blockchains/utils/ripemd160'
-import * as u8a from 'uint8arrays'
-import sha3 from 'js-sha3'
+import { sha256 as sha256Hash } from '@noble/hashes/sha256'
+export { ripemd160 } from '@noble/hashes/ripemd160'
+import { keccak_256 } from '@noble/hashes/sha3'
+import { fromString } from 'uint8arrays/from-string'
+import { toString } from 'uint8arrays/to-string'
+import { concat } from 'uint8arrays/concat'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
-  const data = typeof payload === 'string' ? u8a.fromString(payload) : payload
-  return hash(data)
+  const data = typeof payload === 'string' ? fromString(payload) : payload
+  return sha256Hash(data)
 }
 
-export function keccak(data: Uint8Array): Uint8Array {
-  return new Uint8Array(sha3.keccak_256.arrayBuffer(data))
-}
+export const keccak = keccak_256
 
 export function toEthereumAddress(hexPublicKey: string): string {
-  const hashInput = u8a.fromString(hexPublicKey.slice(2), 'base16')
-  return `0x${u8a.toString(keccak(hashInput).slice(-20), 'base16')}`
-}
-
-export function ripemd160(data: Uint8Array): Uint8Array {
-  return new Ripemd160().update(data).digest()
+  const hashInput = fromString(hexPublicKey.slice(2), 'base16')
+  return `0x${toString(keccak(hashInput).slice(-20), 'base16')}`
 }
 
 function writeUint32BE(value: number, array = new Uint8Array(4)): Uint8Array {
-  const encoded = u8a.fromString(value.toString(), 'base10')
+  const encoded = fromString(value.toString(), 'base10')
   array.set(encoded, 4 - encoded.length)
   return array
 }
 
-const lengthAndInput = (input: Uint8Array): Uint8Array => u8a.concat([writeUint32BE(input.length), input])
+const lengthAndInput = (input: Uint8Array): Uint8Array => concat([writeUint32BE(input.length), input])
 
 // This implementation of concatKDF was inspired by these two implementations:
 // https://github.com/digitalbazaar/minimal-cipher/blob/master/algorithms/ecdhkdf.js
@@ -40,8 +36,8 @@ export function concatKDF(
   consumerInfo?: Uint8Array
 ): Uint8Array {
   if (keyLen !== 256) throw new Error(`Unsupported key length: ${keyLen}`)
-  const value = u8a.concat([
-    lengthAndInput(u8a.fromString(alg)),
+  const value = concat([
+    lengthAndInput(fromString(alg)),
     lengthAndInput(typeof producerInfo === 'undefined' ? new Uint8Array(0) : producerInfo), // apu
     lengthAndInput(typeof consumerInfo === 'undefined' ? new Uint8Array(0) : consumerInfo), // apv
     writeUint32BE(keyLen),
@@ -49,5 +45,5 @@ export function concatKDF(
 
   // since our key lenght is 256 we only have to do one round
   const roundNumber = 1
-  return sha256(u8a.concat([writeUint32BE(roundNumber), secret, value]))
+  return sha256(concat([writeUint32BE(roundNumber), secret, value]))
 }

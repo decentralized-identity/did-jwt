@@ -1,69 +1,6 @@
-import { fromString } from 'uint8arrays'
-import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from './util'
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ProtectedHeader = Record<string, any> & Partial<RecipientHeader>
-
-/**
- * The JWK representation of an ephemeral public key.
- * See https://www.rfc-editor.org/rfc/rfc7518.html#section-6
- */
-interface EphemeralPublicKey {
-  kty?: string
-  //ECC
-  crv?: string
-  x?: string
-  y?: string
-  //RSA
-  n?: string
-  e?: string
-}
-
-export interface RecipientHeader {
-  alg: string
-  iv: string
-  tag: string
-  epk?: EphemeralPublicKey
-  kid?: string
-  apv?: string
-  apu?: string
-}
-
-export interface Recipient {
-  header: RecipientHeader
-  encrypted_key: string
-}
-
-export interface JWE {
-  protected: string
-  iv: string
-  ciphertext: string
-  tag: string
-  aad?: string
-  recipients?: Recipient[]
-}
-
-export interface EncryptionResult {
-  ciphertext: Uint8Array
-  tag: Uint8Array
-  iv: Uint8Array
-  protectedHeader?: string
-  recipient?: Recipient
-  cek?: Uint8Array
-}
-
-export interface Encrypter {
-  alg: string
-  enc: string
-  encrypt: (cleartext: Uint8Array, protectedHeader: ProtectedHeader, aad?: Uint8Array) => Promise<EncryptionResult>
-  encryptCek?: (cek: Uint8Array) => Promise<Recipient>
-}
-
-export interface Decrypter {
-  alg: string
-  enc: string
-  decrypt: (sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array, recipient?: Recipient) => Promise<Uint8Array | null>
-}
+import { fromString } from 'uint8arrays/from-string'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from '../util.js'
+import type { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, JWE, ProtectedHeader } from './types.js'
 
 function validateJWE(jwe: JWE) {
   if (!(jwe.protected && jwe.iv && jwe.ciphertext && jwe.tag)) {
@@ -81,9 +18,9 @@ function validateJWE(jwe: JWE) {
 function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: EncryptionResult, aad?: Uint8Array): JWE {
   const jwe: JWE = {
     protected: <string>protectedHeader,
-    iv: bytesToBase64url(iv),
+    iv: bytesToBase64url(iv ?? new Uint8Array(0)),
     ciphertext: bytesToBase64url(ciphertext),
-    tag: bytesToBase64url(tag),
+    tag: bytesToBase64url(tag ?? new Uint8Array(0)),
   }
   if (aad) jwe.aad = bytesToBase64url(aad)
   if (recipient) jwe.recipients = [recipient]
@@ -93,8 +30,9 @@ function encodeJWE({ ciphertext, tag, iv, protectedHeader, recipient }: Encrypti
 export async function createJWE(
   cleartext: Uint8Array,
   encrypters: Encrypter[],
-  protectedHeader = {},
-  aad?: Uint8Array
+  protectedHeader: ProtectedHeader = {},
+  aad?: Uint8Array,
+  useSingleEphemeralKey = false
 ): Promise<JWE> {
   if (encrypters[0].alg === 'dir') {
     if (encrypters.length > 1) throw new Error('not_supported: Can only do "dir" encryption to one key.')
@@ -105,15 +43,22 @@ export async function createJWE(
     if (!encrypters.reduce((acc, encrypter) => acc && encrypter.enc === tmpEnc, true)) {
       throw new Error('invalid_argument: Incompatible encrypters passed')
     }
-    let cek
-    let jwe
+    let cek: Uint8Array | undefined
+    let jwe: JWE | undefined
+    let epk: EphemeralKeyPair | undefined
+    if (useSingleEphemeralKey) {
+      epk = encrypters[0].genEpk?.()
+      const alg = encrypters[0].alg
+      protectedHeader = { ...protectedHeader, alg, epk: epk?.publicKeyJWK }
+    }
+
     for (const encrypter of encrypters) {
       if (!cek) {
-        const encryptionResult = await encrypter.encrypt(cleartext, protectedHeader, aad)
+        const encryptionResult = await encrypter.encrypt(cleartext, protectedHeader, aad, epk)
         cek = encryptionResult.cek
         jwe = encodeJWE(encryptionResult, aad)
       } else {
-        const recipient = await encrypter.encryptCek?.(cek)
+        const recipient = await encrypter.encryptCek?.(cek, epk)
         if (recipient) {
           jwe?.recipients?.push(recipient)
         }
@@ -129,7 +74,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
   if (protHeader.enc !== decrypter.enc)
     throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
   const sealed = toSealed(jwe.ciphertext, jwe.tag)
-  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
+  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected, 'utf-8')
   let cleartext = null
   if (protHeader.alg === 'dir' && decrypter.alg === 'dir') {
     cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)

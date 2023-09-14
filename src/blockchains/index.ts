@@ -1,8 +1,8 @@
-import { publicKeyToAddress as bip122 } from './bip122'
-import { publicKeyToAddress as cosmos } from './cosmos'
-import { toEthereumAddress } from '../Digest'
+import { publicKeyToAddress as bip122 } from './bip122.js'
+import { publicKeyToAddress as cosmos } from './cosmos.js'
+import { toEthereumAddress } from '../Digest.js'
 
-export const verifyBlockchainAccountId = (publicKey: string, blockchainAccountId: string | undefined): boolean => {
+export function verifyBlockchainAccountId(publicKey: string, blockchainAccountId: string | undefined): boolean {
   if (blockchainAccountId) {
     const chain = blockchainAccountId.split(':')
     switch (chain[0]) {

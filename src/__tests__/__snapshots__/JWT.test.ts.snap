@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqeo4OTA7OYheYmlRy1OpNYbtYhDyZj0w1NfCpgsgDMGjw"`;
+exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqdXHxs_ExnehnZauNKxWynjBSaZHRZT3Ohgx8ZgUAM6sg"`;
 
 exports[`JWS createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJzb21lIjoiZGF0YSJ9.dblNz-7BVLknOFIBPmt5VTG0MDls_Q69WI8OfQuqNdUp4y50-b8Ubn0xujm1ijfmfqRunpks5TyWqgMsQkR_GQ"`;
 
 exports[`JWS createJWS works with base64url payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.A_3Vet7D1DjqI3_kazPuHgFu2mtYXD4n6mZobC6lNYR5.n5ZZQZe1J7e76TGTLBpQO2R22JFoHDBi5ScfoxHz__Qy7Q6r3R11GdXmY_0ntFx6nC9QbDD19y8tTDMLUM4DAw"`;
 
 exports[`createJWT() ES256 creates a JWT with correct format 1`] = `
-Object {
+{
   "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0",
-  "header": Object {
+  "header": {
     "alg": "ES256",
     "typ": "JWT",
   },
-  "payload": Object {
+  "payload": {
     "iat": 1485321133,
     "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
-    "requested": Array [
+    "requested": [
       "name",
       "phone",
     ],
@@ -26,16 +26,16 @@ Object {
 `;
 
 exports[`createJWT() ES256 creates a JWT with correct legacy format 1`] = `
-Object {
+{
   "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
-  "header": Object {
+  "header": {
     "alg": "ES256",
     "typ": "JWT",
   },
-  "payload": Object {
+  "payload": {
     "iat": 1485321133,
     "iss": "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
-    "requested": Array [
+    "requested": [
       "name",
       "phone",
     ],
@@ -45,35 +45,35 @@ Object {
 `;
 
 exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
-Object {
+{
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
-  "header": Object {
+  "header": {
     "alg": "ES256K",
     "typ": "JWT",
   },
-  "payload": Object {
+  "payload": {
     "iat": 1485321133,
     "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
-    "requested": Array [
+    "requested": [
       "name",
       "phone",
     ],
   },
-  "signature": "tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvHJrDFQhNbSDzCP2Pe7WdXySosTCuI1T-IQ6SddcWuj_A",
+  "signature": "tU96omPNxCfQoEADOpLywXUDCMjKXOfTaG61EZwmfvE2U86veykt8M9wJwhEpioMcCPJ280TUFmu6TcvXsqdRQ",
 }
 `;
 
 exports[`createJWT() ES256K creates a JWT with correct legacy format 1`] = `
-Object {
+{
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
-  "header": Object {
+  "header": {
     "alg": "ES256K",
     "typ": "JWT",
   },
-  "payload": Object {
+  "payload": {
     "iat": 1485321133,
     "iss": "0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
-    "requested": Array [
+    "requested": [
       "name",
       "phone",
     ],
@@ -83,16 +83,16 @@ Object {
 `;
 
 exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
-Object {
+{
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
-  "header": Object {
+  "header": {
     "alg": "Ed25519",
     "typ": "JWT",
   },
-  "payload": Object {
+  "payload": {
     "iat": 1485321133,
     "iss": "did:nacl:BvrB8iJAz_1jfq1mRxiEKfr9qcnLfq5DOGrBf2ERUHU",
-    "requested": Array [
+    "requested": [
       "name",
       "phone",
     ],
@@ -102,10 +102,10 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256 pregenerated JWT verifies the JWT and return correct payload 1`] = `
-Object {
+{
   "iat": 1485321133,
   "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
-  "requested": Array [
+  "requested": [
     "name",
     "phone",
   ],
@@ -113,7 +113,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K accepts a valid audience 1`] = `
-Object {
+{
   "aud": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
   "iat": 1485321133,
   "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
@@ -121,7 +121,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K accepts a valid audience using callback_url 1`] = `
-Object {
+{
   "aud": "http://pututu.uport.me/unique",
   "iat": 1485321133,
   "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
@@ -129,8 +129,8 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K accepts multiple audiences 1`] = `
-Object {
-  "aud": Array [
+{
+  "aud": [
     "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
     "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
   ],
@@ -140,7 +140,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K handles ES256K algorithm with blockchainAccountId - github #14, #155 1`] = `
-Object {
+{
   "hello": "world",
   "iat": 1485321133,
   "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
@@ -148,7 +148,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K handles ES256K algorithm with ethereum address - github #14 1`] = `
-Object {
+{
   "hello": "world",
   "iat": 1485321133,
   "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
@@ -156,7 +156,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K handles ES256K-R algorithm 1`] = `
-Object {
+{
   "hello": "world",
   "iat": 1485321133,
   "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
@@ -164,7 +164,7 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K handles ES256K-R algorithm with publicKeyHex address 1`] = `
-Object {
+{
   "hello": "world",
   "iat": 1485321133,
   "iss": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
@@ -172,10 +172,10 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K pregenerated JWT verifies the JWT and return correct payload 1`] = `
-Object {
+{
   "iat": 1485321133,
   "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
-  "requested": Array [
+  "requested": [
     "name",
     "phone",
   ],
@@ -183,10 +183,10 @@ Object {
 `;
 
 exports[`verifyJWT() for ES256K pregenerated JWT with legacy resolver verifies the JWT and return correct payload 1`] = `
-Object {
+{
   "iat": 1485321133,
   "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",
-  "requested": Array [
+  "requested": [
     "name",
     "phone",
   ],
