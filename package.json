@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "7.2.7",
+  "version": "7.2.8",
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
@@ -79,7 +79,7 @@
     "prettier": "3.0.3",
     "regenerator-runtime": "0.14.0",
     "rimraf": "^5.0.0",
-    "semantic-release": "21.1.1",
+    "semantic-release": "22.0.0",
     "ts-jest": "29.1.1",
     "ts-node": "10.9.1",
     "tweetnacl": "1.0.3",

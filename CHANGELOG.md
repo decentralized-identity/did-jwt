@@ -1,3 +1,10 @@
+## [7.2.8](https://github.com/decentralized-identity/did-jwt/compare/7.2.7...7.2.8) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency multiformats to v12.1.1 ([#290](https://github.com/decentralized-identity/did-jwt/issues/290)) ([4fe1ef1](https://github.com/decentralized-identity/did-jwt/commit/4fe1ef1af95f738662427046ff1719355771edf1))
+
 ## [7.2.7](https://github.com/decentralized-identity/did-jwt/compare/7.2.6...7.2.7) (2023-09-04)
 
 
