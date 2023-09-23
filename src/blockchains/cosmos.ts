@@ -1,5 +1,5 @@
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { bech32 } from 'bech32'
+import { bech32 } from '@scure/base'
 import { sha256, ripemd160 } from '../Digest.js'
 
 export function publicKeyToAddress(publicKey: string, prefix: string): string {
