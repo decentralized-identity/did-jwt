@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/decentralized-identity/did-jwt/compare/7.2.8...7.3.0) (2023-09-23)
+
+
+### Features
+
+* **deps:** replace bech32 and old chacha with noble and scure packages ([#294](https://github.com/decentralized-identity/did-jwt/issues/294)) ([853c799](https://github.com/decentralized-identity/did-jwt/commit/853c79993925ff65777d07800594a11d29687bfc))
+
 ## [7.2.8](https://github.com/decentralized-identity/did-jwt/compare/7.2.7...7.2.8) (2023-09-18)
 
 

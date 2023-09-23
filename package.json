@@ -1,6 +1,6 @@
 {
   "name": "did-jwt",
-  "version": "7.2.8",
+  "version": "7.3.0",
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
