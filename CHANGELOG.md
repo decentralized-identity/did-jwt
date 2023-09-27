@@ -1,3 +1,10 @@
+## [7.4.1](https://github.com/decentralized-identity/did-jwt/compare/7.4.0...7.4.1) (2023-09-27)
+
+
+### Bug Fixes
+
+* accept 32 or 64 bytes as keys for EdDSASigner ([#299](https://github.com/decentralized-identity/did-jwt/issues/299)) ([546f31c](https://github.com/decentralized-identity/did-jwt/commit/546f31cd0f6baa5112c70da87a6111168fb6d57e)), closes [#289](https://github.com/decentralized-identity/did-jwt/issues/289)
+
 # [7.4.0](https://github.com/decentralized-identity/did-jwt/compare/7.3.0...7.4.0) (2023-09-27)
 
 
