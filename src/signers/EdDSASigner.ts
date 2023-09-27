@@ -18,8 +18,8 @@ import { bytesToBase64url, stringToBytes } from '../util.js'
  */
 export function EdDSASigner(secretKey: Uint8Array): Signer {
   const privateKeyBytes: Uint8Array = secretKey
-  if (privateKeyBytes.length !== 64) {
-    throw new Error(`bad_key: Invalid private key format. Expecting 64 bytes, but got ${privateKeyBytes.length}`)
+  if (![32, 64].includes(privateKeyBytes.length)) {
+    throw new Error(`bad_key: Invalid private key format. Expecting 32 or 64 bytes, but got ${privateKeyBytes.length}`)
   }
   return async (data: string | Uint8Array): Promise<string> => {
     const dataBytes: Uint8Array = typeof data === 'string' ? stringToBytes(data) : data
