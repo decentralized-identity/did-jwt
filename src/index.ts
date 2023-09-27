@@ -61,6 +61,19 @@ export {
 
 export { type JWTOptions, type JWTVerifyOptions } from './JWT.js'
 
-export { base64ToBytes, base58ToBytes, hexToBytes, genX25519EphemeralKeyPair } from './util.js'
+export {
+  base64ToBytes,
+  bytesToBase64url,
+  base58ToBytes,
+  bytesToBase58,
+  hexToBytes,
+  bytesToHex,
+  genX25519EphemeralKeyPair,
+  multibaseToBytes,
+  bytesToMultibase,
+  supportedCodecs,
+} from './util.js'
+
+export { extractPublicKeyBytes } from './VerifierAlgorithm.js'
 
 export * from './Errors.js'
