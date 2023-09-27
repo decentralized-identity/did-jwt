@@ -63,4 +63,55 @@ describe('Ed25519', () => {
       },
     })
   })
+
+  it('handles EdDSA algorithm with did:peer', async () => {
+    expect.assertions(1)
+
+    const resolver = {
+      resolve: async () => ({
+        didDocumentMetadata: {},
+        didResolutionMetadata: {
+          contentType: 'application/did+ld+json',
+        },
+        didDocument: {
+          '@context': ['https://www.w3.org/ns/did/v1', 'https://w3id.org/security/suites/ed25519-2020/v1'],
+          id: 'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+          verificationMethod: [
+            {
+              id: 'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw#6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+              type: 'Ed25519VerificationKey2020',
+              controller: 'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+              publicKeyMultibase: 'z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+            },
+          ],
+          authentication: [
+            'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw#6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+          ],
+          assertionMethod: [
+            'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw#6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+          ],
+          capabilityInvocation: [
+            'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw#6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+          ],
+          capabilityDelegation: [
+            'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw#6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+          ],
+        },
+      }),
+    }
+    const jwt =
+      'eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJ2YyI6eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIl0sImNyZWRlbnRpYWxTdWJqZWN0Ijp7Im5vdGhpbmciOiJlbHNlIG1hdHRlcnMifX0sIm5iZiI6MTY5NTA1MjE4MSwiaXNzIjoiZGlkOnBlZXI6MHo2TWtuTlc1bXZyVXBzc1NKd1pSUVNpbkxXWHpjRUNQdGp6ZUtVc1RSMU12dW1mdyJ9.mvgdqscXYjIXRuut83e8AfcBVdQJJOppQ9flohALoke_qRL9rR0FBOuBjWbf6uHftKv8lqUcqZuPnmsAJ0sbAA'
+    const { payload } = await verifyJWT(jwt, { resolver })
+    return expect(payload).toMatchObject({
+      iss: 'did:peer:0z6MknNW5mvrUpssSJwZRQSinLWXzcECPtjzeKUsTR1Mvumfw',
+      nbf: 1695052181,
+      vc: {
+        '@context': ['https://www.w3.org/2018/credentials/v1'],
+        credentialSubject: {
+          nothing: 'else matters',
+        },
+        type: ['VerifiableCredential'],
+      },
+    })
+  })
 })
