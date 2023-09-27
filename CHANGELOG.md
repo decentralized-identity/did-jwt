@@ -1,3 +1,10 @@
+# [7.4.0](https://github.com/decentralized-identity/did-jwt/compare/7.3.0...7.4.0) (2023-09-27)
+
+
+### Features
+
+* interpret publicKeyMultibase as multicodec ([#298](https://github.com/decentralized-identity/did-jwt/issues/298)) ([bf76cea](https://github.com/decentralized-identity/did-jwt/commit/bf76ceab6b6b84b22919ccefeaeebbd973220d1b)), closes [#297](https://github.com/decentralized-identity/did-jwt/issues/297)
+
 # [7.3.0](https://github.com/decentralized-identity/did-jwt/compare/7.2.8...7.3.0) (2023-09-23)
 
 
