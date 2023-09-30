@@ -215,6 +215,7 @@ const publicKeyJwk = {
   y: bytesToBase64url(bigintToBytes(publicKeyPoint.y, 32)),
 }
 const publicKeyMultibase = bytesToMultibase(publicKeyBytes, 'base58btc')
+const publicKeyMultibaseMulticodec = bytesToMultibase(publicKeyBytes, 'base58btc', 'secp256k1-pub')
 const eip155 = toEthereumAddress(publicKeyHex)
 const bip122 = toBip122Address(publicKeyHex, 'undefined')
 const cosmosPrefix = 'example'
@@ -378,6 +379,17 @@ describe('ES256K', () => {
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     const pubkey = Object.assign({ publicKeyMultibase }, ecKey2)
+    // @ts-ignore
+    delete pubkey.publicKeyHex
+    // @ts-ignore
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyMultibase multicodec', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = Object.assign({ publicKeyMultibase: publicKeyMultibaseMulticodec }, ecKey2)
     // @ts-ignore
     delete pubkey.publicKeyHex
     // @ts-ignore

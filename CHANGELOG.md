@@ -1,3 +1,31 @@
+## [7.4.1](https://github.com/decentralized-identity/did-jwt/compare/7.4.0...7.4.1) (2023-09-27)
+
+
+### Bug Fixes
+
+* accept 32 or 64 bytes as keys for EdDSASigner ([#299](https://github.com/decentralized-identity/did-jwt/issues/299)) ([546f31c](https://github.com/decentralized-identity/did-jwt/commit/546f31cd0f6baa5112c70da87a6111168fb6d57e)), closes [#289](https://github.com/decentralized-identity/did-jwt/issues/289)
+
+# [7.4.0](https://github.com/decentralized-identity/did-jwt/compare/7.3.0...7.4.0) (2023-09-27)
+
+
+### Features
+
+* interpret publicKeyMultibase as multicodec ([#298](https://github.com/decentralized-identity/did-jwt/issues/298)) ([bf76cea](https://github.com/decentralized-identity/did-jwt/commit/bf76ceab6b6b84b22919ccefeaeebbd973220d1b)), closes [#297](https://github.com/decentralized-identity/did-jwt/issues/297)
+
+# [7.3.0](https://github.com/decentralized-identity/did-jwt/compare/7.2.8...7.3.0) (2023-09-23)
+
+
+### Features
+
+* **deps:** replace bech32 and old chacha with noble and scure packages ([#294](https://github.com/decentralized-identity/did-jwt/issues/294)) ([853c799](https://github.com/decentralized-identity/did-jwt/commit/853c79993925ff65777d07800594a11d29687bfc))
+
+## [7.2.8](https://github.com/decentralized-identity/did-jwt/compare/7.2.7...7.2.8) (2023-09-18)
+
+
+### Bug Fixes
+
+* **deps:** update dependency multiformats to v12.1.1 ([#290](https://github.com/decentralized-identity/did-jwt/issues/290)) ([4fe1ef1](https://github.com/decentralized-identity/did-jwt/commit/4fe1ef1af95f738662427046ff1719355771edf1))
+
 ## [7.2.7](https://github.com/decentralized-identity/did-jwt/compare/7.2.6...7.2.7) (2023-09-04)
 
 

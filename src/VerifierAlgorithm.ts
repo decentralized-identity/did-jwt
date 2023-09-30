@@ -1,15 +1,15 @@
 import { sha256, toEthereumAddress } from './Digest.js'
 import type { VerificationMethod } from 'did-resolver'
-import { bases } from 'multiformats/basics'
 import {
-  hexToBytes,
   base58ToBytes,
   base64ToBytes,
+  bytesToBigInt,
   bytesToHex,
   EcdsaSignature,
-  stringToBytes,
-  bytesToBigInt,
   ECDSASignature,
+  hexToBytes,
+  multibaseToBytes,
+  stringToBytes,
 } from './util.js'
 import { verifyBlockchainAccountId } from './blockchains/index.js'
 import { secp256k1 } from '@noble/curves/secp256k1'
@@ -67,9 +67,7 @@ export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
   ) {
     return base64ToBytes(pk.publicKeyJwk.x)
   } else if (pk.publicKeyMultibase) {
-    const { base16, base58btc, base64, base64url } = bases
-    const baseDecoder = base16.decoder.or(base58btc.decoder.or(base64.decoder.or(base64url.decoder)))
-    return baseDecoder.decode(pk.publicKeyMultibase)
+    return multibaseToBytes(pk.publicKeyMultibase)
   }
   return new Uint8Array()
 }
@@ -181,9 +179,11 @@ export function verifyEd25519(
 }
 
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
+
 interface Algorithms {
   [name: string]: Verifier
 }
+
 const algorithms: Algorithms = {
   ES256: verifyES256,
   ES256K: verifyES256K,

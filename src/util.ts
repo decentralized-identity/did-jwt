@@ -2,6 +2,7 @@ import { concat, fromString, toString } from 'uint8arrays'
 import { bases } from 'multiformats/basics'
 import { x25519 } from '@noble/curves/ed25519'
 import type { EphemeralKeyPair } from './encryption/types.js'
+import { varint } from 'multiformats'
 
 const u8a = { toString, fromString, concat }
 
@@ -52,8 +53,81 @@ export function bytesToBase58(b: Uint8Array): string {
   return u8a.toString(b, 'base58btc')
 }
 
-export function bytesToMultibase(b: Uint8Array, base: keyof typeof bases): string {
-  return bases[base].encode(b)
+// this is from the multicodec table https://github.com/multiformats/multicodec/blob/master/table.csv
+export const supportedCodecs = {
+  'ed25519-pub': 0xed,
+  'x25519-pub': 0xec,
+  'secp256k1-pub': 0xe7,
+  'bls12_381-g1-pub': 0xea,
+  'bls12_381-g2-pub': 0xeb,
+  'p256-pub': 0x1200,
+}
+
+/**
+ * Encodes the given byte array to a multibase string (defaulting to base58btc).
+ * If a codec is provided, the corresponding multicodec prefix will be added.
+ *
+ * @param b - the Uint8Array to be encoded
+ * @param base - the base to use for encoding (defaults to base58btc)
+ * @param codec - the codec to use for encoding (defaults to no codec)
+ *
+ * @returns the multibase encoded string
+ *
+ * @public
+ */
+export function bytesToMultibase(
+  b: Uint8Array,
+  base: keyof typeof bases = 'base58btc',
+  codec?: keyof typeof supportedCodecs | number
+): string {
+  if (!codec) {
+    return bases[base].encode(b)
+  } else {
+    const codecCode = typeof codec === 'string' ? supportedCodecs[codec] : codec
+    const prefixLength = varint.encodingLength(codecCode)
+    const multicodecEncoding = new Uint8Array(prefixLength + b.length)
+    varint.encodeTo(codecCode, multicodecEncoding) // set prefix
+    multicodecEncoding.set(b, prefixLength) // add the original bytes
+    return bases[base].encode(multicodecEncoding)
+  }
+}
+
+/**
+ * Converts a multibase string to the Uint8Array it represents.
+ * This method will assume the byte array that is multibase encoded is a multicodec and will attempt to decode it.
+ *
+ * @param s - the string to be converted
+ *
+ * @throws if the string is not formatted correctly.
+ *
+ * @public
+ */
+export function multibaseToBytes(s: string): Uint8Array {
+  const { base10, base16, base16upper, base58btc, base64, base64url } = bases
+
+  const baseDecoder = base58btc.decoder
+    .or(base10.decoder)
+    .or(base16.decoder)
+    .or(base16upper.decoder)
+    .or(base64.decoder)
+    .or(base64url.decoder)
+  const bytes = baseDecoder.decode(s)
+
+  // look for known key lengths first
+  // Ed25519/X25519, secp256k1/P256 compressed or not, BLS12-381 G1/G2 compressed
+  if ([32, 33, 48, 64, 65, 96].includes(bytes.length)) {
+    return bytes
+  }
+
+  // then assume multicodec, otherwise return the bytes
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [codec, length] = varint.decode(bytes)
+    return bytes.slice(length)
+  } catch (e) {
+    // not a multicodec, return the bytes
+    return bytes
+  }
 }
 
 export function hexToBytes(s: string, minLength?: number): Uint8Array {

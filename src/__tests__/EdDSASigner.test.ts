@@ -54,12 +54,12 @@ describe('EdDSASigner', () => {
     )
   })
 
-  it('refuses wrong key size (half)', async () => {
+  it('accepts 32 byte keys size (github #289)', async () => {
     expect.assertions(1)
     const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
     expect(() => {
       EdDSASigner(hexToBytes(privateKey))
-    }).toThrowError(/^bad_key: Invalid private key format.*/)
+    }).not.toThrow()
   })
 
   it('refuses wrong key size', async () => {
