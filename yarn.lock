@@ -2461,10 +2461,10 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@noble/ciphers@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@noble/ciphers/-/ciphers-0.3.0.tgz#6ba3090afdc7a7051393486f6af210e62e0f04ec"
-  integrity sha512-ldbrnOjmNRwFdXcTM6uXDcxpMIFrbzAWNnpBPp4oTJTFF0XByGD6vf45WrehZGXRQTRVV+Zm8YP+EgEf+e4cWA==
+"@noble/ciphers@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@noble/ciphers/-/ciphers-0.4.0.tgz#e3f69e3ce935683dd8dadb636652a5cb5cd5958c"
+  integrity sha512-xaUaUUDWbHIFSxaQ/pIe+33VG2mfJp6N/KxKLmZr5biWdNznCAmfu24QRhX10BbVAuqOahAoyp0S4M9md6GPDw==
 
 "@noble/curves@^1.0.0":
   version "1.2.0"
