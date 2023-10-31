@@ -1,8 +1,8 @@
 import { concat, fromString, toString } from 'uint8arrays'
-import { bases } from 'multiformats/basics'
 import { x25519 } from '@noble/curves/ed25519'
 import type { EphemeralKeyPair } from './encryption/types.js'
 import { varint } from 'multiformats'
+import { BaseName, decode, encode } from 'multibase'
 
 const u8a = { toString, fromString, concat }
 
@@ -77,18 +77,18 @@ export const supportedCodecs = {
  */
 export function bytesToMultibase(
   b: Uint8Array,
-  base: keyof typeof bases = 'base58btc',
+  base: BaseName = 'base58btc',
   codec?: keyof typeof supportedCodecs | number
 ): string {
   if (!codec) {
-    return bases[base].encode(b)
+    return u8a.toString(encode(base, b), 'utf-8')
   } else {
     const codecCode = typeof codec === 'string' ? supportedCodecs[codec] : codec
     const prefixLength = varint.encodingLength(codecCode)
     const multicodecEncoding = new Uint8Array(prefixLength + b.length)
     varint.encodeTo(codecCode, multicodecEncoding) // set prefix
     multicodecEncoding.set(b, prefixLength) // add the original bytes
-    return bases[base].encode(multicodecEncoding)
+    return u8a.toString(encode(base, multicodecEncoding), 'utf-8')
   }
 }
 
@@ -103,15 +103,7 @@ export function bytesToMultibase(
  * @public
  */
 export function multibaseToBytes(s: string): Uint8Array {
-  const { base10, base16, base16upper, base58btc, base64, base64url } = bases
-
-  const baseDecoder = base58btc.decoder
-    .or(base10.decoder)
-    .or(base16.decoder)
-    .or(base16upper.decoder)
-    .or(base64.decoder)
-    .or(base64url.decoder)
-  const bytes = baseDecoder.decode(s)
+  const bytes = decode(s)
 
   // look for known key lengths first
   // Ed25519/X25519, secp256k1/P256 compressed or not, BLS12-381 G1/G2 compressed
@@ -166,7 +158,7 @@ export function bigintToBytes(n: bigint, minLength?: number): Uint8Array {
 }
 
 export function stringToBytes(s: string): Uint8Array {
-  return u8a.fromString(s)
+  return u8a.fromString(s, 'utf-8')
 }
 
 export function toJose({ r, s, recoveryParam }: EcdsaSignature, recoverable?: boolean): string {

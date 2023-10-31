@@ -1,6 +1,5 @@
 import type { Decrypter, Encrypter, EncryptionResult, ProtectedHeader } from './types.js'
-import { bytesToBase64url, encodeBase64url } from '../util.js'
-import { fromString } from 'uint8arrays/from-string'
+import { bytesToBase64url, encodeBase64url, stringToBytes } from '../util.js'
 import { xchacha20poly1305 } from '@noble/ciphers/chacha'
 import { randomBytes } from '@noble/hashes/utils'
 
@@ -28,7 +27,7 @@ export function xc20pDirEncrypter(key: Uint8Array): Encrypter {
     aad?: Uint8Array
   ): Promise<EncryptionResult> {
     const protHeader = encodeBase64url(JSON.stringify(Object.assign({ alg }, protectedHeader, { enc })))
-    const encodedAad = fromString(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader, 'utf-8')
+    const encodedAad = stringToBytes(aad ? `${protHeader}.${bytesToBase64url(aad)}` : protHeader)
     return {
       ...xc20pEncrypt(cleartext, encodedAad),
       protectedHeader: protHeader,
