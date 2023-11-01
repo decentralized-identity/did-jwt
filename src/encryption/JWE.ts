@@ -1,5 +1,4 @@
-import { fromString } from 'uint8arrays/from-string'
-import { base64ToBytes, bytesToBase64url, decodeBase64url, toSealed } from '../util.js'
+import { base64ToBytes, bytesToBase64url, decodeBase64url, stringToBytes, toSealed } from '../util.js'
 import type { Decrypter, Encrypter, EncryptionResult, EphemeralKeyPair, JWE, ProtectedHeader } from './types.js'
 
 function validateJWE(jwe: JWE) {
@@ -74,7 +73,7 @@ export async function decryptJWE(jwe: JWE, decrypter: Decrypter): Promise<Uint8A
   if (protHeader.enc !== decrypter.enc)
     throw new Error(`not_supported: Decrypter does not supported: '${protHeader.enc}'`)
   const sealed = toSealed(jwe.ciphertext, jwe.tag)
-  const aad = fromString(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected, 'utf-8')
+  const aad = stringToBytes(jwe.aad ? `${jwe.protected}.${jwe.aad}` : jwe.protected)
   let cleartext = null
   if (protHeader.alg === 'dir' && decrypter.alg === 'dir') {
     cleartext = await decrypter.decrypt(sealed, base64ToBytes(jwe.iv), aad)

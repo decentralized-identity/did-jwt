@@ -30,6 +30,13 @@
       "extends": [
         "schedule:earlyMondays"
       ]
+    },
+    {
+      "matchPackagePatterns": [
+        "multiformats",
+        "uint8arrays"
+      ],
+      "enabled": false
     }
   ]
 }
