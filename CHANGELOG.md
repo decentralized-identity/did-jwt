@@ -1,3 +1,10 @@
+## [7.4.5](https://github.com/decentralized-identity/did-jwt/compare/7.4.4...7.4.5) (2023-11-01)
+
+
+### Bug Fixes
+
+* **deps:** downgrade uint8arrays and multiformats ([#302](https://github.com/decentralized-identity/did-jwt/issues/302)) ([4bf8001](https://github.com/decentralized-identity/did-jwt/commit/4bf8001f819d33a9ad6182fda06a2465730e9b00)), closes [#301](https://github.com/decentralized-identity/did-jwt/issues/301)
+
 ## [7.4.4](https://github.com/decentralized-identity/did-jwt/compare/7.4.3...7.4.4) (2023-10-25)
 
 
