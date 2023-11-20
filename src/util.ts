@@ -1,6 +1,7 @@
 import { concat, fromString, toString } from 'uint8arrays'
 import { bases } from 'multiformats/basics'
 import { x25519 } from '@noble/curves/ed25519'
+import { p256 } from '@noble/curves/p256'
 import type { EphemeralKeyPair } from './encryption/types.js'
 import { varint } from 'multiformats'
 
@@ -214,6 +215,19 @@ export function generateKeyPair(): { secretKey: Uint8Array; publicKey: Uint8Arra
   }
 }
 
+/*
+ * Generatate random secp256r1 key pair.
+*/ 
+// export function generateP256KeyPair()
+export function generateP256KeyPair(): { secretKey: Uint8Array; publicKey: Uint8Array } {
+  const secretKey = p256.utils.randomPrivateKey()
+  const publicKey = p256.getPublicKey(secretKey)
+  return {
+    secretKey: secretKey,
+    publicKey: publicKey,
+  }
+}
+
 /**
  * Generate private-public x25519 key pair from `seed`.
  */
@@ -227,10 +241,41 @@ export function generateKeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Arr
   }
 }
 
+/*
+ * Generate random private-public secp256r1 key pair from `seed`.
+*/
+// export function generateP256KeyPairFromSeed
+export function generateP256KeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Array; publicKey: Uint8Array } {
+  if (seed.length !== 32) {
+    throw new Error(`p256: seed must be ${32} bytes`)
+  }
+  return {
+    publicKey: p256.getPublicKey(seed), // I think this might work, but I will have to try it out elsewhere...
+    secretKey: seed,
+  }
+}
+
+/*
+ * Generate key pair object used by createEncrypter.ts for X25519
+ */
+
 export function genX25519EphemeralKeyPair(): EphemeralKeyPair {
   const epk = generateKeyPair()
   return {
     publicKeyJWK: { kty: 'OKP', crv: 'X25519', x: bytesToBase64url(epk.publicKey) },
+    secretKey: epk.secretKey,
+  }
+}
+
+/*
+ * Generate key pair object used by createEncrypter.ts for secp256r1, see RFC7517
+ */
+
+// export function genP256EphemeralKeyPair
+export function genP256EphemeralKeyPair(): EphemeralKeyPair {
+  const epk = generateKeyPair()
+  return {
+    publicKeyJWK: { kty: 'EC', crv: 'P-256', x: bytesToBase64url(epk.publicKey) },
     secretKey: epk.secretKey,
   }
 }
