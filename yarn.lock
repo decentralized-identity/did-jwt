@@ -2016,6 +2016,78 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
+"@stablelib/aead@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/aead/-/aead-1.0.1.tgz"
+  integrity sha512-q39ik6sxGHewqtO0nP4BuSe3db5G1fEJE8ukvngS2gLkBXyy6E7pLubhbYgnkDFv6V8cWaxcE4Xn0t6LWcJkyg==
+
+"@stablelib/aes-kw@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/aes-kw/-/aes-kw-1.0.1.tgz"
+  integrity sha512-KrOkiRex1tQTbWk+hFB5fFw4vqKhNnTUtlCRf1bhUEOFp7hadWe49/sLa/P4X4FBQVoh3Z9Lj0zS1OWu/AHA1w==
+  dependencies:
+    "@stablelib/aes" "^1.0.1"
+    "@stablelib/binary" "^1.0.1"
+    "@stablelib/blockcipher" "^1.0.1"
+    "@stablelib/constant-time" "^1.0.1"
+    "@stablelib/wipe" "^1.0.1"
+
+"@stablelib/aes@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/aes/-/aes-1.0.1.tgz"
+  integrity sha512-bMiezJDeFONDHbMEa+Kic26962+bwkZfsHPAmcqTjLaHCAhEQuK3i1H0POPOkcHCdj75oVRIqFCraCA0cyHPvw==
+  dependencies:
+    "@stablelib/binary" "^1.0.1"
+    "@stablelib/blockcipher" "^1.0.1"
+    "@stablelib/wipe" "^1.0.1"
+
+"@stablelib/binary@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/binary/-/binary-1.0.1.tgz"
+  integrity sha512-ClJWvmL6UBM/wjkvv/7m5VP3GMr9t0osr4yVgLZsLCOz4hGN9gIAFEqnJ0TsSMAN+n840nf2cHZnA5/KFqHC7Q==
+  dependencies:
+    "@stablelib/int" "^1.0.1"
+
+"@stablelib/blockcipher@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/blockcipher/-/blockcipher-1.0.1.tgz"
+  integrity sha512-4bkpV8HUAv0CgI1fUqkPUEEvv3RXQ3qBkuZaSWhshXGAz1JCpriesgiO9Qs4f0KzBJkCtvcho5n7d/RKvnHbew==
+
+"@stablelib/constant-time@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/constant-time/-/constant-time-1.0.1.tgz"
+  integrity sha512-tNOs3uD0vSJcK6z1fvef4Y+buN7DXhzHDPqRLSXUel1UfqMB1PWNsnnAezrKfEwTLpN0cGH2p9NNjs6IqeD0eg==
+
+"@stablelib/ctr@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/@stablelib/ctr/-/ctr-1.0.2.tgz"
+  integrity sha512-Wq/Zr5QWNiXUu1UMhbeSIWhUm4YOhl01owaZOehxKFOKp6PPuUi9kAUAHv9cE5yQm9PLvIxzhwFco36sRpcOTQ==
+  dependencies:
+    "@stablelib/blockcipher" "^1.0.1"
+    "@stablelib/wipe" "^1.0.1"
+
+"@stablelib/gcm@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.npmjs.org/@stablelib/gcm/-/gcm-1.0.2.tgz"
+  integrity sha512-sQIRPGti1UXm740RTI38Apbl3t0oEEQMsdKN6VbC8a2lFHff6Stg90IqbF1xSrMLmm52gDGwtODhub3rKOMkfQ==
+  dependencies:
+    "@stablelib/aead" "^1.0.1"
+    "@stablelib/binary" "^1.0.1"
+    "@stablelib/blockcipher" "^1.0.1"
+    "@stablelib/constant-time" "^1.0.1"
+    "@stablelib/ctr" "^1.0.2"
+    "@stablelib/wipe" "^1.0.1"
+
+"@stablelib/int@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/int/-/int-1.0.1.tgz"
+  integrity sha512-byr69X/sDtDiIjIV6m4roLVWnNNlRGzsvxw+agj8CIEazqWGOQp2dTYgQhtyVXV9wpO6WyXRQUzLV/JRNumT2w==
+
+"@stablelib/wipe@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/wipe/-/wipe-1.0.1.tgz"
+  integrity sha512-WfqfX/eXGiAd3RJe4VU2snh/ZPwtSjLG4ynQ/vYzvghTh7dHFcI1wl+nrkWG6lGhukOxOsUHfv8dUXr58D0ayg==
+
 "@surma/rollup-plugin-off-main-thread@^2.2.2":
   version "2.2.3"
   resolved "https://registry.npmjs.org/@surma/rollup-plugin-off-main-thread/-/rollup-plugin-off-main-thread-2.2.3.tgz"

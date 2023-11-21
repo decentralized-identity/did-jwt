@@ -74,7 +74,9 @@ export function createFullEncrypter(
   return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
 }
 
-
+// It might be better if a single createEncryter function was implemented: 
+// https://github.com/decentralized-identity/veramo/blob/next/packages/did-comm/src/encryption/createEncrypter.ts
+ 
 export function createFullP256Encrypter(
   recipientPublicKey: Uint8Array,
   senderSecret: Uint8Array | ECDH | undefined,

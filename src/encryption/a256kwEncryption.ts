@@ -11,10 +11,11 @@ import type {
   WrappingResult,
 } from './types.js'
 import { base64ToBytes, toSealed } from '../util.js'
-import { a256gcmDecrypter, a256gcmEncrypter, a256kwEncrypter } from './a256kwgcm.js'  // change 1st two
+import { a256gcmDecrypter, a256gcmEncrypter } from './a256kwgcm.js'  // change 1st two
 import { computeP256EcdhEsKek, createP256EcdhEsKek } from './P256-ECDH-ES.js' // change
 import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 import { createFullP256Encrypter } from './createEncrypter.js'
+import { AESKW } from '@stablelib/aes-kw'
 
 // I need to change the comments in this file
 
@@ -25,6 +26,7 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
   return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
 }
 
+/*
 export const a256kwKeyWrapper: KeyWrapper = {
   from: (wrappingKey: Uint8Array) => {
     const wrap = async (cek: Uint8Array): Promise<WrappingResult> => { 
@@ -35,6 +37,21 @@ export const a256kwKeyWrapper: KeyWrapper = {
 
   alg: 'A256KW',
 }
+*/
+
+// copied from:
+// https://github.com/decentralized-identity/veramo/blob/next/packages/did-comm/src/encryption/a256kw.ts
+export const a256kwKeyWrapper: KeyWrapper = {
+  from: (wrappingKey: Uint8Array) => {
+    const wrap = async (cek: Uint8Array): Promise<WrappingResult> => { 
+      return { ciphertext: new AESKW(wrappingKey).wrapKey(cek) }    // ECDH-ES+A256KW: ECDH-ES using Concat KDF and CEK wrapped with "A256KW"
+    }
+    return { wrap }
+  },
+
+  alg: 'A256KW',
+}
+
 
 /**
  *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
@@ -50,6 +67,7 @@ export const a256kwKeyWrapper: KeyWrapper = {
  *  @returns an {@link Encrypter} instance usable with {@link createJWE}
  *
  *
+ * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
  * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
  *   - {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW}
  *   - {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU}
@@ -106,7 +124,7 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
       ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
     const pks =
       agreementKeys?.filter((key) => {
-        return key.type === 'P256KeyAgreementKey2019' || key.type === 'P256KeyAgreementKey2020'
+        return key.type === 'P256KeyAgreementKey2023' || key.type === 'P256KeyAgreementKey2023'
       }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
@@ -136,10 +154,11 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
  * @beta
  *
  * Implements ECDH-1PU+XC20PKW with XChaCha20Poly1305 based on the following specs:
+ * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
  *   - {@link https://tools.ietf.org/html/draft-amringer-jose-chacha-02 | XC20PKW}
  *   - {@link https://tools.ietf.org/html/draft-madden-jose-ecdh-1pu-03 | ECDH-1PU}
  */
-export function a256gcmAuthDecrypterEcdh1PuV3p256Witha256kw(
+export function a256gcmAuthDecrypterEcdhP256Witha256kw(
   recipientSecret: Uint8Array | ECDH,
   senderPublicKey: Uint8Array
 ): Decrypter {
