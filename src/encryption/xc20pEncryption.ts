@@ -494,3 +494,11 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
   const encrypterArrays = await Promise.all(encrypterPromises)
   return ([] as Encrypter[]).concat(...encrypterArrays)
 }
+
+/**
+ * @deprecated Use {@link xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2() }
+ *   instead
+ */
+export function p256Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
+  return xc20pAnonDecrypterEcdhESp256WithXc20PkwV2(receiverSecret)
+}
