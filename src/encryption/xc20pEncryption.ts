@@ -153,7 +153,7 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
     }
     let controllerEncrypters: Encrypter[] = []
     if (!didDocument.controller && !didDocument.keyAgreement) {
-      throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
+       throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
     }
     if (didDocument.controller) {
       let controllers = Array.isArray(didDocument.controller) ? didDocument.controller : [didDocument.controller]
@@ -436,4 +436,61 @@ export function xc20pAuthDecrypterEcdh1PuV3p256WithXc20PkwV2(
   }
 
   return { alg, enc, decrypt }
+}
+
+/**
+ * @deprecated Use {@link xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2() }
+ *   instead
+ */
+export function p256Encrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
+  return xc20pAnonEncrypterEcdhESp256WithXc20PkwV2(publicKey, { kid, apv })
+}
+
+export async function resolveP256Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
+  const encryptersForDID = async (did: string, resolved: string[] = []): Promise<Encrypter[]> => {
+    const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
+    resolved.push(did)
+    if (didResolutionMetadata?.error || didDocument == null) {
+      throw new Error(
+        `resolver_error: Could not resolve ${did}: ${didResolutionMetadata.error}, ${didResolutionMetadata.message}`
+      )
+    }
+    let controllerEncrypters: Encrypter[] = []
+    if (!didDocument.controller && !didDocument.keyAgreement) {
+       throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
+     // throw new Error(`no_suitable_keys: Could not find key for ${did}`)
+    }
+    if (didDocument.controller) {
+      let controllers = Array.isArray(didDocument.controller) ? didDocument.controller : [didDocument.controller]
+      controllers = controllers.filter((c) => !resolved.includes(c))
+      const encrypterPromises = controllers.map((did) =>
+        encryptersForDID(did, resolved).catch(() => {
+          return []
+        })
+      )
+      const encrypterArrays = await Promise.all(encrypterPromises)
+      controllerEncrypters = ([] as Encrypter[]).concat(...encrypterArrays)
+    }
+    const agreementKeys: VerificationMethod[] = didDocument.keyAgreement
+      ?.map((key) => {
+        if (typeof key === 'string') {
+          return [...(didDocument.publicKey || []), ...(didDocument.verificationMethod || [])].find(
+            (pk) => pk.id === key
+          )
+        }
+        return key
+      })
+      ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
+    const pks =
+      agreementKeys?.filter((key) => {
+        return key.type === 'P256KeyAgreementKey2019' || key.type === 'P256KeyAgreementKey2020'
+      }) || []
+    if (!pks.length && !controllerEncrypters.length)
+      throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
+    return pks.map((pk) => p256Encrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
+  }
+
+  const encrypterPromises = dids.map((did) => encryptersForDID(did))
+  const encrypterArrays = await Promise.all(encrypterPromises)
+  return ([] as Encrypter[]).concat(...encrypterArrays)
 }
