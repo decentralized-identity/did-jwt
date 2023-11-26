@@ -25,7 +25,7 @@ export function createFullEncrypter(
   kekCreator: KekCreator,
   keyWrapper: KeyWrapper,
   contentEncrypter: ContentEncrypter,
-  ephemeralKeyPair?: EphemeralKeyPair
+  ephemeralKeyPair?: EphemeralKeyPair // added this, but should be different than EphemeralKeyPair fed to createKek and encryptCek? 
 ): Encrypter {
   async function encryptCek(cek: Uint8Array, ephemeralKeyPair?: EphemeralKeyPair): Promise<Recipient> {
     const { epk, kek } = await kekCreator.createKek(
@@ -77,8 +77,8 @@ export function createFullEncrypter(
     }
   }
 
-  if(ephemeralKeyPair?.publicKeyJWK.crv != null) {
-    return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: prefixToDriverMap[ephemeralKeyPair!.publicKeyJWK.crv!] }
+  if(ephemeralKeyPair?.publicKeyJWK.crv != null) { //uses added ephemeralKeyPair, the one in encryptCek not in scope
+    return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: prefixToDriverMap[ephemeralKeyPair!.publicKeyJWK.crv!] } 
   } else {
     return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
   }
