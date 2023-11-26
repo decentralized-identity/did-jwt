@@ -77,7 +77,7 @@ export function createFullEncrypter(
     }
   }
 
-  if(ephemeralKeyPair?.publicKeyJWK.crv !== null) {
+  if(ephemeralKeyPair?.publicKeyJWK.crv != null) {
     return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: prefixToDriverMap[ephemeralKeyPair!.publicKeyJWK.crv!] }
   } else {
     return { alg: keyWrapper.alg, enc: contentEncrypter.enc, encrypt, encryptCek, genEpk: genX25519EphemeralKeyPair }
