@@ -37,7 +37,7 @@ export async function createP256EcdhEsKek(
   const keyLen = 256
   const ephemeral = ephemeralKeyPair ? generateP256KeyPairFromSeed(ephemeralKeyPair.secretKey) : generateP256KeyPair()
   const epk = { kty: 'EC', crv, x: bytesToBase64url(ephemeral.publicKey) }
-  console.log(recipientPublicKey);
+ // console.log(recipientPublicKey);
   // src/util.ts : bytesToHex
  // const sharedSecret = p256.getSharedSecret(ephemeral.secretKey, bytesToHex(recipientPublicKey)) fails, might need public key in different format...maybe 64 bytes
   const sharedSecret = p256.getSharedSecret(ephemeral.secretKey, recipientPublicKey)

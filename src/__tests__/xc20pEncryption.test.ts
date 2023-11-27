@@ -6,6 +6,7 @@ import type { Decrypter } from '../encryption/types.js'
 import { createX25519ECDH } from '../encryption/ECDH.js'
 import { createP256ECDH } from '../encryption/ECDH.js'
 import { bytesToBase58, generateKeyPair } from '../util.js'
+import { generateP256KeyPair } from '../util.js'
 import { randomBytes } from '@noble/hashes/utils'
 
 import { jest } from '@jest/globals'
@@ -307,8 +308,8 @@ describe('xc20pEncryption', () => {
       didDocumentResult9: DIDResolutionResult
 
     beforeEach(() => {
-      const kp1 = generateKeyPair()
-      const kp2 = generateKeyPair()
+      const kp1 = generateP256KeyPair()
+      const kp2 = generateP256KeyPair()
       decrypter1 = p256Decrypter(kp1.secretKey)
       decrypter2 = p256Decrypter(kp2.secretKey)
 
@@ -481,8 +482,8 @@ describe('xc20pEncryption', () => {
     it('resolves encrypters for DIDs with multiple valid keys ', async () => {
       expect.assertions(8)
 
-      const secondKp1 = generateKeyPair()
-      const secondKp2 = generateKeyPair()
+      const secondKp1 = generateP256KeyPair()
+      const secondKp2 = generateP256KeyPair()
 
       const newDecrypter1 = p256Decrypter(secondKp1.secretKey)
       const newDecrypter2 = p256Decrypter(secondKp2.secretKey)
