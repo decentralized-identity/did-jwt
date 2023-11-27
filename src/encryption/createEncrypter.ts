@@ -13,10 +13,27 @@ import type {
 import { bytesToBase64url, genX25519EphemeralKeyPair, genP256EphemeralKeyPair } from '../util.js'
 import { randomBytes } from '@noble/hashes/utils'
 
+/*
 const prefixToDriverMap: any = {
   'P-256': genP256EphemeralKeyPair,
   'X25519': genX25519EphemeralKeyPair,
-}
+} 
+*/
+
+/*
+const prefixToDriverMap: {{
+  'P-256': genP256EphemeralKeyPair,
+  'X25519': genX25519EphemeralKeyPair,
+} : ()=>EphemeralKeyPair }
+*/
+
+const prefixToDriverMap: {
+  [key: string]: () => EphemeralKeyPair;
+} = {
+  'P-256': genP256EphemeralKeyPair,
+  'X25519': genX25519EphemeralKeyPair,
+};
+
 
 export function createFullEncrypter(
   recipientPublicKey: Uint8Array,

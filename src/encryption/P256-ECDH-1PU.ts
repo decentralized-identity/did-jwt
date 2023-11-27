@@ -2,6 +2,9 @@ import type { ECDH, EphemeralKeyPair, Recipient } from './types.js'
 import { base64ToBytes, bytesToBase64url, generateKeyPair, generateKeyPairFromSeed } from '../util.js'
 import { concatKDF } from '../Digest.js'
 import { p256 } from '@noble/curves/p256'
+// generateP256KeyPairFromSeed, generateP256KeyPair
+import { generateP256KeyPairFromSeed, generateP256KeyPair } from '../util.js'
+
 export async function computeP256Ecdh1PUv3Kek(
   recipient: Recipient,
   recipientSecret: Uint8Array | ECDH,
@@ -49,7 +52,7 @@ export async function createP256Ecdh1PUv3Kek(
 ) {
   const crv = 'P-256'
   const keyLen = 256
-  const ephemeral = ephemeralKeyPair ? generateKeyPairFromSeed(ephemeralKeyPair.secretKey) : generateKeyPair()
+  const ephemeral = ephemeralKeyPair ? generateP256KeyPairFromSeed(ephemeralKeyPair.secretKey) : generateP256KeyPair()
   const epk = { kty: 'EC', crv, x: bytesToBase64url(ephemeral.publicKey) }
   const zE = p256.getSharedSecret(ephemeral.secretKey, recipientPublicKey)
 
