@@ -14,7 +14,7 @@ import { base64ToBytes, toSealed } from '../util.js'
 import { a256gcmDecrypter, a256gcmEncrypter } from './a256kwgcm.js'  // change 1st two
 import { computeP256EcdhEsKek, createP256EcdhEsKek } from './P256-ECDH-ES.js' // change
 import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
-import { createFullP256Encrypter } from './createEncrypter.js'
+import { createFullEncrypter } from './createEncrypter.js'
 import { AESKW } from '@stablelib/aes-kw'
 
 // I need to change the comments in this file
@@ -77,7 +77,7 @@ export function a256gcmAuthEncrypterEcdhP256Witha256kw(
   senderSecret: Uint8Array | ECDH,
   options: Partial<AuthEncryptParams> = {}
 ): Encrypter {
-  return createFullP256Encrypter(
+  return createFullEncrypter(
     recipientPublicKey,
     senderSecret,
     options,
