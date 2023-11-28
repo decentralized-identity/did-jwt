@@ -1,8 +1,7 @@
 import type { ECDH, EphemeralKeyPair, Recipient } from './types.js'
-import { base64ToBytes, bytesToBase64url, generateKeyPair, generateKeyPairFromSeed } from '../util.js'
+import { base64ToBytes, bytesToBase64url } from '../util.js'
 import { concatKDF } from '../Digest.js'
 import { p256 } from '@noble/curves/p256'
-// generateP256KeyPairFromSeed, generateP256KeyPair
 import { generateP256KeyPairFromSeed, generateP256KeyPair } from '../util.js'
 
 export async function computeP256Ecdh1PUv3Kek(
