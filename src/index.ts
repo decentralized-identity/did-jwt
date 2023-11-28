@@ -36,6 +36,13 @@ export {
   createAnonDecrypter,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
+  p256Encrypter,
+  p256Decrypter,
+  resolveP256Encrypters,
+  xc20pAnonEncrypterEcdhESp256WithXc20PkwV2,
+  xc20pAuthEncrypterEcdh1PuV3p256WithXc20PkwV2,
+  xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2,
+  xc20pAuthDecrypterEcdh1PuV3p256WithXc20PkwV2,
 } from './encryption/xc20pEncryption.js'
 
 export { createFullEncrypter } from './encryption/createEncrypter.js'

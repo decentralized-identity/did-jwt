@@ -1,5 +1,6 @@
 import type { ECDH, EphemeralKeyPair, Recipient } from './types.js'
 import { base64ToBytes, bytesToBase64url, generateKeyPair, generateKeyPairFromSeed } from '../util.js'
+import { bytesToHex, generateP256KeyPairFromSeed, generateP256KeyPair } from '../util.js'
 import { concatKDF } from '../Digest.js'
 import { p256 } from '@noble/curves/p256'
 
@@ -34,8 +35,11 @@ export async function createP256EcdhEsKek(
 ) {
   const crv = 'P-256'
   const keyLen = 256
-  const ephemeral = ephemeralKeyPair ? generateKeyPairFromSeed(ephemeralKeyPair.secretKey) : generateKeyPair()
+  const ephemeral = ephemeralKeyPair ? generateP256KeyPairFromSeed(ephemeralKeyPair.secretKey) : generateP256KeyPair()
   const epk = { kty: 'EC', crv, x: bytesToBase64url(ephemeral.publicKey) }
+ // console.log(recipientPublicKey);
+  // src/util.ts : bytesToHex
+ // const sharedSecret = p256.getSharedSecret(ephemeral.secretKey, bytesToHex(recipientPublicKey)) fails, might need public key in different format...maybe 64 bytes
   const sharedSecret = p256.getSharedSecret(ephemeral.secretKey, recipientPublicKey)
   // Key Encryption Key
   const consumerInfo = base64ToBytes(apv ?? '')
