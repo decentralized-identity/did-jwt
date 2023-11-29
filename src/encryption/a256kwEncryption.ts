@@ -40,7 +40,7 @@ export const a256kwKeyWrapper: KeyWrapper = {
 */
 
 // copied from:
-// https://github.com/decentralized-identity/veramo/blob/next/packages/did-comm/src/encryption/a256kw.ts
+// https://github.com/decentralized-identity/veramo/blob/next/packages/did-comm/src/encryption/a256kw.ts , do I need the key unwrapper too?
 export const a256kwKeyWrapper: KeyWrapper = {
   from: (wrappingKey: Uint8Array) => {
     const wrap = async (cek: Uint8Array): Promise<WrappingResult> => { 
