@@ -290,8 +290,9 @@ export function a256gcmAuthDirDecrypterEcdhP256WithA256kw(
     const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
 
     if (!kek) return null
-
-    const cek = base64ToBytes(recipient.encrypted_key)
+    const unwrapper = a256KeyUnwrapper(kek)
+    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) 
+   // const cek = base64ToBytes(recipient.encrypted_key) // It doesn't matter if I use this or the two lines above? If it is dir enc, it should?
     if (cek === null) return null
 
     return a256gcmDirDecrypter(cek).decrypt(sealed, iv, aad)
@@ -314,8 +315,9 @@ export function a256gcmAnonDirDecrypterEcdhESp256WithA256KW(receiverSecret: Uint
     recipient = <Recipient>recipient
     const kek = await computeP256EcdhEsKek(recipient, receiverSecret, alg)
     if (kek === null) return null
-    
-    const cek = base64ToBytes(recipient.encrypted_key)
+    const unwrapper = a256KeyUnwrapper(kek)
+    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) // for some reason I have to use this even though dir does not use wrapping?
+    //const cek = base64ToBytes(recipient.encrypted_key)
     if (cek === null) return null
 
     return a256gcmDirDecrypter(cek).decrypt(sealed, iv, aad)
