@@ -50,7 +50,7 @@ describe('a256gcmEncryption', () => {
           verificationMethod: [
             {
               id: did1 + '#abc',
-              type: 'P256KeyAgreementKey2019',
+              type: 'P256KeyAgreementKey2023',
               controller: did1,
               publicKeyBase58: bytesToBase58(kp1.publicKey),
             },
@@ -319,7 +319,7 @@ describe('a256gcmEncryption', () => {
           verificationMethod: [
             {
               id: did1 + '#abc',
-              type: 'P256KeyAgreementKey2019',
+              type: 'P256KeyAgreementKey2023',
               controller: did1,
               publicKeyBase58: bytesToBase58(kp1.publicKey),
             },
