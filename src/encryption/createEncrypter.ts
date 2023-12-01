@@ -57,7 +57,7 @@ export function createFullEncrypter(
     return recipient
   }
 
-  async function encrypt(
+  async function encrypt(   // how does this code switch from dir to A256KW , XC20PKW  ... ?
     cleartext: Uint8Array,
     protectedHeader: ProtectedHeader = {},
     aad?: Uint8Array,
