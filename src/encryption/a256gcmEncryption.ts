@@ -32,13 +32,20 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
 /**
  *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
  *  sender private key to encrypt the data).
- *  Uses {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
+ *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
  *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
  *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
- *  {@link | NIST SP 800-38[A-G] | includes GCM } and
+ * Recommendation for Block Cipher Modes of Operation: Methods and Techniques https://csrc.nist.gov/pubs/sp/800/38/a/final
+ * Recommendation for Block Cipher Modes of Operation: the CMAC Mode for Authentication https://csrc.nist.gov/pubs/sp/800/38/b/upd1/final
+ * Recommendation for Block Cipher Modes of Operation: the CCM Mode for Authentication and Confidentiality https://csrc.nist.gov/pubs/sp/800/38/c/upd1/final
+ * Recommendation for Block Cipher Modes of Operation: Galois/Counter Mode (GCM) and GMAC https://csrc.nist.gov/pubs/sp/800/38/d/final
+ * Recommendation for Block Cipher Modes of Operation: the XTS-AES Mode for Confidentiality on Storage Devices https://csrc.nist.gov/pubs/sp/800/38/e/final
+ * Recommendation for Block Cipher Modes of Operation: Methods for Key Wrapping https://csrc.nist.gov/pubs/sp/800/38/f/final
+ * Recommendation for Block Cipher Modes of Operation: Methods for Format-Preserving Encryption https://csrc.nist.gov/pubs/sp/800/38/g/upd1/final
  *  {@link https://www.rfc-editor.org/rfc/rfc7517 | JWK } and
  *  {@link https://www.rfc-editor.org/rfc/rfc7516 | JWE } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7518 | JWA } 
+ *  {@link https://www.rfc-editor.org/rfc/rfc7518 | JWA } and
+ *  {@link https://www.rfc-editor.org/rfc/rfc7520 |  Examples of Protecting Content Using JSON Object Signing and Encryption (JOSE) }
  *  
  *
  *  @param recipientPublicKey - the byte array representing the recipient public key
@@ -143,7 +150,7 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
 /**
  *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
  *  sender private key to encrypt the data).
- *  Uses {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
+ *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
  *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
  *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
  *  {@link | NIST SP 800-38[A-G] | includes GCM } and
@@ -256,7 +263,7 @@ export function a256gcmAnonDirEncrypterP256WithA256KW(
 /**
  *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
  *  sender private key to encrypt the data).
- *  Uses {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
+ *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
  *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
  *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
  *  {@link | NIST SP 800-38[A-G] | includes GCM } and
