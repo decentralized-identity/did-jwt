@@ -1,7 +1,6 @@
 import type { Decrypter, Encrypter, EncryptionResult, ProtectedHeader } from './types.js'
 import { bytesToBase64url, encodeBase64url } from '../util.js'
 import { fromString } from 'uint8arrays/from-string'
-// import { gcm } from '@noble/ciphers/aes';
 import { AES } from '@stablelib/aes'
 import { GCM } from '@stablelib/gcm'
 import { randomBytes } from '@noble/hashes/utils'
