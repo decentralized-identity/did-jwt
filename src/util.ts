@@ -244,7 +244,6 @@ export function generateKeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Arr
 /*
  * Generate random private-public secp256r1 key pair from `seed`.
 */
-// export function generateP256KeyPairFromSeed
 export function generateP256KeyPairFromSeed(seed: Uint8Array): { secretKey: Uint8Array; publicKey: Uint8Array } {
   if (seed.length !== 32) {
     throw new Error(`p256: seed must be ${32} bytes`)
@@ -270,10 +269,8 @@ export function genX25519EphemeralKeyPair(): EphemeralKeyPair {
 /*
  * Generate key pair object used by createEncrypter.ts for secp256r1, see RFC7517
  */
-
-// export function genP256EphemeralKeyPair
 export function genP256EphemeralKeyPair(): EphemeralKeyPair {
-  const epk = generateKeyPair()
+  const epk = generateP256KeyPair()
   return {
     publicKeyJWK: { kty: 'EC', crv: 'P-256', x: bytesToBase64url(epk.publicKey) },
     secretKey: epk.secretKey,

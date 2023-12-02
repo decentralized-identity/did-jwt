@@ -1,6 +1,6 @@
 import { DIDResolutionResult, Resolvable } from 'did-resolver'
-import { resolveP256Encrypters, p256Decrypter } from '../encryption/a256gcmEncryption.js'
-import { resolveP256DirEncrypters, p256DirDecrypter } from '../encryption/a256gcmEncryption.js'
+import { resolveP256a256gcmEncrypters, p256a256gcmDecrypter } from '../encryption/a256gcmEncryption.js'
+import { resolveP256a256gcmDirEncrypters, p256DirA256gcmDecrypter } from '../encryption/a256gcmEncryption.js'
 import { createJWE, decryptJWE } from '../encryption/JWE.js'
 import type { Decrypter } from '../encryption/types.js'
 import { createP256ECDH } from '../encryption/ECDH.js'
@@ -15,8 +15,9 @@ import { JWE, Encrypter } from '../encryption/types.js'
 
 import { jest } from '@jest/globals'
 
+// adapted from xc20pEncrpytion.test.ts
 describe('a256gcmEncryption', () => {
-  describe('resolveP256Encrypters', () => {
+  describe('resolveP256a256gcmEncrypters', () => {
     const did1 = 'did:test:1'
     const did2 = 'did:test:2'
     const did3 = 'did:test:3'
@@ -44,11 +45,11 @@ describe('a256gcmEncryption', () => {
     beforeEach(() => {
       const kp1 = generateP256KeyPair()
       const kp2 = generateP256KeyPair()
-      decrypter1 = p256Decrypter(kp1.secretKey)
-      decrypter2 = p256Decrypter(kp2.secretKey)
+      decrypter1 = p256a256gcmDecrypter(kp1.secretKey)
+      decrypter2 = p256a256gcmDecrypter(kp2.secretKey)
 
-      decrypter1remote = p256Decrypter(createP256ECDH(kp1.secretKey))
-      decrypter2remote = p256Decrypter(createP256ECDH(kp2.secretKey))
+      decrypter1remote = p256a256gcmDecrypter(createP256ECDH(kp1.secretKey))
+      decrypter2remote = p256a256gcmDecrypter(createP256ECDH(kp2.secretKey))
 
       didDocumentResult1 = {
         didDocument: {
@@ -189,7 +190,7 @@ describe('a256gcmEncryption', () => {
 
     it('correctly resolves encrypters for DIDs', async () => {
       expect.assertions(6)
-      const encrypters = await resolveP256Encrypters([did1, did2], resolver)
+      const encrypters = await resolveP256a256gcmEncrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -202,13 +203,13 @@ describe('a256gcmEncryption', () => {
 
     it('throws error if key is not found', async () => {
       expect.assertions(3)
-      await expect(resolveP256Encrypters([did3], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmEncrypters([did3], resolver)).rejects.toThrowError(
         'resolver_error: Could not resolve did:test:3'
       )
-      await expect(resolveP256Encrypters([did4], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmEncrypters([did4], resolver)).rejects.toThrowError(
         'no_suitable_keys: Could not find p256 key for did:test:4'
       )
-      await expect(resolveP256Encrypters([did7], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmEncrypters([did7], resolver)).rejects.toThrowError(
         'no_suitable_keys: Could not find p256 key for did:test:7'
       )
     })
@@ -219,10 +220,10 @@ describe('a256gcmEncryption', () => {
       const secondKp1 = generateP256KeyPair()
       const secondKp2 = generateP256KeyPair()
 
-      const newDecrypter1 = p256Decrypter(secondKp1.secretKey)
-      const newDecrypter2 = p256Decrypter(secondKp2.secretKey)
-      const newDecrypter1remote = p256Decrypter(createP256ECDH(secondKp1.secretKey))
-      const newDecrypter2remote = p256Decrypter(createP256ECDH(secondKp2.secretKey))
+      const newDecrypter1 = p256a256gcmDecrypter(secondKp1.secretKey)
+      const newDecrypter2 = p256a256gcmDecrypter(secondKp2.secretKey)
+      const newDecrypter1remote = p256a256gcmDecrypter(createP256ECDH(secondKp1.secretKey))
+      const newDecrypter2remote = p256a256gcmDecrypter(createP256ECDH(secondKp2.secretKey))
 
       didDocumentResult1.didDocument?.verificationMethod?.push({
         id: did1 + '#def',
@@ -239,7 +240,7 @@ describe('a256gcmEncryption', () => {
         publicKeyBase58: bytesToBase58(secondKp2.publicKey),
       })
 
-      const encrypters = await resolveP256Encrypters([did1, did2], resolver)
+      const encrypters = await resolveP256a256gcmEncrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
 
@@ -255,7 +256,7 @@ describe('a256gcmEncryption', () => {
 
     it('resolves encrypters for DIDs where only controllers have valid key exchange keys', async () => {
       expect.assertions(3)
-      const encrypters = await resolveP256Encrypters([did5], resolver)
+      const encrypters = await resolveP256a256gcmEncrypters([did5], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -265,7 +266,7 @@ describe('a256gcmEncryption', () => {
 
     it("resolved encrypters for DIDs where controller's controller has valid key exchange keys", async () => {
       expect.assertions(3)
-      const encrypters = await resolveP256Encrypters([did6], resolver)
+      const encrypters = await resolveP256a256gcmEncrypters([did6], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -275,7 +276,7 @@ describe('a256gcmEncryption', () => {
 
     it('does not enter an infinite loop when DIDs controllers refer each other', async () => {
       expect.assertions(4)
-      const encrypters = await resolveP256Encrypters([did9], resolver)
+      const encrypters = await resolveP256a256gcmEncrypters([did9], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did2 + '#abc')
@@ -285,7 +286,7 @@ describe('a256gcmEncryption', () => {
     })
   })
 
-  describe('resolveP256DirEncrypters', () => {
+  describe('resolveP256a256gcmDirEncrypters', () => {
     const did1 = 'did:test:1'
     const did2 = 'did:test:2'
     const did3 = 'did:test:3'
@@ -313,11 +314,11 @@ describe('a256gcmEncryption', () => {
     beforeEach(() => {
       const kp1 = generateP256KeyPair()
       const kp2 = generateP256KeyPair()
-      decrypter1 = p256DirDecrypter(kp1.secretKey)
-      decrypter2 = p256DirDecrypter(kp2.secretKey)
+      decrypter1 = p256DirA256gcmDecrypter(kp1.secretKey)
+      decrypter2 = p256DirA256gcmDecrypter(kp2.secretKey)
 
-      decrypter1remote = p256DirDecrypter(createP256ECDH(kp1.secretKey))
-      decrypter2remote = p256DirDecrypter(createP256ECDH(kp2.secretKey))
+      decrypter1remote = p256DirA256gcmDecrypter(createP256ECDH(kp1.secretKey))
+      decrypter2remote = p256DirA256gcmDecrypter(createP256ECDH(kp2.secretKey))
 
       didDocumentResult1 = {
         didDocument: {
@@ -458,7 +459,7 @@ describe('a256gcmEncryption', () => {
 
     it('correctly resolves encrypters for DIDs', async () => {
       expect.assertions(6)
-      const encrypters = await resolveP256DirEncrypters([did1, did2], resolver)
+      const encrypters = await resolveP256a256gcmDirEncrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -471,13 +472,13 @@ describe('a256gcmEncryption', () => {
 
     it('throws error if key is not found', async () => {
       expect.assertions(3)
-      await expect(resolveP256DirEncrypters([did3], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmDirEncrypters([did3], resolver)).rejects.toThrowError(
         'resolver_error: Could not resolve did:test:3'
       )
-      await expect(resolveP256DirEncrypters([did4], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmDirEncrypters([did4], resolver)).rejects.toThrowError(
         'no_suitable_keys: Could not find p256 key for did:test:4'
       )
-      await expect(resolveP256DirEncrypters([did7], resolver)).rejects.toThrowError(
+      await expect(resolveP256a256gcmDirEncrypters([did7], resolver)).rejects.toThrowError(
         'no_suitable_keys: Could not find p256 key for did:test:7'
       )
     })
@@ -488,10 +489,10 @@ describe('a256gcmEncryption', () => {
       const secondKp1 = generateP256KeyPair()
       const secondKp2 = generateP256KeyPair()
 
-      const newDecrypter1 = p256DirDecrypter(secondKp1.secretKey)
-      const newDecrypter2 = p256DirDecrypter(secondKp2.secretKey)
-      const newDecrypter1remote = p256DirDecrypter(createP256ECDH(secondKp1.secretKey))
-      const newDecrypter2remote = p256DirDecrypter(createP256ECDH(secondKp2.secretKey))
+      const newDecrypter1 = p256DirA256gcmDecrypter(secondKp1.secretKey)
+      const newDecrypter2 = p256DirA256gcmDecrypter(secondKp2.secretKey)
+      const newDecrypter1remote = p256DirA256gcmDecrypter(createP256ECDH(secondKp1.secretKey))
+      const newDecrypter2remote = p256DirA256gcmDecrypter(createP256ECDH(secondKp2.secretKey))
 
       didDocumentResult1.didDocument?.verificationMethod?.push({
         id: did1 + '#def',
@@ -508,7 +509,7 @@ describe('a256gcmEncryption', () => {
         publicKeyBase58: bytesToBase58(secondKp2.publicKey),
       })
 
-      const encrypters = await resolveP256DirEncrypters([did1, did2], resolver)
+      const encrypters = await resolveP256a256gcmDirEncrypters([did1, did2], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
 
@@ -524,7 +525,7 @@ describe('a256gcmEncryption', () => {
 
     it('resolves encrypters for DIDs where only controllers have valid key exchange keys', async () => {
       expect.assertions(3)
-      const encrypters = await resolveP256DirEncrypters([did5], resolver)
+      const encrypters = await resolveP256a256gcmDirEncrypters([did5], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -534,7 +535,7 @@ describe('a256gcmEncryption', () => {
 
     it("resolved encrypters for DIDs where controller's controller has valid key exchange keys", async () => {
       expect.assertions(3)
-      const encrypters = await resolveP256DirEncrypters([did6], resolver)
+      const encrypters = await resolveP256a256gcmDirEncrypters([did6], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did1 + '#abc')
@@ -544,7 +545,7 @@ describe('a256gcmEncryption', () => {
 
     it('does not enter an infinite loop when DIDs controllers refer each other', async () => {
       expect.assertions(4)
-      const encrypters = await resolveP256DirEncrypters([did9], resolver)
+      const encrypters = await resolveP256a256gcmDirEncrypters([did9], resolver)
       const cleartext = randomBytes(8)
       const jwe = await createJWE(cleartext, encrypters)
       expect(jwe.recipients!![0].header.kid).toEqual(did2 + '#abc')
@@ -563,18 +564,13 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     let cleartext: Uint8Array, recipientKey: any, senderKey: any, decrypter: Decrypter
 
     beforeEach(() => {
-      //recipientKey = generateX25519KeyPairFromSeed(randomBytes(32))
       recipientKey = generateP256KeyPair()
-      // senderKey = generateX25519KeyPairFromSeed(randomBytes(32)
       senderKey = generateP256KeyPair()
-      //cleartext = u8a.fromString('my secret message')
       cleartext = fromString('my secret message')
-      //decrypter = a256gcmAnonDecrypterX25519WithA256KW(recipientKey.secretKey)
       decrypter = a256gcmAnonDecrypterEcdhESp256WithA256KW(recipientKey.secretKey)
     })
 
     it('Creates with only ciphertext', async () => {
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey)
       expect.assertions(3)
       const jwe = await createJWE(cleartext, [encrypter])
@@ -585,7 +581,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
 
     it('Creates with kid, no apu and no apv', async () => {
       const kid = 'did:example:receiver#key-1'
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey, kid)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey, {kid: kid})
       expect.assertions(6)
       const jwe = await createJWE(cleartext, [encrypter])
@@ -599,7 +594,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
 
     it('Creates with no kid, with apv', async () => {
       const apv = encodeBase64url('Bob')
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey, undefined, apv)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey, {kid: undefined, apv: apv})
       expect.assertions(5)
       const jwe = await createJWE(cleartext, [encrypter])
@@ -613,7 +607,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     it('Creates with kid and apv', async () => {
       const kid = 'did:example:receiver#key-1'
       const apv = encodeBase64url('Bob')
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey, kid, apv)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey, {kid: kid, apv: apv})
       expect.assertions(5)
       const jwe = await createJWE(cleartext, [encrypter])
@@ -625,7 +618,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     })
 
     it('Creates with data in protected header', async () => {
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey)
       const skid = 'did:example:sender#key-1'
       expect.assertions(3)
@@ -636,13 +628,10 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     })
 
     it('Creates with aad', async () => {
-      //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(recipientKey.publicKey)
       const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey)
       expect.assertions(4)
-      //const aad = u8a.fromString('this data is authenticated')
       const aad = fromString('this data is authenticated')
       const jwe = await createJWE(cleartext, [encrypter], { more: 'protected' }, aad)
-      //expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
       expect(fromString(jwe.aad!!, 'base64url')).toEqual(aad)
       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'A256GCM', more: 'protected' })
       expect(await decryptJWE(jwe, decrypter)).toEqual(cleartext)
@@ -652,20 +641,14 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
 
     describe('using remote ECDH', () => {
       const message = 'hello world'
-      //const receiverPair = generateX25519KeyPairFromSeed(randomBytes(32))
       const receiverPair = generateP256KeyPair()
-      //const receiverRemoteECDH = createX25519ECDH(receiverPair.secretKey)
       const receiverRemoteECDH = createP256ECDH(receiverPair.secretKey)
 
       it('creates JWE with remote ECDH', async () => {
-        //const encrypter = a256gcmAnonEncrypterX25519WithA256KW(receiverPair.publicKey)
         const encrypter = a256gcmAnonEncrypterP256WithA256KW(receiverPair.publicKey)
-        //const jwe: JWE = await createJWE(u8a.fromString(message), [encrypter])
         const jwe: JWE = await createJWE(fromString(message), [encrypter])
-        //const decrypter = a256gcmAnonDecrypterX25519WithA256KW(receiverRemoteECDH)
         const decrypter = a256gcmAnonDecrypterEcdhESp256WithA256KW(receiverRemoteECDH)
         const decryptedBytes = await decryptJWE(jwe, decrypter)
-        //const receivedMessage = u8a.toString(decryptedBytes)
         const receivedMessage = toString(decryptedBytes)
         expect(receivedMessage).toEqual(message)
       })
@@ -677,38 +660,26 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     const recipients: any[] = []
 
     beforeEach(() => {
-      //senderkey = generateX25519KeyPairFromSeed(randomBytes(32))
       senderkey = generateP256KeyPair()
-      //cleartext = u8a.fromString('my secret message')
       cleartext = fromString('my secret message')
 
       recipients[0] = {
         kid: 'did:example:receiver1#key-1',
-        //recipientkey: generateX25519KeyPairFromSeed(randomBytes(32)),
         recipientkey: generateP256KeyPair(),
       }
       recipients[0] = {
         ...recipients[0],
         ...{
-          // const encrypter = a256gcmAnonEncrypterP256WithA256KW(receiverPair.publicKey)
-          // const encrypter = a256gcmAnonEncrypterP256WithA256KW(recipientKey.publicKey, {kid: kid, apv: apv})
           encrypter: a256gcmAnonEncrypterP256WithA256KW(
             recipients[0].recipientkey.publicKey,
             recipients[0].kid,
           ),
-          /*
-          encrypter: a256gcmAnonEncrypterX25519WithA256KW(
-            recipients[0].recipientkey.publicKey,
-            recipients[0].kid,
-          ), */
           decrypter: a256gcmAnonDecrypterEcdhESp256WithA256KW(recipients[0].recipientkey.secretKey),
-          //decrypter: a256gcmAnonDecrypterX25519WithA256KW(recipients[0].recipientkey.secretKey),
         },
       }
 
       recipients[1] = {
         kid: 'did:example:receiver2#key-1',
-        //recipientkey: generateX25519KeyPairFromSeed(randomBytes(32)),
         recipientkey: generateP256KeyPair(),
       }
       recipients[1] = {
@@ -718,12 +689,7 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
             recipients[1].recipientkey.publicKey,
             recipients[1].kid,
           ),
-         /* encrypter: a256gcmAnonEncrypterX25519WithA256KW(
-            recipients[1].recipientkey.publicKey,
-            recipients[1].kid,
-          ), */
           decrypter: a256gcmAnonDecrypterEcdhESp256WithA256KW(recipients[1].recipientkey.secretKey),
-          //decrypter: a256gcmAnonDecrypterX25519WithA256KW(recipients[1].recipientkey.secretKey),
         },
       }
     })
@@ -731,20 +697,8 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
     it('Creates with only ciphertext', async () => {
       expect.assertions(4)
       const jwe = await createJWE(cleartext, [recipients[0].encrypter, recipients[1].encrypter])
-      /* console.log(jwe)
-      console.log(jwe.aad)
-      console.log(decodeBase64url(jwe.protected))
-      console.log(decodeBase64url(jwe.protected))
-      console.log(JSON.parse(decodeBase64url(jwe.protected)).enc)
-      console.log(recipients[0].decrypter);
-      console.log(recipients[0]);
-      console.log(recipients[0].kid);
-      console.log(recipients[0].encrypter);
-      console.log(recipients[0].decrypter); */
-      //recipients
       expect(jwe.aad).toBeUndefined()
       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'A256GCM' })
-      //expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({enc:'A256GCM'})
       expect(await decryptJWE(jwe, recipients[0].decrypter)).toEqual(cleartext)
       expect(await decryptJWE(jwe, recipients[1].decrypter)).toEqual(cleartext)
     })
@@ -764,7 +718,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
 
     it('Creates with aad', async () => {
       expect.assertions(6)
-      //const aad = u8a.fromString('this data is authenticated')
       const aad = fromString('this data is authenticated')
       const jwe = await createJWE(
         cleartext,
@@ -772,7 +725,6 @@ describe('ECDH-ES+A256KW (P-256), Key Wrapping Mode with A256GCM content encrypt
         { more: 'protected' },
         aad,
       )
-      //expect(u8a.fromString(jwe.aad!!, 'base64url')).toEqual(aad)
       expect(fromString(jwe.aad!!, 'base64url')).toEqual(aad)
       expect(JSON.parse(decodeBase64url(jwe.protected))).toEqual({ enc: 'A256GCM', more: 'protected' })
       expect(await decryptJWE(jwe, recipients[0].decrypter)).toEqual(cleartext)

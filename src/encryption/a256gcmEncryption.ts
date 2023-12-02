@@ -19,8 +19,6 @@ import { createFullEncrypter } from './createEncrypter.js'
 import {a256KeyWrapper, a256KeyUnwrapper } from './a256kw.js'
 import { a256gcmDirDecrypter, a256gcmDirEncrypter } from './a256gcm-dir.js'
 
-// I need to change the comments in this file
-
 export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
   if (!(header && header.epk && header.iv && header.tag)) {
     throw new Error('bad_jwe: malformed header')
@@ -28,13 +26,12 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
   return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
 }
 
-// which one of the below do I need to select? (start here...)
 /**
- *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
- *  sender private key to encrypt the data).
+ *  In general the following resources are useful:
  *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
  *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
  *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
+ * NIST SP 800-38[A-G] for asking what is AES, AES-GCM, Key Wrapping,...
  * Recommendation for Block Cipher Modes of Operation: Methods and Techniques https://csrc.nist.gov/pubs/sp/800/38/a/final
  * Recommendation for Block Cipher Modes of Operation: the CMAC Mode for Authentication https://csrc.nist.gov/pubs/sp/800/38/b/upd1/final
  * Recommendation for Block Cipher Modes of Operation: the CCM Mode for Authentication and Confidentiality https://csrc.nist.gov/pubs/sp/800/38/c/upd1/final
@@ -46,19 +43,23 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
  *  {@link https://www.rfc-editor.org/rfc/rfc7516 | JWE } and
  *  {@link https://www.rfc-editor.org/rfc/rfc7518 | JWA } and
  *  {@link https://www.rfc-editor.org/rfc/rfc7520 |  Examples of Protecting Content Using JSON Object Signing and Encryption (JOSE) }
- *  
- *
+ *  Real-World Cryptography by David Wong for those who get lost in the previous https://www.manning.com/books/real-world-cryptography
+ */
+
+ /**
+ *  Encrypter for authenticated encryption (i.e. sender authentication and requires
+ *  sender private key to encrypt the data).
  *  @param recipientPublicKey - the byte array representing the recipient public key
  *  @param senderSecret - either a Uint8Array representing the sender secret key or
  *    an ECDH function that wraps the key and can promise a shared secret given a public key
  *  @param options - {@link AuthEncryptParams} used to specify extra header parameters
  *
  *  @returns an {@link Encrypter} instance usable with {@link createJWE}
+ * 
+ * Implements ECDH-ES+A256KW with A256GCM
  *
- *
- * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
  */
-export function a256gcmAuthEncrypterEcdhP256WithA256kw(
+export function a256gcmAuthEncrypterEcdhP256WithA256KW(
   recipientPublicKey: Uint8Array,
   senderSecret: Uint8Array | ECDH,
   options: Partial<AuthEncryptParams> = {}
@@ -87,19 +88,12 @@ export function a256gcmAnonEncrypterP256WithA256KW(
   )
 }
 
-
-
-/**
- * @deprecated Use {@link xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2() }
- *   instead
- */
-export function p256Encrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
+export function p256a256gcmEncrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
   return a256gcmAnonEncrypterP256WithA256KW(publicKey, { kid, apv })
 }
 
-// I am not sure how to write this code...
-export async function resolveP256Encrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
-//export async function resolveP256Encrypters(dids: string[], resolver: Resolvable, senderSecret: Uint8Array | ECDH, options: Partial<AuthEncryptParams> = {}): Promise<Encrypter[]> {
+// I am not sure how to write this code... & it would be nice if it also included dir encrypters from resolveP256a256gcmDirEncrypters
+export async function resolveP256a256gcmEncrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
   const encryptersForDID = async (did: string, resolved: string[] = []): Promise<Encrypter[]> => {
     const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
     resolved.push(did)
@@ -139,7 +133,7 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
       }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
-    return pks.map((pk) => p256Encrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
+    return pks.map((pk) => p256a256gcmEncrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
   }
 
   const encrypterPromises = dids.map((did) => encryptersForDID(did))
@@ -148,26 +142,18 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
 }
 
 /**
- *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
+ *  Encrypter for authenticated encryption (i.e. sender authentication and requires
  *  sender private key to encrypt the data).
- *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
- *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
- *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
- *  {@link | NIST SP 800-38[A-G] | includes GCM } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7517 | JWK } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7516 | JWE } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7518 | JWA } 
- *  
- *
+ * 
  * @param recipientSecret - either a Uint8Array representing the recipient secret key or
  *   an ECDH function that wraps the key and can promise a shared secret given a public key
  * @param senderPublicKey - the byte array representing the sender public key
  *
  * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
  *
- * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
+ * Implements ECDH-ES+A256KW with A256GCM
  */
-export function a256gcmAuthDecrypterEcdhP256WithA256kw(
+export function a256gcmAuthDecrypterEcdhP256WithA256KW(
   recipientSecret: Uint8Array | ECDH,
   senderPublicKey: Uint8Array
 ): Decrypter {
@@ -221,17 +207,12 @@ export function a256gcmAnonDecrypterEcdhESp256WithA256KW(receiverSecret: Uint8Ar
   return { alg, enc, decrypt }
 }
 
-/**
- * @deprecated Use {@link xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2() }
- *   instead
- */
-export function p256Decrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
+
+export function p256a256gcmDecrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
   return a256gcmAnonDecrypterEcdhESp256WithA256KW(receiverSecret)
 }
 
-/// modifiy to DIR
-
-export function a256gcmAuthDirEncrypterEcdhP256WithA256kw(
+export function a256gcmAuthDirEncrypterEcdhP256WithA256KW(
   recipientPublicKey: Uint8Array,
   senderSecret: Uint8Array | ECDH,
   options: Partial<AuthEncryptParams> = {}
@@ -261,25 +242,18 @@ export function a256gcmAnonDirEncrypterP256WithA256KW(
 }
 
 /**
- *  Recommended encrypter for authenticated encryption (i.e. sender authentication and requires
+ *  Encrypter for authenticated encryption (i.e. sender authentication and requires
  *  sender private key to encrypt the data).
- *  {@link hhttps://www.rfc-editor.org/rfc/rfc6090| ECDH } and
- *  {@link https://www.rfc-editor.org/rfc/rfc3394 | AES } and
- *  {@link https://www.rfc-editor.org/rfc/rfc5649 | AES with padding } and
- *  {@link | NIST SP 800-38[A-G] | includes GCM } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7517 | JWK } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7516 | JWE } and
- *  {@link https://www.rfc-editor.org/rfc/rfc7518 | JWA } 
- *  
+ * 
  * @param recipientSecret - either a Uint8Array representing the recipient secret key or
  *   an ECDH function that wraps the key and can promise a shared secret given a public key
  * @param senderPublicKey - the byte array representing the sender public key
  *
  * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
  *
- * Implements ECDH-ES+A256KW with A256GCM based on the following specs:
+ * Implements ECDH-ES+A256KW with A256GCM.
  */
-export function a256gcmAuthDirDecrypterEcdhP256WithA256kw(
+export function a256gcmAuthDirDecrypterEcdhP256WithA256KW(
   recipientSecret: Uint8Array | ECDH,
   senderPublicKey: Uint8Array
 ): Decrypter {
@@ -299,7 +273,7 @@ export function a256gcmAuthDirDecrypterEcdhP256WithA256kw(
     if (!kek) return null
     const unwrapper = a256KeyUnwrapper(kek)
     const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) 
-   // const cek = base64ToBytes(recipient.encrypted_key) // It doesn't matter if I use this or the two lines above? If it is dir enc, it should?
+   
     if (cek === null) return null
 
     return a256gcmDirDecrypter(cek).decrypt(sealed, iv, aad)
@@ -323,8 +297,8 @@ export function a256gcmAnonDirDecrypterEcdhESp256WithA256KW(receiverSecret: Uint
     const kek = await computeP256EcdhEsKek(recipient, receiverSecret, alg)
     if (kek === null) return null
     const unwrapper = a256KeyUnwrapper(kek)
-    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) // for some reason I have to use this even though dir does not use wrapping?
-    //const cek = base64ToBytes(recipient.encrypted_key)
+    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) 
+
     if (cek === null) return null
 
     return a256gcmDirDecrypter(cek).decrypt(sealed, iv, aad)
@@ -333,24 +307,17 @@ export function a256gcmAnonDirDecrypterEcdhESp256WithA256KW(receiverSecret: Uint
   return { alg, enc, decrypt }
 }
 
-/**
- * @deprecated Use {@link xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2() }
- *   instead
- */
-export function p256DirDecrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
+
+export function p256DirA256gcmDecrypter(receiverSecret: Uint8Array | ECDH): Decrypter {
   return a256gcmAnonDirDecrypterEcdhESp256WithA256KW(receiverSecret)
 }
 
-/**
- * @deprecated Use {@link xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2 | xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2() }
- *   instead
- */
-export function p256DirEncrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
+
+export function p256DirA256GCMEncrypter(publicKey: Uint8Array, kid?: string, apv?: string): Encrypter {
   return a256gcmAnonDirEncrypterP256WithA256KW(publicKey, { kid, apv })
 }
 
-export async function resolveP256DirEncrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
-//export async function resolveP256DirEncrypters(dids: string[], resolver: Resolvable, senderSecret: Uint8Array | ECDH, options: Partial<AuthEncryptParams> = {}): Promise<Encrypter[]> {
+export async function resolveP256a256gcmDirEncrypters(dids: string[], resolver: Resolvable): Promise<Encrypter[]> {
   const encryptersForDID = async (did: string, resolved: string[] = []): Promise<Encrypter[]> => {
     const { didResolutionMetadata, didDocument } = await resolver.resolve(did)
     resolved.push(did)
@@ -390,7 +357,7 @@ export async function resolveP256DirEncrypters(dids: string[], resolver: Resolva
       }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
-    return pks.map((pk) => p256DirEncrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
+    return pks.map((pk) => p256DirA256GCMEncrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
   }
 
   const encrypterPromises = dids.map((did) => encryptersForDID(did))
