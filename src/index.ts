@@ -21,11 +21,16 @@ export { toEthereumAddress, concatKDF } from './Digest.js'
 
 export { createJWE, decryptJWE } from './encryption/JWE.js'
 export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
+export { a256gcmDirEncrypter, a256gcmDirDecrypter } from './encryption/a256gcm-dir.js'
+export { a256gcmEncrypter, a256gcmDecrypter } from './encryption/a256gcm.js'
+export { a256KeyWrapper, a256KeyUnwrapper } from './encryption/a256kw.js'
 export * from './encryption/types.js'
 export * from './encryption/X25519-ECDH-ES.js'
 export * from './encryption/X25519-ECDH-1PU.js'
+export * from './encryption/P256-ECDH-ES.js'
+export * from './encryption/P256-ECDH-1PU.js'
 
-export { createX25519ECDH } from './encryption/ECDH.js'
+export { createX25519ECDH, createP256ECDH } from './encryption/ECDH.js'
 export {
   x25519Encrypter,
   x25519Decrypter,
@@ -44,6 +49,23 @@ export {
   xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3p256WithXc20PkwV2,
 } from './encryption/xc20pEncryption.js'
+
+export {
+  a256gcmAuthEncrypterEcdhP256WithA256KW, 
+  a256gcmAnonEncrypterP256WithA256KW, 
+  p256a256gcmEncrypter, 
+  resolveP256a256gcmEncrypters, 
+  a256gcmAuthDecrypterEcdhP256WithA256KW, 
+  a256gcmAnonDecrypterEcdhESp256WithA256KW, 
+  p256a256gcmDecrypter,
+  a256gcmAuthDirEncrypterEcdhP256WithA256KW,
+  a256gcmAnonDirEncrypterP256WithA256KW,
+  a256gcmAuthDirDecrypterEcdhP256WithA256KW,
+  a256gcmAnonDirDecrypterEcdhESp256WithA256KW,
+  p256DirA256gcmDecrypter,
+  p256DirA256GCMEncrypter,
+  resolveP256a256gcmDirEncrypters
+} from './encryption/a256gcmEncryption.js'
 
 export { createFullEncrypter } from './encryption/createEncrypter.js'
 
@@ -79,6 +101,8 @@ export {
   multibaseToBytes,
   bytesToMultibase,
   supportedCodecs,
+  generateP256KeyPairFromSeed,
+  genP256EphemeralKeyPair
 } from './util.js'
 
 export { extractPublicKeyBytes } from './VerifierAlgorithm.js'

@@ -19,6 +19,16 @@ import { computeP256EcdhEsKek, createP256EcdhEsKek } from './P256-ECDH-ES.js'
 import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 import { createFullEncrypter } from './createEncrypter.js'
 
+// Add
+/*
+*  xc20pAnonEncrypterEcdhESp256WithXc20PkwV2 | xc20pAnonEncrypterEcdhESp256WithXc20PkwV2()
+*  xc20pAnonDecrypterEcdhESp256WithXc20PkwV2 | xc20pAnonDecrypterEcdhESp256WithXc20PkwV2()
+*  
+*  xc20pAuthEncrypterEcdh1PuV3p256WithXc20PkwV2 | xc20pAuthEncrypterEcdh1PuV3p256WithXc20PkwV2()
+*  xc20pAuthDecrypterEcdh1PuV3p256WithXc20PkwV2 | xc20pAuthDecrypterEcdh1PuV3p256WithXc20PkwV2()
+*
+*/
+
 /**
  * @deprecated Use
  *   {@link xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2 | xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2() } instead
