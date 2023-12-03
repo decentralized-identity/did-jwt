@@ -68,7 +68,8 @@ export function a256gcmAuthEncrypterEcdhP256WithA256KW(
     recipientPublicKey,
     senderSecret,
     options,
-    { createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
+    //{ createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
+    { createKek: createP256EcdhEsKek, alg: 'ECDH-ES' },
     a256KeyWrapper,
     { from: (cek: Uint8Array) => a256gcmEncrypter(cek), enc: 'A256GCM' }
   )
@@ -168,7 +169,8 @@ export function a256gcmAuthDecrypterEcdhP256WithA256KW(
   ): Promise<Uint8Array | null> {
     recipient = <Recipient>recipient
 
-    const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
+    //const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
+    const kek = await computeP256EcdhEsKek(recipient, recipientSecret, alg)
 
     if (!kek) return null
     // Content Encryption Key
@@ -221,7 +223,8 @@ export function a256gcmAuthDirEncrypterEcdhP256WithA256KW(
     recipientPublicKey,
     senderSecret,
     options,
-    { createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
+    //{ createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
+    { createKek: createP256EcdhEsKek, alg: 'ECDH-ES' },
     a256KeyWrapper,
     { from: (cek: Uint8Array) => a256gcmDirEncrypter(cek), enc: 'A256GCM' }
   )
@@ -268,7 +271,8 @@ export function a256gcmAuthDirDecrypterEcdhP256WithA256KW(
   ): Promise<Uint8Array | null> {
     recipient = <Recipient>recipient
  
-    const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
+    //const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
+    const kek = await computeP256EcdhEsKek(recipient, recipientSecret, alg)
 
     if (!kek) return null
     const unwrapper = a256KeyUnwrapper(kek)
