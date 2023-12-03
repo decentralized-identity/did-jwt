@@ -321,7 +321,7 @@ describe('xc20pEncryption', () => {
           verificationMethod: [
             {
               id: did1 + '#abc',
-              type: 'P256KeyAgreementKey2019',
+              type: 'P256KeyAgreementKey2023',
               controller: did1,
               publicKeyBase58: bytesToBase58(kp1.publicKey),
             },
@@ -341,7 +341,7 @@ describe('xc20pEncryption', () => {
           keyAgreement: [
             {
               id: did2 + '#abc',
-              type: 'P256KeyAgreementKey2019',
+              type: 'P256KeyAgreementKey2023',
               controller: did2,
               publicKeyBase58: bytesToBase58(kp2.publicKey),
             },
@@ -492,7 +492,7 @@ describe('xc20pEncryption', () => {
 
       didDocumentResult1.didDocument?.verificationMethod?.push({
         id: did1 + '#def',
-        type: 'P256KeyAgreementKey2019',
+        type: 'P256KeyAgreementKey2023',
         controller: did1,
         publicKeyBase58: bytesToBase58(secondKp1.publicKey),
       })
@@ -500,7 +500,7 @@ describe('xc20pEncryption', () => {
 
       didDocumentResult2.didDocument?.keyAgreement?.push({
         id: did2 + '#def',
-        type: 'P256KeyAgreementKey2019',
+        type: 'P256KeyAgreementKey2023',
         controller: did2,
         publicKeyBase58: bytesToBase58(secondKp2.publicKey),
       })

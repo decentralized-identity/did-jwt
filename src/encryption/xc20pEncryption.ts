@@ -483,7 +483,7 @@ export async function resolveP256Encrypters(dids: string[], resolver: Resolvable
       ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
     const pks =
       agreementKeys?.filter((key) => {
-        return key.type === 'P256KeyAgreementKey2019' || key.type === 'P256KeyAgreementKey2020'
+        return key.type === 'P256KeyAgreementKey2023' || key.type === 'P256KeyAgreementKey2023'
       }) || []
     if (!pks.length && !controllerEncrypters.length)
       throw new Error(`no_suitable_keys: Could not find p256 key for ${did}`)
