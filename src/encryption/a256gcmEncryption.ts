@@ -13,7 +13,6 @@ import type {
 import { base64ToBytes } from '../util.js'
 import { a256gcmDecrypter, a256gcmEncrypter } from './a256gcm.js'  // change 1st two
 import { computeP256EcdhEsKek, createP256EcdhEsKek } from './P256-ECDH-ES.js' // change
-import { computeP256Ecdh1PUv3Kek, createP256Ecdh1PUv3Kek } from './P256-ECDH-1PU.js'
 import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 import { createFullEncrypter } from './createEncrypter.js'
 import {a256KeyWrapper, a256KeyUnwrapper } from './a256kw.js'
