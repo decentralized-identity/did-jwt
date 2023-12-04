@@ -58,7 +58,7 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
  * Implements ECDH-ES+A256KW with A256GCM
  *
  */
-export function a256gcmAuthEncrypterEcdhP256WithA256KW(
+export function a256gcmAuthEncrypterEcdhESp256WithA256KW(
   recipientPublicKey: Uint8Array,
   senderSecret: Uint8Array | ECDH,
   options: Partial<AuthEncryptParams> = {}
