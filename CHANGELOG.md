@@ -1,3 +1,10 @@
+## [7.4.7](https://github.com/decentralized-identity/did-jwt/compare/7.4.6...7.4.7) (2023-12-13)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @scure/base to v1.1.5 ([c544994](https://github.com/decentralized-identity/did-jwt/commit/c544994a41726206f28be37ae3159c27f9c702a4))
+
 ## [7.4.6](https://github.com/decentralized-identity/did-jwt/compare/7.4.5...7.4.6) (2023-12-12)
 
 
