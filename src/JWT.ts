@@ -1,7 +1,7 @@
 import canonicalizeData from 'canonicalize'
 import { DIDDocument, DIDResolutionResult, parse, ParsedDID, Resolvable, VerificationMethod } from 'did-resolver'
 import SignerAlg from './SignerAlgorithm.js'
-import { decodeBase64url, EcdsaSignature, encodeBase64url } from './util.js'
+import { decodeBase64url, EcdsaSignature, encodeBase64url, KNOWN_JWA, SUPPORTED_PUBLIC_KEY_TYPES } from './util.js'
 import VerifierAlgorithm from './VerifierAlgorithm.js'
 import { JWT_ERROR } from './Errors.js'
 import { verifyProof } from './ConditionalAlgorithm.js'
@@ -141,79 +141,13 @@ export interface JWTVerified {
   policies?: JWTVerifyPolicies
 }
 
-export interface PublicKeyTypes {
-  [name: string]: string[]
-}
-
-export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
-  ES256: ['JsonWebKey2020'],
-  ES256K: [
-    'EcdsaSecp256k1VerificationKey2019',
-    /**
-     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
-     */
-    'EcdsaSecp256k1RecoveryMethod2020',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'Secp256k1VerificationKey2018',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'Secp256k1SignatureVerificationKey2018',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'EcdsaPublicKeySecp256k1',
-    /**
-     *  TODO - support R1 key as well
-     *   'ConditionalProof2022',
-     */
-    'JsonWebKey2020',
-  ],
-  'ES256K-R': [
-    'EcdsaSecp256k1VerificationKey2019',
-    /**
-     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
-     */
-    'EcdsaSecp256k1RecoveryMethod2020',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'Secp256k1VerificationKey2018',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'Secp256k1SignatureVerificationKey2018',
-    /**
-     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
-     *   not an ethereumAddress
-     */
-    'EcdsaPublicKeySecp256k1',
-    'ConditionalProof2022',
-    'JsonWebKey2020',
-  ],
-  Ed25519: [
-    'ED25519SignatureVerification',
-    'Ed25519VerificationKey2018',
-    'Ed25519VerificationKey2020',
-    'JsonWebKey2020',
-  ],
-  EdDSA: ['ED25519SignatureVerification', 'Ed25519VerificationKey2018', 'Ed25519VerificationKey2020', 'JsonWebKey2020'],
-}
-
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
 export const SELF_ISSUED_V2_VC_INTEROP = 'https://self-issued.me/v2/openid-vc' // https://identity.foundation/jwt-vc-presentation-profile/#id-token-validation
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
 
 type LegacyVerificationMethod = { publicKey?: string }
 
-const defaultAlg = 'ES256K'
+const defaultAlg: KNOWN_JWA = 'ES256K'
 const DID_JSON = 'application/did+json'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -347,8 +281,8 @@ export async function createJWT(
 }
 
 /**
- *  Creates a multi-signature signed JWT given multiple issuers and their corresponding signers, and a payload for which the signature is
- * over.
+ *  Creates a multi-signature signed JWT given multiple issuers and their corresponding signers, and a payload for
+ * which the signature is over.
  *
  *  @example
  *  const signer = ES256KSigner(process.env.PRIVATE_KEY)
@@ -388,7 +322,8 @@ export async function createMultisignatureJWT(
 
     // Create nested JWT
     // See Point 5 of https://www.rfc-editor.org/rfc/rfc7519#section-7.1
-    // After the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the payload
+    // After the first JWT is created (the first JWS), the next JWT is created by inputting the previous JWT as the
+    // payload
     if (i !== 0) {
       header.cty = 'JWT'
     }
@@ -646,7 +581,7 @@ export async function resolveAuthenticator(
   issuer: string,
   proofPurpose?: ProofPurposeTypes
 ): Promise<DIDAuthenticator> {
-  const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
+  const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg as KNOWN_JWA]
   if (!types || types.length === 0) {
     throw new Error(`${JWT_ERROR.NOT_SUPPORTED}: No supported signature types for algorithm ${alg}`)
   }

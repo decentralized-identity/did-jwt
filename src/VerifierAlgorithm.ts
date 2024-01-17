@@ -1,14 +1,12 @@
 import { sha256, toEthereumAddress } from './Digest.js'
 import type { VerificationMethod } from 'did-resolver'
 import {
-  base58ToBytes,
   base64ToBytes,
-  bytesToBigInt,
   bytesToHex,
   EcdsaSignature,
   ECDSASignature,
-  hexToBytes,
-  multibaseToBytes,
+  extractPublicKeyBytes,
+  KNOWN_JWA,
   stringToBytes,
 } from './util.js'
 import { verifyBlockchainAccountId } from './blockchains/index.js'
@@ -42,36 +40,6 @@ export function toSignatureObject2(signature: string, recoverable = false): ECDS
   }
 }
 
-export function extractPublicKeyBytes(pk: VerificationMethod): Uint8Array {
-  if (pk.publicKeyBase58) {
-    return base58ToBytes(pk.publicKeyBase58)
-  } else if (pk.publicKeyBase64) {
-    return base64ToBytes(pk.publicKeyBase64)
-  } else if (pk.publicKeyHex) {
-    return hexToBytes(pk.publicKeyHex)
-  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-    return secp256k1.ProjectivePoint.fromAffine({
-      x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
-      y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
-    }).toRawBytes(false)
-  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
-    return p256.ProjectivePoint.fromAffine({
-      x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
-      y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
-    }).toRawBytes(false)
-  } else if (
-    pk.publicKeyJwk &&
-    pk.publicKeyJwk.kty === 'OKP' &&
-    ['Ed25519', 'X25519'].includes(pk.publicKeyJwk.crv ?? '') &&
-    pk.publicKeyJwk.x
-  ) {
-    return base64ToBytes(pk.publicKeyJwk.x)
-  } else if (pk.publicKeyMultibase) {
-    return multibaseToBytes(pk.publicKeyMultibase)
-  }
-  return new Uint8Array()
-}
-
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash = sha256(data)
   const sig = p256.Signature.fromCompact(toSignatureObject2(signature).compact)
@@ -79,8 +47,8 @@ export function verifyES256(data: string, signature: string, authenticators: Ver
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
-      const pubBytes = extractPublicKeyBytes(pk)
-      return p256.verify(sig, hash, pubBytes)
+      const { keyBytes } = extractPublicKeyBytes(pk)
+      return p256.verify(sig, hash, keyBytes)
     } catch (err) {
       return false
     }
@@ -106,8 +74,8 @@ export function verifyES256K(
 
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
-      const pubBytes = extractPublicKeyBytes(pk)
-      return secp256k1.verify(signatureNormalized, hash, pubBytes)
+      const { keyBytes } = extractPublicKeyBytes(pk)
+      return secp256k1.verify(signatureNormalized, hash, keyBytes)
     } catch (err) {
       return false
     }
@@ -144,7 +112,8 @@ export function verifyRecoverableES256K(
     const recoveredCompressedPublicKeyHex = recoveredPublicKey.toHex(true)
 
     return authenticators.find((a: VerificationMethod) => {
-      const keyHex = bytesToHex(extractPublicKeyBytes(a))
+      const { keyBytes } = extractPublicKeyBytes(a)
+      const keyHex = bytesToHex(keyBytes)
       return (
         keyHex === recoveredPublicKeyHex ||
         keyHex === recoveredCompressedPublicKeyHex ||
@@ -172,7 +141,12 @@ export function verifyEd25519(
   const clear = stringToBytes(data)
   const signatureBytes = base64ToBytes(signature)
   const signer = authenticators.find((a: VerificationMethod) => {
-    return ed25519.verify(signatureBytes, clear, extractPublicKeyBytes(a))
+    const { keyBytes, keyType } = extractPublicKeyBytes(a)
+    if (keyType === 'Ed25519') {
+      return ed25519.verify(signatureBytes, clear, keyBytes)
+    } else {
+      return false
+    }
   })
   if (!signer) throw new Error('invalid_signature: Signature invalid for JWT')
   return signer
@@ -180,9 +154,7 @@ export function verifyEd25519(
 
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
 
-interface Algorithms {
-  [name: string]: Verifier
-}
+type Algorithms = Record<KNOWN_JWA, Verifier>
 
 const algorithms: Algorithms = {
   ES256: verifyES256,
@@ -197,7 +169,7 @@ const algorithms: Algorithms = {
 }
 
 function VerifierAlgorithm(alg: string): Verifier {
-  const impl: Verifier = algorithms[alg]
+  const impl: Verifier = algorithms[alg as KNOWN_JWA]
   if (!impl) throw new Error(`not_supported: Unsupported algorithm ${alg}`)
   return impl
 }

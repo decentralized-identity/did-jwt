@@ -10,11 +10,10 @@ import type {
   Recipient,
   WrappingResult,
 } from './types.js'
-import { base64ToBytes, toSealed } from '../util.js'
+import { base64ToBytes, extractPublicKeyBytes, isDefined, toSealed } from '../util.js'
 import { xc20pDirDecrypter, xc20pDirEncrypter, xc20pEncrypter } from './xc20pDir.js'
 import { computeX25519Ecdh1PUv3Kek, createX25519Ecdh1PUv3Kek } from './X25519-ECDH-1PU.js'
 import { computeX25519EcdhEsKek, createX25519EcdhEsKek } from './X25519-ECDH-ES.js'
-import { extractPublicKeyBytes } from '../VerifierAlgorithm.js'
 import { createFullEncrypter } from './createEncrypter.js'
 
 /**
@@ -175,12 +174,22 @@ export async function resolveX25519Encrypters(dids: string[], resolver: Resolvab
       })
       ?.filter((key) => typeof key !== 'undefined') as VerificationMethod[]
     const pks =
-      agreementKeys?.filter((key) => {
-        return key.type === 'X25519KeyAgreementKey2019' || key.type === 'X25519KeyAgreementKey2020'
-      }) || []
+      agreementKeys?.filter((key) =>
+        ['X25519KeyAgreementKey2019', 'X25519KeyAgreementKey2020', 'JsonWebKey2020', 'Multikey'].includes(key.type)
+      ) ?? []
     if (!pks.length && !controllerEncrypters.length)
-      throw new Error(`no_suitable_keys: Could not find x25519 key for ${did}`)
-    return pks.map((pk) => x25519Encrypter(extractPublicKeyBytes(pk), pk.id)).concat(...controllerEncrypters)
+      throw new Error(`no_suitable_keys: Could not find X25519 key for ${did}`)
+    return pks
+      .map((pk) => {
+        const { keyBytes, keyType } = extractPublicKeyBytes(pk)
+        if (keyType === 'X25519') {
+          return x25519Encrypter(keyBytes, pk.id)
+        } else {
+          return null
+        }
+      })
+      .filter(isDefined)
+      .concat(...controllerEncrypters)
   }
 
   const encrypterPromises = dids.map((did) => encryptersForDID(did))

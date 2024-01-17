@@ -62,7 +62,8 @@ describe('ES256', () => {
     y: bytesToBase64url(hexToBytes(kp.y.toString(16))),
   }
   const signer = ES256Signer(privateKey)
-  const publicKeyMultibase = bytesToMultibase(hexToBytes(publicKey), 'base58btc')
+  const publicKeyMultibase = bytesToMultibase(hexToBytes(compressedPublicKey), 'base58btc', 'p256-pub')
+  const publicKeyMultibaseNoCodec = bytesToMultibase(hexToBytes(compressedPublicKey), 'base58btc')
 
   const ecKey1 = {
     id: `${did}#keys-1`,
@@ -77,6 +78,20 @@ describe('ES256', () => {
     type: 'JsonWebKey2020',
     controller: did,
     publicKeyHex: publicKey,
+  }
+
+  const ecKey3 = {
+    id: `${did}#keys-3`,
+    type: 'Multikey',
+    controller: did,
+    publicKeyMultibase,
+  }
+
+  const ecKey4 = {
+    id: `${did}#keys-4`,
+    type: 'Multikey',
+    controller: did,
+    publicKeyMultibase: publicKeyMultibaseNoCodec,
   }
 
   const compressedKey = {
@@ -155,7 +170,27 @@ describe('ES256', () => {
     expect.assertions(1)
     const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }, { alg: 'ES256' })
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
-    const pubkey = Object.assign({ publicKeyMultibase }, ecKey2)
+    const pubkey = ecKey3
+    // @ts-ignore
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyMultibase Multikey', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }, { alg: 'ES256' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = ecKey3
+    // @ts-ignore
+    delete pubkey.publicKeyHex
+    // @ts-ignore
+    return expect(verifier(parts[1], parts[2], [pubkey])).toEqual(pubkey)
+  })
+
+  it('validates with publicKeyMultibase Multikey without codec', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ bla: 'bla' }, { issuer: did, signer }, { alg: 'ES256' })
+    const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
+    const pubkey = ecKey4
     // @ts-ignore
     delete pubkey.publicKeyHex
     // @ts-ignore

@@ -137,7 +137,7 @@ async function verifyConditionDelegated(
     }
   } else {
     try {
-      foundSigner = await verifyJWTDecoded({ header, payload, data, signature }, delegatedAuthenticator)
+      foundSigner = verifyJWTDecoded({ header, payload, data, signature }, delegatedAuthenticator)
     } catch (e) {
       if (!(e as Error).message.startsWith('invalid_signature:')) throw e
     }
