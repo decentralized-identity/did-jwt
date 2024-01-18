@@ -72,8 +72,7 @@ export {
   multibaseToBytes,
   bytesToMultibase,
   supportedCodecs,
+  extractPublicKeyBytes,
 } from './util.js'
-
-export { extractPublicKeyBytes } from './VerifierAlgorithm.js'
 
 export * from './Errors.js'

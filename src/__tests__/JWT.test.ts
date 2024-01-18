@@ -430,7 +430,7 @@ describe('verifyJWT() for ES256', () => {
       verificationMethod: [
         {
           id: `${did}#keys-1`,
-          type: 'JsonWebKey2020',
+          type: 'EcdsaSecp256r1VerificationKey2019',
           controller: did,
           publicKeyHex: publicKey,
         },

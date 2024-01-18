@@ -199,10 +199,10 @@ describe('xc20pEncryption', () => {
         'resolver_error: Could not resolve did:test:3'
       )
       await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
-        'no_suitable_keys: Could not find x25519 key for did:test:4'
+        'no_suitable_keys: Could not find X25519 key for did:test:4'
       )
       await expect(resolveX25519Encrypters([did7], resolver)).rejects.toThrowError(
-        'no_suitable_keys: Could not find x25519 key for did:test:7'
+        'no_suitable_keys: Could not find X25519 key for did:test:7'
       )
     })
 

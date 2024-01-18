@@ -3,6 +3,9 @@ import { x25519 } from '@noble/curves/ed25519'
 import type { EphemeralKeyPair } from './encryption/types.js'
 import { varint } from 'multiformats'
 import { BaseName, decode, encode } from 'multibase'
+import type { VerificationMethod } from 'did-resolver'
+import { secp256k1 } from '@noble/curves/secp256k1'
+import { p256 } from '@noble/curves/p256'
 
 const u8a = { toString, fromString, concat }
 
@@ -53,14 +56,189 @@ export function bytesToBase58(b: Uint8Array): string {
   return u8a.toString(b, 'base58btc')
 }
 
+export type KNOWN_JWA = 'ES256' | 'ES256K' | 'ES256K-R' | 'Ed25519' | 'EdDSA'
+
+export type KNOWN_VERIFICATION_METHOD =
+  | 'JsonWebKey2020'
+  | 'Multikey'
+  | 'Secp256k1SignatureVerificationKey2018' // deprecated in favor of EcdsaSecp256k1VerificationKey2019
+  | 'Secp256k1VerificationKey2018' // deprecated in favor of EcdsaSecp256k1VerificationKey2019
+  | 'EcdsaSecp256k1VerificationKey2019' // ES256K / ES256K-R
+  | 'EcdsaPublicKeySecp256k1' // deprecated in favor of EcdsaSecp256k1VerificationKey2019
+  | 'EcdsaSecp256k1RecoveryMethod2020' // ES256K-R (ES256K also supported with 1 less bit of security)
+  | 'EcdsaSecp256r1VerificationKey2019' // ES256 / P-256
+  | 'Ed25519VerificationKey2018'
+  | 'Ed25519VerificationKey2020'
+  | 'ED25519SignatureVerification' // deprecated
+  | 'ConditionalProof2022'
+  | 'X25519KeyAgreementKey2019' // deprecated
+  | 'X25519KeyAgreementKey2020'
+
+export type KNOWN_KEY_TYPE = 'Secp256k1' | 'Ed25519' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'P-256'
+
+export type PublicKeyTypes = Record<KNOWN_JWA, KNOWN_VERIFICATION_METHOD[]>
+
+export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
+  ES256: ['JsonWebKey2020', 'Multikey', 'EcdsaSecp256r1VerificationKey2019'],
+  ES256K: [
+    'EcdsaSecp256k1VerificationKey2019',
+    /**
+     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
+     */
+    'EcdsaSecp256k1RecoveryMethod2020',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'Secp256k1VerificationKey2018',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'Secp256k1SignatureVerificationKey2018',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'EcdsaPublicKeySecp256k1',
+    /**
+     *  TODO - support R1 key as well
+     *   'ConditionalProof2022',
+     */
+    'JsonWebKey2020',
+    'Multikey',
+  ],
+  'ES256K-R': [
+    'EcdsaSecp256k1VerificationKey2019',
+    /**
+     * Equivalent to EcdsaSecp256k1VerificationKey2019 when key is an ethereumAddress
+     */
+    'EcdsaSecp256k1RecoveryMethod2020',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'Secp256k1VerificationKey2018',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'Secp256k1SignatureVerificationKey2018',
+    /**
+     * @deprecated, supported for backward compatibility. Equivalent to EcdsaSecp256k1VerificationKey2019 when key is
+     *   not an ethereumAddress
+     */
+    'EcdsaPublicKeySecp256k1',
+    'ConditionalProof2022',
+    'JsonWebKey2020',
+    'Multikey',
+  ],
+  Ed25519: [
+    'ED25519SignatureVerification',
+    'Ed25519VerificationKey2018',
+    'Ed25519VerificationKey2020',
+    'JsonWebKey2020',
+    'Multikey',
+  ],
+  EdDSA: [
+    'ED25519SignatureVerification',
+    'Ed25519VerificationKey2018',
+    'Ed25519VerificationKey2020',
+    'JsonWebKey2020',
+    'Multikey',
+  ],
+}
+
+export const VM_TO_KEY_TYPE: Record<KNOWN_VERIFICATION_METHOD, KNOWN_KEY_TYPE | undefined> = {
+  Secp256k1SignatureVerificationKey2018: 'Secp256k1',
+  Secp256k1VerificationKey2018: 'Secp256k1',
+  EcdsaSecp256k1VerificationKey2019: 'Secp256k1',
+  EcdsaPublicKeySecp256k1: 'Secp256k1',
+  EcdsaSecp256k1RecoveryMethod2020: 'Secp256k1',
+  EcdsaSecp256r1VerificationKey2019: 'P-256',
+  Ed25519VerificationKey2018: 'Ed25519',
+  Ed25519VerificationKey2020: 'Ed25519',
+  ED25519SignatureVerification: 'Ed25519',
+  X25519KeyAgreementKey2019: 'X25519',
+  X25519KeyAgreementKey2020: 'X25519',
+  ConditionalProof2022: undefined,
+  JsonWebKey2020: undefined, // key type must be specified in the JWK
+  Multikey: undefined, // key type must be extracted from the multicodec
+}
+
+export type KNOWN_CODECS =
+  | 'ed25519-pub'
+  | 'x25519-pub'
+  | 'secp256k1-pub'
+  | 'bls12_381-g1-pub'
+  | 'bls12_381-g2-pub'
+  | 'p256-pub'
+
 // this is from the multicodec table https://github.com/multiformats/multicodec/blob/master/table.csv
-export const supportedCodecs = {
+export const supportedCodecs: Record<KNOWN_CODECS, number> = {
   'ed25519-pub': 0xed,
   'x25519-pub': 0xec,
   'secp256k1-pub': 0xe7,
   'bls12_381-g1-pub': 0xea,
   'bls12_381-g2-pub': 0xeb,
   'p256-pub': 0x1200,
+}
+
+export const CODEC_TO_KEY_TYPE: Record<KNOWN_CODECS, KNOWN_KEY_TYPE> = {
+  'bls12_381-g1-pub': 'Bls12381G1',
+  'bls12_381-g2-pub': 'Bls12381G2',
+  'ed25519-pub': 'Ed25519',
+  'p256-pub': 'P-256',
+  'secp256k1-pub': 'Secp256k1',
+  'x25519-pub': 'X25519',
+}
+
+/**
+ * Extracts the raw byte representation of a public key from a VerificationMethod along with an inferred key type
+ * @param pk a VerificationMethod entry from a DIDDocument
+ * @return an object containing the `keyBytes` of the public key and an inferred `keyType`
+ */
+export function extractPublicKeyBytes(pk: VerificationMethod): { keyBytes: Uint8Array; keyType?: KNOWN_KEY_TYPE } {
+  if (pk.publicKeyBase58) {
+    return {
+      keyBytes: base58ToBytes(pk.publicKeyBase58),
+      keyType: VM_TO_KEY_TYPE[pk.type as KNOWN_VERIFICATION_METHOD],
+    }
+  } else if (pk.publicKeyBase64) {
+    return {
+      keyBytes: base64ToBytes(pk.publicKeyBase64),
+      keyType: VM_TO_KEY_TYPE[pk.type as KNOWN_VERIFICATION_METHOD],
+    }
+  } else if (pk.publicKeyHex) {
+    return { keyBytes: hexToBytes(pk.publicKeyHex), keyType: VM_TO_KEY_TYPE[pk.type as KNOWN_VERIFICATION_METHOD] }
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    return {
+      keyBytes: secp256k1.ProjectivePoint.fromAffine({
+        x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
+        y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
+      }).toRawBytes(false),
+      keyType: 'Secp256k1',
+    }
+  } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
+    return {
+      keyBytes: p256.ProjectivePoint.fromAffine({
+        x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
+        y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
+      }).toRawBytes(false),
+      keyType: 'P-256',
+    }
+  } else if (
+    pk.publicKeyJwk &&
+    pk.publicKeyJwk.kty === 'OKP' &&
+    ['Ed25519', 'X25519'].includes(pk.publicKeyJwk.crv ?? '') &&
+    pk.publicKeyJwk.x
+  ) {
+    return { keyBytes: base64ToBytes(pk.publicKeyJwk.x), keyType: pk.publicKeyJwk.crv as KNOWN_KEY_TYPE }
+  } else if (pk.publicKeyMultibase) {
+    const { keyBytes, keyType } = multibaseToBytes(pk.publicKeyMultibase)
+    return { keyBytes, keyType: keyType ?? VM_TO_KEY_TYPE[pk.type as KNOWN_VERIFICATION_METHOD] }
+  }
+  return { keyBytes: new Uint8Array() }
 }
 
 /**
@@ -102,23 +280,25 @@ export function bytesToMultibase(
  *
  * @public
  */
-export function multibaseToBytes(s: string): Uint8Array {
+export function multibaseToBytes(s: string): { keyBytes: Uint8Array; keyType?: KNOWN_KEY_TYPE } {
   const bytes = decode(s)
 
   // look for known key lengths first
   // Ed25519/X25519, secp256k1/P256 compressed or not, BLS12-381 G1/G2 compressed
   if ([32, 33, 48, 64, 65, 96].includes(bytes.length)) {
-    return bytes
+    return { keyBytes: bytes }
   }
 
   // then assume multicodec, otherwise return the bytes
   try {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [codec, length] = varint.decode(bytes)
-    return bytes.slice(length)
+    const possibleCodec: string | undefined =
+      Object.entries(supportedCodecs).filter(([, code]) => code === codec)?.[0][0] ?? ''
+    return { keyBytes: bytes.slice(length), keyType: CODEC_TO_KEY_TYPE[possibleCodec as KNOWN_CODECS] }
   } catch (e) {
     // not a multicodec, return the bytes
-    return bytes
+    return { keyBytes: bytes }
   }
 }
 
@@ -225,4 +405,16 @@ export function genX25519EphemeralKeyPair(): EphemeralKeyPair {
     publicKeyJWK: { kty: 'OKP', crv: 'X25519', x: bytesToBase64url(epk.publicKey) },
     secretKey: epk.secretKey,
   }
+}
+
+/**
+ * Checks if a variable is defined and not null.
+ * After this check, typescript sees the variable as defined.
+ *
+ * @param arg - The input to be verified
+ *
+ * @returns true if the input variable is defined.
+ */
+export function isDefined<T>(arg: T): arg is Exclude<T, null | undefined> {
+  return arg !== null && typeof arg !== 'undefined'
 }
