@@ -1,3 +1,15 @@
+# [8.0.0](https://github.com/decentralized-identity/did-jwt/compare/7.4.7...8.0.0) (2024-01-18)
+
+
+### Features
+
+* add support for Multikey ([#305](https://github.com/decentralized-identity/did-jwt/issues/305)) ([20bbc3e](https://github.com/decentralized-identity/did-jwt/commit/20bbc3ebd6b69e4f07e6817004804abe23523835)), closes [#304](https://github.com/decentralized-identity/did-jwt/issues/304)
+
+
+### BREAKING CHANGES
+
+* The return types have changed for  of `extractPublicKeyBytes()` and `multibaseToBytes()` from Uint8Arrays to Objects containing the `keyBytes: Uint8Array` and a decoded or inferred `keyType: string | undefined`
+
 ## [7.4.7](https://github.com/decentralized-identity/did-jwt/compare/7.4.6...7.4.7) (2023-12-13)
 
 
