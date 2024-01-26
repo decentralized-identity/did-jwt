@@ -45,35 +45,6 @@ export function validateHeader(header?: ProtectedHeader): Required<Pick<Protecte
  *  Real-World Cryptography by David Wong for those who get lost in the previous https://www.manning.com/books/real-world-cryptography
  */
 
- /**
- *  Encrypter for authenticated encryption (i.e. sender authentication and requires
- *  sender private key to encrypt the data).
- *  @param recipientPublicKey - the byte array representing the recipient public key
- *  @param senderSecret - either a Uint8Array representing the sender secret key or
- *    an ECDH function that wraps the key and can promise a shared secret given a public key
- *  @param options - {@link AuthEncryptParams} used to specify extra header parameters
- *
- *  @returns an {@link Encrypter} instance usable with {@link createJWE}
- * 
- * Implements ECDH-ES+A256KW with A256GCM
- *
- */
-export function a256gcmAuthEncrypterEcdhESp256WithA256KW(
-  recipientPublicKey: Uint8Array,
-  senderSecret: Uint8Array | ECDH,
-  options: Partial<AuthEncryptParams> = {}
-): Encrypter {
-  return createFullEncrypter(
-    recipientPublicKey,
-    senderSecret,
-    options,
-    //{ createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
-    { createKek: createP256EcdhEsKek, alg: 'ECDH-ES' },
-    a256KeyWrapper,
-    { from: (cek: Uint8Array) => a256gcmEncrypter(cek), enc: 'A256GCM' }
-  )
-}
-
 export function a256gcmAnonEncrypterP256WithA256KW(
   recipientPublicKey: Uint8Array,
   options: Partial<AnonEncryptParams> = {}
@@ -141,48 +112,6 @@ export async function resolveP256a256gcmEncrypters(dids: string[], resolver: Res
   return ([] as Encrypter[]).concat(...encrypterArrays)
 }
 
-/**
- *  Encrypter for authenticated encryption (i.e. sender authentication and requires
- *  sender private key to encrypt the data).
- * 
- * @param recipientSecret - either a Uint8Array representing the recipient secret key or
- *   an ECDH function that wraps the key and can promise a shared secret given a public key
- * @param senderPublicKey - the byte array representing the sender public key
- *
- * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
- *
- * Implements ECDH-ES+A256KW with A256GCM
- */
-export function a256gcmAuthDecrypterEcdhP256WithA256KW(
-  recipientSecret: Uint8Array | ECDH,
-  senderPublicKey: Uint8Array
-): Decrypter {
-  const alg = 'ECDH-ES+A256KW'
-  const enc = 'A256GCM'
-
-  async function decrypt(
-    sealed: Uint8Array,
-    iv: Uint8Array,
-    aad?: Uint8Array,
-    recipient?: Recipient
-  ): Promise<Uint8Array | null> {
-    recipient = <Recipient>recipient
-
-    //const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
-    const kek = await computeP256EcdhEsKek(recipient, recipientSecret, alg)
-
-    if (!kek) return null
-    // Content Encryption Key
-    const unwrapper = a256KeyUnwrapper(kek)
-    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key))
-    if (cek === null) return null
-
-    return a256gcmDecrypter(cek).decrypt(sealed, iv, aad)
-  }
-
-  return { alg, enc, decrypt }
-}
-
 // modified from: https://github.com/decentralized-identity/veramo/blob/d89a4dd403942445e1262eabd34be88afa5f9685/packages/did-comm/src/encryption/a256kw-encrypters.ts
 export function a256gcmAnonDecrypterEcdhESp256WithA256KW(receiverSecret: Uint8Array | ECDH): Decrypter {
   const alg = 'ECDH-ES+A256KW'
@@ -213,22 +142,6 @@ export function p256a256gcmDecrypter(receiverSecret: Uint8Array | ECDH): Decrypt
   return a256gcmAnonDecrypterEcdhESp256WithA256KW(receiverSecret)
 }
 
-export function a256gcmAuthDirEncrypterEcdhP256WithA256KW(
-  recipientPublicKey: Uint8Array,
-  senderSecret: Uint8Array | ECDH,
-  options: Partial<AuthEncryptParams> = {}
-): Encrypter {
-  return createFullEncrypter(
-    recipientPublicKey,
-    senderSecret,
-    options,
-    //{ createKek: createP256Ecdh1PUv3Kek, alg: 'ECDH-ES' },
-    { createKek: createP256EcdhEsKek, alg: 'ECDH-ES' },
-    a256KeyWrapper,
-    { from: (cek: Uint8Array) => a256gcmDirEncrypter(cek), enc: 'A256GCM' }
-  )
-}
-
 export function a256gcmAnonDirEncrypterP256WithA256KW(
   recipientPublicKey: Uint8Array,
   options: Partial<AnonEncryptParams> = {}
@@ -241,48 +154,6 @@ export function a256gcmAnonDirEncrypterP256WithA256KW(
     a256KeyWrapper,
     { from: (cek: Uint8Array) => a256gcmDirEncrypter(cek), enc: 'A256GCM' },
   )
-}
-
-/**
- *  Encrypter for authenticated encryption (i.e. sender authentication and requires
- *  sender private key to encrypt the data).
- * 
- * @param recipientSecret - either a Uint8Array representing the recipient secret key or
- *   an ECDH function that wraps the key and can promise a shared secret given a public key
- * @param senderPublicKey - the byte array representing the sender public key
- *
- * @returns a {@link Decrypter} instance usable with {@link decryptJWE}
- *
- * Implements ECDH-ES+A256KW with A256GCM.
- */
-export function a256gcmAuthDirDecrypterEcdhP256WithA256KW(
-  recipientSecret: Uint8Array | ECDH,
-  senderPublicKey: Uint8Array
-): Decrypter {
-  const alg = 'ECDH-ES+A256KW'
-  const enc = 'A256GCM'
-
-  async function decrypt(
-    sealed: Uint8Array,
-    iv: Uint8Array,
-    aad?: Uint8Array,
-    recipient?: Recipient
-  ): Promise<Uint8Array | null> {
-    recipient = <Recipient>recipient
- 
-    //const kek = await computeP256Ecdh1PUv3Kek(recipient, recipientSecret, senderPublicKey, alg)
-    const kek = await computeP256EcdhEsKek(recipient, recipientSecret, alg)
-
-    if (!kek) return null
-    const unwrapper = a256KeyUnwrapper(kek)
-    const cek = await unwrapper.unwrap(base64ToBytes(recipient.encrypted_key)) 
-   
-    if (cek === null) return null
-
-    return a256gcmDirDecrypter(cek).decrypt(sealed, iv, aad)
-  }
-
-  return { alg, enc, decrypt }
 }
 
 // modified from: https://github.com/decentralized-identity/veramo/blob/d89a4dd403942445e1262eabd34be88afa5f9685/packages/did-comm/src/encryption/a256kw-encrypters.ts
