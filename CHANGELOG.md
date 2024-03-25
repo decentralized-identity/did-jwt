@@ -1,3 +1,10 @@
+## [8.0.4](https://github.com/decentralized-identity/did-jwt/compare/8.0.3...8.0.4) (2024-03-25)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @noble/ciphers to v0.5.2 ([1666627](https://github.com/decentralized-identity/did-jwt/commit/16666275ba1d4bbc79504f08c1a887653131dc80))
+
 ## [8.0.3](https://github.com/decentralized-identity/did-jwt/compare/8.0.2...8.0.3) (2024-03-20)
 
 
