@@ -19,9 +19,10 @@
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:ci": "yarn test --coverage",
-    "build:js": "npx tsc",
+    "build:js": "tsc --build",
+    "build:types": "tsc --emitDeclarationOnly --skipLibCheck",
     "build:browser": "webpack --config webpack.config.cjs",
-    "build": "yarn build:js",
+    "build": "yarn build:js && yarn build:types",
     "clean": "rimraf lib dist",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",

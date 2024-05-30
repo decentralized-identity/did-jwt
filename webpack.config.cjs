@@ -3,7 +3,7 @@ const path = require('path')
 // @type {import('webpack').Configuration}
 module.exports = {
   // entry: './lib/index.js',
-  entry: './dist/index.module.js',
+  entry: './lib/index.module.js',
   mode: 'production',
   resolve: {
     fallback: {
