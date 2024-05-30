@@ -5,7 +5,7 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "lib",
+    "outDir": "dist",
     "strict": true,
     "moduleResolution": "bundler",
     "isolatedModules": true,
@@ -20,7 +20,7 @@
   "exclude": [
     "**/__tests__/*",
     "node_modules",
-    "lib"
+    "dist"
   ],
   "include": [
     "src"
