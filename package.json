@@ -3,30 +3,25 @@
   "version": "8.0.4",
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
-  "source": "src/index.ts",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.module.js",
-  "types": "./lib/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "files": [
-    "lib",
     "dist",
     "src",
     "LICENSE"
   ],
-  "exports": {
-    ".": {
-      "types": "./lib/index.d.ts",
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.module.js"
-    }
-  },
+  "sideEffects": false,
+  "source": "src/index.ts",
   "browser": "./dist/did-jwt.js",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "test:ci": "yarn test --coverage",
-    "build:js": "microbundle --compress=false",
+    "build:js": "npx tsc",
     "build:browser": "webpack --config webpack.config.cjs",
-    "build": "yarn build:js && yarn build:browser",
+    "build": "yarn build:js",
     "clean": "rimraf lib dist",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",

@@ -19,7 +19,7 @@ const config = {
   extensionsToTreatAsEsm: ['.ts'],
   testMatch: ['**/__tests__/**/*.test.ts'],
   testEnvironment: 'node',
-  coverageProvider: 'v8'
+  coverageProvider: 'v8',
 }
 
 export default config
