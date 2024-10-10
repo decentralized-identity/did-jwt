@@ -13,11 +13,15 @@ import {
   type JWTPayload,
   type JWTVerified,
   type Signer,
+  type SignerAlgorithm,
   verifyJWS,
   verifyJWT,
 } from './JWT.js'
 
 export { toEthereumAddress, concatKDF } from './Digest.js'
+
+export { AddSigningAlgorithm } from './SignerAlgorithm.js'
+export { AddVerifierAlgorithm } from './VerifierAlgorithm.js'
 
 export { createJWE, decryptJWE } from './encryption/JWE.js'
 export { xc20pDirDecrypter, xc20pDirEncrypter } from './encryption/xc20pDir.js'
@@ -54,6 +58,7 @@ export {
   verifyJWS,
   createJWS,
   type Signer,
+  type SignerAlgorithm,
   type JWTHeader,
   type JWTPayload,
   type JWTVerified,

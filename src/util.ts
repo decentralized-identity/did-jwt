@@ -76,7 +76,10 @@ export type KNOWN_VERIFICATION_METHOD =
 
 export type KNOWN_KEY_TYPE = 'Secp256k1' | 'Ed25519' | 'X25519' | 'Bls12381G1' | 'Bls12381G2' | 'P-256'
 
-export type PublicKeyTypes = Record<KNOWN_JWA, KNOWN_VERIFICATION_METHOD[]>
+export type PublicKeyTypes = Record<
+  KNOWN_JWA | (string & NonNullable<unknown>),
+  KNOWN_VERIFICATION_METHOD[] | (string[] & NonNullable<unknown>)
+>
 
 export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ES256: ['JsonWebKey2020', 'Multikey', 'EcdsaSecp256r1VerificationKey2019'],
@@ -147,6 +150,29 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
     'JsonWebKey2020',
     'Multikey',
   ],
+}
+
+/**
+ * Adds supported public key types for a specific algorithm to the global registry.
+ * @param alg - The name of the algorithm.
+ * @param keys - A record containing the supported key types for the algorithm.
+ * @throws {Error} If the algorithm name is invalid (empty or not a string).
+ * @throws {Error} If the keys object is invalid or doesn't contain the algorithm.
+ * @throws {Error} If the key types for the algorithm are not in an array format.
+ */
+export function AddVerifierSupportedKeys(alg: string, keys: Record<string, string[]>): void {
+  if (!alg || typeof alg !== 'string') {
+    throw new Error('Invalid algorithm name: must be a non-empty string')
+  }
+
+  if (!keys || typeof keys !== 'object' || !(alg in keys)) {
+    throw new Error(`Invalid keys object: must contain the '${alg}' algorithm`)
+  }
+
+  if (!Array.isArray(keys[alg])) {
+    throw new Error(`Invalid key types for '${alg}': must be an array of strings`)
+  }
+  SUPPORTED_PUBLIC_KEY_TYPES[alg] = keys[alg]
 }
 
 export const VM_TO_KEY_TYPE: Record<KNOWN_VERIFICATION_METHOD, KNOWN_KEY_TYPE | undefined> = {

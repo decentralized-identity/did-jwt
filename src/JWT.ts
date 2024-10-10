@@ -581,7 +581,7 @@ export async function resolveAuthenticator(
   issuer: string,
   proofPurpose?: ProofPurposeTypes
 ): Promise<DIDAuthenticator> {
-  const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg as KNOWN_JWA]
+  const types: string[] = SUPPORTED_PUBLIC_KEY_TYPES[alg]
   if (!types || types.length === 0) {
     throw new Error(`${JWT_ERROR.NOT_SUPPORTED}: No supported signature types for algorithm ${alg}`)
   }

@@ -57,11 +57,36 @@ const algorithms: SignerAlgorithms = {
   Ed25519: Ed25519SignerAlg(),
   EdDSA: Ed25519SignerAlg(),
 }
-
+/** */
 function SignerAlg(alg: string): SignerAlgorithm {
   const impl: SignerAlgorithm = algorithms[alg]
   if (!impl) throw new Error(`not_supported: Unsupported algorithm ${alg}`)
   return impl
+}
+
+/**
+ * Adds a new signing algorithm to the algorithm dictionary.
+ * @param alg - The name of the algorithm to add.
+ * @param impl - The implementation of the signing algorithm.
+ * @throws {Error} If the algorithm name is invalid (empty or not a string).
+ * @throws {Error} If the implementation is not a function.
+ * @throws {Error} If the algorithm already exists in the dictionary.
+ * @example
+ */
+export function AddSigningAlgorithm(alg: string, impl: SignerAlgorithm): void {
+  if (!alg || typeof alg !== 'string') {
+    throw new Error('Invalid algorithm name: must be a non-empty string')
+  }
+
+  if (!impl || typeof impl !== 'function') {
+    throw new Error('Invalid implementation: must be a function')
+  }
+
+  if (alg in algorithms) {
+    throw new Error(`Algorithm '${alg}' already exists`)
+  }
+
+  algorithms[alg] = impl
 }
 
 export default SignerAlg

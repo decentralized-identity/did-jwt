@@ -8,6 +8,7 @@ import {
   extractPublicKeyBytes,
   KNOWN_JWA,
   stringToBytes,
+  AddVerifierSupportedKeys,
 } from './util.js'
 import { verifyBlockchainAccountId } from './blockchains/index.js'
 import { secp256k1 } from '@noble/curves/secp256k1'
@@ -154,7 +155,7 @@ export function verifyEd25519(
 
 type Verifier = (data: string, signature: string, authenticators: VerificationMethod[]) => VerificationMethod
 
-type Algorithms = Record<KNOWN_JWA, Verifier>
+type Algorithms = Record<KNOWN_JWA | (string & NonNullable<unknown>), Verifier>
 
 const algorithms: Algorithms = {
   ES256: verifyES256,
@@ -172,6 +173,37 @@ function VerifierAlgorithm(alg: string): Verifier {
   const impl: Verifier = algorithms[alg as KNOWN_JWA]
   if (!impl) throw new Error(`not_supported: Unsupported algorithm ${alg}`)
   return impl
+}
+
+/**
+ * Adds a new verifier algorithm to the algorithm dictionary and registers its supported keys.
+ * @param alg - The name of the algorithm to add.
+ * @param verifier - The implementation of the verifier algorithm.
+ * @param validKeys - A record of valid key types and their corresponding valid values for this algorithm.
+ * @throws {Error} If the algorithm name is invalid (empty or not a string).
+ * @throws {Error} If the verifier is not a function.
+ * @throws {Error} If the validKeys is not an object or is empty.
+ * @throws {Error} If the algorithm already exists in the dictionary.
+ */
+export function AddVerifierAlgorithm(alg: string, verifier: Verifier, validKeys: Record<string, string[]>): void {
+  if (!alg || typeof alg !== 'string') {
+    throw new Error('Invalid algorithm name: must be a non-empty string')
+  }
+
+  if (!verifier || typeof verifier !== 'function') {
+    throw new Error('Invalid verifier: must be a function')
+  }
+
+  if (!validKeys || typeof validKeys !== 'object' || Object.keys(validKeys).length === 0) {
+    throw new Error('Invalid validKeys: must be a non-empty object')
+  }
+
+  if (alg in algorithms) {
+    throw new Error(`Algorithm '${alg}' already exists`)
+  }
+
+  AddVerifierSupportedKeys(alg, validKeys)
+  algorithms[alg] = verifier
 }
 
 VerifierAlgorithm.toSignatureObject = toSignatureObject
