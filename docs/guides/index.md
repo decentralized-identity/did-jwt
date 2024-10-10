@@ -177,3 +177,55 @@ async function mySigner(data: Uint8Array | string): Promise<string> {
 Your function must returns a `Promise<string>`.
 
 A successful call resolves to a `base64url`-encoded signature.
+
+### Adding signing algorithms
+
+New signing algorithms can be created by implementing the SignerAlgorithm and Signer functions for the signing process and the verify function with the valid signatures.
+
+#### Signing process
+
+Implement a Signer Algorithm function, that returns a function that receives payload and signer and returns the signature as `Promise<string>`
+
+
+```typescript
+async function customSigner(data: Uint8Array | string): Promise<string> {
+  const signatureBytes = await customSignerLogic(data)
+  return bytesToBase64url(signature)
+}
+```
+
+```typescript
+async function customSignerAlgorithm(data: Uint8Array | string): SignerAlgorithm {
+  return async function sign (payload: string, signer: Signer): Promise<string> {
+    const signature = await customSigner(payload)
+    return payload
+  }
+}
+```
+
+After implementing this, call the function `AddSigningAlgorithm("CustomSigningAlgorithm, customSignerAlgorithm()")`
+
+#### Verification process
+
+Implement a function following the next style that checks that the address recovered from the signature is one of the verification methods in the issuer did and returns one of them:
+```typescript
+export function verifyCustomSignature (
+  data: string,
+  signature: string,
+  authenticators: VerificationMethod[]
+): VerificationMethod {
+  ...
+}
+```
+Export also a Record of the valid signature types of the algorithm:
+```typescript
+export const validSignatures: Record<string, string[]> = {
+  CustomSignature: [
+    'EcdsaSecp256k1VerificationKey2019',
+    'EcdsaSecp256k1RecoveryMethod2020'
+  ]
+}
+```
+
+After that, call the function `AddVerifierAlgorithm('CustomSigningAlgorithm', verifyCustomSignature, validSignatures)`
+
