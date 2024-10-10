@@ -1,5 +1,5 @@
 import { jest, describe, expect, it } from '@jest/globals'
-import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util.js'
+import { AddVerifierSupportedKeys, base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util.js'
 import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
 import MockDate from 'mockdate'
@@ -12,6 +12,8 @@ import {
   resolveAuthenticator,
   SELF_ISSUED_V0_1,
   SELF_ISSUED_V2,
+  Signer,
+  SignerAlgorithm,
   verifyJWS,
   verifyJWT,
 } from '../JWT.js'
@@ -24,6 +26,9 @@ import { ES256Signer } from '../signers/ES256Signer'
 import jwt from 'jsonwebtoken'
 // @ts-ignore
 import jwkToPem from 'jwk-to-pem'
+import { AddSigningAlgorithm } from '../SignerAlgorithm.js'
+import { AddVerifierAlgorithm } from '../VerifierAlgorithm.js'
+import exp from 'constants'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)
@@ -1380,6 +1385,143 @@ describe('resolveAuthenticator()', () => {
       return await expect(
         resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable, 'ESBAD', did)
       ).rejects.toThrowError('No supported signature types for algorithm ESBAD')
+    })
+  })
+
+  describe('Custom Algorithms', () => {
+    function customSigner(): Signer {
+      const signer = async (data: string | Uint8Array): Promise<string> => {
+        return 'custom'
+      }
+      return signer
+    }
+    function CustomSignerAlgorithm(): SignerAlgorithm {
+      return async function sign(payload: string, signer: Signer): Promise<string> {
+        const signature = await signer(payload)
+        if (typeof signature !== 'string') {
+          throw new Error('Custom signer must return a string')
+        }
+        return signature
+      }
+    }
+
+    function CustomVerifierAlgorithm(
+      data: string,
+      signature: string,
+      authenticators: VerificationMethod[]
+    ): VerificationMethod {
+      const availableAuthenticators: boolean =
+        authenticators.find((a: VerificationMethod) => {
+          return (a.blockchainAccountId ?? a.ethereumAddress) !== undefined
+        }) !== undefined
+
+      if (!availableAuthenticators) {
+        throw new Error('No available authenticators')
+      }
+
+      if (signature !== 'custom') {
+        throw new Error('Invalid signature')
+      }
+      return authenticators[0]
+    }
+    const customSignerObj = customSigner()
+
+    const validKeys: Record<string, string[]> = {
+      Custom: ['EcdsaSecp256k1VerificationKey2019', 'EcdsaSecp256k1RecoveryMethod2020'],
+    }
+
+    AddSigningAlgorithm('Custom', CustomSignerAlgorithm())
+    AddVerifierAlgorithm('Custom', CustomVerifierAlgorithm, validKeys)
+
+    const verificationMethod = {
+      id: `${did}#keys-1`,
+      type: 'EcdsaSecp256k1RecoveryMethod2020',
+      owner: did,
+      blockchainAccountId: `eip155:1:${getAddress(address)}`,
+    }
+    const ethResolver = {
+      resolve: jest.fn().mockReturnValue({
+        didDocument: {
+          id: did,
+          verificationMethod: [verificationMethod],
+        },
+      }),
+    } as Resolvable
+
+    describe('AddSigningAlgorithm', () => {
+      it('adds a new signing algorithm successfully', () => {
+        expect(() => AddSigningAlgorithm('NewAlg', CustomSignerAlgorithm())).not.toThrow()
+      })
+
+      it('throws error when adding an existing algorithm', () => {
+        expect(() => AddSigningAlgorithm('Custom', CustomSignerAlgorithm())).toThrow(
+          "Algorithm 'Custom' already exists"
+        )
+      })
+
+      it('throws error with invalid algorithm name', () => {
+        expect(() => AddSigningAlgorithm('', CustomSignerAlgorithm())).toThrow(
+          'Invalid algorithm name: must be a non-empty string'
+        )
+      })
+
+      it('throws error with invalid implementation', () => {
+        expect(() => AddSigningAlgorithm('NewAlg', null as unknown as SignerAlgorithm)).toThrow(
+          'Invalid implementation: must be a function'
+        )
+      })
+    })
+
+    describe('AddVerifierAlgorithm', () => {
+      const mockVerifier = (data: string, signature: string, authenticators: VerificationMethod[]) => authenticators[0]
+
+      it('adds a new verifier algorithm successfully', () => {
+        expect(() => AddVerifierAlgorithm('NewVerifier', mockVerifier, { NewVerifier: ['key1', 'key2'] })).not.toThrow()
+      })
+
+      it('throws error when adding an existing algorithm', () => {
+        expect(() => AddVerifierAlgorithm('Custom', mockVerifier, validKeys)).toThrow(
+          "Algorithm 'Custom' already exists"
+        )
+      })
+
+      it('throws error with invalid algorithm name', () => {
+        expect(() => AddVerifierAlgorithm('', mockVerifier, validKeys)).toThrow(
+          'Invalid algorithm name: must be a non-empty string'
+        )
+      })
+
+      it('throws error with invalid validKeys', () => {
+        expect(() => AddVerifierAlgorithm('NewVerifier', mockVerifier, {})).toThrow(
+          'Invalid validKeys: must be a non-empty object'
+        )
+      })
+    })
+
+    it('returns correct signature', async () => {
+      const jwt = await createJWT({ test: 'custom' }, { issuer: 'custom', signer: customSignerObj }, { alg: 'Custom' })
+
+      const decodedJWT = decodeJWT(jwt)
+
+      const signature = decodedJWT.signature
+      const { alg, typ } = decodedJWT.header
+      const { iss, test, iat } = decodedJWT.payload
+
+      expect(alg).toEqual('Custom')
+      expect(typ).toEqual('JWT')
+      expect(iss).toEqual('custom')
+      expect(test).toEqual('custom')
+      expect(iat).toBeDefined()
+      expect(signature).toEqual('custom')
+    })
+
+    it('validates jwt signature correctly', async () => {
+      const jwt = await createJWT({ test: 'custom' }, { issuer: did, signer: customSignerObj }, { alg: 'Custom' })
+
+      const { payload, signer } = await verifyJWT(jwt, { resolver: ethResolver })
+      expect(signer).toEqual(verificationMethod)
+
+      return expect(payload).toEqual({ test: 'custom', iss: did, iat: payload.iat })
     })
   })
 
