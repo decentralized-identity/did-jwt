@@ -454,7 +454,7 @@ describe('ES256K', () => {
     const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer })) + 'aa'
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     return expect(() => verifier(parts!![1], parts!![2], [ecKey1])).toThrowError(
-      new Error('compactSignature expected 64 bytes, got 66')
+      new Error('compactSignature of length 64 expected, got 66')
     )
   })
 
