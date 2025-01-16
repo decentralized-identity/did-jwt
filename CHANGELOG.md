@@ -1,3 +1,15 @@
+# [9.0.0-alpha.1](https://github.com/decentralized-identity/did-jwt/compare/8.0.6...9.0.0-alpha.1) (2025-01-16)
+
+
+### Bug Fixes
+
+* **deps:** update dependencies ([#320](https://github.com/decentralized-identity/did-jwt/issues/320)) ([69b2a0d](https://github.com/decentralized-identity/did-jwt/commit/69b2a0d20990946fc8c881dc8002b720c6632c00)), closes [#312](https://github.com/decentralized-identity/did-jwt/issues/312)
+
+
+### BREAKING CHANGES
+
+* **deps:** this updates multiformats and uint8arrays dependencies to versions that only publish ESM variants
+
 ## [8.0.6](https://github.com/decentralized-identity/did-jwt/compare/8.0.5...8.0.6) (2025-01-15)
 
 
