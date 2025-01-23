@@ -199,7 +199,7 @@ export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
     }
     return decodedJwt
   } catch (e) {
-    throw new Error('invalid_argument: Incorrect format JWT')
+    throw new Error(`invalid_argument: ${JWT_ERROR.INVALID_JWT}: ${e}`)
   }
 }
 
