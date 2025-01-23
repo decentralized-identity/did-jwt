@@ -198,7 +198,7 @@ export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
       return innerDecodedJwt
     }
     return decodedJwt
-  } catch (e: any) {
+  } catch (e) {
     throw new Error(`invalid_argument: ${JWT_ERROR.INVALID_JWT}: ${e}`)
   }
 }
