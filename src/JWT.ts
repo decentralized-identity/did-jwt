@@ -198,8 +198,8 @@ export function decodeJWT(jwt: string, recurse = true): JWTDecoded {
       return innerDecodedJwt
     }
     return decodedJwt
-  } catch (e) {
-    throw new Error('invalid_argument: Incorrect format JWT')
+  } catch (e: any) {
+    throw new Error(`invalid_argument: ${JWT_ERROR.INVALID_JWT}: ${e}`)
   }
 }
 
