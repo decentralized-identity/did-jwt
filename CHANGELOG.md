@@ -1,3 +1,10 @@
+## [8.0.8](https://github.com/decentralized-identity/did-jwt/compare/8.0.7...8.0.8) (2025-01-23)
+
+
+### Bug Fixes
+
+* improve invalid JWT Error message ([#321](https://github.com/decentralized-identity/did-jwt/issues/321)) ([560ab41](https://github.com/decentralized-identity/did-jwt/commit/560ab4115659a95b673a30f42ea3ff191e972d6b))
+
 ## [8.0.7](https://github.com/decentralized-identity/did-jwt/compare/8.0.6...8.0.7) (2025-01-19)
 
 
