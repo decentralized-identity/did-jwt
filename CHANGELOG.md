@@ -1,3 +1,10 @@
+## [8.0.9](https://github.com/decentralized-identity/did-jwt/compare/8.0.8...8.0.9) (2025-03-19)
+
+
+### Bug Fixes
+
+* **deps:** update dependency canonicalize to v2.1.0 ([71829f7](https://github.com/decentralized-identity/did-jwt/commit/71829f7c2fb3936d12aeca2d29cc634f6fd17dd9))
+
 ## [8.0.8](https://github.com/decentralized-identity/did-jwt/compare/8.0.7...8.0.8) (2025-01-23)
 
 
