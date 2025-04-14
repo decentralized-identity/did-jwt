@@ -1,3 +1,10 @@
+## [8.0.10](https://github.com/decentralized-identity/did-jwt/compare/8.0.9...8.0.10) (2025-04-14)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @noble/hashes to v1.7.2 ([33c260b](https://github.com/decentralized-identity/did-jwt/commit/33c260bcfa93954ff3907f8e28d8b7ecabf93427))
+
 ## [8.0.9](https://github.com/decentralized-identity/did-jwt/compare/8.0.8...8.0.9) (2025-03-19)
 
 
