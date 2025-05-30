@@ -1,3 +1,10 @@
+## [8.0.16](https://github.com/decentralized-identity/did-jwt/compare/8.0.15...8.0.16) (2025-05-30)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @scure/base to v1.2.6 ([bfb161c](https://github.com/decentralized-identity/did-jwt/commit/bfb161c628e62e66f91fa61a8c6b7ea77c595375))
+
 ## [8.0.15](https://github.com/decentralized-identity/did-jwt/compare/8.0.14...8.0.15) (2025-05-14)
 
 
