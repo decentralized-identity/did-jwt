@@ -1,3 +1,10 @@
+## [8.0.17](https://github.com/decentralized-identity/did-jwt/compare/8.0.16...8.0.17) (2025-06-06)
+
+
+### Bug Fixes
+
+* **deps:** update dependency @noble/curves to v1.9.2 ([353d856](https://github.com/decentralized-identity/did-jwt/commit/353d85682d165fa6b1d9d962385c785b182cc28d))
+
 ## [8.0.16](https://github.com/decentralized-identity/did-jwt/compare/8.0.15...8.0.16) (2025-05-30)
 
 
