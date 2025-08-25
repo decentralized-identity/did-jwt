@@ -91,7 +91,7 @@
     "@noble/ciphers": "^1.0.0",
     "@noble/curves": "^1.0.0",
     "@noble/hashes": "^1.3.0",
-    "@scure/base": "^1.1.3",
+    "@scure/base": "^2.0.0",
     "canonicalize": "^2.0.0",
     "did-resolver": "^4.1.0",
     "multibase": "^4.0.6",
