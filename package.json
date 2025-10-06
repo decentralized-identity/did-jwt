@@ -83,8 +83,8 @@
     "ts-jest": "29.4.4",
     "ts-node": "10.9.2",
     "tweetnacl": "1.0.3",
-    "typescript": "5.9.2",
-    "webpack": "5.101.3",
+    "typescript": "5.9.3",
+    "webpack": "5.102.0",
     "webpack-cli": "5.1.4"
   },
   "dependencies": {
