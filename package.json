@@ -44,7 +44,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:decentralized-identity/did-jwt.git"
+    "url": "git+https://github.com/decentralized-identity/did-jwt.git"
   },
   "license": "Apache-2.0",
   "devDependencies": {
