@@ -161,6 +161,14 @@ function encodeSection(data: any, shouldCanonicalize = false): string {
 
 export const NBF_SKEW = 300
 
+function isNumericDate(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function hasTimeClaim(value: unknown): boolean {
+  return value !== undefined && value !== null
+}
+
 function decodeJWS(jws: string): JWSDecoded {
   const parts = jws.match(/^([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
   if (parts) {
@@ -522,15 +530,28 @@ export async function verifyJWT(
     const skewTime = typeof options.skewTime !== 'undefined' && options.skewTime >= 0 ? options.skewTime : NBF_SKEW
 
     const nowSkewed = now + skewTime
-    if (options.policies?.nbf !== false && payload.nbf) {
+    if (options.policies?.nbf !== false && hasTimeClaim(payload.nbf)) {
+      if (!isNumericDate(payload.nbf)) {
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT nbf is not a NumericDate: ${payload.nbf}`)
+      }
       if (payload.nbf > nowSkewed) {
         throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT not valid before nbf: ${payload.nbf}`)
       }
-    } else if (options.policies?.iat !== false && payload.iat && payload.iat > nowSkewed) {
-      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
+    } else if (options.policies?.iat !== false && hasTimeClaim(payload.iat)) {
+      if (!isNumericDate(payload.iat)) {
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT iat is not a NumericDate: ${payload.iat}`)
+      }
+      if (payload.iat > nowSkewed) {
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT not valid yet (issued in the future) iat: ${payload.iat}`)
+      }
     }
-    if (options.policies?.exp !== false && payload.exp && payload.exp <= now - skewTime) {
-      throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT has expired: exp: ${payload.exp} < now: ${now}`)
+    if (options.policies?.exp !== false && hasTimeClaim(payload.exp)) {
+      if (!isNumericDate(payload.exp)) {
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT exp is not a NumericDate: ${payload.exp}`)
+      }
+      if (payload.exp <= now - skewTime) {
+        throw new Error(`${JWT_ERROR.INVALID_JWT}: JWT has expired: exp: ${payload.exp} < now: ${now}`)
+      }
     }
     if (options.policies?.aud !== false && payload.aud) {
       if (!options.audience && !options.callbackUrl) {

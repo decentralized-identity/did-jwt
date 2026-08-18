@@ -907,6 +907,30 @@ describe('verifyJWT() for ES256K', () => {
     return expect(payload).toBeDefined()
   })
 
+  it('rejects exp 0 as expired', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ exp: 0 }, { issuer: did, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has expired/)
+  })
+
+  it('rejects a non-numeric exp claim', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ exp: 'never' as unknown as number }, { issuer: did, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/exp is not a NumericDate/)
+  })
+
+  it('rejects a non-numeric nbf claim', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ nbf: 'soon' as unknown as number }, { issuer: did, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/nbf is not a NumericDate/)
+  })
+
+  it('rejects a non-numeric iat claim when nbf is absent', async () => {
+    expect.assertions(1)
+    const jwt = await createJWT({ iat: 'never' as unknown as number }, { issuer: did, signer })
+    await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/iat is not a NumericDate/)
+  })
+
   it('accepts a valid audience', async () => {
     expect.assertions(1)
     const jwt = await createJWT({ aud }, { issuer: did, signer })
