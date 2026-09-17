@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2024",
+    "module": "nodenext",
+    "lib": ["es2024"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "lib.esm",
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "**/__tests__/*",
+    "node_modules",
+    "lib.commonjs",
+    "lib.esm"
+  ],
+  "include": [
+    "src"
+  ]
+}

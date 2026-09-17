@@ -2,7 +2,9 @@ node_modules
 canary/consumer
 dist
 esm
-lib
+lib/
+lib.esm/
+lib.commonjs/
 .vscode/settings.json
 coverage
 

@@ -4,20 +4,25 @@
   "description": "Library for Signing and Verifying JWTs that use DIDs as issuers and JWEs that use DIDs as recipients",
   "type": "module",
   "source": "src/index.ts",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.module.js",
-  "types": "./lib/index.d.ts",
+  "main": "./lib.commonjs/index.js",
+  "module": "./lib.esm/index.js",
+  "types": "./lib.commonjs/index.d.ts",
   "files": [
-    "lib",
-    "dist",
+    "lib.esm",
+    "lib.commonjs",
     "src",
     "LICENSE"
   ],
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "require": "./lib/index.cjs",
-      "import": "./lib/index.module.js"
+      "import": {
+        "types": "./lib.esm/index.d.ts",
+        "default": "./lib.esm/index.js"
+      },
+      "require": {
+        "types": "./lib.commonjs/index.d.ts",
+        "default": "./lib.commonjs/index.js"
+      }
     }
   },
   "browser": "./dist/did-jwt.js",
@@ -49,7 +54,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:decentralized-identity/did-jwt.git"
+    "url": "git+https://github.com/decentralized-identity/did-jwt.git"
   },
   "license": "Apache-2.0",
   "devDependencies": {
