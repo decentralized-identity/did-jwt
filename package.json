@@ -40,7 +40,7 @@
     "clean": "rimraf lib dist",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
-    "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
+    "lint": "eslint \"src/**/*.[jt]s\"",
     "prepublishOnly": "pnpm run test:ci && pnpm run format && pnpm run lint",
     "release": "semantic-release --debug"
   },
@@ -61,6 +61,7 @@
     "@babel/core": "7.28.5",
     "@babel/preset-env": "7.28.5",
     "@babel/preset-typescript": "7.28.5",
+    "@eslint/eslintrc": "^3.3.7",
     "@ethersproject/address": "5.8.0",
     "@greymass/eosio": "^0.7.0",
     "@semantic-release/changelog": "6.0.3",
@@ -69,14 +70,15 @@
     "@types/jsonwebtoken": "9.0.10",
     "@types/jwk-to-pem": "2.0.3",
     "@types/node": "^20.1.4",
-    "@typescript-eslint/eslint-plugin": "6.21.0",
-    "@typescript-eslint/parser": "6.21.0",
+    "@typescript-eslint/eslint-plugin": "8.70.0",
+    "@typescript-eslint/parser": "8.70.0",
     "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/eslint-plugin": "^1.6.27",
     "codecov": "3.8.3",
     "cross-env": "7.0.3",
-    "eslint": "8.57.1",
-    "eslint-config-prettier": "9.1.2",
-    "eslint-plugin-prettier": "5.5.4",
+    "eslint": "10.10.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.6",
     "jsontokens": "4.0.1",
     "jsonwebtoken": "9.0.2",
     "jwk-to-pem": "2.0.7",
@@ -105,8 +107,5 @@
     "multiformats": "^9.6.2",
     "uint8arrays": "3.1.1"
   },
-  "eslintIgnore": [
-    "*.test.ts"
-  ],
   "packageManager": "pnpm@12.4.2"
 }
