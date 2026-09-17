@@ -25,7 +25,7 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
   }
 
   return async (data: string | Uint8Array): Promise<string> => {
-    const signature = secp256k1.sign(sha256(data), privateKeyBytes)
+    const signature = secp256k1.sign(sha256(data), privateKeyBytes, { lowS: true })
     return toJose(
       {
         r: leftpad(signature.r.toString(16)),

@@ -291,12 +291,11 @@ export function multibaseToBytes(s: string): { keyBytes: Uint8Array; keyType?: K
 
   // then assume multicodec, otherwise return the bytes
   try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [codec, length] = varint.decode(bytes)
     const possibleCodec: string | undefined =
       Object.entries(supportedCodecs).filter(([, code]) => code === codec)?.[0][0] ?? ''
     return { keyBytes: bytes.slice(length), keyType: CODEC_TO_KEY_TYPE[possibleCodec as KNOWN_CODECS] }
-  } catch (e) {
+  } catch {
     // not a multicodec, return the bytes
     return { keyBytes: bytes }
   }

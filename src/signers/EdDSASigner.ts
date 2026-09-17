@@ -14,7 +14,7 @@ import { bytesToBase64url, stringToBytes } from '../util.js'
  * signature
  *
  *  @example
- *  ```typescript
+ *  ```TypeScript
  *  const sign: Signer = EdDSASigner(process.env.PRIVATE_KEY)
  *  const signature: string = await sign(data)
  *  ```

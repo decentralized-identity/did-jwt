@@ -1,5 +1,6 @@
 import { base64ToBytes, base58ToBytes, hexToBytes } from '../util.js'
 import { EdDSASigner } from '../signers/EdDSASigner.js'
+import { expect, describe, it } from 'vitest'
 
 describe('EdDSASigner', () => {
   it('signs data with base64 key', async () => {
@@ -68,6 +69,6 @@ describe('EdDSASigner', () => {
       '9e55d1e1aa1f455b8baad9fdf975503655f8b359d542fa7e4ce84106d625b35206fac1f22240cffd637ead6647188429fafda9c9cb7eae43386ac17f611150'
     expect(() => {
       EdDSASigner(hexToBytes(privateKey))
-    }).toThrowError(/^bad_key: Invalid private key format.*/)
+    }).toThrow(/^bad_key: Invalid private key format.*/)
   })
 })

@@ -11,7 +11,7 @@ import {
 } from './util.js'
 import { verifyBlockchainAccountId } from './blockchains/index.js'
 import { secp256k1 } from '@noble/curves/secp256k1'
-import { p256 } from '@noble/curves/p256'
+import { p256 } from '@noble/curves/nist'
 import { ed25519 } from '@noble/curves/ed25519'
 
 // converts a JOSE signature to it's components
@@ -42,14 +42,14 @@ export function toSignatureObject2(signature: string, recoverable = false): ECDS
 
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash = sha256(data)
-  const sig = p256.Signature.fromCompact(toSignatureObject2(signature).compact)
+  const sig = p256.Signature.fromBytes(toSignatureObject2(signature).compact, 'compact').toBytes()
   const fullPublicKeys = authenticators.filter((a: VerificationMethod) => !a.ethereumAddress && !a.blockchainAccountId)
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const { keyBytes } = extractPublicKeyBytes(pk)
       return p256.verify(sig, hash, keyBytes)
-    } catch (err) {
+    } catch {
       return false
     }
   })
@@ -64,7 +64,7 @@ export function verifyES256K(
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   const hash = sha256(data)
-  const signatureNormalized = secp256k1.Signature.fromCompact(base64ToBytes(signature)).normalizeS()
+  const signatureNormalized = secp256k1.Signature.fromBytes(base64ToBytes(signature), 'compact').normalizeS().toBytes()
   const fullPublicKeys = authenticators.filter((a: VerificationMethod) => {
     return !a.ethereumAddress && !a.blockchainAccountId
   })
@@ -76,7 +76,7 @@ export function verifyES256K(
     try {
       const { keyBytes } = extractPublicKeyBytes(pk)
       return secp256k1.verify(signatureNormalized, hash, keyBytes)
-    } catch (err) {
+    } catch {
       return false
     }
   })

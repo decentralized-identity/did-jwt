@@ -41,7 +41,7 @@ export function xc20pDirDecrypter(key: Uint8Array): Decrypter {
   async function decrypt(sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array): Promise<Uint8Array | null> {
     try {
       return xchacha20poly1305(key, iv, aad).decrypt(sealed)
-    } catch (error) {
+    } catch {
       return null
     }
   }

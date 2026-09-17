@@ -1,5 +1,5 @@
-import { sha256 as sha256Hash } from '@noble/hashes/sha256'
-export { ripemd160 } from '@noble/hashes/ripemd160'
+import { sha256 as sha256Hash } from '@noble/hashes/sha2'
+export { ripemd160 } from '@noble/hashes/legacy'
 import { keccak_256 } from '@noble/hashes/sha3'
 import { fromString, toString, concat } from 'uint8arrays'
 
@@ -8,7 +8,7 @@ export function sha256(payload: string | Uint8Array): Uint8Array {
   return sha256Hash(data)
 }
 
-export const keccak = keccak_256
+export const keccak: (data: Uint8Array) => Uint8Array = keccak_256
 
 export function toEthereumAddress(hexPublicKey: string): string {
   const hashInput = fromString(hexPublicKey.slice(2), 'base16')

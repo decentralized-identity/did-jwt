@@ -179,8 +179,8 @@ importers:
         specifier: ^2.0.0
         version: 2.4.0
       canonicalize:
-        specifier: ^2.0.0
-        version: 2.1.0
+        specifier: ^5.0.0
+        version: 5.0.0
       did-resolver:
         specifier: ^4.1.0
         version: 4.1.0
@@ -1871,8 +1871,9 @@ packages:
   caniuse-lite@1.0.30001810:
     resolution: {integrity: sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg==}
 
-  canonicalize@2.1.0:
-    resolution: {integrity: sha512-F705O3xrsUtgt98j7leetNhTWPe+5S72rlL5O4jA1pKqBVQ/dT1O1D6PFxmSXvc0SUOinWS57DKx0I3CHrXJHQ==}
+  canonicalize@5.0.0:
+    resolution: {integrity: sha512-O/NCg79G0/TWoD3Fo6scOMfP4p7/TsxRXVmRo9mEfD6h/5y5o1wtVbKyBO0E2i7FEcqe5tRijyAH/IWHIHMH4w==}
+    engines: {node: '>=22'}
     hasBin: true
 
   cardinal@2.1.1:
@@ -6291,6 +6292,18 @@ snapshots:
       tinyrainbow: 3.1.1
       vitest: 5.0.1(@types/node@20.19.43)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@20.19.43)(terser@5.51.2))
 
+  '@vitest/eslint-plugin@1.6.27(@typescript-eslint/eslint-plugin@8.70.0(@typescript-eslint/parser@8.70.0(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3))(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3))(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)(vitest@5.0.1)':
+    dependencies:
+      '@typescript-eslint/scope-manager': 8.70.0
+      '@typescript-eslint/utils': 8.70.0(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+      eslint: 10.10.0(supports-color@8.1.1)
+    optionalDependencies:
+      '@typescript-eslint/eslint-plugin': 8.70.0(@typescript-eslint/parser@8.70.0(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3))(eslint@10.10.0(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+      typescript: 5.9.3
+      vitest: 5.0.1(@types/node@20.19.43)(@vitest/coverage-v8@5.0.1)(vite@8.3.0(@types/node@20.19.43)(terser@5.51.2))
+    transitivePeerDependencies:
+      - supports-color
+
   '@vitest/istanbul-lib-coverage@1.0.1': {}
 
   '@vitest/istanbul-lib-report@1.0.1':
@@ -6682,7 +6695,7 @@ snapshots:
 
   caniuse-lite@1.0.30001810: {}
 
-  canonicalize@2.1.0: {}
+  canonicalize@5.0.0: {}
 
   cardinal@2.1.1:
     dependencies:

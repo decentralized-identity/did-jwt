@@ -1,4 +1,5 @@
 import NaclSigner from '../signers/NaclSigner.js'
+import { expect, it } from 'vitest'
 
 const privateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const signer = NaclSigner(privateKey)

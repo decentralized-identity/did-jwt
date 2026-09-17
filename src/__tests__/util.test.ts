@@ -1,4 +1,5 @@
 import { bigintToBytes, hexToBytes } from '../util'
+import { describe, it, expect } from 'vitest'
 
 describe('bigintToBytes', () => {
   it('should convert a bigint to bytes', () => {
