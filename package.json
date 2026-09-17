@@ -23,7 +23,7 @@
   "browser": "./dist/did-jwt.js",
   "scripts": {
     "test": "cross-env NODE_OPTIONS=\"--experimental-vm-modules\" jest",
-    "test:ci": "yarn test --coverage",
+    "test:ci": "pnpm run test --coverage",
     "canary": "node canary/unpack.mjs && tsx canary/canary.esm.ts && node canary/canary.cjs.cjs && (cd canary/consumer && tsc --noEmit)",
     "canary:unpack": "node canary/unpack.mjs",
     "canary:esm": "tsx canary/canary.esm.ts",
@@ -31,12 +31,12 @@
     "canary:types": "cd canary/consumer && tsc --noEmit",
     "build:js": "microbundle --compress=false",
     "build:browser": "webpack --config webpack.config.cjs",
-    "build": "yarn build:js && yarn build:browser",
+    "build": "pnpm run build:js && pnpm run build:browser",
     "clean": "rimraf lib dist",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint --ignore-pattern \"src/**/*.test.[jt]s\" \"src/**/*.[jt]s\"",
-    "prepublishOnly": "yarn test:ci && yarn format && yarn lint",
+    "prepublishOnly": "pnpm run test:ci && pnpm run format && pnpm run lint",
     "release": "semantic-release --debug"
   },
   "author": "Pelle Braendgaard",
@@ -107,5 +107,5 @@
   "eslintIgnore": [
     "*.test.ts"
   ],
-  "packageManager": "yarn@1.22.22"
+  "packageManager": "pnpm@12.4.2"
 }

@@ -21,3 +21,5 @@ docs/styles
 .rts2_cache_umd
 
 .idea/
+.DS_Store
+/.pi/
