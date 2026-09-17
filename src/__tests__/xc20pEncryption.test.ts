@@ -6,7 +6,7 @@ import { createX25519ECDH } from '../encryption/ECDH.js'
 import { bytesToBase58, generateKeyPair } from '../util.js'
 import { randomBytes } from '@noble/hashes/utils'
 
-import { jest } from '@jest/globals'
+import { vi } from 'vitest'
 
 describe('xc20pEncryption', () => {
   describe('resolveX25519Encrypters', () => {
@@ -155,7 +155,7 @@ describe('xc20pEncryption', () => {
       } as DIDResolutionResult
 
       resolver = {
-        resolve: jest.fn(async (did) => {
+        resolve: vi.fn(async (did) => {
           switch (did) {
             case did1:
               return didDocumentResult1

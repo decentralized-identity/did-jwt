@@ -367,7 +367,7 @@ describe('JWE', () => {
           expect.assertions(1)
           const ecdh: ECDH = createX25519ECDH(randomBytes(32))
           const badPublicKey = randomBytes(64)
-          expect(ecdh(badPublicKey)).rejects.toThrow('invalid_argument')
+          await expect(ecdh(badPublicKey)).rejects.toThrow('invalid_argument')
         })
       })
     })

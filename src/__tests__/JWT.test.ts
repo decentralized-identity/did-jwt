@@ -1,4 +1,4 @@
-import { jest, describe, expect, it } from '@jest/globals'
+import { vi } from 'vitest'
 import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util.js'
 import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
@@ -340,7 +340,7 @@ describe('createJWT()', () => {
     const signer = EdDSASigner(base64ToBytes(ed25519PrivateKey))
     const alg = 'Ed25519'
     const resolver = {
-      resolve: jest.fn().mockReturnValue({
+      resolve: vi.fn().mockReturnValue({
         didDocumentMetadata: {},
         didResolutionMetadata: {},
         didDocument: {
@@ -443,7 +443,7 @@ describe('verifyJWT() for ES256', () => {
   }
 
   const resolver = {
-    resolve: jest.fn(async (didUrl: string) => {
+    resolve: vi.fn(async (didUrl: string) => {
       if (didUrl.includes(did)) {
         return {
           didDocument: didDoc.didDocument,
@@ -527,7 +527,7 @@ describe('verifyJWT() for ES256', () => {
 
 describe('verifyJWT() for ES256K', () => {
   const resolver = {
-    resolve: jest.fn(async (didUrl: string) => {
+    resolve: vi.fn(async (didUrl: string) => {
       if (didUrl.includes(did)) {
         return {
           didDocument: didDoc.didDocument,
@@ -619,7 +619,7 @@ describe('verifyJWT() for ES256K', () => {
   describe('pregenerated JWT with publicKeyJwk in DID doc', () => {
     const incomingJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
-    const jwkResolver = { resolve: jest.fn().mockReturnValue(didDocJwk) } as Resolvable
+    const jwkResolver = { resolve: vi.fn().mockReturnValue(didDocJwk) } as Resolvable
 
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
@@ -645,7 +645,7 @@ describe('verifyJWT() for ES256K', () => {
   describe('pregenerated JWT with legacy resolver', () => {
     const incomingJwt =
       'eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsImlzcyI6ImRpZDpldGhyOjB4OTBlNDVkNzViZDEyNDZlMDkyNDg3MjAxODY0N2RiYTk5NmE4ZTdiOSIsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXX0.KIG2zUO8Quf3ucb9jIncZ1CmH0v-fAZlsKvesfsd9x4RzU0qrvinVd9d30DOeZOwdwEdXkET_wuPoOECwU0IKA'
-    const legacyResolver = { resolve: jest.fn().mockReturnValue(didDocLegacy) } as Resolvable
+    const legacyResolver = { resolve: vi.fn().mockReturnValue(didDocLegacy) } as Resolvable
 
     it('verifies the JWT and return correct payload', async () => {
       expect.assertions(1)
@@ -812,7 +812,7 @@ describe('verifyJWT() for ES256K', () => {
   it('handles ES256K algorithm with ethereum address - github #14', async () => {
     expect.assertions(1)
     const ethResolver = {
-      resolve: jest.fn().mockReturnValue({
+      resolve: vi.fn().mockReturnValue({
         didDocument: {
           id: did,
           publicKey: [
@@ -834,7 +834,7 @@ describe('verifyJWT() for ES256K', () => {
   it('handles ES256K algorithm with blockchainAccountId - github #14, #155', async () => {
     expect.assertions(1)
     const ethResolver = {
-      resolve: jest.fn().mockReturnValue({
+      resolve: vi.fn().mockReturnValue({
         didDocument: {
           id: did,
           publicKey: [
@@ -862,7 +862,7 @@ describe('verifyJWT() for ES256K', () => {
       blockchainAccountId: `eip155:1:${getAddress(address)}`,
     }
     const ethResolver = {
-      resolve: jest.fn().mockReturnValue({
+      resolve: vi.fn().mockReturnValue({
         didDocument: {
           id: did,
           verificationMethod: [verificationMethod],
@@ -1221,7 +1221,7 @@ describe('resolveAuthenticator()', () => {
       it('finds public key', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(singleKey) } as Resolvable,
           alg,
           did
         )
@@ -1235,7 +1235,7 @@ describe('resolveAuthenticator()', () => {
       it('filters out irrelevant public keys', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did
         )
@@ -1249,7 +1249,7 @@ describe('resolveAuthenticator()', () => {
       it('only list authenticators able to authenticate a user', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1264,7 +1264,7 @@ describe('resolveAuthenticator()', () => {
       it('lists authenticators with multiple key types in doc', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1279,7 +1279,7 @@ describe('resolveAuthenticator()', () => {
       it('errors if no suitable public keys exist', async () => {
         expect.assertions(1)
         return await expect(
-          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
+          resolveAuthenticator({ resolve: vi.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
         ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
       })
     })
@@ -1289,7 +1289,7 @@ describe('resolveAuthenticator()', () => {
       it('filters out irrelevant public keys', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did
         )
@@ -1303,7 +1303,7 @@ describe('resolveAuthenticator()', () => {
       it('only list authenticators able to authenticate a user', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleKeysLegacy) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1318,7 +1318,7 @@ describe('resolveAuthenticator()', () => {
       it('lists authenticators with multiple key types in doc', async () => {
         expect.assertions(1)
         const authenticators = await resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(multipleAuthTypes) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1333,7 +1333,7 @@ describe('resolveAuthenticator()', () => {
       it('errors if no suitable public keys exist', async () => {
         expect.assertions(1)
         return await expect(
-          resolveAuthenticator({ resolve: jest.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
+          resolveAuthenticator({ resolve: vi.fn().mockReturnValue(unsupportedFormat) } as Resolvable, alg, did)
         ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
       })
     })
@@ -1342,7 +1342,7 @@ describe('resolveAuthenticator()', () => {
       expect.assertions(1)
       return await expect(
         resolveAuthenticator(
-          { resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable,
+          { resolve: vi.fn().mockReturnValue(singleKey) } as Resolvable,
           alg,
           did,
           'authentication'
@@ -1355,7 +1355,7 @@ describe('resolveAuthenticator()', () => {
     it('errors if no public keys exist', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(noPublicKey) } as Resolvable, alg, did)
+        resolveAuthenticator({ resolve: vi.fn().mockReturnValue(noPublicKey) } as Resolvable, alg, did)
       ).rejects.toThrowError(`DID document for ${did} does not have public keys for ${alg}`)
     })
 
@@ -1364,7 +1364,7 @@ describe('resolveAuthenticator()', () => {
       return await expect(
         resolveAuthenticator(
           {
-            resolve: jest.fn().mockReturnValue({
+            resolve: vi.fn().mockReturnValue({
               didResolutionMetadata: { error: 'notFound' },
               didDocument: null,
             }),
@@ -1378,7 +1378,7 @@ describe('resolveAuthenticator()', () => {
     it('errors if no supported signature types exist', async () => {
       expect.assertions(1)
       return await expect(
-        resolveAuthenticator({ resolve: jest.fn().mockReturnValue(singleKey) } as Resolvable, 'ESBAD', did)
+        resolveAuthenticator({ resolve: vi.fn().mockReturnValue(singleKey) } as Resolvable, 'ESBAD', did)
       ).rejects.toThrowError('No supported signature types for algorithm ESBAD')
     })
   })
