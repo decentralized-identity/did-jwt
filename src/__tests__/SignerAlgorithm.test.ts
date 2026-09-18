@@ -1,5 +1,5 @@
 import SignerAlgorithm from '../SignerAlgorithm.js'
-import { toSignatureObject, toSignatureObject2 } from '../VerifierAlgorithm.js'
+import { toSignatureObject } from '../VerifierAlgorithm.js'
 import SimpleSigner from '../signers/SimpleSigner.js'
 import EllipticSigner from '../signers/EllipticSigner.js'
 import NaclSigner from '../signers/NaclSigner.js'

@@ -2,7 +2,7 @@ import type { VerificationMethod } from 'did-resolver'
 import { JWT_ERROR } from './Errors.js'
 import { type JWTDecoded, type JWTVerifyOptions, resolveAuthenticator, verifyJWT, verifyJWTDecoded } from './JWT.js'
 
-export const CONDITIONAL_PROOF_2022 = 'ConditionalProof2022'
+const CONDITIONAL_PROOF_2022 = 'ConditionalProof2022'
 
 export async function verifyProof(
   jwt: string,
@@ -17,7 +17,7 @@ export async function verifyProof(
   }
 }
 
-export async function verifyConditionalProof(
+async function verifyConditionalProof(
   jwt: string,
   { header, payload, signature, data }: JWTDecoded,
   authenticator: VerificationMethod,

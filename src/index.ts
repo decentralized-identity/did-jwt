@@ -34,6 +34,8 @@ export {
   createAnonEncrypter,
   createAuthDecrypter,
   createAnonDecrypter,
+  xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2,
+  xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2,
   xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2,
   xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2,
 } from './encryption/xc20pEncryption.js'
@@ -59,7 +61,7 @@ export {
   type JWTVerified,
 }
 
-export { type JWTOptions, type JWTVerifyOptions } from './JWT.js'
+export { type JWTOptions, type JWTVerifyOptions, type JWTVerifyPolicies, type JWSDecoded } from './JWT.js'
 
 export {
   base64ToBytes,

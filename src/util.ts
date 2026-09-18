@@ -58,7 +58,7 @@ export function bytesToBase58(b: Uint8Array): string {
 
 export type KNOWN_JWA = 'ES256' | 'ES256K' | 'ES256K-R' | 'Ed25519' | 'EdDSA'
 
-export type KNOWN_VERIFICATION_METHOD =
+type KNOWN_VERIFICATION_METHOD =
   | 'JsonWebKey2020'
   | 'Multikey'
   | 'Secp256k1SignatureVerificationKey2018' // deprecated in favor of EcdsaSecp256k1VerificationKey2019
@@ -149,7 +149,7 @@ export const SUPPORTED_PUBLIC_KEY_TYPES: PublicKeyTypes = {
   ],
 }
 
-export const VM_TO_KEY_TYPE: Record<KNOWN_VERIFICATION_METHOD, KNOWN_KEY_TYPE | undefined> = {
+const VM_TO_KEY_TYPE: Record<KNOWN_VERIFICATION_METHOD, KNOWN_KEY_TYPE | undefined> = {
   Secp256k1SignatureVerificationKey2018: 'Secp256k1',
   Secp256k1VerificationKey2018: 'Secp256k1',
   EcdsaSecp256k1VerificationKey2019: 'Secp256k1',
@@ -179,7 +179,7 @@ export const supportedCodecs: Record<KNOWN_CODECS, number> = {
   'p256-pub': 0x1200,
 }
 
-export const CODEC_TO_KEY_TYPE: Record<KNOWN_CODECS, KNOWN_KEY_TYPE> = {
+const CODEC_TO_KEY_TYPE: Record<KNOWN_CODECS, KNOWN_KEY_TYPE> = {
   'bls12_381-g1-pub': 'Bls12381G1',
   'bls12_381-g2-pub': 'Bls12381G2',
   'ed25519-pub': 'Ed25519',
@@ -323,7 +323,7 @@ export function bytesToHex(b: Uint8Array): string {
   return u8a.toString(b, 'base16')
 }
 
-export function bytesToBigInt(b: Uint8Array): bigint {
+function bytesToBigInt(b: Uint8Array): bigint {
   return BigInt(`0x` + u8a.toString(b, 'base16'))
 }
 
@@ -361,11 +361,6 @@ export function fromJose(signature: string): { r: string; s: string; recoveryPar
 
 export function toSealed(ciphertext: string, tag?: string): Uint8Array {
   return u8a.concat([base64ToBytes(ciphertext), tag ? base64ToBytes(tag) : new Uint8Array(0)])
-}
-
-export function leftpad(data: string, size = 64): string {
-  if (data.length === size) return data
-  return '0'.repeat(size - data.length) + data
 }
 
 /**

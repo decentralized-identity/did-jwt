@@ -29,7 +29,7 @@ export function toSignatureObject(signature: string, recoverable = false): Ecdsa
   return sigObj
 }
 
-export function toSignatureObject2(signature: string, recoverable = false): ECDSASignature {
+function toSignatureObject2(signature: string, recoverable = false): ECDSASignature {
   const bytes = base64ToBytes(signature)
   if (bytes.length !== (recoverable ? 65 : 64)) {
     throw new Error('wrong signature length')
@@ -40,7 +40,7 @@ export function toSignatureObject2(signature: string, recoverable = false): ECDS
   }
 }
 
-export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
+function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash = sha256(data)
   const sig = base64ToBytes(signature)
   if (sig.length !== 64) {
@@ -61,11 +61,7 @@ export function verifyES256(data: string, signature: string, authenticators: Ver
   return signer
 }
 
-export function verifyES256K(
-  data: string,
-  signature: string,
-  authenticators: VerificationMethod[]
-): VerificationMethod {
+function verifyES256K(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash = sha256(data)
   const signatureBytes = base64ToBytes(signature)
   if (signatureBytes.length !== 64) {
@@ -95,7 +91,7 @@ export function verifyES256K(
   return signer
 }
 
-export function verifyRecoverableES256K(
+function verifyRecoverableES256K(
   data: string,
   signature: string,
   authenticators: VerificationMethod[]
@@ -139,11 +135,7 @@ export function verifyRecoverableES256K(
   throw new Error('invalid_signature: Signature invalid for JWT')
 }
 
-export function verifyEd25519(
-  data: string,
-  signature: string,
-  authenticators: VerificationMethod[]
-): VerificationMethod {
+function verifyEd25519(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const clear = stringToBytes(data)
   const signatureBytes = base64ToBytes(signature)
   const signer = authenticators.find((a: VerificationMethod) => {
