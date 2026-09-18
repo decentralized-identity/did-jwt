@@ -1,4 +1,4 @@
-name: Build, Test and Publish
+name: Release
 on:
   workflow_dispatch:
   push:
@@ -8,32 +8,36 @@ on:
       - 'main'
       - 'next'
 jobs:
-  build-test-publish:
-    runs-on: ubuntu-26.04
+  release:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
-
-      - name: "Setup node with cache"
-        uses: actions/setup-node@v7
+      - uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-          cache: 'yarn'
 
-      - run: yarn install --frozen-lockfile
-      - run: yarn run format
-      - run: yarn run build
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run format
+      - run: pnpm run build
+      - run: pnpm run lint
+      - run: pnpm run test:ci
 
-      - name: "Setup git coordinates"
-        run: |
-          git config user.name ${{secrets.GH_USER}}
-          git config user.email ${{secrets.GH_EMAIL}}
-
-      - name: "Run semantic-release"
+      - name: Run semantic-release
         env:
-          GH_TOKEN: ${{secrets.GH_TOKEN}}
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
-        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/alpha'
-        run: yarn run release
+          GH_TOKEN: ${{ github.token }}
+        run: pnpm run release
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
