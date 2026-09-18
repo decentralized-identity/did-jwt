@@ -167,12 +167,7 @@ export const VM_TO_KEY_TYPE: Record<KNOWN_VERIFICATION_METHOD, KNOWN_KEY_TYPE | 
 }
 
 export type KNOWN_CODECS =
-  | 'ed25519-pub'
-  | 'x25519-pub'
-  | 'secp256k1-pub'
-  | 'bls12_381-g1-pub'
-  | 'bls12_381-g2-pub'
-  | 'p256-pub'
+  'ed25519-pub' | 'x25519-pub' | 'secp256k1-pub' | 'bls12_381-g1-pub' | 'bls12_381-g2-pub' | 'p256-pub'
 
 // this is from the multicodec table https://github.com/multiformats/multicodec/blob/master/table.csv
 export const supportedCodecs: Record<KNOWN_CODECS, number> = {
