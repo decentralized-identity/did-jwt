@@ -37,7 +37,7 @@
     "build": "pnpm run build:common && pnpm run build:esm",
     "build:common": "tsc --project tsconfig.common.json && echo '{\"type\":\"commonjs\"}' > lib.commonjs/package.json",
     "build:esm": "tsc",
-    "clean": "rimraf lib.commonjs lib.esm coverage *.tgz",
+    "clean": "rimraf lib dist lib.commonjs lib.esm coverage *.tgz",
     "build:docs": "echo 'PLEASE UPDATE REFERENCE DOCS MANUALLY'",
     "format": "prettier --write \"src/**/*.ts\"",
     "lint": "eslint \"src/**/*.[jt]s\"",
@@ -79,7 +79,7 @@
     "prettier": "3.9.7",
     "rimraf": "6.1.3",
     "semantic-release": "25.0.9",
-    "tsx": "^4.23.13",
+    "tsx": "4.23.13",
     "tweetnacl": "1.0.3",
     "typescript": "6.0.3",
     "vitest": "5.0.1"

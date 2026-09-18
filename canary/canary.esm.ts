@@ -39,16 +39,16 @@ import { Assert, toHex } from './harness.js'
 // ---------------------------------------------------------------------------
 
 const HERE = dirname(new URL(import.meta.url).pathname)
-// // Default to the canary/consumer unpack dir; override with CANARY_LIB_DIR.
-// const LIB_DIR = process.env.CANARY_LIB_DIR ?? resolve(HERE, 'consumer/node_modules/did-jwt')
-// const ESM_ENTRY = pathToFileURL(resolve(LIB_DIR, 'lib.esm/index.js')).href
+// Default to the canary/consumer unpack dir; override with CANARY_LIB_DIR.
+const LIB_DIR = process.env.CANARY_LIB_DIR ?? resolve(HERE, 'consumer/node_modules/did-jwt')
+const ESM_ENTRY = pathToFileURL(resolve(LIB_DIR, 'lib.esm/index.js')).href
 
-// console.log(`\nESM canary: importing ${ESM_ENTRY}`)
+console.log(`\nESM canary: importing ${ESM_ENTRY}`)
 
-// // Type-checking the full public surface (a breaking type change fails here).
-// // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-// const didJwt = (await import(ESM_ENTRY)) as Record<string, unknown>
-import * as didJwt from 'did-jwt'
+// Type-checking the full public surface (a breaking type change fails here).
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+const didJwt = (await import(ESM_ENTRY)) as Record<string, unknown>
+// import * as didJwt from 'did-jwt'
 
 const assert = new Assert()
 
@@ -88,8 +88,8 @@ const EXPECTED_EXPORTS = [
   'createAnonEncrypter',
   'createAuthDecrypter',
   'createAnonDecrypter',
-  // 'xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2',
-  // 'xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2',
+  'xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2',
+  'xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2',
   'xc20pAuthEncrypterEcdh1PuV3x25519WithXc20PkwV2',
   'xc20pAuthDecrypterEcdh1PuV3x25519WithXc20PkwV2',
   'createX25519ECDH',
@@ -119,7 +119,7 @@ for (const name of EXPECTED_EXPORTS) {
   assert.assert(`export "${name}" is present`, typeof didJwt[name] !== 'undefined', 'missing from ESM exports')
 }
 const runtimeCount = Object.keys(didJwt).length
-assert.assert('ESM build exposes at least 45 exports', runtimeCount >= 45, `got ${runtimeCount}`)
+assert.assert('ESM build exposes at least 47 exports', runtimeCount >= 47, `got ${runtimeCount}`)
 // Every exported *callable* should be a function (a breaking change could
 // turn a function into an object, etc.).
 for (const name of EXPECTED_EXPORTS) {
@@ -288,13 +288,16 @@ const backAuth = await (didJwt.decryptJWE as any)(jweAuth, authDec)
 assert.assert('JWE ECDH-1PU round-trip', toHex(backAuth) === '01020304')
 
 // anonymous ECDH-ES + XC20PKW round-trip
-// const anonEnc = (didJwt.xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2 as any)(recipientPublic)
-// const anonDec = (didJwt.xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2 as any)(recipientSecret)
+const anonEncSpecific = (didJwt.xc20pAnonEncrypterEcdhESx25519WithXc20PkwV2 as any)(recipientPublic)
+const anonDecSpecific = (didJwt.xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2 as any)(recipientSecret)
 const anonEnc = (didJwt.createAnonEncrypter as any)(recipientPublic)
 const anonDec = (didJwt.createAnonDecrypter as any)(recipientSecret)
 const jweAnon = await (didJwt.createJWE as any)(cleartext, [anonEnc])
 const backAnon = await (didJwt.decryptJWE as any)(jweAnon, anonDec)
 assert.assert('JWE ECDH-ES anon round-trip', toHex(backAnon) === toHex(cleartext))
+const jweAnonSpecific = await (didJwt.createJWE as any)(cleartext, [anonEncSpecific])
+const backAnonSpecific = await (didJwt.decryptJWE as any)(jweAnonSpecific, anonDecSpecific)
+assert.assert('JWE ECDH-ES anon round-trip', toHex(backAnonSpecific) === toHex(cleartext))
 
 // createFullEncrypter wires the three pieces into an Encrypter.
 const kekCreator = { createKek: didJwt.createX25519Ecdh1PUv3Kek, alg: 'ECDH-ES' }
@@ -336,6 +339,164 @@ assert.assert('createX25519ECDH shared secret agrees', toHex(aShared) === toHex(
 console.log('\n-- extractPublicKeyBytes --')
 const extracted = (didJwt.extractPublicKeyBytes as any)({ type: 'EcdsaSecp256k1VerificationKey2019', publicKeyHex: PUB_HEX })
 assert.assert('extractPublicKeyBytes -> keyType Secp256k1', extracted.keyType === 'Secp256k1' && extracted.keyBytes.length > 0)
+
+// ---------------------------------------------------------------------------
+// 8. Other signers + full create->verify round-trips across algorithms
+//    (covers the full signer surface, not just ES256K, and exercises the
+//    createJWT `header`/`expiresIn`/audience parameters + verifyJWT's
+//    `audience` / `skewTime` / `proofPurpose` / `didAuthenticator` options).
+// ---------------------------------------------------------------------------
+
+console.log('\n-- signers: ES256 / EdDSA round-trips --')
+// Public keys matching the private keys below (compressed P-256 / raw Ed25519).
+const ES256_PRIV = '0101010101010101010101010101010101010101010101010101010101010101'
+const ES256_PUB = '026ff03b949241ce1dadd43519e6960e0a85b41a69a05c328103aa2bce1594ca16'
+const ED_PRIV = '0000000000000000000000000000000000000000000000000000000000000001'
+const ED_PUB = '4cb5abf6ad79fbf5abbccafcc269d85cd2651ed4b885b5869f241aedf0a5ba29'
+
+const es256Sign = (didJwt.ES256Signer as any)((didJwt.hexToBytes as any)(ES256_PRIV))
+const es256Jwt = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT },
+  { issuer: ISSUER, signer: es256Sign },
+  { alg: 'ES256' }, // header.alg is used for signing
+)
+const es256Dec = (didJwt.decodeJWT as any)(es256Jwt)
+assert.assert('createJWT header.alg=ES256', es256Dec.header.alg === 'ES256')
+
+// options.expiresIn sets payload.exp (only when header.alg is not set, since
+// header.alg overrides options.alg).
+const jwtExp = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT },
+  { issuer: ISSUER, signer, expiresIn: 3600 },
+)
+const jwtExpDec = (didJwt.decodeJWT as any)(jwtExp)
+// options.expiresIn sets payload.exp = (Date.now() / 1000) + expiresIn.
+// payload.iat (from the caller) is NOT used for exp, so we compare
+// against Date.now()-based time. The canary runs in the same second
+// as createJWT, so the values are within a small margin.
+const nowSec = Math.floor(Date.now() / 1000)
+assert.assert(
+  'createJWT options.expiresIn -> payload.exp is set',
+  typeof jwtExpDec.payload.exp === 'number' && jwtExpDec.payload.exp > nowSec,
+)  // exercises the options.expiresIn -> payload.exp parameter
+const es256Resolver = { resolve: async () => ({
+  didDocument: {
+    id: ISSUER,
+    verificationMethod: [{ id: `${ISSUER}#k`, type: 'EcdsaSecp256r1VerificationKey2019', controller: ISSUER, publicKeyHex: ES256_PUB }],
+    authentication: [`${ISSUER}#k`],
+    assertionMethod: [`${ISSUER}#k`],
+  },
+  didDocumentMetadata: {},
+  didResolutionMetadata: { contentType: 'application/did+json' },
+}) }
+const es256V = await (didJwt.verifyJWT as any)(es256Jwt, { resolver: es256Resolver, policies: { now: IAT, nbf: false, iat: false, exp: false, aud: false } })
+assert.assert('ES256 create->verify round-trip', es256V.verified === true && es256V.signer.type === 'EcdsaSecp256r1VerificationKey2019')
+
+const edSign = (didJwt.EdDSASigner as any)((didJwt.hexToBytes as any)(ED_PRIV))
+const edJwt = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT, aud: 'did:example:aud' },
+  { issuer: ISSUER, signer: edSign },
+  { alg: 'EdDSA' },
+)
+const edResolver = { resolve: async () => ({
+  didDocument: {
+    id: ISSUER,
+    verificationMethod: [{ id: `${ISSUER}#k`, type: 'Ed25519VerificationKey2018', controller: ISSUER, publicKeyHex: ED_PUB }],
+    authentication: [`${ISSUER}#k`],
+    assertionMethod: [`${ISSUER}#k`],
+  },
+  didDocumentMetadata: {},
+  didResolutionMetadata: { contentType: 'application/did+json' },
+}) }
+const edV = await (didJwt.verifyJWT as any)(edJwt, { resolver: edResolver, audience: 'did:example:aud', policies: { now: IAT, nbf: false, iat: false, exp: false } })
+assert.assert('EdDSA create->verify round-trip', edV.verified === true && edV.signer.type === 'Ed25519VerificationKey2018')
+assert.assert('verifyJWT audience option matched payload.aud', edV.payload.aud === 'did:example:aud')
+
+// ---------------------------------------------------------------------------
+// 9. Deprecated aliases still work (EllipticSigner / SimpleSigner / NaclSigner)
+// ---------------------------------------------------------------------------
+
+console.log('\n-- deprecated signer aliases --')
+const ellipJwt = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT },
+  { issuer: ISSUER, signer: (didJwt.EllipticSigner as any)(PRIVATE_HEX) },
+  { alg: 'ES256K' },
+)
+const ellipV = await (didJwt.verifyJWT as any)(ellipJwt, { resolver, policies: { now: IAT, nbf: false, iat: false, exp: false, aud: false } })
+assert.assert('EllipticSigner (deprecated) round-trip', ellipV.verified === true)
+
+const simpleSig = await (didJwt.SimpleSigner as any)(PRIVATE_HEX)(DATA)
+assert.assert(
+  'SimpleSigner (deprecated) returns an {r,s,recoveryParam} object',
+  simpleSig && typeof simpleSig === 'object' && 'r' in simpleSig && 's' in simpleSig && 'recoveryParam' in simpleSig,
+)
+
+const naclKeyB64 = Buffer.from(ED_PRIV, 'hex').toString('base64')
+const naclJwt = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT },
+  { issuer: ISSUER, signer: (didJwt.NaclSigner as any)(naclKeyB64) },
+  { alg: 'Ed25519' },
+)
+const naclV = await (didJwt.verifyJWT as any)(naclJwt, { resolver: edResolver, policies: { now: IAT, nbf: false, iat: false, exp: false, aud: false } })
+assert.assert('NaclSigner (deprecated) round-trip', naclV.verified === true)
+
+// ---------------------------------------------------------------------------
+// 10. Additional method parameters + error contracts
+// ---------------------------------------------------------------------------
+
+console.log('\n-- method parameters & error contracts --')
+
+// createJWT with a custom header (typ + kid).
+const jwtHeader = await (didJwt.createJWT as any)(
+  { requested: ['name'], iat: IAT },
+  { issuer: ISSUER, signer },
+  { typ: 'JWT', kid: `${ISSUER}#1` },
+)
+assert.assert('createJWT custom header.kid', (didJwt.decodeJWT as any)(jwtHeader).header.kid === `${ISSUER}#1`)
+
+// createJWS accepts a string payload (not just an object).
+const jwsStr = await (didJwt.createJWS as any)('stringpayload', signer, { alg: 'ES256K' })
+const jwsStrKey = (didJwt.verifyJWS as any)(jwsStr, { id: `${ISSUER}#1`, type: 'EcdsaSecp256k1VerificationKey2019', controller: ISSUER, publicKeyHex: PUB_HEX })
+assert.assert('createJWS accepts a string payload', jwsStrKey && jwsStrKey.publicKeyHex === PUB_HEX)
+
+// createMultisignatureJWT round-trips through decodeJWT's recursion (cty=JWT).
+const msJwt = await (didJwt.createMultisignatureJWT as any)(
+  { requested: ['name'], iat: IAT },
+  {},
+  [{ issuer: ISSUER, signer, alg: 'ES256K' }],
+)
+const msDec = (didJwt.decodeJWT as any)(msJwt) // recurse=true unwraps the nested JWT
+assert.assert('createMultisignatureJWT -> decodeJWT (recurses)', msDec.payload.requested[0] === 'name' && msDec.header.alg === 'ES256K')
+
+// verifyJWT with a `didAuthenticator` supplied directly (bypasses the resolver).
+const didAuthenticator = {
+  authenticators: [{ id: `${ISSUER}#1`, type: 'EcdsaSecp256k1VerificationKey2019', controller: ISSUER, publicKeyHex: PUB_HEX }],
+  issuer: ISSUER,
+  didResolutionResult: {
+    didDocument: { id: ISSUER, verificationMethod: [], authentication: [`${ISSUER}#1`], assertionMethod: [`${ISSUER}#1`] },
+    didDocumentMetadata: {},
+    didResolutionMetadata: { contentType: 'application/did+json' },
+  },
+}
+const daV = await (didJwt.verifyJWT as any)(createdJwt, { resolver: { resolve: () => { throw new Error('resolver should not be called') } }, didAuthenticator, policies: { now: IAT, nbf: false, iat: false, exp: false, aud: false } })
+assert.assert('verifyJWT didAuthenticator option', daV.verified === true && daV.issuer === ISSUER && daV.signer.id === `${ISSUER}#1`)
+
+// expired token (policies.exp=true) throws invalid_jwt.
+await assert.assertRejects('verifyJWT throws invalid_jwt on exp', (didJwt.verifyJWT as any)(jwtExp, { resolver, policies: { exp: true } }), /invalid_jwt/)
+
+// payload.aud set but no audience/callbackUrl configured -> invalid_config.
+await assert.assertRejects('verifyJWT throws invalid_config on missing audience', (didJwt.verifyJWT as any)(edJwt, { resolver: edResolver, policies: { now: IAT, iat: false, nbf: false, exp: false } }), /invalid_config/)
+
+// createJWT requires a signer.
+await assert.assertRejects('createJWT throws missing_signer', (didJwt.createJWT as any)({ x: 1 }, { issuer: ISSUER }, { alg: 'ES256K' }), /missing_signer/)
+// createJWT requires an issuer.
+await assert.assertRejects('createJWT throws missing_issuer', (didJwt.createJWT as any)({ x: 1 }, { signer }, { alg: 'ES256K' }), /missing_issuer/)
+
+// createJWE with a protectedHeader + aad (authenticated round-trip).
+const aad = new Uint8Array([1, 2, 3, 4])
+const jweAad = await (didJwt.createJWE as any)(cleartext, [authEnc], { kid: `${ISSUER}#1` }, aad)
+const backAad = await (didJwt.decryptJWE as any)(jweAad, authDec)
+assert.assert('createJWE protectedHeader+aad round-trip', toHex(backAad) === toHex(cleartext) && typeof jweAad.aad === 'string')
 
 // ---------------------------------------------------------------------------
 // Report
