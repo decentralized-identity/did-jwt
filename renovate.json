@@ -1,42 +1,23 @@
 {
-  "extends": [
-    "config:base",
-    "group:allNonMajor"
-  ],
-  "labels": [
-    "maintenance"
-  ],
+  "extends": ["config:recommended", "group:allNonMajor"],
+  "labels": ["maintenance"],
   "automergeType": "branch",
   "automerge": true,
   "packageRules": [
     {
-      "matchPackagePatterns": [
-        "did"
-      ],
-      "matchUpdateTypes": [
-        "bump",
-        "patch",
-        "minor",
-        "major"
-      ],
+      "matchUpdateTypes": ["bump", "patch", "minor", "major"],
       "groupName": "did-dependencies",
-      "commitMessagePrefix": "fix(deps):"
+      "commitMessagePrefix": "fix(deps):",
+      "matchPackageNames": ["/did/"]
     },
     {
-      "matchDepTypes": [
-        "devDependencies"
-      ],
+      "matchDepTypes": ["devDependencies"],
       "groupName": "devDeps",
-      "extends": [
-        "schedule:earlyMondays"
-      ]
+      "extends": ["schedule:earlyMondays"]
     },
     {
-      "matchPackagePatterns": [
-        "multiformats",
-        "uint8arrays"
-      ],
-      "enabled": false
+      "enabled": false,
+      "matchPackageNames": ["/multiformats/", "/uint8arrays/"]
     }
   ]
 }
