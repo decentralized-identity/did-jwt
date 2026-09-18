@@ -11,7 +11,7 @@ import type {
   Recipient,
 } from './types.js'
 import { bytesToBase64url, genX25519EphemeralKeyPair } from '../util.js'
-import { randomBytes } from '@noble/hashes/utils'
+import { randomBytes } from '@noble/hashes/utils.js'
 
 export function createFullEncrypter(
   recipientPublicKey: Uint8Array,

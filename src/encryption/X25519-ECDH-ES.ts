@@ -1,7 +1,7 @@
 import type { ECDH, EphemeralKeyPair, Recipient } from './types.js'
 import { base64ToBytes, bytesToBase64url, generateKeyPair, generateKeyPairFromSeed } from '../util.js'
 import { concatKDF } from '../Digest.js'
-import { x25519 } from '@noble/curves/ed25519'
+import { x25519 } from '@noble/curves/ed25519.js'
 
 export async function computeX25519EcdhEsKek(recipient: Recipient, receiverSecret: Uint8Array | ECDH, alg: string) {
   const crv = 'X25519'

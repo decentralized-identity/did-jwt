@@ -4,7 +4,7 @@ import { createJWE, decryptJWE } from '../encryption/JWE.js'
 import type { Decrypter } from '../encryption/types.js'
 import { createX25519ECDH } from '../encryption/ECDH.js'
 import { bytesToBase58, generateKeyPair } from '../util.js'
-import { randomBytes } from '@noble/hashes/utils'
+import { randomBytes } from '@noble/hashes/utils.js'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

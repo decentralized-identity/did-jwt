@@ -1,11 +1,11 @@
 import { concat, fromString, toString } from 'uint8arrays'
-import { x25519 } from '@noble/curves/ed25519'
+import { x25519 } from '@noble/curves/ed25519.js'
 import type { EphemeralKeyPair } from './encryption/types.js'
 import { varint } from 'multiformats'
 import { BaseName, decode, encode } from 'multibase'
 import type { VerificationMethod } from 'did-resolver'
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { p256 } from '@noble/curves/p256'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { p256 } from '@noble/curves/nist.js'
 
 const u8a = { toString, fromString, concat }
 
@@ -213,18 +213,18 @@ export function extractPublicKeyBytes(pk: VerificationMethod): { keyBytes: Uint8
     return { keyBytes: hexToBytes(pk.publicKeyHex), keyType: VM_TO_KEY_TYPE[pk.type as KNOWN_VERIFICATION_METHOD] }
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'secp256k1' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return {
-      keyBytes: secp256k1.ProjectivePoint.fromAffine({
+      keyBytes: secp256k1.Point.fromAffine({
         x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
         y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
-      }).toRawBytes(false),
+      }).toBytes(false),
       keyType: 'Secp256k1',
     }
   } else if (pk.publicKeyJwk && pk.publicKeyJwk.crv === 'P-256' && pk.publicKeyJwk.x && pk.publicKeyJwk.y) {
     return {
-      keyBytes: p256.ProjectivePoint.fromAffine({
+      keyBytes: p256.Point.fromAffine({
         x: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.x)),
         y: bytesToBigInt(base64ToBytes(pk.publicKeyJwk.y)),
-      }).toRawBytes(false),
+      }).toBytes(false),
       keyType: 'P-256',
     }
   } else if (
@@ -377,7 +377,7 @@ export function leftpad(data: string, size = 64): string {
  * Generate random x25519 key pair.
  */
 export function generateKeyPair(): { secretKey: Uint8Array; publicKey: Uint8Array } {
-  const secretKey = x25519.utils.randomPrivateKey()
+  const secretKey = x25519.utils.randomSecretKey()
   const publicKey = x25519.getPublicKey(secretKey)
   return {
     secretKey: secretKey,

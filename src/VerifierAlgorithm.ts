@@ -10,9 +10,9 @@ import {
   stringToBytes,
 } from './util.js'
 import { verifyBlockchainAccountId } from './blockchains/index.js'
-import { secp256k1 } from '@noble/curves/secp256k1'
-import { p256 } from '@noble/curves/nist'
-import { ed25519 } from '@noble/curves/ed25519'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { p256 } from '@noble/curves/nist.js'
+import { ed25519 } from '@noble/curves/ed25519.js'
 
 // converts a JOSE signature to it's components
 export function toSignatureObject(signature: string, recoverable = false): EcdsaSignature {
@@ -42,13 +42,16 @@ export function toSignatureObject2(signature: string, recoverable = false): ECDS
 
 export function verifyES256(data: string, signature: string, authenticators: VerificationMethod[]): VerificationMethod {
   const hash = sha256(data)
-  const sig = p256.Signature.fromBytes(toSignatureObject2(signature).compact, 'compact').toBytes()
+  const sig = base64ToBytes(signature)
+  if (sig.length !== 64) {
+    throw new Error(`"compact signature" expected Uint8Array of length 64, got length=${sig.length}`)
+  }
   const fullPublicKeys = authenticators.filter((a: VerificationMethod) => !a.ethereumAddress && !a.blockchainAccountId)
 
   const signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const { keyBytes } = extractPublicKeyBytes(pk)
-      return p256.verify(sig, hash, keyBytes)
+      return p256.verify(sig, hash, keyBytes, { prehash: false, lowS: false })
     } catch {
       return false
     }
@@ -64,7 +67,10 @@ export function verifyES256K(
   authenticators: VerificationMethod[]
 ): VerificationMethod {
   const hash = sha256(data)
-  const signatureNormalized = secp256k1.Signature.fromBytes(base64ToBytes(signature), 'compact').normalizeS().toBytes()
+  const signatureBytes = base64ToBytes(signature)
+  if (signatureBytes.length !== 64) {
+    throw new Error(`"compact signature" expected Uint8Array of length 64, got length=${signatureBytes.length}`)
+  }
   const fullPublicKeys = authenticators.filter((a: VerificationMethod) => {
     return !a.ethereumAddress && !a.blockchainAccountId
   })
@@ -75,7 +81,7 @@ export function verifyES256K(
   let signer: VerificationMethod | undefined = fullPublicKeys.find((pk: VerificationMethod) => {
     try {
       const { keyBytes } = extractPublicKeyBytes(pk)
-      return secp256k1.verify(signatureNormalized, hash, keyBytes)
+      return secp256k1.verify(signatureBytes, hash, keyBytes, { prehash: false, lowS: false, format: 'compact' })
     } catch {
       return false
     }
@@ -105,7 +111,7 @@ export function verifyRecoverableES256K(
   const hash = sha256(data)
 
   const checkSignatureAgainstSigner = (sigObj: ECDSASignature): VerificationMethod | undefined => {
-    const signature = secp256k1.Signature.fromCompact(sigObj.compact).addRecoveryBit(sigObj.recovery || 0)
+    const signature = secp256k1.Signature.fromBytes(sigObj.compact, 'compact').addRecoveryBit(sigObj.recovery || 0)
     const recoveredPublicKey = signature.recoverPublicKey(hash)
     const recoveredAddress = toEthereumAddress(recoveredPublicKey.toHex(false)).toLowerCase()
     const recoveredPublicKeyHex = recoveredPublicKey.toHex(false)

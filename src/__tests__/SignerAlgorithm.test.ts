@@ -8,13 +8,13 @@ import nacl from 'tweetnacl'
 import { base64ToBytes, hexToBytes, stringToBytes } from '../util.js'
 import { sha256 } from '../Digest.js'
 import { ES256Signer } from '../signers/ES256Signer.js'
-import { p256 } from '@noble/curves/nist'
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { p256 } from '@noble/curves/nist.js'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 import { describe, it, expect } from 'vitest'
 
 const privateKey = '0278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a241154cc1d25383f'
-const secp256k1PublicKey = secp256k1.getPublicKey(privateKey)
+const secp256k1PublicKey = secp256k1.getPublicKey(hexToBytes(privateKey))
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const signer = SimpleSigner(privateKey)
 const edSigner = NaclSigner(ed25519PrivateKey)
@@ -59,7 +59,9 @@ describe('ES256', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', p256signer)
-    expect(p256.verify(toSignatureObject2(signature).compact, sha256('hello'), p256publicKey)).toBeTruthy()
+    expect(
+      p256.verify(base64ToBytes(signature), sha256('hello'), p256publicKey, { prehash: false, lowS: false })
+    ).toBeTruthy()
   })
 })
 // end of tests added for P-256
@@ -113,8 +115,9 @@ describe('ES256K', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
-    const sig = secp256k1.Signature.fromBytes(toSignatureObject2(signature).compact, 'compact').normalizeS().toBytes()
-    expect(secp256k1.verify(sig, sha256('hello'), secp256k1PublicKey)).toBeTruthy()
+    expect(
+      secp256k1.verify(base64ToBytes(signature), sha256('hello'), secp256k1PublicKey, { prehash: false })
+    ).toBeTruthy()
   })
 })
 
@@ -136,8 +139,9 @@ describe('ES256K signer which returns signature as string ', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', ecSigner)
-    const sig = secp256k1.Signature.fromBytes(toSignatureObject2(signature).compact, 'compact').normalizeS().toBytes()
-    expect(secp256k1.verify(sig, sha256('hello'), secp256k1PublicKey)).toBeTruthy()
+    expect(
+      secp256k1.verify(base64ToBytes(signature), sha256('hello'), secp256k1PublicKey, { prehash: false })
+    ).toBeTruthy()
   })
 })
 
@@ -169,10 +173,12 @@ describe('ES256K-R', () => {
   it('can verify the signature', async () => {
     expect.assertions(1)
     const signature = await jwtSigner('hello', signer)
-    const sig = secp256k1.Signature.fromBytes(toSignatureObject2(signature, true).compact, 'compact')
-      .normalizeS()
-      .toBytes()
-    expect(secp256k1.verify(sig, sha256('hello'), secp256k1PublicKey)).toBeTruthy()
+    const sigBytes = new Uint8Array(65)
+    sigBytes.set(base64ToBytes(signature).slice(0, 64), 1)
+    sigBytes[0] = base64ToBytes(signature)[64]
+    expect(
+      secp256k1.verify(sigBytes, sha256('hello'), secp256k1PublicKey, { prehash: false, format: 'recovered' })
+    ).toBeTruthy()
   })
 })
 

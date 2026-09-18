@@ -15,8 +15,8 @@ import { ES256KSigner } from '../signers/ES256KSigner.js'
 import { toEthereumAddress } from '../Digest.js'
 import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122.js'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos.js'
-import { p256 } from '@noble/curves/nist'
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { p256 } from '@noble/curves/nist.js'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 import { ES256Signer } from '../signers/ES256Signer.js'
 import VerifierAlgorithm from '../VerifierAlgorithm.js'
@@ -222,7 +222,9 @@ describe('ES256', () => {
     const jwt = (await createJWT({ bla: 'bla' }, { issuer: did, signer }, { alg: 'ES256' })) + 'aa'
     const parts = jwt.match(/^([a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)$/)
     // @ts-ignore
-    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrow(new Error('wrong signature length'))
+    return expect(() => verifier(parts[1], parts[2], [ecKey1])).toThrow(
+      new Error('"compact signature" expected Uint8Array of length 64, got length=66')
+    )
   })
 
   it('validates signature with compressed public key and picks correct public key when malformed keys are encountered first', async () => {
@@ -238,10 +240,10 @@ describe('ES256', () => {
 const mnid = '2nQtiQG6Cgm1GYTBaaKAgr76uY7iSexUkqX'
 const did = `did:uport:${mnid}`
 const privateKey = '278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'
-const publicKeyBytes = secp256k1.getPublicKey(privateKey, false)
-const publicKeyPoint = secp256k1.Point.fromHex(publicKeyBytes)
+const publicKeyBytes = secp256k1.getPublicKey(hexToBytes(privateKey), false)
+const publicKeyPoint = secp256k1.Point.fromBytes(publicKeyBytes)
 const publicKeyHex = bytesToHex(publicKeyBytes)
-const compressedPublicKeyBytes = secp256k1.getPublicKey(privateKey, true)
+const compressedPublicKeyBytes = secp256k1.getPublicKey(hexToBytes(privateKey), true)
 const compressedPublicKey = bytesToHex(compressedPublicKeyBytes)
 const publicKeyBase64 = bytesToBase64(publicKeyBytes)
 const publicKeyBase58 = bytesToBase58(publicKeyBytes)

@@ -1,4 +1,4 @@
-import { randomBytes } from '@noble/hashes/utils'
+import { randomBytes } from '@noble/hashes/utils.js'
 import { decodeBase64url, encodeBase64url, generateKeyPairFromSeed } from '../util.js'
 import { createJWE, decryptJWE } from '../encryption/JWE.js'
 import { vectors } from './jwe-vectors.js'

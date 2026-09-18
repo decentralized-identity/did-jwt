@@ -1,4 +1,4 @@
-import { ed25519 } from '@noble/curves/ed25519'
+import { ed25519 } from '@noble/curves/ed25519.js'
 import type { Signer } from '../JWT.js'
 import { bytesToBase64url, stringToBytes } from '../util.js'
 

@@ -1,6 +1,6 @@
-import { sha256 as sha256Hash } from '@noble/hashes/sha2'
-export { ripemd160 } from '@noble/hashes/legacy'
-import { keccak_256 } from '@noble/hashes/sha3'
+import { sha256 as sha256Hash } from '@noble/hashes/sha2.js'
+export { ripemd160 } from '@noble/hashes/legacy.js'
+import { keccak_256 } from '@noble/hashes/sha3.js'
 import { fromString, toString, concat } from 'uint8arrays'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
