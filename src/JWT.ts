@@ -153,6 +153,8 @@ const DID_JSON = 'application/did+json'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function encodeSection(data: any, shouldCanonicalize = false): string {
   if (shouldCanonicalize) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore error TS2349: This expression is not callable.
     return encodeBase64url(<string>canonicalizeData(data))
   } else {
     return encodeBase64url(JSON.stringify(data))

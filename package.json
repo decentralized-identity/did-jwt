@@ -90,10 +90,10 @@
     "@noble/hashes": "^2.4.0",
     "@scure/base": "^2.4.0",
     "canonicalize": "^2.1.0",
-    "did-resolver": "^5.0.0",
+    "did-resolver": "^5.0.1",
     "multibase": "^4.0.6",
-    "multiformats": "^9.6.2",
-    "uint8arrays": "3.1.1"
+    "multiformats": "^14.0.5",
+    "uint8arrays": "^6.1.1"
   },
   "packageManager": "pnpm@12.4.2"
 }

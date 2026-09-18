@@ -17,9 +17,7 @@ import {
 } from '../JWT.js'
 import { EdDSASigner } from '../signers/EdDSASigner.js'
 import { ES256KSigner } from '../signers/ES256KSigner.js'
-
-// add declarations for ES256 Tests
-import { ES256Signer } from '../signers/ES256Signer'
+import { ES256Signer } from '../signers/ES256Signer.js'
 // @ts-ignore
 import jwt from 'jsonwebtoken'
 // @ts-ignore
