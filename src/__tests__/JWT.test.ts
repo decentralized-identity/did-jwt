@@ -1042,6 +1042,125 @@ describe('JWT tests', () => {
       const { payload } = await verifyJWT(jwt, { resolver })
       return expect(payload).toBeDefined()
     })
+
+    it('accepts a valid exp', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: NOW }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver })
+      return expect(payload).toBeDefined()
+    })
+
+    it('rejects an expired JWT', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has expired/)
+    })
+
+    it('accepts an expired JWT with exp policy false', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: NOW - NBF_SKEW - 1 }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver, policies: { exp: false } })
+      return expect(payload).toBeDefined()
+    })
+
+    it('rejects an expired JWT without skew time', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver, skewTime: 0 })).rejects.toThrowError(/JWT has expired/)
+    })
+
+    it('accepts an expired JWT without skew time but exp policy false', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: NOW - 1 }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver, skewTime: 0, policies: { exp: false } })
+      return expect(payload).toBeDefined()
+    })
+
+    it('rejects exp 0 as expired', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: 0 }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/JWT has expired/)
+    })
+
+    it('rejects a non-numeric exp claim', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ exp: 'never' as unknown as number }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/exp is not a NumericDate/)
+    })
+
+    it('rejects a non-numeric nbf claim', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ nbf: 'soon' as unknown as number }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/nbf is not a NumericDate/)
+    })
+
+    it('rejects a non-numeric iat claim when nbf is absent', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ iat: 'never' as unknown as number }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver })).rejects.toThrowError(/iat is not a NumericDate/)
+    })
+
+    it('accepts a valid audience', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
+      return expect(payload).toMatchSnapshot()
+    })
+
+    it('accepts multiple audiences', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud: [did, aud] }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, { resolver, audience: aud })
+      return expect(payload).toMatchSnapshot()
+    })
+
+    it('rejects invalid multiple audiences', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud: [did, did] }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver, audience: aud })).rejects.toThrowError(
+        /JWT audience does not match your DID/
+      )
+    })
+
+    it('accepts a valid audience using callback_url', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
+      const { payload } = await verifyJWT(jwt, {
+        resolver,
+        callbackUrl: 'http://pututu.uport.me/unique',
+      })
+      return expect(payload).toMatchSnapshot()
+    })
+
+    it('rejects invalid audience', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud }, { issuer: did, signer })
+      await expect(verifyJWT(jwt, { resolver, audience: did })).rejects.toThrowError(
+        /JWT audience does not match your DID or callback url/
+      )
+    })
+
+    it('accepts invalid audience when override policy is used', async () => {
+      expect.assertions(2)
+      const jwt = await createJWT({ aud }, { issuer: did, signer })
+      const { payload, issuer } = await verifyJWT(jwt, {
+        resolver,
+        policies: { aud: false },
+      })
+      expect(payload).toBeDefined()
+      expect(issuer).toEqual(did)
+    })
+
+    it('rejects an invalid audience using callback_url where callback is wrong', async () => {
+      expect.assertions(1)
+      const jwt = await createJWT({ aud: 'http://pututu.uport.me/unique' }, { issuer: did, signer })
+      await expect(
+        verifyJWT(jwt, {
+          resolver,
+          callbackUrl: 'http://pututu.uport.me/unique/1',
+        })
+      ).rejects.toThrowError(/JWT audience does not match your DID or callback url/)
+    })
   })
 
   describe('JWS', () => {
