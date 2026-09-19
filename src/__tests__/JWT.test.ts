@@ -19,8 +19,7 @@ import { ES256KSigner } from '../signers/ES256KSigner.js'
 import { ES256Signer } from '../signers/ES256Signer.js'
 // @ts-ignore
 import jwt from 'jsonwebtoken'
-// @ts-ignore
-import jwkToPem from 'jwk-to-pem'
+import { createPublicKey, type KeyObject } from 'node:crypto'
 
 const NOW = 1485321133
 
@@ -141,10 +140,10 @@ describe('JWT tests', () => {
       const signer = ES256Signer(hexToBytes(privateKey))
 
       // verifyTokenFormAndValidity
-      function verifyTokenFormAndValidity(token: string, pemPublic: string): boolean {
+      function verifyTokenFormAndValidity(token: string, publicKey: KeyObject): boolean {
         let result
         try {
-          jwt.verify(token, pemPublic)
+          jwt.verify(token, publicKey)
           result = true
         } catch (e: any) {
           console.error(e.name + ': ' + e.message)
@@ -181,15 +180,21 @@ describe('JWT tests', () => {
       it('creates a valid JWT', async () => {
         expect.assertions(1)
         const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer }, { alg: 'ES256' })
-        const pemPublic = jwkToPem(publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256') as any)
-        expect(verifyTokenFormAndValidity(jwt, pemPublic)).toBe(true)
+        const publicKey = createPublicKey({
+          key: publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256'),
+          format: 'jwk',
+        })
+        expect(verifyTokenFormAndValidity(jwt, publicKey)).toBe(true)
       })
 
       it('creates a valid JWT using a MNID', async () => {
         expect.assertions(1)
         const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: address, signer }, { alg: 'ES256' })
-        const pemPublic = jwkToPem(publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256') as any)
-        expect(verifyTokenFormAndValidity(jwt, pemPublic)).toBe(true)
+        const publicKey = createPublicKey({
+          key: publicToJWK(publicKey_x, publicKey_y, 'EC', 'P-256'),
+          format: 'jwk',
+        })
+        expect(verifyTokenFormAndValidity(jwt, publicKey)).toBe(true)
       })
 
       it('creates a JWT with correct format', async () => {
