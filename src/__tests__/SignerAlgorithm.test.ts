@@ -3,13 +3,12 @@ import { toSignatureObject } from '../VerifierAlgorithm.js'
 import SimpleSigner from '../signers/SimpleSigner.js'
 import EllipticSigner from '../signers/EllipticSigner.js'
 import NaclSigner from '../signers/NaclSigner.js'
-// @ts-ignore
-import nacl from 'tweetnacl'
 import { base64ToBytes, hexToBytes, stringToBytes } from '../util.js'
 import { sha256 } from '../Digest.js'
 import { ES256Signer } from '../signers/ES256Signer.js'
 import { p256 } from '@noble/curves/nist.js'
 import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { ed25519 } from '@noble/curves/ed25519.js'
 
 import { describe, it, expect } from 'vitest'
 
@@ -19,7 +18,9 @@ const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/
 const signer = SimpleSigner(privateKey)
 const edSigner = NaclSigner(ed25519PrivateKey)
 const ecSigner = EllipticSigner(privateKey)
-const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
+
+const edPrivateKeyBytes = base64ToBytes(ed25519PrivateKey)
+const edPublicKey = ed25519.getPublicKey(edPrivateKeyBytes.slice(0, 32))
 
 // Add tests specific to new ES256 signer for curve secp256r1 / P-256
 const p256privateKey = hexToBytes('736f625c9dda78a94bb16840c82779bb7bc18014b8ede52f0f03429902fc4ba8')
@@ -192,7 +193,7 @@ describe('SignerAlgorithm', () => {
     it('can verify the signature', async () => {
       expect.assertions(1)
       const signature = await jwtSigner('hello', edSigner)
-      expect(nacl.sign.detached.verify(stringToBytes('hello'), base64ToBytes(signature), edKp.publicKey)).toBeTruthy()
+      expect(ed25519.verify(base64ToBytes(signature), stringToBytes('hello'), edPublicKey)).toBeTruthy()
     })
   })
 })

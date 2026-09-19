@@ -1,5 +1,3 @@
-// @ts-ignore
-import nacl from 'tweetnacl'
 import {
   base64ToBytes,
   bigintToBytes,
@@ -17,6 +15,7 @@ import { publicKeyToAddress as toBip122Address } from '../blockchains/bip122.js'
 import { publicKeyToAddress as toCosmosAddressWithoutPrefix } from '../blockchains/cosmos.js'
 import { p256 } from '@noble/curves/nist.js'
 import { secp256k1 } from '@noble/curves/secp256k1.js'
+import { ed25519 } from '@noble/curves/ed25519.js'
 
 import { ES256Signer } from '../signers/ES256Signer.js'
 import VerifierAlgorithm from '../VerifierAlgorithm.js'
@@ -51,9 +50,10 @@ const recoverySigner = ES256KSigner(hexToBytes(privateKey), true)
 
 const ed25519PrivateKey = 'nlXR4aofRVuLqtn9+XVQNlX4s1nVQvp+TOhBBtYls1IG+sHyIkDP/WN+rWZHGIQp+v2pyct+rkM4asF/YRFQdQ=='
 const edSigner = EdDSASigner(base64ToBytes(ed25519PrivateKey))
-const edKp = nacl.sign.keyPair.fromSecretKey(base64ToBytes(ed25519PrivateKey))
-const edPublicKey = bytesToBase64(edKp.publicKey)
-const edPublicKey2 = bytesToBase64(nacl.sign.keyPair().publicKey)
+
+const edPrivateKeyBytes = base64ToBytes(ed25519PrivateKey)
+const edPublicKey = bytesToBase64(ed25519.getPublicKey(edPrivateKeyBytes.slice(0, 32)))
+const edPublicKey2 = bytesToBase64(ed25519.getPublicKey(ed25519.utils.randomSecretKey()))
 
 const ecKey1 = {
   id: `${did}#keys-1`,
