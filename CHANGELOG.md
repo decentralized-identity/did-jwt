@@ -1,5 +1,11 @@
 ## [8.0.18](https://github.com/decentralized-identity/did-jwt/compare/8.0.17...8.0.18) (2025-08-25)
 
+## 9.0.1
+
+### Patch Changes
+
+- b2f74be: fix: reject non-NumericDate exp, nbf, and iat claims
+
 ## 9.0.0
 
 ### Major Changes
@@ -8,7 +14,6 @@
 - 0320fb8: BREAKING CHANGE: package.json exports are changing to dual-package ESM/CJS
 
 ### Bug Fixes
-
 
 ## [8.0.17](https://github.com/decentralized-identity/did-jwt/compare/8.0.16...8.0.17) (2025-06-06)
 
