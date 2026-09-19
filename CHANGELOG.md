@@ -4,12 +4,11 @@
 
 ### Major Changes
 
-- 982a080: BREAKING CHANGE: no longer publishing a pre-bundled build for browsers. If this is a feature you need, please raise an issue.
-- 982a080: BREAKING CHANGE: package.json exports are changing to dual-package ESM/CJS
+- a69e0e3: BREAKING CHANGE: no longer publishing a pre-bundled build for browsers. If this is a feature you need, please raise an issue.
+- 0320fb8: BREAKING CHANGE: package.json exports are changing to dual-package ESM/CJS
 
 ### Bug Fixes
 
-- **deps:** update dependency @scure/base to v2 ([016bad4](https://github.com/decentralized-identity/did-jwt/commit/016bad4a6e239223af29b8155f7d1dae483cf062))
 
 ## [8.0.17](https://github.com/decentralized-identity/did-jwt/compare/8.0.16...8.0.17) (2025-06-06)
 
