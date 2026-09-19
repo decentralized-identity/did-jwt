@@ -3,7 +3,14 @@
   "labels": ["maintenance"],
   "automergeType": "branch",
   "automerge": true,
+  "minimumReleaseAge": "3 days",
+  "minimumReleaseAgeBehaviour": "timestamp-optional",
   "packageRules": [
+    {
+      "description": "Lengthen the minimum release age",
+      "matchUpdateTypes": ["bump", "patch", "minor", "major"],
+      "minimumReleaseAge": "3 days"
+    },
     {
       "matchUpdateTypes": ["bump", "patch", "minor", "major"],
       "groupName": "did-dependencies",
@@ -18,6 +25,13 @@
     {
       "enabled": false,
       "matchPackageNames": ["/multiformats/", "/uint8arrays/"]
+    },
+    {
+      "description": "Track TypeScript independently from the other devDeps.",
+      "matchPackageNames": ["typescript", "@typescript/*"],
+      "minimumReleaseAge": null,
+      "groupName": "typescript",
+      "extends": ["schedule:earlyMondays"]
     }
   ]
 }
