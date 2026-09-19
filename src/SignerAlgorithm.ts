@@ -6,7 +6,7 @@ function instanceOfEcdsaSignature(object: any): object is EcdsaSignature {
   return typeof object === 'object' && 'r' in object && 's' in object
 }
 
-export function ES256SignerAlg(): SignerAlgorithm {
+function ES256SignerAlg(): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
     const signature: EcdsaSignature | string = await signer(payload)
     if (instanceOfEcdsaSignature(signature)) {
@@ -17,7 +17,7 @@ export function ES256SignerAlg(): SignerAlgorithm {
   }
 }
 
-export function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
+function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
     const signature: EcdsaSignature | string = await signer(payload)
     if (instanceOfEcdsaSignature(signature)) {
@@ -31,7 +31,7 @@ export function ES256KSignerAlg(recoverable?: boolean): SignerAlgorithm {
   }
 }
 
-export function Ed25519SignerAlg(): SignerAlgorithm {
+function Ed25519SignerAlg(): SignerAlgorithm {
   return async function sign(payload: string, signer: Signer): Promise<string> {
     const signature: EcdsaSignature | string = await signer(payload)
     if (!instanceOfEcdsaSignature(signature)) {

@@ -1,4 +1,3 @@
-/* eslint-disable */
 // it.skip('not a test', () => {})
 export const vectors = {
   dir: {

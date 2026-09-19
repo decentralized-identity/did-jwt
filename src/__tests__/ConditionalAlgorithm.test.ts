@@ -5,6 +5,7 @@ import { createMultisignatureJWT, verifyJWT } from '../JWT.js'
 import { createResolver, createSigner } from './ConditionalAlgorithmResolverHelper.js'
 import { PrivateKey } from '@greymass/eosio'
 import { JWT_ERROR } from '../Errors.js'
+import { describe, it, expect } from 'vitest'
 
 const NOW = 1485321133
 MockDate.set(NOW * 1000 + 123)

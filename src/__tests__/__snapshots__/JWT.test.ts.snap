@@ -1,12 +1,12 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`JWS createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqdXHxs_ExnehnZauNKxWynjBSaZHRZT3Ohgx8ZgUAM6sg"`;
+exports[`JWT tests > JWS > createJWS can canonicalize a JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJhIjoiYSIsInoiOiJ6In0.FiH0l1yEU2PmMQnD17WhsqwaV9oyFsOkm-U_natKFqdXHxs_ExnehnZauNKxWynjBSaZHRZT3Ohgx8ZgUAM6sg"`;
 
-exports[`JWS createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJzb21lIjoiZGF0YSJ9.dblNz-7BVLknOFIBPmt5VTG0MDls_Q69WI8OfQuqNdUp4y50-b8Ubn0xujm1ijfmfqRunpks5TyWqgMsQkR_GQ"`;
+exports[`JWT tests > JWS > createJWS works with JSON payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.eyJzb21lIjoiZGF0YSJ9.dblNz-7BVLknOFIBPmt5VTG0MDls_Q69WI8OfQuqNdUp4y50-b8Ubn0xujm1ijfmfqRunpks5TyWqgMsQkR_GQ"`;
 
-exports[`JWS createJWS works with base64url payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.A_3Vet7D1DjqI3_kazPuHgFu2mtYXD4n6mZobC6lNYR5.n5ZZQZe1J7e76TGTLBpQO2R22JFoHDBi5ScfoxHz__Qy7Q6r3R11GdXmY_0ntFx6nC9QbDD19y8tTDMLUM4DAw"`;
+exports[`JWT tests > JWS > createJWS works with base64url payload 1`] = `"eyJhbGciOiJFUzI1NksifQ.A_3Vet7D1DjqI3_kazPuHgFu2mtYXD4n6mZobC6lNYR5.n5ZZQZe1J7e76TGTLBpQO2R22JFoHDBi5ScfoxHz__Qy7Q6r3R11GdXmY_0ntFx6nC9QbDD19y8tTDMLUM4DAw"`;
 
-exports[`createJWT() ES256 creates a JWT with correct format 1`] = `
+exports[`JWT tests > createJWT() > ES256 > creates a JWT with correct format 1`] = `
 {
   "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZWo0TkhudGRhNHJOVzRGQlVKZ0Z6ZGNnRUFYS0dSVkdFOEx1VmZSYnVNdWMxIn0",
   "header": {
@@ -25,7 +25,7 @@ exports[`createJWT() ES256 creates a JWT with correct format 1`] = `
 }
 `;
 
-exports[`createJWT() ES256 creates a JWT with correct legacy format 1`] = `
+exports[`JWT tests > createJWT() > ES256 > creates a JWT with correct legacy format 1`] = `
 {
   "data": "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
   "header": {
@@ -44,7 +44,7 @@ exports[`createJWT() ES256 creates a JWT with correct legacy format 1`] = `
 }
 `;
 
-exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
+exports[`JWT tests > createJWT() > ES256K > creates a JWT with correct format 1`] = `
 {
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmV0aHI6MHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
   "header": {
@@ -63,7 +63,7 @@ exports[`createJWT() ES256K creates a JWT with correct format 1`] = `
 }
 `;
 
-exports[`createJWT() ES256K creates a JWT with correct legacy format 1`] = `
+exports[`JWT tests > createJWT() > ES256K > creates a JWT with correct legacy format 1`] = `
 {
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiMHhmM2JlYWMzMGM0OThkOWUyNjg2NWYzNGZjYWE1N2RiYjkzNWIwZDc0In0",
   "header": {
@@ -82,7 +82,7 @@ exports[`createJWT() ES256K creates a JWT with correct legacy format 1`] = `
 }
 `;
 
-exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
+exports[`JWT tests > createJWT() > Ed25519 > creates a JWT with correct format 1`] = `
 {
   "data": "eyJ0eXAiOiJKV1QiLCJhbGciOiJFZDI1NTE5In0.eyJpYXQiOjE0ODUzMjExMzMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOm5hY2w6QnZyQjhpSkF6XzFqZnExbVJ4aUVLZnI5cWNuTGZxNURPR3JCZjJFUlVIVSJ9",
   "header": {
@@ -101,7 +101,7 @@ exports[`createJWT() Ed25519 creates a JWT with correct format 1`] = `
 }
 `;
 
-exports[`verifyJWT() for ES256 pregenerated JWT verifies the JWT and return correct payload 1`] = `
+exports[`JWT tests > verifyJWT() for ES256 > pregenerated JWT > verifies the JWT and return correct payload 1`] = `
 {
   "iat": 1485321133,
   "iss": "did:key:zDnaej4NHntda4rNW4FBUJgFzdcgEAXKGRVGE8LuVfRbuMuc1",
@@ -112,7 +112,7 @@ exports[`verifyJWT() for ES256 pregenerated JWT verifies the JWT and return corr
 }
 `;
 
-exports[`verifyJWT() for ES256K accepts a valid audience 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > accepts a valid audience 1`] = `
 {
   "aud": "did:ethr:0x20c769ec9c0996ba7737a4826c2aaff00b1b2040",
   "iat": 1485321133,
@@ -120,7 +120,7 @@ exports[`verifyJWT() for ES256K accepts a valid audience 1`] = `
 }
 `;
 
-exports[`verifyJWT() for ES256K accepts a valid audience using callback_url 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > accepts a valid audience using callback_url 1`] = `
 {
   "aud": "http://pututu.uport.me/unique",
   "iat": 1485321133,
@@ -128,7 +128,7 @@ exports[`verifyJWT() for ES256K accepts a valid audience using callback_url 1`] 
 }
 `;
 
-exports[`verifyJWT() for ES256K accepts multiple audiences 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > accepts multiple audiences 1`] = `
 {
   "aud": [
     "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
@@ -139,7 +139,7 @@ exports[`verifyJWT() for ES256K accepts multiple audiences 1`] = `
 }
 `;
 
-exports[`verifyJWT() for ES256K handles ES256K algorithm with blockchainAccountId - github #14, #155 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > handles ES256K algorithm with blockchainAccountId - github #14, #155 1`] = `
 {
   "hello": "world",
   "iat": 1485321133,
@@ -147,7 +147,7 @@ exports[`verifyJWT() for ES256K handles ES256K algorithm with blockchainAccountI
 }
 `;
 
-exports[`verifyJWT() for ES256K handles ES256K algorithm with ethereum address - github #14 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > handles ES256K algorithm with ethereum address - github #14 1`] = `
 {
   "hello": "world",
   "iat": 1485321133,
@@ -155,7 +155,7 @@ exports[`verifyJWT() for ES256K handles ES256K algorithm with ethereum address -
 }
 `;
 
-exports[`verifyJWT() for ES256K handles ES256K-R algorithm 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > handles ES256K-R algorithm 1`] = `
 {
   "hello": "world",
   "iat": 1485321133,
@@ -163,7 +163,7 @@ exports[`verifyJWT() for ES256K handles ES256K-R algorithm 1`] = `
 }
 `;
 
-exports[`verifyJWT() for ES256K handles ES256K-R algorithm with publicKeyHex address 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > handles ES256K-R algorithm with publicKeyHex address 1`] = `
 {
   "hello": "world",
   "iat": 1485321133,
@@ -171,7 +171,7 @@ exports[`verifyJWT() for ES256K handles ES256K-R algorithm with publicKeyHex add
 }
 `;
 
-exports[`verifyJWT() for ES256K pregenerated JWT verifies the JWT and return correct payload 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > pregenerated JWT > verifies the JWT and return correct payload 1`] = `
 {
   "iat": 1485321133,
   "iss": "did:ethr:0xf3beac30c498d9e26865f34fcaa57dbb935b0d74",
@@ -182,7 +182,7 @@ exports[`verifyJWT() for ES256K pregenerated JWT verifies the JWT and return cor
 }
 `;
 
-exports[`verifyJWT() for ES256K pregenerated JWT with legacy resolver verifies the JWT and return correct payload 1`] = `
+exports[`JWT tests > verifyJWT() for ES256K > pregenerated JWT with legacy resolver > verifies the JWT and return correct payload 1`] = `
 {
   "iat": 1485321133,
   "iss": "did:ethr:0x90e45d75bd1246e0924872018647dba996a8e7b9",

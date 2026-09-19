@@ -1,8 +1,8 @@
 import { createDIDDocument, antelopeChainRegistry, checkDID } from '@tonomy/antelope-did'
-import { parse } from 'did-resolver'
-import { Signer } from '../JWT'
+import { parse, Resolvable } from 'did-resolver'
+import { Signer } from '../JWT.js'
 import { PrivateKey, KeyType } from '@greymass/eosio'
-import { ES256KSigner } from '../signers/ES256KSigner'
+import { ES256KSigner } from '../signers/ES256KSigner.js'
 
 type AntelopePermission = {
   threshold: number
@@ -19,7 +19,7 @@ type AntelopePermission = {
   }[]
 }
 
-export function createResolver(required_auth: AntelopePermission | AntelopePermission[]) {
+export function createResolver(required_auth: AntelopePermission | AntelopePermission[]): Resolvable {
   return {
     resolve: async (did: string) => {
       const parsed = parse(did)

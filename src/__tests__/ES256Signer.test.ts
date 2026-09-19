@@ -1,5 +1,6 @@
 import { hexToBytes, base58ToBytes, base64ToBytes } from '../util.js'
 import { ES256Signer } from '../signers/ES256Signer.js'
+import { describe, expect, it } from 'vitest'
 
 describe('Secp256r1 Signer', () => {
   it('signs data, given a hex private key', async () => {
@@ -57,7 +58,7 @@ describe('Secp256r1 Signer', () => {
     const privateKey = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad7'
     expect(() => {
       ES256Signer(hexToBytes(privateKey))
-    }).toThrowError(/^bad_key: Invalid private key format.*/)
+    }).toThrow(/^bad_key: Invalid private key format.*/)
   })
 
   it('refuses wrong key size (double)', async () => {
@@ -66,6 +67,6 @@ describe('Secp256r1 Signer', () => {
       '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a'
     expect(() => {
       ES256Signer(hexToBytes(privateKey))
-    }).toThrowError(/^bad_key: Invalid private key format.*/)
+    }).toThrow(/^bad_key: Invalid private key format.*/)
   })
 })

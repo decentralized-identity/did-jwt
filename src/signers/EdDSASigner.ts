@@ -1,4 +1,4 @@
-import { ed25519 } from '@noble/curves/ed25519'
+import { ed25519 } from '@noble/curves/ed25519.js'
 import type { Signer } from '../JWT.js'
 import { bytesToBase64url, stringToBytes } from '../util.js'
 
@@ -14,7 +14,7 @@ import { bytesToBase64url, stringToBytes } from '../util.js'
  * signature
  *
  *  @example
- *  ```typescript
+ *  ```TypeScript
  *  const sign: Signer = EdDSASigner(process.env.PRIVATE_KEY)
  *  const signature: string = await sign(data)
  *  ```

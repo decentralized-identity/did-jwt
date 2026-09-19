@@ -142,7 +142,7 @@ export interface JWTVerified {
 }
 
 export const SELF_ISSUED_V2 = 'https://self-issued.me/v2'
-export const SELF_ISSUED_V2_VC_INTEROP = 'https://self-issued.me/v2/openid-vc' // https://identity.foundation/jwt-vc-presentation-profile/#id-token-validation
+const SELF_ISSUED_V2_VC_INTEROP = 'https://self-issued.me/v2/openid-vc' // https://identity.foundation/jwt-vc-presentation-profile/#id-token-validation
 export const SELF_ISSUED_V0_1 = 'https://self-issued.me'
 
 type LegacyVerificationMethod = { publicKey?: string }
@@ -153,6 +153,8 @@ const DID_JSON = 'application/did+json'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function encodeSection(data: any, shouldCanonicalize = false): string {
   if (shouldCanonicalize) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore error TS2349: This expression is not callable.
     return encodeBase64url(<string>canonicalizeData(data))
   } else {
     return encodeBase64url(JSON.stringify(data))
@@ -373,7 +375,7 @@ export function verifyJWTDecoded(
   throw new Error(`${JWT_ERROR.INVALID_SIGNATURE}: no matching public key found`)
 }
 
-export function verifyJWSDecoded(
+function verifyJWSDecoded(
   { header, data, signature }: JWSDecoded,
   pubKeys: VerificationMethod | VerificationMethod[]
 ): VerificationMethod {
