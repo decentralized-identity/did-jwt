@@ -4,9 +4,7 @@ on:
   push:
     branches:
       - 'master'
-      - 'alpha'
-      - 'main'
-      - 'next'
+
 jobs:
   release:
     runs-on: ubuntu-24.04
@@ -31,10 +29,14 @@ jobs:
       - run: pnpm run lint
       - run: pnpm run test:ci
 
-      - name: Run semantic-release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: pnpm run release
+      - name: 'Create release PR or publish packages'
+        id: changesets
+        uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51 # v2.1.2
+        with:
+          pr-title: 'chore(release): version packages'
+          commit-message: 'chore(release): version packages'
+          github-token: ${{ github.token }}
+          publish-script: 'pnpm run release:publish'
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
