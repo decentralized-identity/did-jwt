@@ -1,14 +1,20 @@
-import MockDate from 'mockdate'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { createMultisignatureJWT, verifyJWT } from '../JWT.js'
-
 // add declarations for ES256 Tests
-import { createResolver, createSigner } from './ConditionalAlgorithmResolverHelper.js'
 import { PrivateKey } from '@greymass/eosio'
 import { JWT_ERROR } from '../Errors.js'
-import { describe, it, expect } from 'vitest'
+import { createResolver, createSigner } from './ConditionalAlgorithmResolverHelper.js'
 
 const NOW = 1485321133
-MockDate.set(NOW * 1000 + 123)
+
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(NOW * 1000 + 123))
+})
+
+afterAll(() => {
+  vi.useRealTimers()
+})
 
 const account = 'jack'
 const network = 'eos'

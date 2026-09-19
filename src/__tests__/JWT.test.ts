@@ -1,8 +1,7 @@
-import { vi } from 'vitest'
+import { vi, describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { base64ToBytes, bytesToBase64url, decodeBase64url, hexToBytes } from '../util.js'
 import type { Resolvable, VerificationMethod } from 'did-resolver'
 import { TokenVerifier } from 'jsontokens'
-import MockDate from 'mockdate'
 import { getAddress } from '@ethersproject/address'
 import {
   createJWS,
@@ -23,10 +22,16 @@ import jwt from 'jsonwebtoken'
 // @ts-ignore
 import jwkToPem from 'jwk-to-pem'
 
-import { describe, it, expect } from 'vitest'
-
 const NOW = 1485321133
-MockDate.set(NOW * 1000 + 123)
+
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ['Date'] })
+  vi.setSystemTime(new Date(NOW * 1000 + 123))
+})
+
+afterAll(() => {
+  vi.useRealTimers()
+})
 
 const audAddress = '0x20c769ec9c0996ba7737a4826c2aaff00b1b2040'
 const aud = `did:ethr:${audAddress}`
