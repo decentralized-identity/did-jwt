@@ -1,7 +1,7 @@
-import { leftpad, toJose } from '../util.js'
+import { bytesToBase64url } from '../util.js'
 import { Signer } from '../JWT.js'
 import { sha256 } from '../Digest.js'
-import { secp256k1 } from '@noble/curves/secp256k1'
+import { secp256k1 } from '@noble/curves/secp256k1.js'
 
 /**
  *  Creates a configured signer function for signing data using the ES256K (secp256k1 + sha256) algorithm.
@@ -9,7 +9,7 @@ import { secp256k1 } from '@noble/curves/secp256k1'
  *  The signing function itself takes the data as a `Uint8Array` or `string` and returns a `base64Url`-encoded signature
  *
  *  @example
- *  ```typescript
+ *  ```TypeScript
  *  const sign: Signer = ES256KSigner(process.env.PRIVATE_KEY)
  *  const signature: string = await sign(data)
  *  ```
@@ -25,14 +25,16 @@ export function ES256KSigner(privateKey: Uint8Array, recoverable = false): Signe
   }
 
   return async (data: string | Uint8Array): Promise<string> => {
-    const signature = secp256k1.sign(sha256(data), privateKeyBytes)
-    return toJose(
-      {
-        r: leftpad(signature.r.toString(16)),
-        s: leftpad(signature.s.toString(16)),
-        recoveryParam: signature.recovery,
-      },
-      recoverable
-    )
+    const signature = secp256k1.sign(sha256(data), privateKeyBytes, {
+      prehash: false,
+      format: recoverable ? 'recovered' : 'compact',
+    })
+    if (recoverable) {
+      const sigBytes = new Uint8Array(65)
+      sigBytes.set(signature.slice(1, 65), 0)
+      sigBytes[64] = signature[0]
+      return bytesToBase64url(sigBytes)
+    }
+    return bytesToBase64url(signature)
   }
 }

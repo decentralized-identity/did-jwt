@@ -17,7 +17,7 @@
  */
 
 import { execFileSync } from 'node:child_process'
-import { readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { rm, mkdir, writeFile } from 'node:fs/promises'
 import { join, resolve, dirname } from 'node:path'
 
@@ -76,9 +76,13 @@ execFileSync('npm', ['install', join(root, tarball), '--no-audit', '--no-fund'],
 
 // The type-check entry: imports the package by name and exercises a slice of
 // the public API's *types*. A breaking type change makes `tsc --noEmit` fail.
+// Copy the authoritative type-check canary from canary/ into the installed
+// consumer location, so `tsc --noEmit` type-checks the packaged .d.ts the
+// same way a real consumer would. Editing canary/type-check.ts is
+// enough; no need to duplicate its content here.
 await writeFile(
   join(consumerDir, 'type-check.ts'),
-  `import * as didJwt from 'did-jwt'\nimport { verifyJWT, createJWT, ES256KSigner, type Signer, type JWTVerified } from 'did-jwt'\n\n;(async () => {\n  const signer: Signer = ES256KSigner(didJwt.hexToBytes('278a5de700e29faae8e40e366ec5012b5ec63d36ec77e8a2417154cc1d25383f'))\n  const jwt = await createJWT({ requested: ['name'] }, { issuer: 'did:ethr:0xabc', signer }, { alg: 'ES256K' })\n  const verified: JWTVerified = await verifyJWT(jwt, { resolver: undefined as never, policies: { now: 0 } })\n  void signer\n  void jwt\n  void verified\n})()\n`
+  readFileSync(join(HERE, 'type-check.ts'), 'utf-8'),
 )
 
 console.log(`\nInstalled the packaged lib + deps into ${consumerDir}`)

@@ -1,5 +1,6 @@
 import VerifierAlgorithm from '../VerifierAlgorithm.js'
 import { verifyJWT } from '../JWT.js'
+import { describe, it, expect } from 'vitest'
 
 const edKey58 = {
   id: 'did:key:z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM#z6MkoTHsgNNrby8JzCNQ1iRLyW5QQ6R8Xuu6AA8igGrMVPUM',

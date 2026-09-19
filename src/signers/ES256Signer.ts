@@ -1,7 +1,7 @@
-import { leftpad, toJose } from '../util.js'
+import { bytesToBase64url } from '../util.js'
 import { Signer } from '../JWT.js'
 import { sha256 } from '../Digest.js'
-import { p256 } from '@noble/curves/p256'
+import { p256 } from '@noble/curves/nist.js'
 
 /**
  *  Creates a configured signer function for signing data using the ES256 (secp256r1 + sha256) algorithm.
@@ -22,10 +22,7 @@ export function ES256Signer(privateKey: Uint8Array): Signer {
     throw new Error(`bad_key: Invalid private key format. Expecting 32 bytes, but got ${privateKey.length}`)
   }
   return async (data: string | Uint8Array): Promise<string> => {
-    const signature = p256.sign(sha256(data), privateKey)
-    return toJose({
-      r: leftpad(signature.r.toString(16)),
-      s: leftpad(signature.s.toString(16)),
-    })
+    const signature = p256.sign(sha256(data), privateKey, { prehash: false, lowS: false })
+    return bytesToBase64url(signature)
   }
 }

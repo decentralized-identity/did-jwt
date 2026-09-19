@@ -1,5 +1,6 @@
 import { keccak, ripemd160, sha256, toEthereumAddress } from '../Digest.js'
 import { toString, fromString } from 'uint8arrays'
+import { expect, describe, it } from 'vitest'
 
 const u8a = { toString, fromString }
 

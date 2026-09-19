@@ -52,14 +52,14 @@ export function createAnonDecrypter(recipientSecret: Uint8Array | ECDH): Decrypt
   return xc20pAnonDecrypterEcdhESx25519WithXc20PkwV2(recipientSecret)
 }
 
-export function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
+function validateHeader(header?: ProtectedHeader): Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>> {
   if (!(header && header.epk && header.iv && header.tag)) {
     throw new Error('bad_jwe: malformed header')
   }
   return header as Required<Pick<ProtectedHeader, 'epk' | 'iv' | 'tag'>>
 }
 
-export const xc20pKeyWrapper: KeyWrapper = {
+const xc20pKeyWrapper: KeyWrapper = {
   from: (wrappingKey: Uint8Array) => {
     const wrap = async (cek: Uint8Array): Promise<WrappingResult> => {
       return xc20pEncrypter(wrappingKey)(cek)

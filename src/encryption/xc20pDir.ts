@@ -1,7 +1,7 @@
 import type { Decrypter, Encrypter, EncryptionResult, ProtectedHeader } from './types.js'
 import { bytesToBase64url, encodeBase64url, stringToBytes } from '../util.js'
-import { xchacha20poly1305 } from '@noble/ciphers/chacha'
-import { randomBytes } from '@noble/hashes/utils'
+import { xchacha20poly1305 } from '@noble/ciphers/chacha.js'
+import { randomBytes } from '@noble/hashes/utils.js'
 
 export function xc20pEncrypter(key: Uint8Array): (cleartext: Uint8Array, aad?: Uint8Array) => EncryptionResult {
   return (cleartext: Uint8Array, aad?: Uint8Array) => {
@@ -41,7 +41,7 @@ export function xc20pDirDecrypter(key: Uint8Array): Decrypter {
   async function decrypt(sealed: Uint8Array, iv: Uint8Array, aad?: Uint8Array): Promise<Uint8Array | null> {
     try {
       return xchacha20poly1305(key, iv, aad).decrypt(sealed)
-    } catch (error) {
+    } catch {
       return null
     }
   }

@@ -4,9 +4,9 @@ import { createJWE, decryptJWE } from '../encryption/JWE.js'
 import type { Decrypter } from '../encryption/types.js'
 import { createX25519ECDH } from '../encryption/ECDH.js'
 import { bytesToBase58, generateKeyPair } from '../util.js'
-import { randomBytes } from '@noble/hashes/utils'
+import { randomBytes } from '@noble/hashes/utils.js'
 
-import { jest } from '@jest/globals'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('xc20pEncryption', () => {
   describe('resolveX25519Encrypters', () => {
@@ -155,7 +155,7 @@ describe('xc20pEncryption', () => {
       } as DIDResolutionResult
 
       resolver = {
-        resolve: jest.fn(async (did) => {
+        resolve: vi.fn(async (did) => {
           switch (did) {
             case did1:
               return didDocumentResult1
@@ -195,13 +195,13 @@ describe('xc20pEncryption', () => {
 
     it('throws error if key is not found', async () => {
       expect.assertions(3)
-      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrowError(
+      await expect(resolveX25519Encrypters([did3], resolver)).rejects.toThrow(
         'resolver_error: Could not resolve did:test:3'
       )
-      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrowError(
+      await expect(resolveX25519Encrypters([did4], resolver)).rejects.toThrow(
         'no_suitable_keys: Could not find X25519 key for did:test:4'
       )
-      await expect(resolveX25519Encrypters([did7], resolver)).rejects.toThrowError(
+      await expect(resolveX25519Encrypters([did7], resolver)).rejects.toThrow(
         'no_suitable_keys: Could not find X25519 key for did:test:7'
       )
     })

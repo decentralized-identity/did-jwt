@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`signs data 1`] = `
+exports[`SimpleSigner > signs data 1`] = `
 {
   "r": "8ecbdd2f0aabf8edb4ea191e828abaa5ba3b2c98c269f9442870af7e88413fd5",
   "recoveryParam": 1,
@@ -8,7 +8,7 @@ exports[`signs data 1`] = `
 }
 `;
 
-exports[`signs data: privateKey with 0x prefix 1`] = `
+exports[`SimpleSigner > signs data: privateKey with 0x prefix 1`] = `
 {
   "r": "8ecbdd2f0aabf8edb4ea191e828abaa5ba3b2c98c269f9442870af7e88413fd5",
   "recoveryParam": 1,

@@ -1,26 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "es2024",
+    "module": "nodenext",
+    "lib": ["es2024"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "lib",
+    "rootDir": "src",
+    "outDir": "lib.esm",
     "strict": true,
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "types": [
-      "jest"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true,
     "skipLibCheck": true
   },
   "exclude": [
     "**/__tests__/*",
     "node_modules",
-    "lib"
+    "lib.commonjs",
+    "lib.esm"
   ],
   "include": [
     "src"

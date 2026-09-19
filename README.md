@@ -6,7 +6,7 @@
 # did-jwt
 
 The did-JWT library allows you to sign and verify [JSON Web Tokens (JWT)](https://tools.ietf.org/html/rfc7519)
-using `ES256K` and `EdDSA` algorithms. The non-standard `ES256K-R` is also supported for backward compatibility
+using `ES256K`, `ES256`, and `EdDSA` algorithms. The non-standard `ES256K-R` is also supported for backward compatibility
 reasons, as well as the `Ed25519` legacy name for `EdDSA`.
 
 Public keys are resolved using the [Decentralized ID (DID)](https://w3c.github.io/did-core/#identifier) of the signing
@@ -25,10 +25,12 @@ If your DID method requires a different signing algorithm than what is already s
 npm install did-jwt
 ```
 
-or if you use `yarn`
+or if you use `yarn` or `pnpm`:
 
 ```bash
 yarn add did-jwt
+# or
+pnpm add did-jwt
 ```
 
 ## Example
@@ -61,7 +63,7 @@ let decoded = didJWT.decodeJWT(jwt)
 console.log(decoded)
 ```
 
-Once decoded a did-JWT will resemble:
+Once decoded, a did-JWT will resemble:
 
 ```ts
 expect(decoded).toEqual({
