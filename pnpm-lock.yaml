@@ -179,8 +179,8 @@ importers:
         specifier: ^2.4.0
         version: 2.4.0
       canonicalize:
-        specifier: ^2.1.0
-        version: 2.1.0
+        specifier: ^5.0.0
+        version: 5.0.0
       did-resolver:
         specifier: ^5.0.1
         version: 5.0.1
@@ -1086,8 +1086,9 @@ packages:
   cacheable@2.5.0:
     resolution: {integrity: sha512-60cyAOytib/OzBw1JNSoSV/boK1AtHryDIjvVBk7XbN4ugfkM3+Sry7fEjNgPMGgOjuaZPAp8ruZ0Cxafwyq9g==}
 
-  canonicalize@2.1.0:
-    resolution: {integrity: sha512-F705O3xrsUtgt98j7leetNhTWPe+5S72rlL5O4jA1pKqBVQ/dT1O1D6PFxmSXvc0SUOinWS57DKx0I3CHrXJHQ==}
+  canonicalize@5.0.0:
+    resolution: {integrity: sha512-O/NCg79G0/TWoD3Fo6scOMfP4p7/TsxRXVmRo9mEfD6h/5y5o1wtVbKyBO0E2i7FEcqe5tRijyAH/IWHIHMH4w==}
+    engines: {node: '>=22'}
     hasBin: true
 
   chai@6.2.2:
@@ -2549,7 +2550,7 @@ snapshots:
       keyv: 5.6.0
       qified: 0.10.1
 
-  canonicalize@2.1.0: {}
+  canonicalize@5.0.0: {}
 
   chai@6.2.2: {}
 
