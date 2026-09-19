@@ -1042,8 +1042,8 @@ describe('JWT tests', () => {
       const { payload } = await verifyJWT(jwt, { resolver })
       return expect(payload).toBeDefined()
     })
-    
-      it('accepts a valid exp', async () => {
+
+    it('accepts a valid exp', async () => {
       expect.assertions(1)
       const jwt = await createJWT({ exp: NOW }, { issuer: did, signer })
       const { payload } = await verifyJWT(jwt, { resolver })
@@ -1220,7 +1220,7 @@ describe('JWT tests', () => {
       publicKeyHex:
         '04613bb3a4874d27032618f020614c21cbe4c4e4781687525f6674089f9bd3d6c7f6eb13569053d31715a3ba32e0b791b97922af6387f087d6b5548c06944ab061',
     }
-    
+
     const ecKey2 = {
       id: `${did}#keys-2`,
       type: 'Secp256k1SignatureVerificationKey2018',
