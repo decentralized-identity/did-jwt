@@ -1,7 +1,8 @@
 import { sha256 as sha256Hash } from '@noble/hashes/sha2.js'
-export { ripemd160 } from '@noble/hashes/legacy.js'
 import { keccak_256 } from '@noble/hashes/sha3.js'
-import { fromString, toString, concat } from 'uint8arrays'
+import { concat, fromString, toString } from 'uint8arrays'
+
+export { ripemd160 } from '@noble/hashes/legacy.js'
 
 export function sha256(payload: string | Uint8Array): Uint8Array {
   const data = typeof payload === 'string' ? fromString(payload) : payload

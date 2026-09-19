@@ -1,4 +1,4 @@
-import { bigintToBytes, hexToBytes } from '../util'
+import { bigintToBytes, hexToBytes } from '../util.js'
 import { describe, it, expect } from 'vitest'
 
 describe('bigintToBytes', () => {
