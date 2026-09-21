@@ -85,7 +85,7 @@
     "@noble/curves": "^2.4.0",
     "@noble/hashes": "^2.4.0",
     "@scure/base": "^2.4.0",
-    "canonicalize": "^2.1.0",
+    "canonicalize": "^5.0.0",
     "did-resolver": "^5.0.1",
     "uint8arrays": "^6.1.1"
   },
