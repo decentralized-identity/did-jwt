@@ -1,5 +1,11 @@
 ## [8.0.18](https://github.com/decentralized-identity/did-jwt/compare/8.0.17...8.0.18) (2025-08-25)
 
+## 9.0.2
+
+### Patch Changes
+
+- 560fa7b: now using did-resolver@6
+
 ## 9.0.1
 
 ### Patch Changes
