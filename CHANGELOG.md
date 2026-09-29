@@ -4,7 +4,7 @@
 
 ### Patch Changes
 
-- 560fa7b: now using did-resolver@6
+- f0bf457: now using did-resolver@6 (#354)
 
 ## 9.0.1
 
