@@ -1,5 +1,11 @@
 ## [8.0.18](https://github.com/decentralized-identity/did-jwt/compare/8.0.17...8.0.18) (2025-08-25)
 
+## 9.0.3
+
+### Patch Changes
+
+- b61d31b: fix(deps): bump canonicalize to 5.1.0, allowing require('did-jwt') to resolve properly.
+
 ## 9.0.2
 
 ### Patch Changes
